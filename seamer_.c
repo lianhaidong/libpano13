@@ -341,7 +341,7 @@ int _merge (  Image *dst, Image *src,  int feather, int showprogress, int seam )
 							for( i=1; i<=3; i++){
 								result = sfactor * *(PIXEL_TYPE*)(dest+ i*BYTES_PER_CHANNEL)  + 
 										( 1.0 - sfactor ) * *(PIXEL_TYPE*)(source+i*BYTES_PER_CHANNEL);
-								DBL_TO_UC( *(PIXEL_TYPE*)(dest+i*BYTES_PER_CHANNEL) , result );
+								DBL_TO_PIX( *(PIXEL_TYPE*)(dest+i*BYTES_PER_CHANNEL) , result );
 							}
 						}
 					}
