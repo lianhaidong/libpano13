@@ -1,3 +1,7 @@
+# Over-ride default includes so that we have finer control in the makefiles
+DEFAULT_INCLUDES="-I."
+INCLUDES    = -I${top_srcdir}
+
 #SUBDIRS=tools
 
 SUFFIXES    = .rc
@@ -25,16 +29,14 @@ endif
 
 if HAVE_DARWIN
 DAR_SRC =  panoinfo_unix.c
-DAR_DEFS = "-I/System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers -I/sw/include -D__Ansi__=1"
-DAR_LDFLAGS = "-L/sw/lib -ltiff -ljpeg"
+DAR_DEFS = -D__Ansi__=1
 else
 DAR_SRC =
 DAR_DEFS = 
-DAR_LDFLAGS =
 endif
 
 AM_CPPFLAGS = $(JAVA_FLAGS) $(LIN_DEFS) $(DAR_DEFS)
-AM_LDFLAGS  = -L.. $(DAR_LDFLAGS)
+AM_LDFLAGS  = -L${top_builddir}
 
 bin_PROGRAMS = panoinfo PTOptimizer
 
