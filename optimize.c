@@ -181,6 +181,7 @@ void  RunLMOptimizer( OptInfo	*o)
 		
 		if (lmInfo < 0) break;  // to honor user cancel in strategy 1
 	}
+	setFcnPanoNperCP(1); // Force back to startegy 1 for backwards compatability
 
 }
 
@@ -345,6 +346,7 @@ void FreeLMStruct( struct LMStruct *LM )
 {
 	if(LM->x 	!= NULL) 	free( LM->x );
 	if(LM->fvec != NULL) 	free( LM->fvec );
+	if(LM->diag != NULL) 	free( LM->diag );
 	if(LM->qtf 	!= NULL) 	free( LM->qtf );
 	if(LM->wa1 	!= NULL) 	free( LM->wa1 );
 	if(LM->wa2 	!= NULL) 	free( LM->wa2 );
