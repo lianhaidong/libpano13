@@ -1,3 +1,57 @@
+
+2004-11-16 09:03:57  brunopostle  (brunopostle)
+
+	* doc/stitch.txt, Makefile.am, configure.ac, doc/Makefile.am,
+	doc/Optimize.txt: Added updated documentation for PTStitcher
+	and PTOptimizer.
+
+	* NEWS, configure.ac: Updated for 2.7.0.8 release
+
+2004-11-16 06:08:41  jim0watters  (jim0watters)
+
+	* version.h: Official release, Updated to version 2.7.0.8
+
+	* optimize.c: Fix small memory leak, as reported by Pablo d'Angelo
+
+2004-11-10 09:46:25  dwilkins42  (dwilkins42)
+
+	* m4/ax_check_graphics.m4, Makefile.am: Update mac support in
+	the build files
+
+2004-11-10 08:32:33  brunopostle  (brunopostle)
+
+	* configure.ac: Stop configure when it can't find libjpeg, zlib,
+	libtiff, libpng or java (Douglas Wilkins)
+
+	* tools/Makefile.am: Allow out of tree builds.	Remove an
+	unnecessary osx hack.
+
+	* m4/ax_check_java.m4: Add a path to find java on osx 10.1
+	(Douglas Wilkins)
+
+2004-11-09 18:04:40  brunopostle  (brunopostle)
+
+	* m4/ax_check_java.m4: small changes to allow for the sun java
+	packaged by www.jpackage.org (Douglas Wilkins)
+
+	* tools/Makefile.am, panorama.h: Fixes to build on osx, though
+	not ideal.
+
+	* m4/ax_check_java.m4: fixes to detect java libraries
+
+	* tools/Makefile.am: Add AM_LDFLAGS=-L.. so the tools can link
+	to the just-built library
+
+	* configure.ac: allow older versions of autoconf
+
+	* Makefile.am: Add some likely include paths for building on a mac
+
+	* tools/Makefile.am, AUTHORS, ChangeLog, Makefile.am,
+	NEWS, README, bootstrap, configure.ac, m4/Makefile.am,
+	m4/ax_check_graphics.m4, m4/ax_check_java.m4: Added new libtool,
+	automake, autoconf build system.  Needs testing on various
+	platforms.
+
 2004-11-08 19:35:10  brunopostle  (brunopostle)
 
 	* Makefile, README.linux, README.windows, makefile.win32,
