@@ -613,15 +613,57 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
 {
 	int 		i;
 	double		a,b;						// field of view in rad
+/* Joost Nieuwenhuijse, 3 feb 2005: Fix for cropping bug
+   If a script containing the 'C' crop parameter was stitched by PTStitcher,
+   it would fail if the cropping area is partially outside the source image.
 
+   For 'inside' cropping, PTStitcher apparently pre-crops the images, such that
+   *im contains the cropped area of the source image.
+   For 'outside' cropping, PTStitcher apparently does nothing. The cropping area
+   is stored in im->selection, and im->cp.cutFrame is set, but this information
+   was not used at all.
 
-	a	=	 DEG_TO_RAD( im->hfov );	// field of view in rad		
+   This is fixed here: All processing is now done based on the width&height of the
+   cropped area (instead of the width&height of the image). And an additional horizontal
+   and vertical offset are added to compensate for the shift of the center of the
+   crop area relative to the center of the image.
+*/
+        int image_selection_width=im->width;
+        int image_selection_height=im->height;
+        if(im->cP.horizontal)
+        {
+          mp->horizontal=im->cP.horizontal_params[color];
+        }
+        else
+        {
+          mp->horizontal=0;
+        }
+        if(im->cP.vertical)
+        {
+          mp->vertical=im->cP.vertical_params[color];
+        }
+        else
+        {
+          mp->vertical=0;
+        }
+        if( (im->selection.left != 0) || (im->selection.top != 0) || (im->selection.bottom != 0) || (im->selection.right != 0) )
+        {
+          if(im->cP.cutFrame)
+          {
+            image_selection_width=im->selection.right-im->selection.left;
+            image_selection_height=im->selection.bottom-im->selection.top;
+            mp->horizontal += (im->selection.right+im->selection.left-im->width)/2.0;
+            mp->vertical += (im->selection.bottom+im->selection.top-im->height)/2.0;
+          }
+        }
+
+	a	=	 DEG_TO_RAD( im->hfov );	// field of view in rad
 	b	=	 DEG_TO_RAD( pn->hfov );
 
-	SetMatrix(  	- DEG_TO_RAD( im->pitch ), 
-					0.0, 
-					- DEG_TO_RAD( im->roll ), 
-					mp->mt, 
+	SetMatrix(  	- DEG_TO_RAD( im->pitch ),
+					0.0,
+					- DEG_TO_RAD( im->roll ),
+					mp->mt,
 					0 );
 
 
@@ -631,13 +673,13 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
 		if(im->format == _rectilinear)										// rectilinear image
 		{
 			mp->scale[0] = ((double)pn->hfov / im->hfov) * 
-						   (a /(2.0 * tan(a/2.0))) * ((double)im->width/(double) pn->width)
+						   (a /(2.0 * tan(a/2.0))) * ((double)image_selection_width/(double) pn->width)
 						   * 2.0 * tan(b/2.0) / b; 
 
 		}
 		else 																//  pamoramic or fisheye image
 		{
-			mp->scale[0] = ((double)pn->hfov / im->hfov) * ((double)im->width/ (double) pn->width)
+			mp->scale[0] = ((double)pn->hfov / im->hfov) * ((double)image_selection_width/ (double) pn->width)
 						   * 2.0 * tan(b/2.0) / b; 
 		}
 	}
@@ -646,19 +688,19 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
 		mp->distance 	= ((double) pn->width) / b;
 		if(im->format == _rectilinear)										// rectilinear image
 		{
-			mp->scale[0] = ((double)pn->hfov / im->hfov) * (a /(2.0 * tan(a/2.0))) * ((double)im->width)/ ((double) pn->width); 
+			mp->scale[0] = ((double)pn->hfov / im->hfov) * (a /(2.0 * tan(a/2.0))) * ((double)image_selection_width)/ ((double) pn->width); 
 
 		}
 		else 																//  pamoramic or fisheye image
 		{
-			mp->scale[0] = ((double)pn->hfov / im->hfov) * ((double)im->width)/ ((double) pn->width); 
+			mp->scale[0] = ((double)pn->hfov / im->hfov) * ((double)image_selection_width)/ ((double) pn->width); 
 		}
 	}
 	mp->scale[1] 	= mp->scale[0];
 
 
-	mp->shear[0] 	= im->cP.shear_x / im->height;
-	mp->shear[1] 	= im->cP.shear_y / im->width;
+	mp->shear[0] 	= im->cP.shear_x / image_selection_height;
+	mp->shear[1] 	= im->cP.shear_y / image_selection_width;
 	mp->rot[0]		= mp->distance * PI;								// 180¡ in screenpoints
 	mp->rot[1]		= -im->yaw *  mp->distance * PI / 180.0; 			//    rotation angle in screenpoints
 	mp->perspect[0] = (void*)(mp->mt);
@@ -669,14 +711,15 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
 	mp->rad[5] = im->cP.radial_params[color][4];
 
 	if( (im->cP.correction_mode & 3) == correction_mode_radial )
-		mp->rad[4] 	= ( (double)( im->width < im->height ? im->width : im->height) ) / 2.0;
+		mp->rad[4] 	= ( (double)( image_selection_width < image_selection_height ? image_selection_width : image_selection_height) ) / 2.0;
 	else
-		mp->rad[4] 	= ((double) im->height) / 2.0;
-		
+		mp->rad[4] 	= ((double) image_selection_height) / 2.0;
 
-	mp->horizontal 	= im->cP.horizontal_params[color];
-	mp->vertical 	= im->cP.vertical_params[color];
-	
+
+// Joost: removed, see above
+//	mp->horizontal 	= im->cP.horizontal_params[color];
+//	mp->vertical 	= im->cP.vertical_params[color];
+
 	i = 0;
 
 	if(pn->format == _rectilinear)									// rectilinear panorama
@@ -710,7 +753,7 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
 	}
 
 	SetDesc(	stack[i],	resize,				mp->scale		); i++; // Scale image
-	
+
 	if( im->cP.radial )
 	{
 		switch( im->cP.correction_mode & 3 )
@@ -720,11 +763,13 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
 			case correction_mode_deregister:SetDesc(stack[i],deregister,mp->rad); i++; break;
 		}
 	}
-	if (  im->cP.vertical)
+//	if (  im->cP.vertical)
+	if (mp->vertical != 0.0)
 	{
 		SetDesc(stack[i],vert,				&(mp->vertical)); 	i++;
 	}
-	if ( im->cP.horizontal )
+//	if ( im->cP.horizontal )
+	if (mp->horizontal != 0.0)
 		{
 		SetDesc(stack[i],horiz,				&(mp->horizontal)); i++;
 		}
@@ -746,7 +791,7 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
 	}
 	else if	(aP->format 	== _panorama)									//  pamoramic image
 	{
-		printf( "Panorama\n" );  	
+		printf( "Panorama\n" );
 	}
 	else
 		printf( "Fisheye\n" );  	
@@ -2264,8 +2309,9 @@ int CheckParams( AlignInfo *g )
 	
 	for( i=0; i<g->numPts; i++)
 	{
-		if( g->cpt[i].x[0] < 0 || g->cpt[i].y[0] < 0 || g->cpt[i].x[1] < 0 || g->cpt[i].y[1] < 0 )
-			err = 12;
+// Joost: cp coordinates can be possible, no problem!  
+//		if( g->cpt[i].x[0] < 0 || g->cpt[i].y[0] < 0 || g->cpt[i].x[1] < 0 || g->cpt[i].y[1] < 0 )
+//			err = 12;
 		if( g->cpt[i].num[0] < 0 || g->cpt[i].num[0] >= g->numIm ||
 			g->cpt[i].num[1] < 0 || g->cpt[i].num[1] >= g->numIm )			err = 13;
 	}

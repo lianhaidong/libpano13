@@ -1190,11 +1190,12 @@ static int ReadControlPoint( controlPoint * cptr, char *line)
 			PrintError("Control Point Type must be positive");
 			return -1;
 	}
-	else if( cp.x[0] < 0 || cp.y[0] < 0 || cp.x[1] < 0 || cp.y[1] < 0)
-	{
-			PrintError("Pixel Coordinates must be positive");
-			return -1;
-	}
+// Joost: cp coordinates can be possible, no problem!  
+//	else if( cp.x[0] < 0 || cp.y[0] < 0 || cp.x[1] < 0 || cp.y[1] < 0)
+//	{
+//			PrintError("Pixel Coordinates must be positive");
+//			return -1;
+//	}
 	else // looks ok so far
 	{
 		memcpy( cptr, &cp, sizeof(controlPoint) );

@@ -22,7 +22,9 @@ typedef struct {char* name; char* value;}  TStringFeature;
 /***************** Feature tables: *************************/
 TIntFeature intFeatures[] ={
   {"CPErrorIsDistSphere",1},       // optimizer reports angular control point errors
-  {"NumLensTypes",5}               // source lens types 0..4
+  {"NumLensTypes",5},              // source lens types 0..4
+  {"CanCropOutside",1},
+  {"CanHaveNegativeCP",1} 
 };
 
 TDoubleFeature doubleFeatures[] ={
@@ -49,6 +51,7 @@ TStringFeature stringFeatures[]={
   {"LensMask3","R"},
   {"LensMask4","R"},
   // Patches that have been applied
+  {"Patch200502a", "Joost Nieuwenhuijse, Crop outside of image, http://www.ptgui.com"},
   {"Patch200410a", "Jim Watters, JPEG optimization, http://photocreations.ca/panotools"},
   {"FastTransform01", "Fulvio Senore, Fast transform, http://www.fsoft.it/panorama/pano12.htm"},
   {"Patch200407a", "Rik Littlefield, Kevin Kratzke, & Jim Watters, Fix multiple bugs - PSD, 16bit"},
