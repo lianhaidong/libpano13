@@ -123,14 +123,13 @@ typedef struct PTTriangle PTTriangle;
 
 // Maximum number of controlpoints in a pair of images, which can be read
 // via Barcodes
-
 #define NUMPTS 21
 
 // Randomization of feather in stitching tools
-
 #define	BLEND_RANDOMIZE		0.1
 
-
+// Randomization of luminance adjustment in correct filter
+#define LUMINANCE_RANDOMIZE 	0.01
 
 
 //----------------------- Structures -------------------------------------------

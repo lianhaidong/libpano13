@@ -40,6 +40,8 @@ void 	correct	(TrformStr *TrPtr, cPrefs *prefs)
 
 	int		destwidth, destheight;
 	int 	xoff, yoff;
+	int		sizesqr;
+	
 	double  xdoff, ydoff;
 	Image	im, *dest, *src;
 	fDesc	fD;
@@ -91,10 +93,20 @@ void 	correct	(TrformStr *TrPtr, cPrefs *prefs)
 			TrPtr->dest 	= &im;
 		}
 			
+		// JMW 2003/08/25 Use the smaller of the width or height to 
+		// calculate luminance so that the same change is made to portrait and 
+		// landscape images.  
+		// MRDL 2003/08/25 Makes behavior consistent with lens distortion correction
+		// algorithm
+        if( TrPtr->src->width < TrPtr->src->height )
+            sizesqr = (TrPtr->src->width/2.0) * (TrPtr->src->width/2.0);
+        else
+            sizesqr = (TrPtr->src->height/2.0) * (TrPtr->src->height/2.0);
+
 		if( prefs->lum_params[0] ==  prefs->lum_params[1] &&
 			prefs->lum_params[1] ==  prefs->lum_params[2] )  // Color independent
 		{
-			lum_params[0] =  - prefs->lum_params[0] / ( (TrPtr->src->width/2.0) * (TrPtr->src->width/2.0) );
+			lum_params[0] =  - prefs->lum_params[0] / sizesqr;
 			lum_params[1] =    prefs->lum_params[0] / 2.0 ;
 			if( TrPtr->success != 0 )
 			{
@@ -105,7 +117,7 @@ void 	correct	(TrformStr *TrPtr, cPrefs *prefs)
 		{
 			for(k=1; k<4; k++)
 			{	
-				lum_params[0] =  - prefs->lum_params[k-1] / ( (TrPtr->src->width/2.0) * (TrPtr->src->width/2.0) );
+				lum_params[0] =  - prefs->lum_params[k-1] / sizesqr;
 				lum_params[1] =   prefs->lum_params[k-1] / 2.0 ;
 				if( TrPtr->success != 0 )
 				{

@@ -902,6 +902,9 @@ unsigned char radlum( unsigned char srcPixel, int xc, int yc, void *params )
 	result = (xc * xc + yc * yc) * ((double*)params)[0] + ((double*)params)[1];
 	result = ((double)srcPixel) - result;
 
+    // JMW 2003/08/25  randomize a little
+    result = result * ( (1 + LUMINANCE_RANDOMIZE/2) - LUMINANCE_RANDOMIZE * rand() / (double)RAND_MAX );
+    
 	if(result < 0.0) return 0;
 	if(result > 255.0) return 255;
 
