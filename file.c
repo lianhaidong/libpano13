@@ -25,16 +25,23 @@
 // 3 problems with PTSTitcher
 //  - The Seam options for middle(s0 'blend')and edge(s1 'paste') are ignored by PTStitcher
 //  - Both the PSD options of "With_Mask" and "Without_Mask" both create mask except:
-//       - the "Without_Mask" puts the seam in the center and uses the feathering to blend
-//       - the "With_Mask" puts the seam at the edge and ignores the feathering to blend
+//       - the "With_Mask" puts the seam in the center and uses the feathering to blend
+//       - the "Without_Mask" puts the seam at the edge and ignores the feathering, does no blending
 //  - 16bit input images are reduced to 8bit and not able to create 16bit psd files.
-// As a hack to check to see if a shape mask can be created from the alpha channel do a check for feathering in the Alpha channel
+// For backward compatability reasons continue to create mask for "WithOut_Mask"
 // When creating multi image PSD files try to create shape mask (Alpha) and clip mask properly
 // Updated writePSDwithLayer and addLayer to create both proper shape mask and clip mask
-// For backward compatability reasons continue to create mask for "WithOut_Mask"
+// As a hack to check to see if a shape mask can be created from the alpha channel do a check for feathering in the Alpha channel
+// If Alpha channel has feathering create a new shape mask
+// Add two new functions hasFeather and writeTransparentAlpha
 // Enabled 16bit multilayer PSD files; except they still are 8bit; They are already converted in PTStitcher
 
+// Updated by Jim Watters 2003 Nov 24
+// fixed bug with odd data size for psd files
+// There is only one pad char at the end of all layer and channel data, if everything is a odd length
 
+// Update by Jim Watters 2003 Dec 29
+// Also fix ReadPSD to handle multilayers
 
 #include "filter.h"
 
@@ -483,8 +490,8 @@ int readPSD(Image *im, fullPath *sfile, int mode)
 	long	count, len, i;
 	unsigned long var;
 	char	data[12], *d;
-	
-	
+
+
 	if( myopen( sfile, read_bin, src ) )
 	{	
 		PrintError("Error Opening Image File");
@@ -726,9 +733,9 @@ static int writeLayerAndMask( Image *im, file_spec fnum )
 	{
 		hasClipMask = 1;
 		psdchannels++;
-		if ( !hasFeather( im ) )// If there is feathering do Not use Alpha channle for Shape Mask
+		if ( !hasFeather( im ) )// If there is feathering do Not use Alpha channel for Shape Mask
 		{						// Only use alpha if there is no feathering
-			hasShapeMask = 1;	// The Alpha channle can be used as a Shape Mask
+			hasShapeMask = 1;	// The Alpha channel can be used as a Shape Mask
 		}
 	}
 
@@ -743,15 +750,15 @@ static int writeLayerAndMask( Image *im, file_spec fnum )
 	if(hasClipMask)
 		lenLayerInfo += 20;
 	
-	WRITELONG( lenLayerInfo + 4 + 4 );
-	// Layer info. See table 2Ð13.
-
+	// Length of the layers info section, rounded up to a multiple of 2.
 	if( lenLayerInfo/2 != (lenLayerInfo+1)/2 ) // odd
 	{
 		lenLayerInfo += 1; oddSized = 1;
 	}
-	
-	// Length of the layers info section, rounded up to a multiple of 2.
+
+	WRITELONG( lenLayerInfo + 4 + 4 );
+	// Layer info. See table 2Ð13.
+
 	WRITELONG( lenLayerInfo );
 	
 	// 2 bytes Count Number of layers. If <0, then number of layers is absolute value,
@@ -938,7 +945,7 @@ static int writeChannelData( Image *im, file_spec fnum, int channel, PTRect *the
 
 static int writeTransparentAlpha( Image *im, file_spec fnum, PTRect *theRect )
 {
-	register int 			x, y, idy, bpp, BitsPerChannel, channels;
+	register int 			y, bpp, BitsPerChannel;
 	long					line, count;
 	unsigned char 			**ch;
 	register unsigned char 	*c;
@@ -1265,7 +1272,7 @@ static int addLayer( Image *im, file_spec src, file_spec fnum, stBuf *sB )
 {
 	unsigned long 	var;
 	PTRect			theRect, *nRect = NULL;
-	int 			channelLength,  bpp, oddSized = 0;
+	int 			channelLength,  bpp, oddSized = 0, oddSizedOld = 0;
 	int				result = 0;
 	long 			count;
 	short 			svar;
@@ -1273,10 +1280,9 @@ static int addLayer( Image *im, file_spec src, file_spec fnum, stBuf *sB )
 	unsigned char 	ch;
 	int 			i, k, lenLayerInfo, numLayers,channels,psdchannels,BitsPerChannel;
 	int				*chlength = NULL, *nchannel = NULL, 
-					*cnames = NULL, *nodd = NULL,
-					*nextra = NULL, *nmask = NULL, 
-					*chid = NULL, *maskdata = NULL,
-					*nflag = NULL;
+					*cnames = NULL, *nextra = NULL, 
+					*nmask = NULL, *chid = NULL, 
+					*maskdata = NULL, *nflag = NULL;
 	unsigned char	**alpha = NULL, **buf = NULL;
 	int				hasClipMask = 0;	// Create a mask
 	int				hasShapeMask = 0;	// Create alpha channel
@@ -1290,9 +1296,9 @@ static int addLayer( Image *im, file_spec src, file_spec fnum, stBuf *sB )
 	{
 		hasClipMask = 1;
 		psdchannels++;
-		if ( !hasFeather( im ) )// If there is feathering do Not use Alpha channle for Shape Mask
+		if ( !hasFeather( im ) )// If there is feathering do Not use Alpha channel for Shape Mask
 		{						// Only use alpha if there is no feathering
-			hasShapeMask = 1;	// The Alpha channle can be used as a Shape Mask
+			hasShapeMask = 1;	// The Alpha channel can be used as a Shape Mask
 		}
 		if( sB->seam == _middle )	// we have to stitch
 		{
@@ -1317,7 +1323,6 @@ static int addLayer( Image *im, file_spec src, file_spec fnum, stBuf *sB )
 	chlength = (int*) malloc( numLayers * sizeof( int ));
 	nchannel = (int*) malloc( numLayers * sizeof( int ));
 	cnames 	 = (int*) malloc( numLayers * sizeof( int ));
-	nodd 	 = (int*) malloc( numLayers * sizeof( int ));
 	nRect	 = (PTRect*) malloc( numLayers * sizeof( PTRect ));
 	nextra	 = (int*) malloc( numLayers * sizeof( int ));
 	nmask 	 = (int*) malloc( numLayers * sizeof( int ));
@@ -1325,9 +1330,8 @@ static int addLayer( Image *im, file_spec src, file_spec fnum, stBuf *sB )
 	chid	 = (int*) malloc( numLayers * 5 * sizeof( int ));// five posible channels
 	nflag	 = (int*) malloc( numLayers * 5 * sizeof( int ));
 	if( chlength == NULL || nchannel== NULL || nRect == NULL ||
-		cnames == NULL || nodd == NULL || nextra == NULL || 
-		nmask == NULL || maskdata == NULL || chid == NULL ||
-		nflag == NULL )
+		cnames == NULL || nextra == NULL || nmask == NULL || 
+		maskdata == NULL || chid == NULL || nflag == NULL )
 	{
 		PrintError("Not enough memory 1");
 		result = -1;
@@ -1381,16 +1385,12 @@ static int addLayer( Image *im, file_spec src, file_spec fnum, stBuf *sB )
 		READLONG( cnames[i] );				// Layer name
 		
 		var = 4*4 + 2 + nchannel[i] * 6 + 4 + 4 + 4 * 1 + 4 + 4 + nmask[i] + 8 + nchannel[i] * chlength[i]; // length
-		if( var/2 != (var+1)/2 ) // odd
-		{
-			nodd[i] = 1; var++;
-			//READUCHAR( ch );
-		}
-		else
-		{
-			nodd[i] = 0;
-		}
 		lenLayerInfo += var;
+	}
+
+	if( 1 == lenLayerInfo%2 ) //odd
+	{
+		oddSizedOld = 1;
 	}
 	
 	// length of new channel
@@ -1399,24 +1399,18 @@ static int addLayer( Image *im, file_spec src, file_spec fnum, stBuf *sB )
 	if(hasClipMask)
 		var += 20;
 
-	if( var/2 != (var+1)/2 ) // odd
-	{
-		oddSized = 1; var++;
-		    // PrintError("odd");
-	}
 	lenLayerInfo += var;
-		
-	//printf("Writing Length of Layerinfo: %d\n", lenLayerInfo);
-	if( lenLayerInfo/2 != (lenLayerInfo+1)/2 ) // odd, should never happen
+
+	// Length of the layers info section, rounded up to a multiple of 2.
+	if( 1 == lenLayerInfo%2 ) // odd
 	{
-		//PrintError("odd");
-		lenLayerInfo += 1;
+		oddSized = 1; lenLayerInfo++;
 	}
 	
-	WRITELONG( lenLayerInfo + 4 + 4 );
 	// Length of the layers info section, rounded up to a multiple of 2.
-	WRITELONG( lenLayerInfo ); ;
-	//printf("Corrected to: %d\n", lenLayerInfo);
+	WRITELONG( lenLayerInfo + 4 + 4 );
+	
+	WRITELONG( lenLayerInfo );
 	
 	// 2 bytes Count Number of layers. If <0, then number of layers is absolute value,
 	// and the first alpha channel contains the transparency data for
@@ -1561,11 +1555,11 @@ static int addLayer( Image *im, file_spec src, file_spec fnum, stBuf *sB )
 			}
 		}
 		myfree( (void**)buf );
-		if( nodd[i] )	// pad byte
-		{
-			READUCHAR( ch );
-			WRITEUCHAR( 0 );
-		}
+	}
+
+	if( 1 == oddSizedOld%2 )	// If an odd number of odd layers then there is a single pad byte
+	{
+		READUCHAR( ch );
 	}
 	
 	// Write color channels
@@ -1648,7 +1642,6 @@ _addLayer_exit:
 	if( nchannel	!= NULL )	free(nchannel);
 	if( nRect		!= NULL )	free(nRect);
 	if( cnames		!= NULL )	free(cnames);
-	if( nodd		!= NULL )	free(nodd);
 	if( nextra		!= NULL )	free(nextra);
 	if( nmask		!= NULL )	free(nmask);
 	if( maskdata	!= NULL )	free(maskdata);
@@ -1917,7 +1910,7 @@ int readPSDMultiLayerImage( MultiLayerImage *mim, fullPath* sfile){
 	unsigned long 		var;
 	char			data[12], *d;
 	short 			svar;
-	int 			i, k, result = 0,nchannel, *nodd = NULL;
+	int 			i, k, result = 0,nchannel, odd = 0;
 	unsigned char		**buf = NULL, ch;
 	Image			im;
 	int			BitsPerSample = 8;
@@ -1971,9 +1964,8 @@ int readPSDMultiLayerImage( MultiLayerImage *mim, fullPath* sfile){
 	READSHORT( mim->numLayers );		// Number of layers
 	
 	mim->Layer 	= (Image*) 	malloc( mim->numLayers * sizeof( Image ) );
-	nodd 	 	= (int*) malloc( mim->numLayers * sizeof( int ));
 	
-	if( mim->Layer == NULL || nodd == NULL) 
+	if( mim->Layer == NULL )
 	{
 		PrintError("Not enough memory");
 		result = -1;
@@ -2013,7 +2005,12 @@ int readPSDMultiLayerImage( MultiLayerImage *mim, fullPath* sfile){
 		READLONG(var); 	   // Length of following channel data.
 		READSHORT( svar ); // blue
 		READLONG(var); 	   // Length of following channel data.
-		if( mim->Layer[i].bitsPerPixel == 32 || mim->Layer[i].bitsPerPixel == 64) // alpha channel
+		if( 3 < nchannel ) // alpha channel
+		{
+			READSHORT( svar ); 		// transparency mask
+			READLONG( var); 		// Length of following channel data.
+		}
+		if( 4 < nchannel ) // alpha channel
 		{
 			READSHORT( svar ); 		// transparency mask
 			READLONG( var); 		// Length of following channel data.
@@ -2027,6 +2024,13 @@ int readPSDMultiLayerImage( MultiLayerImage *mim, fullPath* sfile){
 
 		READLONG( var ); 					// Extra data size Length of the extra data field. This is the total length of the next five fields.
 		READLONG( var ); 					// Layer Mask data
+		if(var)								// either 0 or 20
+		{
+			for(k=0; k<var; k++)
+			{
+				READUCHAR ( ch );			// Layer Mask Data
+			}
+		}
 		READLONG( var ); 					// Layer blending ranges
 
 		READLONG( var );				// Layer name
@@ -2034,12 +2038,7 @@ int readPSDMultiLayerImage( MultiLayerImage *mim, fullPath* sfile){
 		var = 4*4 + 2 + nchannel * 6 + 4 + 4 + 4 * 1 + 4 + 12 + nchannel * chlength; // length
 		if( var/2 != (var+1)/2 ) // odd
 		{
-			nodd[i] = 1; 
-			//READUCHAR( ch );
-		}
-		else
-		{
-			nodd[i] = 0;
+			odd++; 
 		}
 	}
 	
@@ -2092,16 +2091,15 @@ int readPSDMultiLayerImage( MultiLayerImage *mim, fullPath* sfile){
 			}
 		}
 		myfree( (void**)buf );
-		if( nodd[i] )	// pad byte
-		{
-			READUCHAR( ch );
-		}
+	}
+
+	if( 1 == odd%2 )	// pad byte
+	{
+		READUCHAR( ch );
 	}
 	
 
 readPSDMultiLayerImage_exit:
-
-	if( nodd != NULL )				free( nodd );
 
 	myclose( src );
 	return result;
