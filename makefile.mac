@@ -1,0 +1,100 @@
+#   Panorama_Tools	-	Generate, Edit and Convert Panoramic Images
+#   Copyright (C) 1998,1999 - Helmut Dersch  der@fh-furtwangen.de
+#   
+#   This program is free software; you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation; either version 2, or (at your option)
+#   any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with this program; if not, write to the Free Software
+#   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.  */
+#
+# 
+
+#############################################################################
+
+#   All functional code and resources are located in pano12.lib
+#   The code in the filters only translates the 68k-code-resource call
+#   from GraphicConverter into a call to the ppc-entry function 
+#   "filter_main" with an appropriate selector value.
+
+#############################################################################
+
+#        --------------   Definitions  -------------------------
+
+Lib_Exports		=		pano12.x
+
+PPCInc			=		panorama.h filter.h fftn.h f2c.h PixMap.h pteditor.h  ¶
+						ptutils.h sys_mac.h version.h
+
+PPCSrc			= 		filter.c parser.c sys_mac.c  correct.c perspect.c ¶
+                        adjust.c  remap.c lmdif.c  file.c ¶
+						math.c pan.c PTDialogs.c fftn.c fourier.c resample.c ¶
+						shell_mac.c optimize.c morpher.c Triangulate.c png.c	¶
+						seamer.c ptpicker.c pteditor.c seamer_.c	¶
+						tiff.c pict.c jpeg.c PixMap.c
+
+OtherSrc		=		filter.r Gimpmain.c bmp.c pano12.x pano12.def ppm.c resource.h ¶
+						sys_X11.c sys_X11.h sys_win.c sys_win.h sys_ansi.h sys_ansi.c ¶
+						
+
+
+PPCObjs 		= 		filter.x.o parser.x.o sys_mac.x.o  correct.x.o perspect.x.o ¶
+                        adjust.x.o  remap.x.o lmdif.x.o  file.x.o ¶
+						math.x.o pan.x.o PTDialogs.x.o fftn.x.o fourier.x.o resample.x.o ¶
+						shell_mac.x.o optimize.x.o morpher.x.o Triangulate.x.o png.x.o	¶
+						seamer.x.o ptpicker.x.o pteditor.x.o tiff.x.o pict.x.o jpeg.x.o PixMap.x.o
+						
+FORMAT_LIBS 	= 		::jpeg-6:libjpeg.a				¶
+						::tiff-v3.4:libtiff:libtiff.o	¶
+						::libpng-0.89c:libpng.a			¶
+						"{SharedLibraries}"QuickTimeLib 
+
+
+						
+PPC_Libraries 	=	 	"{SharedLibraries}"InterfaceLib	¶
+						"{SharedLibraries}"StdCLib		¶
+						"{PPCLibraries}"StdCRuntime.o	¶
+						"{PPCLibraries}"PPCCRuntime.o	¶
+						"{SharedLibraries}"MathLib		¶
+						"{SharedLibraries}"ColorSyncLib ¶
+						"{PPCLibraries}"MrCPlusLib.o	¶
+						"{SharedLibraries}"JNILib		¶
+						{FORMAT_LIBS}					
+
+				 
+##############################################################################
+
+#         --------------   Build Rules  -------------------------
+
+.x.o Ä .c
+	MrC -d Macintosh -align mac68k -i ::jpeg-6 -i ::tiff-v3.4:libtiff -i ::libpng-0.89c -i :: -i ::libpng-0.89c:zlib-1.0.4 {default}.c -o {default}.x.o 
+
+#	MrC -d Macintosh  {default}.c -o {default}.x.o 
+
+
+# This shared library contains all functional code and resources
+
+pano12.lib ÄÄ {PPCObjs}  filter.r Makefile {Lib_Exports} {PPC_Libraries}
+	PPCLink -xm s -init __my_initialize -term __my_terminate ¶
+	-export  `ConvertExportList {Lib_Exports}`	¶
+	{PPCObjs}	{PPC_Libraries}  -o {targ}					# Create library 
+	MergeFragment -n pano12.lib -c -t pwpc -x {targ}  	    # use MergeFragment to create a library cfrg
+	Rez  -d SystemSevenOrLater=1 -a filter.r -o {Targ}      # Stuff all resources into library
+	setfile -c '????' -t 'shlb' {Targ}
+
+
+Backup  Ä
+	Duplicate -y Makefile {PPCInc}  {PPCSrc} {OtherSrc} :Backup:
+
+
+clean	Ä
+	Delete {PPCObjs} pano12.lib
+
+
