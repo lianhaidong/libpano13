@@ -49,7 +49,7 @@ $(LIBPNG):
 endif
 
 ifeq "$(JAVASDK)" ""
-$(warning "No java sdk found - assuming it is already in your include and library paths"
+$(warning "No java sdk found - assuming it is already in your include and library paths")
 endif
 
 sources = panorama.h filter.h fftn.h f2c.h pteditor.h \
