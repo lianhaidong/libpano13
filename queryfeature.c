@@ -49,7 +49,7 @@ TStringFeature stringFeatures[]={
   {"LensMask3","R"},
   {"LensMask4","R"},
   // Patches that have been applied
-  {"Faster_001", "Fulvio Senore, Faster transformation, http://www.fsoft.it/panorama/pano12.htm"},
+  {"FastTransform01", "Fulvio Senore, Fast transform, http://www.fsoft.it/panorama/pano12.htm"},
   {"Patch200407a", "Rik Littlefield, Kevin Kratzke, & Jim Watters, Fix multiple bugs - PSD, 16bit"},
   {"MaskFromFocus_001", "Rik Littlefield, added mask-from-focus, http://www.janrik.ptools"},
   {"Patch200405a", "Rik Littlefield, Improved optimizer, http://www.janrik.ptools"},
@@ -97,6 +97,14 @@ int queryFeatureString(const char *name,char *result, const int bufsize)
   int count = sizeof( stringFeatures ) / sizeof( stringFeatures[0] );
   double doublevalue;
   int length=0;
+  
+  // Fulvio Senore, August 2004
+  // allocates a dummy buffer for the calls to snprintf
+  // the original code passed NULL to snprintf() but it caused problems (asserts) when compiling 
+  // with the microsoft compiler that links with the debug libraries to avoid crashes
+  #define TMP_LEN 200
+  char *cpTmp = malloc( TMP_LEN + 1 );
+  cpTmp[TMP_LEN] = '\0';
 
   for(i=0; i < count; i++)
   {
@@ -118,7 +126,8 @@ int queryFeatureString(const char *name,char *result, const int bufsize)
     {
       if(queryFeatureInt(name, &intvalue))
       {
-        length=snprintf(NULL,0,"%d",intvalue);
+        // length=snprintf(NULL,0,"%d",intvalue);
+        length=snprintf(cpTmp,TMP_LEN,"%d",intvalue);
         if(result != NULL)
         {
           snprintf(result,bufsize,"%d",intvalue);
@@ -134,7 +143,8 @@ int queryFeatureString(const char *name,char *result, const int bufsize)
     {
       if(queryFeatureDouble(name, &doublevalue))
       {
-        length=snprintf(NULL,0,"%0.f",doublevalue);
+//        length=snprintf(NULL,0,"%0.f",doublevalue);
+        length=snprintf(cpTmp,TMP_LEN,"%0.f",doublevalue);
         if(result != NULL)
         {
           snprintf(result,bufsize,"%0.f",doublevalue);
@@ -149,6 +159,7 @@ int queryFeatureString(const char *name,char *result, const int bufsize)
   {
     result[bufsize-1]=0;
   }
+  free( cpTmp );
   return length;
 }
 
