@@ -1,7 +1,7 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_PREREQ(2.59)
+AC_PREREQ(2.5)
 AC_INIT([pano12], [2.7.0.7], BUG-REPORT-ADDRESS)
 AC_CONFIG_SRCDIR([PTDialogs.c])
 AC_CONFIG_AUX_DIR(config)
