@@ -158,8 +158,11 @@ void tmorph( double x_dest,double  y_dest, double* x_src, double* y_src, void* p
 	PTTriangle *s, *td = ((PTTriangle**)params)[0] ,*ts= ((PTTriangle**)params)[1];
 	int nt = *((int**)params)[2];
 	
+	//reset the CurTriangle if it exceeds the number of triangles passed in here
+	if (CurTriangle >= nt)
+		CurTriangle = 0;
 	
-
+	//iterate through all triangles and find the one that contains the destination point	
 	if(  PointInTriangle( x_dest, y_dest, &td[CurTriangle], c ) != 0 )
 	{
 		for(CurTriangle = 0; 
