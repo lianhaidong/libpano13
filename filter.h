@@ -129,7 +129,7 @@ typedef struct PTTriangle PTTriangle;
 #define	BLEND_RANDOMIZE		0.1
 
 // Randomization of luminance adjustment in correct filter
-#define LUMINANCE_RANDOMIZE 	0.01
+#define LUMINANCE_RANDOMIZE 	0.007
 
 
 //----------------------- Structures -------------------------------------------
