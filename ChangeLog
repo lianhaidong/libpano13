@@ -1,0 +1,490 @@
+2004-11-08 19:35:10  brunopostle  (brunopostle)
+
+	* Makefile, README.linux, README.windows, makefile.win32,
+	tools/makefile panoinfo, tools/makefile ptoptimizer,
+	tools/makefile.panoinfo.win32, tools/makefile.ptoptimizer.win32:
+	Renamed Makefile as it would be clobbered by upcoming automake
+	build system.  Renamed files with spaces as they confuse make.
+	Modified README files as appropriate.
+
+2004-10-15 16:28:22  jim0watters  (jim0watters)
+
+	* jpeg.c, queryfeature.c, version.h: Turned on JPEG optimization -
+	disable in script file
+
+2004-10-07 15:06:34  jim0watters  (jim0watters)
+
+	* version.h: Official release, Updated to version 2.7.0.6
+
+2004-09-27 06:32:10  jim0watters  (jim0watters)
+
+	* tools/panoinfo_unix.c: Unix version of PanoInfo
+
+	* version.h: Updated to new version - rc1
+
+	* resample.c: Updated fastTransform - removed bugs
+
+	* sys_win.c: disable warnings for unknown tags for TIFF files
+
+	* queryfeature.c: Fix asserts with Microsoft compilers
+
+2004-09-22 19:59:25  jim0watters  (jim0watters)
+
+	* correct.c, filter.c, resample.c: Reduce the number of times
+	the status bar gets updated.  From every 5 lines to every 2%.
+	Speed increase using plugin from 4:30 down to 1:30 with 5000
+	pixel high image
+
+	* math.c: Fix PTCorrect vignetting correction.	Use same amount
+	of correction with 16 and 8 bit files.	16 bit too dark
+
+2004-07-20 03:55:59  jim0watters  (jim0watters)
+
+	* file.c: Fix PTAdjust saving 16 bit files loaded from plug-in
+	as too dark.
+
+	* version.h: new version
+
+	* seamer_.c: Fix 16 bit PTAdjust blend method paste,  remove
+	black border  - Jim Watters
+
+	* ptpicker.c: Fix PTEditor to open files
+
+	* filter.h: Remove many type size warnings
+
+	* PTDialogs.c, pano12.rc, sys_win.h: Fix path and file input
+	with dialog boxes.  Now accept path with spaces.  Updating edit
+	control is remembered.
+
+2004-07-18 03:20:52  jim0watters  (jim0watters)
+
+	* adjust.c: Speed up adding an alpha channel to image -
+	Jim Watters
+
+2004-07-15 23:01:16  jim0watters  (jim0watters)
+
+	* tools/panoinfo.c: Remove unused variables
+
+	* version.h: Set to Alpha 4
+
+	* queryfeature.c: Update with new features - mask for focus,
+	Faster, PSD & 16bit bug fix
+
+	* sys_win.h: Fix propper dialog names for Windows plug-ins -
+	Jim Watters
+
+	* tiff.c: Added Combining images of different focus by Rik
+	Littlefields
+
+	* filter.c, filter.h, morpher.c, parser.c, resample.c: Added
+	Faster transformations by Fulvio Senore and with morphing by
+	Rik Littlefields
+
+	* file.c: Fix problem with large PSD files with image width
+	> 16384 and heavy file swapping and updated hasFeather.
+	Rik Littlefield & Jim Watters
+
+	* correct.c, file.c, filter.c, filter.h, math.c: Fix 16bit plug-in
+	for Radial Shift and PTAdjust - Kevin Kratzke & Jim Watters
+
+2004-07-13 02:51:28  jim0watters  (jim0watters)
+
+	* file.c: Dynamically allocate scanline buffer in
+	writeWhiteBackground, to avoid buffer overflow and crash on
+	large images.
+
+	* queryfeature.c: made to work with microsoft compiler
+
+2004-06-06 03:13:35  jim0watters  (jim0watters)
+
+	* version.h: increased version #
+
+	* Makefile: add missing bracket
+
+2004-05-30 01:41:24  jim0watters  (jim0watters)
+
+	* tools/makefile ptoptimizer: makefile for ptoptimizer
+
+	* tools/makefile panoinfo, tools/panoinfo.c: Small application
+	to test the query feature functions of pano12 library.
+
+	* queryfeature.c, queryfeature.h, Makefile, makefile.linux,
+	makefile.mac, makefile.osx, pano12.def, pano12.rc, version.h:
+	Functions to determine properties of this specific pano12 library.
+	Features are name/value pairs. The name is string and the value
+	can be either an integer, double or string. Boolean values are
+	encoded as integers (0=false, 1=true)
+
+	* adjust.c, filter.h, filter.r, optimize.c, parser.c: Rik
+	Littlefield's Improved optimizer. Better.  Faster.  Stronger.
+	The method used here is a hybrid of two optimization strategies.
+	In the first strategy, fcnPano is configured to return one
+	function per control point, that function being total distance
+	without regard for direction.  In the second strategy, fcnPano
+	is configured to return two functions per control point, those
+	functions being distance in two directions, typically longitude
+	and latitude.
+
+2004-05-03 11:56:45  brunopostle  (brunopostle)
+
+	* makefile.osx: Partially working OS X makefile.  This creates
+	a statically linkable .a archive that can be used to build a
+	working PTOptimizer like so: make -f makefile.osx && cd tools &&
+	gcc -o PTOptimizer -I.. -L/sw/lib -L.. -ljpeg -ltiff -lpano12
+	PTOptimizer.c
+
+2004-03-18 02:06:00  jim0watters  (jim0watters)
+
+	* resample.c: Radial Shift, when colors channels have different
+	values and d is > 1 would give incorrect results around the edge
+	of the image
+
+2003-12-30 16:41:38  jim0watters  (jim0watters)
+
+	* file.c: Fix odd size PSD files and reading multilayer PSD files
+
+	* adjust.c, filter.c: Fix return, for compile warning.
+
+2003-12-30 10:37:48  brunopostle  (brunopostle)
+
+	* Makefile, pano12.def, resample.c: Files somehow got converted
+	to DOS format, fixed
+
+2003-12-20 11:51:46  brunopostle  (brunopostle)
+
+	* tools/PTOptimizer.c: Initial commit, this is intended to be
+	a drop-in replacement for the binary-only PTOptimizer, seems
+	to work.
+
+2003-12-20 00:04:37  bret_mckee  (bret_mckee)
+
+	* Makefile, pano12.def, resample.c: Changes to get ptools to
+	compile under windows: - Makefile modified to build the supporing
+	libraries if they are present - pano12.def - removed comments
+	which were causing syntax errors - resample.c - change a reference
+	to an undefined (and dangerous looking) function to sprintf
+
+2003-12-16 21:56:15  brunopostle  (brunopostle)
+
+	* jpeg.c, png.c, tiff.c: Mac specific changes related to file
+	paths (Kekus Digital)
+
+	* adjust.c, pano12.def, resample.c: Two new functions: MyMakePano
+	and MyTransForm are PTMac specific (Kekus Digital)
+
+2003-12-14 18:32:41  brunopostle  (brunopostle)
+
+	* README.mac, README.windows, README.linux: These instructions
+	are out-of-date (Helmut Dersch)
+
+	* gpl.txt: The content of Copying.html from the original
+	sources converted to text is identical (apart from formatting)
+	to http://www.fsf.org/licenses/gpl.txt.
+
+2003-12-13 12:03:45  brunopostle  (brunopostle)
+
+	* ptpicker.c: changed 'picker' to 'gpicker' (a namespace
+	conflict?) (Kekus Digital)
+
+	* PTDialogs.c: minor dialog text change (Kekus Digital)
+
+	* filter.h, panorama.h: mac specific changes to build using carbon
+	(Kekus Digital)
+
+	* PixMap.c, PixMap.h, filter.r, pict.c, sys_mac.c, sys_mac.h:
+	Mac specific changes, mostly porting gui to carbon (Kekus Digital)
+
+2003-12-12 17:32:07  brunopostle  (brunopostle)
+
+	* PixMap.c, PixMap.h, filter.r, makefile.mac, pict.c, shell_mac.c,
+	sys_mac.c, sys_mac.h: Extra files required for mac compilation
+	as distributed by Helmut Dersch.
+
+	* sys_X11.c, sys_X11.h: Found two files in the macintosh sources
+	that appear to be gtk+ dialog boxes for a linux front-end,
+	the more the merrier.
+
+2003-12-01 22:19:14  brunopostle  (brunopostle)
+
+	* Makefile: Makefile modifications to build with mingw2.0
+	(Max Lyons)
+
+	* filter.h: Reduce random luminance effect for photoshop plugin
+	(Jim Watters)
+
+	* file.c: Fix to export psd files in a better way (Jim Watters)
+
+	* adjust.c: Feature to allow linking of roll, pitch and yaw
+	parameters when optimising (Jim Watters)
+
+	* morpher.c: Fix for morph-to-fit that was causing intermittent
+	crashes (Max Lyons)
+
+	* correct.c, filter.h, math.c: Feature to randomise brightness
+	correction in photoshop plugin (Jim Watters).  Anchor brightness
+	correction to narrowest dimension of the source image rather
+	than width for photoshop plugin (Jim Watters).
+
+	* file.c, filter.h, panorama.h, png.c, pteditor.c, ptpicker.c:
+	Fix for BIGENDIAN namespace confict when compiling on Windows
+	(Max Lyons).  Additional error messages when writing psd files
+	(Max Lyons).
+
+	* sys_win.c: Feature to add 'are you sure' dialog on Windows
+	when hitting cancel button (Max Lyons)
+
+	* sys_win.c, pano12.rc: Fix for memory problems on win95/98/me
+	(Max Lyons).  Feature to show memory usage in Windows dialog box
+	(Max Lyons).
+
+	* bmp.c: Fix to bmp file output, bmp file dimensions need to be
+	multiples of 4 (Max Lyons)
+
+	* adjust.c, filter.h, parser.c: Straight-line control points
+	feature added (Helmut Dersch).	g and t shear correction feature
+	added (Helmut Dersch).	256 byte limit on script-file line length
+	extended (Max Lyons).
+
+	* makefile.linux: Modified CFLAGS to suit real location of linux
+	java header files
+
+	* makefile.linux, sys_ansi.h: Added two files needed to build on
+	linux.	sys_ansi.h was originally missing from both the Windows
+	and Linux sources, makefile.linux is the Makefile copied from
+	the Linux source tarball.
+
+	* ppm.c: branches:  1.1.1; Initial revision
+
+	* ppm.c: Initial import of Windows Version 2.6b1 of Panorama Tools
+	library Sources as distributed by Helmut Dersch December 2001.
+
+	* sys_ansi.c: branches:  1.1.1; Initial revision
+
+	* sys_ansi.c: Initial import of Windows Version 2.6b1 of Panorama
+	Tools library Sources as distributed by Helmut Dersch December
+	2001.
+
+	* Makefile: branches:  1.1.1; Initial revision
+
+	* Makefile: Initial import of Windows Version 2.6b1 of Panorama
+	Tools library Sources as distributed by Helmut Dersch December
+	2001.
+
+	* multilayer.c: branches:  1.1.1; Initial revision
+
+	* multilayer.c: Initial import of Windows Version 2.6b1 of
+	Panorama Tools library Sources as distributed by Helmut Dersch
+	December 2001.
+
+	* pano12.def: branches:  1.1.1; Initial revision
+
+	* pano12.def: Initial import of Windows Version 2.6b1 of Panorama
+	Tools library Sources as distributed by Helmut Dersch December
+	2001.
+
+	* pano12.rc: branches:	1.1.1; Initial revision
+
+	* pano12.rc: Initial import of Windows Version 2.6b1 of Panorama
+	Tools library Sources as distributed by Helmut Dersch December
+	2001.
+
+	* png.c: branches:  1.1.1; Initial revision
+
+	* png.c: Initial import of Windows Version 2.6b1 of Panorama Tools
+	library Sources as distributed by Helmut Dersch December 2001.
+
+	* bmp.c: branches:  1.1.1; Initial revision
+
+	* bmp.c: Initial import of Windows Version 2.6b1 of Panorama Tools
+	library Sources as distributed by Helmut Dersch December 2001.
+
+	* jpeg.c: branches:  1.1.1; Initial revision
+
+	* jpeg.c: Initial import of Windows Version 2.6b1 of Panorama
+	Tools library Sources as distributed by Helmut Dersch December
+	2001.
+
+	* seamer_.c: branches:	1.1.1; Initial revision
+
+	* seamer_.c: Initial import of Windows Version 2.6b1 of Panorama
+	Tools library Sources as distributed by Helmut Dersch December
+	2001.
+
+	* tiff.c: branches:  1.1.1; Initial revision
+
+	* tiff.c: Initial import of Windows Version 2.6b1 of Panorama
+	Tools library Sources as distributed by Helmut Dersch December
+	2001.
+
+	* pteditor.c: branches:  1.1.1; Initial revision
+
+	* pteditor.c: Initial import of Windows Version 2.6b1 of Panorama
+	Tools library Sources as distributed by Helmut Dersch December
+	2001.
+
+	* ptpicker.c: branches:  1.1.1; Initial revision
+
+	* ptpicker.c: Initial import of Windows Version 2.6b1 of Panorama
+	Tools library Sources as distributed by Helmut Dersch December
+	2001.
+
+	* Triangulate.c: branches:  1.1.1; Initial revision
+
+	* Triangulate.c: Initial import of Windows Version 2.6b1 of
+	Panorama Tools library Sources as distributed by Helmut Dersch
+	December 2001.
+
+	* morpher.c: branches:	1.1.1; Initial revision
+
+	* morpher.c: Initial import of Windows Version 2.6b1 of Panorama
+	Tools library Sources as distributed by Helmut Dersch December
+	2001.
+
+	* optimize.c: branches:  1.1.1; Initial revision
+
+	* optimize.c: Initial import of Windows Version 2.6b1 of Panorama
+	Tools library Sources as distributed by Helmut Dersch December
+	2001.
+
+	* resample.c: branches:  1.1.1; Initial revision
+
+	* resample.c: Initial import of Windows Version 2.6b1 of Panorama
+	Tools library Sources as distributed by Helmut Dersch December
+	2001.
+
+	* seamer.c: branches:  1.1.1; Initial revision
+
+	* seamer.c: Initial import of Windows Version 2.6b1 of Panorama
+	Tools library Sources as distributed by Helmut Dersch December
+	2001.
+
+	* fftn.c: branches:  1.1.1; Initial revision
+
+	* fftn.c: Initial import of Windows Version 2.6b1 of Panorama
+	Tools library Sources as distributed by Helmut Dersch December
+	2001.
+
+	* fourier.c: branches:	1.1.1; Initial revision
+
+	* fourier.c: Initial import of Windows Version 2.6b1 of Panorama
+	Tools library Sources as distributed by Helmut Dersch December
+	2001.
+
+	* PTDialogs.c: branches:  1.1.1; Initial revision
+
+	* PTDialogs.c: Initial import of Windows Version 2.6b1 of
+	Panorama Tools library Sources as distributed by Helmut Dersch
+	December 2001.
+
+	* math.c: branches:  1.1.1; Initial revision
+
+	* math.c: Initial import of Windows Version 2.6b1 of Panorama
+	Tools library Sources as distributed by Helmut Dersch December
+	2001.
+
+	* pan.c: branches:  1.1.1; Initial revision
+
+	* pan.c: Initial import of Windows Version 2.6b1 of Panorama Tools
+	library Sources as distributed by Helmut Dersch December 2001.
+
+	* file.c: branches:  1.1.1; Initial revision
+
+	* file.c: Initial import of Windows Version 2.6b1 of Panorama
+	Tools library Sources as distributed by Helmut Dersch December
+	2001.
+
+	* lmdif.c: branches:  1.1.1; Initial revision
+
+	* lmdif.c: Initial import of Windows Version 2.6b1 of Panorama
+	Tools library Sources as distributed by Helmut Dersch December
+	2001.
+
+	* remap.c: branches:  1.1.1; Initial revision
+
+	* remap.c: Initial import of Windows Version 2.6b1 of Panorama
+	Tools library Sources as distributed by Helmut Dersch December
+	2001.
+
+	* adjust.c: branches:  1.1.1; Initial revision
+
+	* adjust.c: Initial import of Windows Version 2.6b1 of Panorama
+	Tools library Sources as distributed by Helmut Dersch December
+	2001.
+
+	* perspect.c: branches:  1.1.1; Initial revision
+
+	* perspect.c: Initial import of Windows Version 2.6b1 of Panorama
+	Tools library Sources as distributed by Helmut Dersch December
+	2001.
+
+	* correct.c: branches:	1.1.1; Initial revision
+
+	* correct.c: Initial import of Windows Version 2.6b1 of Panorama
+	Tools library Sources as distributed by Helmut Dersch December
+	2001.
+
+	* sys_win.c: branches:	1.1.1; Initial revision
+
+	* sys_win.c: Initial import of Windows Version 2.6b1 of Panorama
+	Tools library Sources as distributed by Helmut Dersch December
+	2001.
+
+	* filter.c: branches:  1.1.1; Initial revision
+
+	* filter.c: Initial import of Windows Version 2.6b1 of Panorama
+	Tools library Sources as distributed by Helmut Dersch December
+	2001.
+
+	* parser.c: branches:  1.1.1; Initial revision
+
+	* parser.c: Initial import of Windows Version 2.6b1 of Panorama
+	Tools library Sources as distributed by Helmut Dersch December
+	2001.
+
+	* ptutils.h: branches:	1.1.1; Initial revision
+
+	* ptutils.h: Initial import of Windows Version 2.6b1 of Panorama
+	Tools library Sources as distributed by Helmut Dersch December
+	2001.
+
+	* sys_win.h: branches:	1.1.1; Initial revision
+
+	* sys_win.h: Initial import of Windows Version 2.6b1 of Panorama
+	Tools library Sources as distributed by Helmut Dersch December
+	2001.
+
+	* version.h: branches:	1.1.1; Initial revision
+
+	* version.h: Initial import of Windows Version 2.6b1 of Panorama
+	Tools library Sources as distributed by Helmut Dersch December
+	2001.
+
+	* f2c.h: branches:  1.1.1; Initial revision
+
+	* f2c.h: Initial import of Windows Version 2.6b1 of Panorama Tools
+	library Sources as distributed by Helmut Dersch December 2001.
+
+	* fftn.h: branches:  1.1.1; Initial revision
+
+	* fftn.h: Initial import of Windows Version 2.6b1 of Panorama
+	Tools library Sources as distributed by Helmut Dersch December
+	2001.
+
+	* filter.h: branches:  1.1.1; Initial revision
+
+	* filter.h: Initial import of Windows Version 2.6b1 of Panorama
+	Tools library Sources as distributed by Helmut Dersch December
+	2001.
+
+	* pteditor.h: branches:  1.1.1; Initial revision
+
+	* pteditor.h: Initial import of Windows Version 2.6b1 of Panorama
+	Tools library Sources as distributed by Helmut Dersch December
+	2001.
+
+	* panorama.h: branches:  1.1.1; Initial revision
+
+	* panorama.h: Initial import of Windows Version 2.6b1 of Panorama
+	Tools library Sources as distributed by Helmut Dersch December
+	2001.
+

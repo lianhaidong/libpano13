@@ -1,0 +1,7 @@
+Newsworthy changes in 2.7.0.7
+-----------------------------
+
+The library has a new build system based on libtool, automake &
+autoconf.  JPEG optimisation is enabled for outputting jpg files
+when using PTStitcher
+

@@ -1,0 +1,27 @@
+This is the pano12 library, part of the Panorama Tools by Helmut
+Dersch of the University of Applied Sciences Furtwangen.
+
+   http://panotools.sourceforge.net/
+
+Also included with the library are:
+
+- tools/PTOptimizer, a command-line tool for optimizing control points.
+- tools/panoinfo, a command-line tool for querying the library version.
+
+Installation
+------------
+
+Build and install as normal:
+
+    ./configure
+    make
+    make install
+
+If you have retrieved this from CVS you need to prepare the build
+system first:
+
+    ./bootstrap
+    ./configure
+    make
+    make install
+
