@@ -24,7 +24,7 @@ endif
 if HAVE_CYGWIN
 WIN_SRC =  sys_win.c bmp.c
 WIN_DEFS = -D__Win__=1
-WIN_LDFS = -avoid-version -no-undefined -export-symbols $(srcdir)/libpano12.def 
+WIN_LDFS = -mwindows -avoid-version -no-undefined -export-symbols $(srcdir)/libpano12.def 
 
 $(PANO_WIN32_RESOURCE): pano12.rc
 	        $(top_srcdir)/build/win32/lt-compile-resource pano12.rc $@
@@ -67,7 +67,7 @@ AM_CPPFLAGS = $(JAVA_FLAGS) $(JPEG_FLAGS) $(PNG_FLAGS) $(TIFF_FLAGS) $(ZLIB_FLAG
 lib_LTLIBRARIES = libpano12.la
 
 libpano12_la_SOURCES = $(STD_SRC) $(X11_SRC) $(WIN_SRC) $(MAC_SRC) $(LIN_SRC) $(DAR_SRC)
-libpano12_la_LIBADD = $(LIB_JPEG) $(LIB_PNG) $(LIB_TIFF) $(LIB_ZLIB) @PANO_WIN32_LIB@ @PANO_WIN32_RESOURCE@
+libpano12_la_LIBADD = $(LIB_JPEG) $(LIB_PNG) $(LIB_TIFF) $(LIB_ZLIB) @PANO_WIN32_RESOURCE@
 libpano12_la_LDFLAGS = $(LIN_LDFS) $(WIN_LDFS) $(DAR_LDFS)
 libpano12_la_DEPENDENCIES = @PANO_WIN32_RESOURCE@
 
@@ -85,7 +85,7 @@ dist-hook:
 
 EXTRA_DIST =  gpl.txt README.linux README.windows README.mac \
 	      makefile.linux makefile.mac makefile.osx makefile.win32 \
-	      bootstrap filter.r pano12.def \
+	      bootstrap filter.r pano12.def libpano12.def pano12.rc \
 	      seamer_.c sys_X11.c sys_win.c bmp.c PixMap.c pict.c shell_mac.c \
 	      sys_mac.c ppm.c PixMap.h sys_ansi.c ppm.c
 

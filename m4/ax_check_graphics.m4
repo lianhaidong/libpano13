@@ -29,7 +29,7 @@ then
   fi
   if test "x$ZLIB_HOME" = 'x'
   then
-    zlib_dirs="/usr /usr/local /opt /mingw /sw"
+    zlib_dirs="/opt /usr /usr/local /mingw /sw"
     for i in $zlib_dirs;
     do
       if test -r "$i/include/zlib.h"; then

@@ -34,12 +34,14 @@ case "${target_os}" in
     ;;
   *mingw32*)
     PANO_WIN32_RESOURCE=pano12.lo
-    PANO_WIN32_LIB=-lcomdlg32
     HSYS=mingw32
     ;;
   *cygwin*)
     PANO_WIN32_RESOURCE=pano12.lo
-    PANO_WIN32_LIB=-lcomdlg32
+    CFLAGS="-mno-cygwin $CFLAGS"
+    CPPFLAGS="-mno-cygwin $CPPFLAGS"
+    CXXFLAGS="-mno-cygwin $CXXFLAGS"
+    LDFLAGS="-mno-cygwin $LDFLAGS"
     HSYS=cygwin
     ;;
   *)
@@ -55,7 +57,6 @@ AM_CONDITIONAL(HAVE_MINGW, test "${HSYS}" = "mingw32")
 AM_CONDITIONAL(HAVE_CYGWIN, test "${HSYS}" = "cygwin")
 AM_CONDITIONAL(HAVE_X11, test "${HSYS}" = "x11")
 AC_SUBST(PANO_WIN32_RESOURCE)
-AC_SUBST(PANO_WIN32_LIB)
 
 # Checks for libraries.
 # FIXME: Replace `main' with a function in `-lcomdlg32':

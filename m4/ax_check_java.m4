@@ -32,9 +32,11 @@ dnl these two lines should let u find most java installations
       JAVA_HOME="$with_java"
       for j in $java_inc_dirs
       do
+        echo "configure: __oline__: checking $JAVA_HOME/$j" >&AC_FD_CC
         if test -r "$JAVA_HOME/$j/jni.h"; then
+	  echo "taking that" >&AC_FD_CC
 	  java_inc_dir="$j"
-	  break
+	  break 2
         fi
       done
     else
@@ -51,7 +53,9 @@ dnl now find the java dirs
     do
       for j in $java_inc_dirs
       do
+        echo "configure: __oline__: checking $i/$j" >&AC_FD_CC
         if test -r "$i/$j/jni.h"; then
+	  echo "taking that" >&AC_FD_CC
           JAVA_HOME="$i"
 	  java_inc_dir="$j"
 	  break
@@ -71,24 +75,21 @@ dnl now find the java dirs
   failed=0;
   passed=0;
   JAVA_OLD_CPPFLAGS=$CPPFLAGS
-  if test "x$JAVA_HOME" != 'x'
-  then
-    case "${target_os}" in
-      linux*)
-        java_extra_inc=linux
-        ;;
-      darwin*)
-        java_extra_inc=darwin
-        ;;
-      *mingw32*)
-        java_extra_inc=win32
-        ;;
-      *cygwin*)
-        java_extra_inc=win32
-        ;;
-    esac
-    CPPFLAGS="$CPPFLAGS -I$JAVA_HOME/$java_inc_dir -I$JAVA_HOME/$java_inc_dir/$java_extra_inc"
-  fi
+  case "${target_os}" in
+    linux*)
+      java_extra_inc=linux
+      ;;
+    darwin*)
+      java_extra_inc=darwin
+      ;;
+    *mingw32*)
+      java_extra_inc=win32
+      ;;
+    *cygwin*)
+      java_extra_inc=win32
+      ;;
+  esac
+  CPPFLAGS="$CPPFLAGS -I$JAVA_HOME/$java_inc_dir -I$JAVA_HOME/$java_inc_dir/$java_extra_inc"
   AC_LANG_SAVE
   AC_LANG_C
   AC_CHECK_HEADER(jni.h,passed=`expr $passed + 1`,failed=`expr $failed + 1`,)
