@@ -578,6 +578,11 @@ void CenterDialog(HWND hDlg)
    SetWindowPos(hDlg, NULL, xOrigin, yOrigin, nWidth, nHeight, SWP_NOZORDER);
 }
 
+int getConfirmation(HWND hWnd, char *message)
+{
+	return (MessageBox(hWnd, (LPSTR)message, (LPSTR)"Panorama Tools", MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2 | MB_APPLMODAL));
+}
+
 
 BOOL WINAPI DispPrg(HWND hDlg, UINT wMsg, WPARAM wParam, LPARAM lParam)       // Win32 Change
 {
@@ -611,8 +616,11 @@ BOOL WINAPI DispPrg(HWND hDlg, UINT wMsg, WPARAM wParam, LPARAM lParam)       //
 				case IDCANCEL:
 					if (cmd == BN_CLICKED)
 					{
+						if (getConfirmation(hDlg, "Are you sure you want to cancel?")==IDYES)
+							{
 						*dDone = TRUE;
 						return TRUE;
+					}
 					}
 					break;
 							 
@@ -681,8 +689,11 @@ BOOL WINAPI InfoPrg(HWND hDlg, UINT wMsg, WPARAM wParam, LPARAM lParam)       //
 				case IDCANCEL:
 					if (cmd == BN_CLICKED)
 					{
+						if (getConfirmation(hDlg, "Are you sure you want to cancel?")==IDYES)
+							{
 						*dDone = TRUE;
 						return TRUE;
+					}
 					}
 					break;
 				case ID_MM:
