@@ -1,0 +1,54 @@
+# Makefile for libpano12.a
+
+# based on makefile.linux 2004-05-02 Bruno Postle <bruno@postle.net>
+# Note: this only creates a statically linkable library and needs
+# fixing in order to build a working libpano12.so or libpano12.dylib.
+
+sources = panorama.h filter.h fftn.h f2c.h pteditor.h  \
+          ptutils.h version.h \
+          filter.c parser.c correct.c perspect.c \
+          adjust.c  remap.c lmdif.c  file.c \
+          math.c pan.c PTDialogs.c fftn.c fourier.c resample.c \
+          optimize.c morpher.c Triangulate.c \
+          seamer.c ptpicker.c pteditor.c seamer_.c \
+          tiff.c bmp.c jpeg.c png.c  multilayer.c \
+          Makefile pano12.rc pano12.def sys_ansi.c ppm.c
+
+objects = filter.o parser.o  correct.o perspect.o \
+          adjust.o  remap.o lmdif.o  file.o math.o pan.o \
+          PTDialogs.o fftn.o fourier.o resample.o optimize.o \
+          morpher.o Triangulate.o seamer.o ptpicker.o pteditor.o \
+          tiff.o jpeg.o png.o multilayer.o 
+
+ansobj =  sys_ansi.o ppm.o
+
+#CC = gcc
+CC = gcc3
+
+CFLAGS = -O \
+	-I/usr/include/gcc/darwin/default \
+	-I/usr/include \
+	-I/sw/include \
+	-I/System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers \
+	-D__Ansi__=1
+
+libpano12.a	: $(objects) $(ansobj)
+	$(CC) \
+	-o libpano12.dylib \
+	-L/usr/lib/gcc/darwin/default \
+	-L/usr/lib \
+	-L/sw/lib \
+	-ljpeg \
+	-lm \
+	-ltiff \
+	-lpng \
+	-flat_namespace \
+	-undefined suppress \
+	$(objects) $(ansobj)
+	rm libpano12.dylib
+	ar cru libpano12.a *.o
+	ranlib libpano12.a
+
+install : libpano12.a
+	mv libpano12.a /usr/local/lib/
+
