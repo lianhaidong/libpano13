@@ -24,6 +24,8 @@
 // Modified by Fulvio Senore: June.2004
 // Added linear interpolation between pixels in the geometric transform phase
 // to speed up computation.
+// Rik Littlefield added interface to morpher.c in July 2004 to avoid local errors caused
+// by morphing.
 // Changes are bracketed between
 //
 // // FS+
@@ -75,6 +77,10 @@ PTGamma glu; // Lookup table
 // used for fast pixel transform. It is the width of the starting step for linear interpolation
 // a value of 0 disables the fast transform
 int fastTransformStep = 0;
+
+// prototype to avoid a warning: the function is defined in morpher.c
+int getLastCurTriangle();
+
 // FS-
 
 
@@ -880,26 +886,26 @@ void transForm( TrformStr *TrPtr, fDesc *fD, int color){
 	avalid = (char *) malloc( (destRect.right - destRect.left + 20)*sizeof(char) );
 	// opens the preference file to read options
 	evaluateError = FALSE;
-	if( fastTransformStep != 0 ) {
+	{
 		FILE *fp;
 		char buf[100];
 		char *s;
 		s = buf;
-//		useFastTransform = FALSE;
 		fp = fopen( "pano12_opt.txt", "rt" );
 		if( fp != NULL ) {
 			// parse the file
 			s = fgets( s, 98, fp );
 			while( !feof(fp) && buf != NULL ) {
 				//s = strupr( buf );	commented out because it causes linking problems with the microsoft compiler
-//				if( strncmp( s, "FAST_TRANSFORM", 14 )  == 0 )
-//					useFastTransform = TRUE;
+				if( strncmp( s, "FAST_TRANSFORM", 14 )  == 0 )
+					fastTransformStep = FAST_TRANSFORM_STEP_NORMAL;
 				if( strncmp( s, "EVALUATE_ERROR", 14 )  == 0 )
 					evaluateError = TRUE;
 				s = fgets( buf, 98, fp );
 			}
 			fclose( fp );
 		}
+		if( fastTransformStep == 0 ) evaluateError = FALSE;	// only evaluate error if fast transform is activated
 	}
 	// FS-
 
