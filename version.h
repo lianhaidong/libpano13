@@ -45,7 +45,7 @@
 #define PTVERSION_NAME_FILEVERSION "FileVersion"
 #endif
 #ifndef PTVERSION_FILEVERSION
-#define PTVERSION_FILEVERSION "2.7.0.3\0"
+#define PTVERSION_FILEVERSION "2.7.0.3.Alpha.004\0"
 #endif
 
 #ifndef PTVERSION_NAME_LEGALCOPYRIGHT 
@@ -59,5 +59,5 @@
 #define PTVERSION_NAME_COMMENT "Comments"
 #endif
 #ifndef PTVERSION_COMMENT
-#define PTVERSION_COMMENT "Improved optimizer modifications made by Rik Littlefield, 2004.  See http://www.janrik.net/ptools\0"
+#define PTVERSION_COMMENT "Added mask-from-focus extensions,  Faster transformation,  16bit fixes, & PSD fixes\0"
 #endif
