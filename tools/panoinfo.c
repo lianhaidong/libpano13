@@ -50,14 +50,8 @@ int main(int argc,char *argv[])
 	int				iResult;
 	double			dResult;
 	char			sResult[256];
-	char			sDate[20];
-	char			sName[80];
-	char			sFeature[255];
-	char			sInfo[255];
 	char			str1[1000];
 	char			str2[10000];
-	int				numitems;
-	int				i;
 
 	hDll = LoadLibrary("pano12.dll");
 	if(!hDll)
