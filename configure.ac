@@ -112,6 +112,7 @@ AC_FUNC_VPRINTF
 AC_CHECK_FUNCS([floor memset pow setlocale sqrt strrchr])
 
 AC_CONFIG_FILES([Makefile
+                 doc/Makefile
 		 tools/Makefile
 		 m4/Makefile])
 
