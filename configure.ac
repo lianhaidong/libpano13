@@ -25,18 +25,35 @@ case "${target_os}" in
   "")
     PANO_WIN32_RESOURCE=
     HSYS=unknown
-    ;;
+    HCPU="${target_cpu}"
+	;;
   linux*)
     PANO_WIN32_RESOURCE=
     HSYS=linux
-    ;;
+    dnl
+	dnl Check the cpu to allow lib/lib64 decisions
+	dnl
+	case "${target_cpu}" in
+	  "")
+		HCPU=unknown
+		;;
+	  x86_64*)
+		HCPU=amd64
+		;;
+	  *)
+		HCPU="${target_cpu}"
+		;;
+	esac
+	;;
   darwin*)
     PANO_WIN32_RESOURCE=
     HSYS=darwin
+    HCPU="${target_cpu}"
     ;;
   *mingw32*)
     PANO_WIN32_RESOURCE=pano12.lo
     HSYS=mingw32
+    HCPU="${target_cpu}"
     ;;
   *cygwin*)
     PANO_WIN32_RESOURCE=pano12.lo
@@ -45,10 +62,12 @@ case "${target_os}" in
     CXXFLAGS="-mno-cygwin $CXXFLAGS"
     LDFLAGS="-mno-cygwin $LDFLAGS"
     HSYS=cygwin
+    HCPU="${target_cpu}"
     ;;
   *)
     PANO_WIN32_RESOURCE=
     HSYS="${target_os}"
+    HCPU="${target_cpu}"
     ;;
 esac
 
@@ -58,6 +77,8 @@ AM_CONDITIONAL(HAVE_MAC, test "${HSYS}" = "classic")
 AM_CONDITIONAL(HAVE_MINGW, test "${HSYS}" = "mingw32")
 AM_CONDITIONAL(HAVE_CYGWIN, test "${HSYS}" = "cygwin")
 AM_CONDITIONAL(HAVE_X11, test "${HSYS}" = "x11")
+AM_CONDITIONAL(HAVE_AMD64, test "${HCPU}" = "amd64")
+
 AC_SUBST(PANO_WIN32_RESOURCE)
 
 # Checks for libraries.
