@@ -42,9 +42,15 @@ int writeBMP( Image *im, fullPath *sfile )
 	win3xHead head;							// First part of bitmap header
 	win3xBitmapInfoHeader ihead;			// Second part of bitmap header
 
-		
-	scanLength = (im->width * 3 + 1)/2;
-	scanLength *= 2;
+	//In BMP files, each line MUST have n bytes, such that n is divisible by 4.
+	//If the image doesn't have n divisible by 4, it will contain non-valid
+	//information. For example if an image has 1 pixel per line in 24-bit color
+	//depth, each line will have 1 additional byte that must be ignored when
+	//reading the bitmap.
+
+	//scanlength must be divisble by four (adding 3, dividing by 4 and then multiplying does this).
+	scanLength = ((im->width * 3) + 3)/4;
+	scanLength *= 4;
 
 	// Build header structures
 
@@ -117,7 +123,7 @@ int writeBMP( Image *im, fullPath *sfile )
 		else
 		{
 			int x;
-			unsigned char *c1=buf, *c2=buf;
+			unsigned char *c1=buf, *c2=data;
 			for(x=0; x < im->width; x++)
 			{
 				*c1++ = c2[2];
