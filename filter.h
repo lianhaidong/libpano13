@@ -714,6 +714,7 @@ int 	EqualCPrefs( cPrefs *c1, cPrefs *c2 );
 double 	OverlapRMS			( MultiLayerImage *mim );
 double 	distSquared			( int num ); 
 int		fcnPano();
+int		EvaluateControlPointError ( int num, double *errptr, double errComponent[2]);
 void 	doCoordinateTransform( CoordInfo *c, tMatrix *t );
 void 	findOptimumtMatrix( transformCoord *tP, tMatrix *tM, lmfunc f);
 int 	SolveLinearEquation2( double a[2][2], double b[2], double x[2] );

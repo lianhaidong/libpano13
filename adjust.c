@@ -17,7 +17,25 @@
 
 /*------------------------------------------------------------*/
 
+/* ---- Revision history ----
 
+  May 2004, Rik Littlefield, reworked fcnPano and related functions as follows:
+               1) For normal control points, allows exposing latitude and longitude
+                  error components separately to the optimizer.  This trades
+                  faster convergence for slight loss of stability.  This
+                  behavior can be changed at runtime by calling setFcnPanoNperCP().
+                  (new capability)
+               2) Optimize distance^2 instead of distance^4 for hor, vert, and
+                  line control points (bug fix)
+               3) Scale errors by change in average fov.  This stabilizes
+                  fov optimization and allows its use in more cases with partial panos.
+                  (new capability)
+               4) Improve accuracy of angular distance calculation by using asin
+                  instead of acos (results improvement)
+               5) Consistently report errors in units of pixels scaled to current
+                  panorama size (feature change)
+               6) Report rms error during optimization (bug fix)
+*/
 #include "filter.h"
 #include "f2c.h"
 #include <float.h>
@@ -26,7 +44,15 @@
 
 static  AlignInfo	*g;	// This struct holds all informations for the optimization
 
+static double initialAvgFov;   // these three for fov stabilization
+static double avgfovFromSAP;
+static int needInitialAvgFov;
 
+#define ADJUST_LOG_FILENAME "c:\\PToolsLog.txt"  // file name for logging, if enabled
+#define ADJUST_LOGGING_ENABLED 0
+
+
+FILE* adjustLogFile = 0;
 
 
 void 			ColCorrect( Image *im, double ColCoeff[3][2] );
@@ -38,7 +64,7 @@ static int		CheckMakeParams( aPrefs *aP);
 static int		GetOverlapRect( PTRect *OvRect, PTRect *r1, PTRect *r2 );
 int 			AddEdgePoints( AlignInfo *gl );
 int 			pt_average( UCHAR* pixel, int BytesPerLine, double rgb[3], int bytesPerChannel );
-double 			distLine(int N0, int N1);
+double 			distsqLine(int N0, int N1);
 
 void adjust(TrformStr *TrPtr, aPrefs *prefs)
 {
@@ -1042,7 +1068,16 @@ void addAlpha( Image *im ){
 }
 
 
-// Angular Distance of Control point "num"
+// Angular Distance for control point "num".
+// Function distSphere computes an exact angular distance and the
+// corresponding components in longitude/latitude directions.
+// These are returned in a slightly strange manner (distance as the
+// function result, components in a global array) to avoid changing the
+// calling sequence of distSphere, which might unnecessarily break
+// other code that we don't know about.
+
+double distanceComponents[2];
+
 double distSphere( int num ){
 	double 		x, y ; 	// Coordinates of control point in panorama
 	double		w2, h2;
@@ -1052,8 +1087,17 @@ double distSphere( int num ){
 	struct 	MakeParams	mp;
 	struct  fDesc 		stack[15];
 	CoordInfo b[2];
-	
+	CoordInfo cp;
+	double lat[2], lon[2];  // latitude & longitude
+	double dlon;
+	double dangle;
+	double dist;
+	double radiansToPixelsFactor;
 
+	// Factor to convert angular error in radians to equivalent in pixels
+	
+	radiansToPixelsFactor = g->pano.width / (g->pano.hfov * (PI/180.0));
+	
 	// Get image position in imaginary spherical image
 	
 	SetImageDefaults( &sph );
@@ -1066,7 +1110,7 @@ double distSphere( int num ){
 	n[0] = g->cpt[num].num[0];
 	n[1] = g->cpt[num].num[1];
 	
-	// Calculate coordinates x/y in panorama
+	// Calculate coordinates using equirectangular mapping to get longitude/latitude
 
 	for(j=0; j<2; j++){
 		SetInvMakeParams( stack, &mp, &g->im[ n[j] ], &sph, 0 );
@@ -1081,12 +1125,47 @@ double distSphere( int num ){
 
 		x = DEG_TO_RAD( x ); 
 		y = DEG_TO_RAD( y ) + PI/2.0;
+
+		// x is now in the range -PI to +PI, and y is 0 to PI
+		lat[j] = y;
+		lon[j] = x;
+
 		b[j].x[0] =   sin(x) * sin( y );
 		b[j].x[1] =   cos( y );
 		b[j].x[2] = - cos(x) * sin(y);
 	}
+
+	dlon = lon[0]-lon[1];
+	if (dlon < -PI) dlon += 2.0*PI;
+	if (dlon > PI) dlon -= 2.0*PI;
+	distanceComponents[0] = (dlon*sin(0.5*(lat[0]+lat[1]))) * radiansToPixelsFactor;
+	distanceComponents[1] = (lat[0]-lat[1]) * radiansToPixelsFactor;
+
+	// The original acos formulation (acos(SCALAR_PRODUCT(&b[0],&b[1]))
+	// is inaccurate for angles near 0, because it essentially requires finding eps
+	// based on the value of 1-eps^2/2.  The asin formulation is much more
+	// accurate under these conditions.
+
+	CROSS_PRODUCT(&b[0],&b[1],&cp);
+	dangle = asin(ABS_VECTOR(&cp));
+	if (SCALAR_PRODUCT(&b[0],&b[1]) < 0.0) dangle = PI - dangle;
+	dist = dangle * radiansToPixelsFactor;
 	
-	return acos( SCALAR_PRODUCT( &b[0], &b[1] ) ) * g->pano.width / ( 2.0 * PI );
+	// Diagnostics to help debug various calculation errors.
+	// Do not delete this code --- it has been needed surprisingly often.
+#if 0	
+	{	double olddist;
+		olddist = acos( SCALAR_PRODUCT( &b[0], &b[1] ) ) * radiansToPixelsFactor;
+//		if (adjustLogFile != 0 && abs(dist-olddist) > 1.0) {
+		if (adjustLogFile != 0 && num < 5) {
+			fprintf(adjustLogFile,"***** DIST ***** dCoord = %g %g, lonlat0 = %g %g, lonlat1 = %g %g, dist=%g, olddist=%g, sumDcoordSq=%g, distSq=%g\n",
+								  distanceComponents[0],distanceComponents[1],lon[0],lat[0],lon[1],lat[1],dist,olddist,
+								  distanceComponents[0]*distanceComponents[0]+distanceComponents[1]*distanceComponents[1],dist*dist);
+		}
+	}
+#endif
+
+	return dist;
 }
 
 
@@ -1104,10 +1183,10 @@ void pt_getXY(int n, double x, double y, double *X, double *Y){
 	execute_stack( 	x - w2,	y - h2,	X, Y, stack);
 }
 
-// Return distance of 2 lines
+// Return distance of points from a line
 // The line through the two farthest apart points is calculated
-// Returned is the distance of the other two points
-double distLine(int N0, int N1){
+// Returned is the sum distance squared of the other two points from the line
+double distsqLine(int N0, int N1){
 	double x[4],y[4], del, delmax, A, B, C, mu, d0, d1;
 	int n0, n1, n2, n3, i, k;
 
@@ -1148,6 +1227,8 @@ double distLine(int N0, int N1){
 
 	d0 = (A*x[n2]+B*y[n2]+C)*mu;
 	d1 = (A*x[n3]+B*y[n3]+C)*mu;
+	distanceComponents[0] = d0;
+	distanceComponents[1] = d1;
 
 	return d0*d0 + d1*d1;
 
@@ -1155,9 +1236,9 @@ double distLine(int N0, int N1){
 
 
 // Calculate the distance of Control Point "num" between two images
-// in final pano
+// in final pano.  This is the old distSquared.
 
-double distSquared( int num ) 
+double rectDistSquared( int num ) 
 {
 	double 		x[2], y[2]; 				// Coordinates of control point in panorama
 	double		w2, h2;
@@ -1232,6 +1313,9 @@ double distSquared( int num )
 			break;
 		default:
 			result = ( y[0] - y[1] ) * ( y[0] - y[1] ) + ( x[0] - x[1] ) * ( x[0] - x[1] ); // square of distance
+			distanceComponents[0] = y[0] - y[1];
+			distanceComponents[1] = x[0] - x[1];
+
 			break;
 	}
 	
@@ -1240,70 +1324,115 @@ double distSquared( int num )
 }
 
 
+/// (function distSquared2 has been removed -- it was unused and redundant)
 
-// Calculate the distance of Control Point "num" between two images
-// in image 0
+/// EvaluateControlPointErrorAndComponents is the central point-of-contact
+/// for determining the error for a specified control point pair.
+///
+/// Arguments are
+///   num               identifies the control point pair
+///   *errptr           returns a single error measure (distance)
+///   errComponent[*]   returns two components of that error, as nearly orthogonal
+///                       as possible
+/// Return value is a success flag: 0 = successful, otherwise not.
 
-double distSquared2( int num ) 
-{
-	double 		x[2], y[2]; 				// Coordinates of control point in panorama
-	double		w2, h2;
-	int n[2];
+int	EvaluateControlPointErrorAndComponents ( int num, double *errptr, double errComponent[2]) {
+	int j;
+	int result;
+	switch(g->cpt[num].type){
+		case 0: // normal control points
+			// Jim May 2004. 
+			// Optimizing cylindrical and rectilinear projection by calculating 
+			// distance error in pixel coordinates of the rendered image.
+			// When using angular (spherical) distance for these projections, 
+			// larger errors are generated the further control points are from 
+			// the center.
+			// In theory by optimizing in pixel coordinates all errors will be 
+			// distributed over the image.  This is true.
+			// In practice I have found that optimize large field of view 
+			// rectilinear projection images failed to resolve nicely if the 
+			// parameters were not very close to start with.  I leave the 
+			// code here for others to play with and maybe get better results.
+		/*  if(g->pano.format == _rectilinear || g->pano.format == _panorama)
+			{
+				*errptr = sqrt(rectDistSquared(num));
+				errComponent[0] = distanceComponents[0];
+				errComponent[1] = distanceComponents[1];
+				result = 0;
+				break;
+			}
+			else //  _equirectangular, fisheye, spherical, mirror
+			{  */
+				*errptr = distSphere(num);
+				errComponent[0] = distanceComponents[0];
+				errComponent[1] = distanceComponents[1];
+				result = 0;
+				break;
+			//}
+		case 1: // vertical
+		case 2: // horizontal
+				*errptr = sqrt(rectDistSquared(num));
+				errComponent[0] = *errptr;
+				errComponent[1] = 0.0;
+				result = 0;
+				break;
+		default:// t+ controls = lines = sets of two control point pairs
+				*errptr = 0.0;	// in case there is no second pair
+				errComponent[0] = 0.0;
+				errComponent[1] = 0.0;
+				result = 1;
+				for(j=0; j<g->numPts; j++){
+					if(j!=num && g->cpt[num].type == g->cpt[j].type){
+						*errptr = sqrt(distsqLine(num,j));
+//						errComponent[0] = *errptr;
+//						errComponent[1] = 0.0;
+						errComponent[0] = distanceComponents[0];
+						errComponent[1] = distanceComponents[1];
+						result = 0;
+						break;
+					}
+				}
+				break;
+	}
+	return result;
+}
+	
+/// This distSquared is a convenience function, to be passed into
+/// WriteResults in the usual fashion, to avoid having to change
+/// other codes that call WriteResults.  It replaces the old distSquared,
+/// which has been renamed rectDistSquared and is now used only
+/// internally by EvaluateControlPointErrorAndComponents.
+
+double  distSquared (int num ) {
 	double result;
-
-	struct 	MakeParams	mp;
-	struct  fDesc 		stack[15];
-
-	
-
-	n[0] = g->cpt[num].num[0];
-	n[1] = g->cpt[num].num[1];
-	
-	// Calculate coordinates x/y in panorama
-
-	SetInvMakeParams( stack, &mp, &g->im[ n[0] ], &g->pano, 0 );
-		
-	h2 	= (double)g->im[ n[0] ].height / 2.0 - 0.5;
-	w2	= (double)g->im[ n[0] ].width  / 2.0 - 0.5;
-		
-
-	execute_stack( 	(double)g->cpt[num].x[0] - w2,		// cartesian x-coordinate src
-					(double)g->cpt[num].y[0] - h2,		// cartesian y-coordinate src
-					&x[0], &y[0], stack);
-
-	// Calculate coordinates x/y in image 1
-
-	SetMakeParams( stack, &mp,&g->im[ n[1] ], &g->pano, 0 );
-
-	execute_stack( 	x[0], y[0],
-					&x[1], &y[1], stack);
-
-	h2 	= (double)g->im[ n[1] ].height / 2.0 - 0.5;
-	w2	= (double)g->im[ n[1] ].width  / 2.0 - 0.5;
-	
-	x[0] = (double)g->cpt[num].x[1] - w2;
-	y[0] = (double)g->cpt[num].y[1] - h2;
-//	printf("Coordinates 0:   %lg:%lg	1:	%lg:%lg\n",x[0] + g->pano->width/2,y[0]+ g->pano->height/2, x[1] + g->pano->width/2,y[1]+ g->pano->height/2);
-
-	switch( g->cpt[num].type )		// What do we want to optimize?
-	{
-		case 1:			// x difference
-			result = ( x[0] - x[1] ) * ( x[0] - x[1] );
-			break;
-		case 2:			// y-difference
-			result =  ( y[0] - y[1] ) * ( y[0] - y[1] );
-			break;
-		default:
-			result = ( y[0] - y[1] ) * ( y[0] - y[1] ) + ( x[0] - x[1] ) * ( x[0] - x[1] ); // square of distance
-			break;
-	}
-	
-
-	return result;
+	double junk[2];
+	EvaluateControlPointErrorAndComponents (num, &result, junk);
+	return result*result;
 }
 
+/// Function fcnPano calculates a vector of control points errors,
+/// for use during optimization.  See lmdif.c and optimize.c for
+/// a description of its arguments.  The helper functions that appear here
+/// allow to control the new capability, while preserving also the
+/// old calling sequences.
 
-// Levenberg-Marquardt function measuring the quality of the fit in fvec[]
+int fcnPanoNperCP = 1; // number of functions per control point, 1 or 2
+
+void setFcnPanoNperCP (int i) {
+	fcnPanoNperCP = i;
+}
+
+int getFcnPanoNperCP() {
+	return fcnPanoNperCP;
+}
+
+void setFcnPanoDoNotInitAvgFov() { // must be called after iflag = -100 call to fcnPano
+	needInitialAvgFov = 0;
+}
+
+void forceFcnPanoReinitAvgFov() { // applies to next call to fcnPano
+	needInitialAvgFov = 1;
+}
 
 int fcnPano(m,n,x,fvec,iflag)
 int m,n;
@@ -1314,14 +1443,44 @@ double x[],fvec[];
 	int i;
 	static int numIt;
 	double result;
+	int iresult;
+	double junk;
+	double junk2[2];
 	
 	if( *iflag == -100 ){ // reset
 		numIt = 0;
+		needInitialAvgFov = 1;
 		infoDlg ( _initProgress, "Optimizing Variables" );
+#if ADJUST_LOGGING_ENABLED
+		if ((adjustLogFile = fopen(ADJUST_LOG_FILENAME,"a")) <= 0) {
+			PrintError("Cannot Open Log File");
+			adjustLogFile = 0;
+		}
+#endif
 		return 0;
 	}
 	if( *iflag == -99 ){ // 
 		infoDlg ( _disposeProgress, "" );
+		if (adjustLogFile != 0) {
+			result = 0.0;
+			for( i=0; i < m; i++)
+			{
+				result += fvec[i]*fvec[i] ;
+			}
+			result = sqrt( result/ (double)m ) * sqrt((double)fcnPanoNperCP); // to approximate total distance vs dx, dy
+			fprintf(adjustLogFile,"At iflag=-99 (dispose), NperCP=%d, m=%d, n=%d, err = %g, x= \n",
+			                      fcnPanoNperCP,m,n,result);
+			for (i=0; i<n; i++) {
+				fprintf(adjustLogFile,"\t%20.10g",x[i]);
+			}
+			fprintf(adjustLogFile,"\n   fvec = \n");
+			for (i=0; i<m; i++) {
+				fprintf(adjustLogFile,"\t%20.10g",fvec[i]);
+				if (((i+1) % fcnPanoNperCP) == 0) fprintf(adjustLogFile,"\n");
+			}
+			fprintf(adjustLogFile,"\n");
+			fclose(adjustLogFile);
+		}
 		return 0;
 	}
 
@@ -1331,55 +1490,114 @@ double x[],fvec[];
 		char message[256];
 		
 		result = 0.0;
-		for( i=0; i < g->numPts; i++)
+		for( i=0; i < m; i++)
 		{
-			result += fvec[i] ;
+			result += fvec[i]*fvec[i] ;
 		}
-		result = sqrt( result/ (double)g->numPts );
-		
-		sprintf( message, "Average Difference between Controlpoints \nafter %d iteration(s): %g pixels", numIt,result);//average);
-		numIt += 10;
+		result = sqrt( result/ (double)m ) * sqrt((double)fcnPanoNperCP); // to approximate total distance vs dx, dy
+
+		sprintf( message,"Strategy %d\nAverage (rms) distance between Controlpoints \nafter %d iteration(s): %25.15g units", getFcnPanoNperCP(), numIt,result);//average);
+		numIt += 1; // 10;
 		if( !infoDlg ( _setProgress,message ) )
 			*iflag = -1;
+
+		if (adjustLogFile != 0) {
+			fprintf(adjustLogFile,"At iteration %d, iflag=0 (print), NperCP=%d, m=%d, n=%d, err = %g, x= \n",
+			                      numIt,fcnPanoNperCP,m,n,result);
+			for (i=0; i<n; i++) {
+				fprintf(adjustLogFile,"\t%20.10g",x[i]);
+			}
+			fprintf(adjustLogFile,"\n   fvec = \n");
+			for (i=0; i<m; i++) {
+				fprintf(adjustLogFile,"\t%20.10g",fvec[i]);
+				if (((i+1) % fcnPanoNperCP) == 0) fprintf(adjustLogFile,"\n");
+			}
+			fprintf(adjustLogFile,"\n");
+			fflush(adjustLogFile);
+		}
+
 		return 0;
 	}
 
 	// Set Parameters
 
-
 	SetAlignParams( x ) ;
-	
-	// Calculate distances
-	
-	result = 0.0;
-	for( i=0; i < g->numPts; i++){
-		int j;
-		switch(g->cpt[i].type){
-			case 0: fvec[i] = distSphere( i );
-			        break;
-			case 1:
-			case 2: fvec[i] = distSquared( i );
-				break;
-			default:for(j=0; j<g->numPts; j++){
-					if(j!=i && g->cpt[i].type == g->cpt[j].type){
-						fvec[i] = distLine(i,j);
-						break;
-					}
-				}
-				break;
+	if (needInitialAvgFov) {
+		initialAvgFov = avgfovFromSAP;
+		needInitialAvgFov = 0;
+		if (adjustLogFile != 0) {
+			fprintf(adjustLogFile,"setting initialAvgFov = %g\n",initialAvgFov);
+			fflush(adjustLogFile);
 		}
-		result += fvec[i] ;
 	}
-	result = result/ (double)g->numPts;
-	
-	for( i=g->numPts; i < m; i++)
-	{
-		fvec[i] = result ;
+
+	if (adjustLogFile != 0) {
+		fprintf(adjustLogFile,"entering fcnPano, m=%d, n=%d, initialAvgFov=%g, avgfovFromSAP=%g, x = \n",
+		                      m,n, initialAvgFov,avgfovFromSAP);
+		for (i=0; i<n; i++) {
+			fprintf(adjustLogFile,"\t%20.10g",x[i]);
+		}
+		fprintf(adjustLogFile,"\n");
+		fflush(adjustLogFile);
 	}
+
+	// Calculate distances
+
+	iresult = 0;
+	for( i=0; i < g->numPts; i++){
+		if (fcnPanoNperCP == 1) {
+			EvaluateControlPointErrorAndComponents ( i, &fvec[iresult], &junk2[0]);
+		} else {
+			EvaluateControlPointErrorAndComponents ( i, &junk, &fvec[iresult]);
+		}
 		
+		// Field-of-view stabilization.  Applying here means that the
+		// errors seen by the optimizer may be different from those finally
+		// reported, by the same factor for all errors.  This introduces
+		// the possibility of confusion for people who are paying really
+		// close attention to the optimizer's periodic output versus the
+		// final result.  However, it seems like the right thing to do
+		// because then the final reported errors will correspond to the
+		// user's settings for pano size, total fov etc. 
+		
+		if ((initialAvgFov / avgfovFromSAP) > 1.0) {
+			fvec[iresult] *= initialAvgFov / avgfovFromSAP;
+		}
+		iresult += 1;
+		if (fcnPanoNperCP == 2) {
+			if ((initialAvgFov / avgfovFromSAP) > 1.0) {
+				fvec[iresult] *= initialAvgFov / avgfovFromSAP;
+			}
+			iresult += 1;
+		}		
+	}
+	
+	// If not enough control points are provided, then fill out
+	// the function vector with copies of the average error
+	// for the actual control points.
+
+	result = 0.0;
+	for (i=0; i < iresult; i++) {
+		result += fvec[i]*fvec[i];
+	}
+	result = sqrt(result/(double)iresult);
+	for (i=iresult; i < m; i++) {
+		fvec[i] = result;
+	}
+
+	if (adjustLogFile != 0) {
+		result *= sqrt((double)fcnPanoNperCP);
+		fprintf(adjustLogFile,"leaving fcnPano, m=%d, n=%d, err=%g, fvec = \n",m,n,result);
+		for (i=0; i<m; i++) {
+			fprintf(adjustLogFile,"\t%20.10g",fvec[i]);
+			if (((i+1) % fcnPanoNperCP) == 0) fprintf(adjustLogFile,"\n");
+		}
+		fprintf(adjustLogFile,"\n");
+		fflush(adjustLogFile);
+	}
+
 	return 0;
 }
-
 
 
 
@@ -1700,6 +1918,7 @@ int	SetAlignParams( double *x )
 {
 	// Set Parameters
 	int i,j,k;
+	double sumfov = 0.0;
 	
 	j = 0;
 	
@@ -1723,6 +1942,7 @@ int	SetAlignParams( double *x )
 					g->im[i].hfov = - g->im[i].hfov;
 			}else{	g->im[i].hfov  = g->im[k-2].hfov;	}
 		}
+		sumfov += g->im[i].hfov;
 		if( (k = g->opt[i].a) > 0 ){
 			if( k == 1 ){ g->im[i].cP.radial_params[0][3]  =	x[j++] / C_FACTOR;
 			}else{	g->im[i].cP.radial_params[0][3] = g->im[k-2].cP.radial_params[0][3];}
@@ -1759,6 +1979,7 @@ int	SetAlignParams( double *x )
 														+ g->im[i].cP.radial_params[0][1] ) ;
 
 	}
+	avgfovFromSAP = sumfov / g->numIm;
 	if( j != g->numParam )
 		return -1;
 	else
@@ -2098,6 +2319,11 @@ static int GetOverlapRect( PTRect *OvRect, PTRect *r1, PTRect *r2 )
 void SetGlobalPtr( AlignInfo *p )
 {
 	g = p;
+}
+
+AlignInfo* GetGlobalPtr()
+{
+	return g;
 }
 
 void GetControlPointCoordinates(int i, double *x, double *y, AlignInfo *gl )

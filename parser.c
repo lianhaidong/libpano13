@@ -714,8 +714,8 @@ void WriteResults( char* script, fullPath *sfile,  AlignInfo *g, double ds( int 
 	if( g->numPts > 0 ) // Display Controlpoint distances
 	{
 		sprintf(line, "\n");strcat( res, line );
-		sprintf( line, "# ====================================================================\n");strcat( res, line );
-		sprintf( line, "# Control Points: Distance between desired and fitted Position (in Pixels)\n\n");strcat( res, line );
+		sprintf( line, "# ==========================================================================\n");strcat( res, line );
+		sprintf( line, "# Control Points: Distance between desired and fitted Position (in \"Pixels\")\n\n");strcat( res, line );
 			
 		for( i=0; i<g->numPts; i++ )
 		{
@@ -726,7 +726,8 @@ void WriteResults( char* script, fullPath *sfile,  AlignInfo *g, double ds( int 
 		{
 			double x[2],y[2],xd,yd;
 			
-			if(g->cpt[i].num[0] != g->cpt[i].num[1])
+			// write only normal control points, not horizontals, verticals, or lines
+			if (g->cpt[i].type == 0)
 			{
 				GetControlPointCoordinates(i, x, y, g );
 				// Write only points inside image

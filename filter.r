@@ -128,7 +128,7 @@ resource 'DLOG' (110) {
 	0x0,
 	110,
 	"Name comes here"
-				#if SystemSevenOrLater
+#if SystemSevenOrLater
 	, centerParentWindowScreen
 #endif
 	;
@@ -350,24 +350,24 @@ resource 'DITL' (301) {
 			disabled,
 			"d"
 		},
-		/* [7] */
+                /* [7] */
                 /*{12, 134, 28, 161}*/{12, 274, 28, 284},
-		StaticText {
-			disabled,
-			"c"
-		},
-		/* [8] */
+                StaticText {
+                        disabled,
+                        "c"
+                },
+                /* [8] */
                 /*{12, 189, 28, 255}*/{12, 190, 28, 200},
-		StaticText {
-			disabled,
-			"b"
-		},
-		/* [9] */
+                StaticText {
+                        disabled,
+                        "b"
+                },
+                /* [9] */
                 /*{12, 251, 28, 277}*/{12, 107, 28, 117},
-		StaticText {
-			disabled,
-			"a"
-		},
+                StaticText {
+                         disabled,
+                         "a"
+                },
 		/* [10] */
 		/*{35, 72, 51, 118}*/{35, 321, 51, 392},
 		EditText {
@@ -857,7 +857,7 @@ resource 'DITL' (320) {
 			enabled,
 			"Pref…"
 		}
-		}
+	}
 };
 
 resource 'dlgx' (320) {
@@ -874,7 +874,7 @@ resource 'DLOG' (300) {
 	0x0,
 	300,
 	"Correction"
-				#if SystemSevenOrLater
+#if SystemSevenOrLater
 	, centerParentWindowScreen
 #endif
 	;
@@ -888,7 +888,7 @@ resource 'DLOG' (301) {
 	0x0,
 	301,
 	"Options for Radial Shift"
-				#if SystemSevenOrLater
+#if SystemSevenOrLater
 	, centerParentWindowScreen
 #endif
 	;
@@ -902,7 +902,7 @@ resource 'DLOG' (302) {
 	0x0,
 	302,
 	"Vertical Shift"
-				#if SystemSevenOrLater
+#if SystemSevenOrLater
 	, centerParentWindowScreen
 #endif
 	;
@@ -916,7 +916,7 @@ resource 'DLOG' (303) {
 	0x0,
 	303,
 	"Enter Size"
-				#if SystemSevenOrLater
+#if SystemSevenOrLater
 	, centerParentWindowScreen
 #endif
 	;
@@ -931,7 +931,7 @@ resource 'DLOG' (310) {
 	0x0,
 	310,
 	"Map Options"
-				#if SystemSevenOrLater
+#if SystemSevenOrLater
 	, centerParentWindowScreen
 #endif
 	;
@@ -945,7 +945,7 @@ resource 'DLOG' (320) {
 	0x0,
 	320,
 	"Perspective Options"
-				#if SystemSevenOrLater
+#if SystemSevenOrLater
 	, centerParentWindowScreen
 #endif
 	;
@@ -962,7 +962,7 @@ resource 'DLOG' (330) {
 	0x0,
 	330,
 	"Create Panorama"
-				#if SystemSevenOrLater
+#if SystemSevenOrLater
 	, centerParentWindowScreen
 #endif
 	;
@@ -976,7 +976,7 @@ resource 'DLOG' (331) {
 	0x0,
 	331,
 	"Options for Insert/Extract"
-				#if SystemSevenOrLater
+#if SystemSevenOrLater
 	, centerParentWindowScreen
 #endif
 	;
@@ -991,7 +991,7 @@ resource 'DLOG' (332) {
 	0x0,
 	332,
 	"Fit Into Panorama"
-				#if SystemSevenOrLater
+#if SystemSevenOrLater
 	, centerParentWindowScreen
 #endif
 	;
@@ -1005,7 +1005,7 @@ resource 'DLOG' (333) {
 	0x0,
 	333,
 	"Options for Optimize"
-				#if SystemSevenOrLater
+#if SystemSevenOrLater
 	, centerParentWindowScreen
 #endif
 	;
@@ -1019,7 +1019,7 @@ resource 'DLOG' (334) {
 	0x0,
 	334,
 	"Specify Matching Points"
-				#if SystemSevenOrLater
+#if SystemSevenOrLater
 	, centerParentWindowScreen
 #endif
 	;
@@ -1168,10 +1168,10 @@ resource 'DITL' (331) {
 		/*{40, 342, 58, 467}*/{40, 342, 58, 475}, //Changed by Kekus Digital 11 August 2003
 		StaticText {
 			disabled,
-			"Yaw:  -180°...+180°"
+			"Yaw: -180°...+180°"
 		},
 		/* [9] */
-		{40, 476, 56, 527},
+		/*{40, 476, 56, 527}*/ {40, 476, 56, 555},  //Changed by Kekus Digital 18 December 2003
 		EditText {
 			enabled,
 			"Edit Text"
@@ -1180,10 +1180,10 @@ resource 'DITL' (331) {
 		/*{66, 342, 84, 467}*/{66, 342, 84, 475}, //Changed by Kekus Digital 11 August 2003
 		StaticText {
 			disabled,
-			"Pitch:     -90°...+90°"
+			"Pitch: -90°...+90°"
 		},
 		/* [11] */
-		{66, 476, 82, 527},
+		/*{66, 476, 82, 527}*/{66, 476, 82, 555}, //Changed by Kekus Digital 18 December 2003
 		EditText {
 			enabled,
 			"Edit Text"
@@ -1195,7 +1195,7 @@ resource 'DITL' (331) {
 			"Roll:"
 		},
 		/* [13] */
-		{92, 476, 108, 527},
+		/*{92, 476, 108, 527}*/{92, 476, 108, 555}, //Changed by Kekus Digital 18 December 2003
 		EditText {
 			enabled,
 			"Edit Text"
@@ -1896,7 +1896,7 @@ resource 'DLOG' (360) {
 	0x0,
 	360,
 	"Size Options"
-				#if SystemSevenOrLater
+#if SystemSevenOrLater
 	, centerParentWindowScreen
 #endif
 	;
@@ -1910,7 +1910,7 @@ resource 'DLOG' (350) {
 	0x0,
 	350,
 	"Size Options"
-				#if SystemSevenOrLater
+#if SystemSevenOrLater
 	, centerParentWindowScreen
 #endif
 	;
@@ -2047,25 +2047,25 @@ resource 'DITL' (400) {
 		{37, 22, 53, 200},
 		RadioButton {
 			enabled,
-			"Polynomial:      16 Pixels"
+			"Polynomial:   16 Pixels"
 		},
 		/* [4] */
 		{57, 22, 73, 200},
 		RadioButton {
 			enabled,
-			"Spline:                16 Pixels"
+			"Spline:          16 Pixels"
 		},
 		/* [5] */
 		{78, 22, 94, 200},
 		RadioButton {
 			enabled,
-			"Spline:                36 Pixels"
+			"Spline:          36 Pixels"
 		},
 		/* [6] */
 		{98, 22, 115, 200},
 		RadioButton {
 			enabled,
-			"Sinc:                  256 Pixels"
+			"Sinc:           256 Pixels"
 		},
 		/* [7] */
 		{56, 226, 72, 279},
@@ -2126,7 +2126,7 @@ resource 'DLOG' (400) {
 	0x0,
 	400,
 	"Bicubic Interpolator"
-				#if SystemSevenOrLater
+#if SystemSevenOrLater
 	, centerParentWindowScreen
 #endif
 	;
@@ -2169,7 +2169,7 @@ resource 'DLOG' (115) {
 	0x0,
 	115,
 	"Optimizer Info"
-				#if SystemSevenOrLater
+#if SystemSevenOrLater
 	, centerParentWindowScreen
 #endif
 	;

@@ -9,6 +9,7 @@ static void			FreeLMStruct	( struct LMStruct *LM );
 void 			bracket( struct LMStruct	*LM );
 double 			sumSquared( double *a, int n );
 
+#define FUNCS_PER_CP getFcnPanoNperCP()  // number of functions per control point
 
 // Call Levenberg-Marquard optimizer
 #if 1
@@ -28,74 +29,159 @@ void  RunLMOptimizer( OptInfo	*o)
 				"tol too small. no further improvement in approximate solution x possible",
 				"Interrupted"
 				};
+	int istrat;       // strategy
+	int totalfev;     // total function evaluations
+	int numconstraints;  // number of constraints imposed by control points
+	int i;
+	int lmInfo;
+	AlignInfo	*g;	              // obtained from adjust.c
+	AlignInfo   *GetGlobalPtr();  // likewise
+
+
+	// PrintError("RunLMOptimizer");
 	
-	
+	// The method used here is a hybrid of two optimization strategies.
+	// In the first strategy, fcnPano is configured to return one function per
+	// control point, that function being total distance without regard for
+	// direction.  In the second strategy, fcnPano is configured to return two
+	// functions per control point, those functions being distance in two
+	// directions, typically longitude and latitude.  The second strategy
+	// converges much faster, but may be less stable with poor initial estimates.
+	// So, we use the first method as long as it makes significant progress
+	// (currently 5% reduction in error per iteration), and then switch to
+	// the second method to rapidly polish the estimate.  Final result
+	// returned to the user is that of the second method.
+	//
+	// Older versions of Panorama Tools used just the first strategy,
+	// with error tolerances set to make it run to full convergence,
+	// which often took hundreds or thousands of iterations.  The hybrid
+	// approach typically converges much faster (a few tens of iterations)
+	// and appears to be equally robust in testing to date.  Full convergence
+	// (to am lmdif ftol of 1.0e-14) is not always achieved faster than the old
+	// version.  However the convergence rate (error reduction per wall-clock
+	// second) has been significantly better in all cases tested, and the final
+	// accuracy has been equal or improved.
+	//
+	// So, in the interest of behavior that is friendlier to the user, I have
+	// set an ftol convergence criterion that is looser than before, 1.0e-6
+	// instead of 1.0e-14.  By this point, it is very unlikely that
+	// significant reductions can be achieved by more iterating, since
+	// even 10,000 more iterations would be predicted to make at most 1%
+	// improvement in the total error.
+	//
+	// I have also made the diagnosis of too few control points more precise
+	// and more obvious to the user.  The old version complained if the
+	// number of control points was less than the number of parameters,
+	// although in fact each normal control point contributes two independent
+	// constraints (x and y) so the actual critical number is
+	// 2*controlpoints >= parameters.  As a result, the old version often
+	// complained even when things were fine, and never complained more loudly
+	// even when things were awful.  This version does not complain
+	// at all unless there are not enough actual constraints, and then it puts
+	// out an error dialog that must be dismissed by the user.
+	//
+	//   Rik Littlefield (rj.littlefield@computer.org), May 2004.
 
 	LM.n = o->numVars;
 	
-	if( o->numData < LM.n )
-	{
-		LM.m 		= LM.n;
-		warning		= "Warning: Number of Data Points is smaller than Number of Variables to fit.\n";
-	}
-	else
-	{
-		LM.m 		= o->numData;
-		warning		= "";
+	g = GetGlobalPtr();
+	numconstraints = 0;
+	for(i=0; i < g->numPts; i++) {
+		if (g->cpt[i].type == 0)
+		     numconstraints += 2;
+		else numconstraints += 1;
 	}
 
-	fcn = o->fcn;
+	warning = "";
+	if( numconstraints < LM.n )
+	{
+		char msgx[200];
+		warning	= "Warning: Number of Data Points is smaller than Number of Variables to fit.\n";
+		sprintf (msgx,"You have too few control points (%d) or too many parameters (%d).  Strange values may result!",o->numData,LM.n);
+		PrintError(msgx);
+	}
+	
+	totalfev = 0;
+	for (istrat=1; istrat <= 2; istrat++) {
+
+		setFcnPanoNperCP(istrat);
+
+		LM.m = o->numData*FUNCS_PER_CP;
+		if( LM.m < LM.n ) LM.m = LM.n;  // in strategy #1, fcnpano will pad fvec if needed
+
+		fcn = o->fcn;
+
+		if( AllocateLMStruct( &LM ) != 0 )
+		{
+			PrintError( "Not enough Memory" );
+			return;
+		}
+
+		// Initialize optimization params
+
+		if( o->SetVarsToX( LM.x ) != 0)
+		{
+			PrintError("Internal Error");
+			return;
+		}
+
+		iflag 		= -100; // reset counter and initialize dialog
+		fcn(LM.m, LM.n, LM.x, LM.fvec, &iflag);
+		if (istrat == 2) setFcnPanoDoNotInitAvgFov();
+
+		// infoDlg ( _initProgress, "Optimizing Variables" );
+
+		/* Call lmdif. */
+		LM.ldfjac 	= LM.m;
+		LM.mode 	= 1;
+		LM.nprint 	= 1; // 10
+		LM.info 	= 0;
+		LM.factor 	= 100.0;
+
+		LM.ftol 	= 	1.0e-6; // used to be DBL_EPSILON; //1.0e-14;
+		if (istrat == 1) {
+			LM.ftol = 0.05;  // for distance-only strategy, bail out when convergence slows
+		}
+
+		lmdif(	LM.m,		LM.n,		LM.x,		LM.fvec,	LM.ftol,	LM.xtol,
+				LM.gtol,	LM.maxfev,	LM.epsfcn,	LM.diag,	LM.mode,	LM.factor,
+				LM.nprint,	&LM.info,	&LM.nfev,	LM.fjac,	LM.ldfjac,	LM.ipvt,
+				LM.qtf,		LM.wa1,		LM.wa2,		LM.wa3,		LM.wa4);
+
+		lmInfo = LM.info;
+
+		// At end, one final evaluation to get errors that do not have fov stabilization applied,
+		// for reporting purposes.
 		
-	if( AllocateLMStruct( &LM ) != 0 )
-	{
-		PrintError( "Not enough Memory" );
-		return;
-	}
-	
-	// Initialize optimization params
-
-	if( o->SetVarsToX( LM.x ) != 0)
-	{
-		PrintError("Internal Error");
-		return;
-	}
-
-	iflag 		= -100; // reset counter and initialize dialog
-	fcn(LM.m, LM.n, LM.x, LM.fvec, &iflag);
+		if (istrat == 2) {
+			forceFcnPanoReinitAvgFov();
+			iflag = 1;
+			fcn(LM.m, LM.n, LM.x, LM.fvec, &iflag);
+		}
 		
-	// infoDlg ( _initProgress, "Optimizing Variables" );
+		o->SetXToVars( LM.x );
 
-	/* Call lmdif. */
-	LM.ldfjac 	= LM.m;
-	LM.mode 	= 1;
-	LM.nprint 	= 10;
-	LM.info 	= 0;
-	LM.factor 	= 100.0;
+		iflag 		= -99; // reset counter and dispose dialog
+		fcn(LM.m, LM.n, LM.x, LM.fvec, &iflag);
+		// infoDlg ( _disposeProgress, "" );
 
-	lmdif(	LM.m,		LM.n,		LM.x,		LM.fvec,	LM.ftol,	LM.xtol,
-			LM.gtol,	LM.maxfev,	LM.epsfcn,	LM.diag,	LM.mode,	LM.factor,
-			LM.nprint,	&LM.info,	&LM.nfev,	LM.fjac,	LM.ldfjac,	LM.ipvt,
-			LM.qtf,		LM.wa1,		LM.wa2,		LM.wa3,		LM.wa4);
-
-
-	o->SetXToVars( LM.x );
-
-	iflag 		= -99; // reset counter and dispose dialog
-	fcn(LM.m, LM.n, LM.x, LM.fvec, &iflag);
-	// infoDlg ( _disposeProgress, "" );
-	
-	// Display solver info
+		// Display solver info
 		
-	if(LM.info >= 8)
-			LM.info = 4;
-	if(LM.info < 0)
-			LM.info = 8;
-	
-	sprintf( (char*) o->message, "# %s%d function evalutations\n# %s\n",
-								warning, LM.nfev, infmsg[LM.info] );
+		if(LM.info >= 8)
+				LM.info = 4;
+		if(LM.info < 0)
+				LM.info = 8;
+		totalfev += LM.nfev;
 
-	FreeLMStruct( &LM );
-	
+		sprintf( (char*) o->message, "# %s%d function evaluations\n# %s\n# final rms error %g units\n",
+									warning, totalfev, infmsg[LM.info],
+									sqrt(sumSquared(LM.fvec,LM.m)/LM.m) * sqrt((double)FUNCS_PER_CP));
+
+		FreeLMStruct( &LM );
+		
+		if (lmInfo < 0) break;  // to honor user cancel in strategy 1
+	}
+
 }
 
 #endif
@@ -124,15 +210,18 @@ void  RunBROptimizer ( OptInfo	*o, double minStepWidth)
 				"Interrupted"
 				};
 
+	// PrintError("RunBROptimizer");
 	LM.n = o->numVars;
 	
-	if( o->numData < LM.n )
+	setFcnPanoNperCP(1);  // This optimizer does not use direction, don't waste time computing it
+
+	if( o->numData*FUNCS_PER_CP < LM.n )
 	{
 		LM.m 		= LM.n;
 	}
 	else
 	{
-		LM.m 		= o->numData;
+		LM.m 		= o->numData*FUNCS_PER_CP;
 	}
 
 	fcn = o->fcn;
@@ -359,17 +448,13 @@ void bracket( struct LMStruct	*LM )
 				
 				if( changed ) c = 1;
 		
-				if( 0 ) //changed )
-				{
-					// This is an improvement now: print
-					c=1;
+				if (c) { // an improvement, let's see it (and give the user a chance to bail out)
 					iflag = 0;
-					LM->fvec[0] = sqrt(eps/LM->m);
 					fcn(LM->m, LM->n, LM->x, LM->fvec, &iflag);
 					if( iflag < 0 ) return;
 					iflag = 1;
 				}
-				
+								
 			}
 		}
 		// PrintError("%lf %ld %lf", delta, c, eps);
