@@ -22,8 +22,8 @@ then
   AC_MSG_RESULT()
 
 dnl these two lines should let u find most java installations
-  java_dirs="/usr /usr/local /usr/lib/j2sdk1.4-sun /usr/lib/jvm/java /opt /mingw"
-  java_inc_dirs="include include/libgcj"
+  java_dirs="/usr /usr/local /usr/lib/j2sdk1.4-sun /usr/lib/jvm/java /System/Library/Frameworks/JavaVM.framework/Versions/Current /opt /mingw"
+  java_inc_dirs="include include/libgcj Headers"
   
   if test "x$with_java" != 'x'
   then
