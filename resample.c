@@ -970,11 +970,15 @@ void MyTransForm( TrformStr *TrPtr, fDesc *fD, int color, int imageNum){
 			case 0:
                         { 
                             char title[30];
+#if BROKEN
                             int the_Num;
                             NumToString(imageNum, the_Num);
                             p2cstr(the_Num);
                             strcpy(title, "Converting Image #");
                             strcat(title, (char *)the_Num);
+#else
+                            sprintf(title, "Converting Image #%d", imageNum);
+#endif
                             strcpy(progressMessage, title);	
                             //progressMessage = "Image Conversion"; 	
                         }
