@@ -881,7 +881,7 @@ int LaunchAndSendScript(char* application, char* script){
 		WinExec( cmd , SW_SHOWNORMAL );
 		return 0;
 	}else{
-		PrintError("Command to long for WinExec");
+		PrintError("Command too long for WinExec");
 		free( cmd );
 		return -1;
 	}
