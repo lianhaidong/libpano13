@@ -15,6 +15,14 @@
    along with this program; if not, write to the Free Software
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.  */
 
+/*
+    Modifications by Max Lyons (maxlyons@erols.com):
+
+    March 16, 2002.  Added LINE_LENGTH to increase the amount of memory
+    allocated when reading optimizer scripts.  Needed to reduce constraint
+    on number of parameters than can be read by optimizer
+
+
 /*------------------------------------------------------------*/
 
 
@@ -45,17 +53,20 @@ static int 		ReadCoordinates( 	CoordInfo	*cp, char *line );
 								MY_SSCANF( buf, "%ld", &k);		\
 								if( k<0 || k>= numIm )			\
 								{								\
-									PrintError("Syntax error in script: Line %d", lineNum);	\
+									PrintError("Syntax error in script: Line %d\n\nIllegal image number: %ld", lineNum, k);\
 									return -1;					\
 								}								\
 								if( gl->opt[k].var )			\
 								{								\
-									PrintError("Conflict in script: Line %d\nMultiple Instances of Variable", lineNum);	\
+									PrintError("Conflict in script: Line %d\n\nMultiple Instances of Variable\n\nImage number: %k", lineNum, k);\
 									return -1;					\
 								}								\
 								gl->opt[k].var	 = 1;			\
 								n++;							\
 											
+//Increased so more params can be parsed/optimized (MRDL - March 2002)
+#define LINE_LENGTH         65536
+
 											
 // Optimizer Script parser; fill global info structure
 
@@ -67,7 +78,7 @@ int ParseScript( char* script, AlignInfo *gl )
 	
 	// Variables used by parser
 	
-	char 				*li, line[256], *ch ,*lineStart, buf[256];
+	char 				*li, line[LINE_LENGTH], *ch ,*lineStart, buf[LINE_LENGTH];
 	int 				lineNum = 0;
 	int 				i,k;
 
@@ -237,8 +248,8 @@ int ParseScript( char* script, AlignInfo *gl )
 											opt->d += 2;
 										}else{
 											READ_VAR( "%lf", &(im->cP.horizontal_params[0]));
-								      		im->cP.horizontal= TRUE;
 										}
+								      	im->cP.horizontal= TRUE;
 										break;	
 							case 'e':	if( *(li+1) == '=' ){
 									  		li++;
@@ -246,8 +257,26 @@ int ParseScript( char* script, AlignInfo *gl )
 											opt->e += 2;
 										}else{
 											READ_VAR("%lf", &(im->cP.vertical_params[0]));
+									}
 											im->cP.vertical	= TRUE;
+									break;
+							case 'g':	if( *(li+1) == '=' ){
+									  	li++;
+										READ_VAR( "%d", &(opt->shear_x));
+										opt->shear_x += 2;
+									}else{
+										READ_VAR("%lf", &(im->cP.shear_x));
 										}
+									im->cP.shear	= TRUE;
+									break;
+							case 't':	if( *(li+1) == '=' ){
+									  	li++;
+										READ_VAR( "%d", &(opt->shear_y));
+										opt->shear_y += 2;
+									}else{
+										READ_VAR("%lf", &(im->cP.shear_y));
+									}
+									im->cP.shear	= TRUE;
 										break;
 							case 'n':			// Set filename
 										nextWord( buf, &li );
@@ -361,6 +390,10 @@ int ParseScript( char* script, AlignInfo *gl )
 										break;
 							case 'e':	READ_OPT_VAR(e);
 										break;
+							case 'g':	READ_OPT_VAR(shear_x);
+										break;
+							case 't':	READ_OPT_VAR(shear_y);
+										break;
 							case 'X':	READ_VAR( "%d", &k );
 										if( k>=0 && k<gl->numIm )
 											gl->cim[k].set[0] = FALSE;
@@ -452,6 +485,12 @@ int ParseScript( char* script, AlignInfo *gl )
 		k = gl->opt[i].e - 2;
 		if( k >= 0 ) gl->im[i].cP.vertical_params[0] = gl->im[ k ].cP.vertical_params[0];
 
+		k = gl->opt[i].shear_x - 2;
+		if( k >= 0 ) gl->im[i].cP.shear_x = gl->im[ k ].cP.shear_x;
+
+		k = gl->opt[i].shear_y - 2;
+		if( k >= 0 ) gl->im[i].cP.shear_y = gl->im[ k ].cP.shear_y;
+
 		gl->im[i].cP.radial_params[0][0] = 1.0 - ( gl->im[i].cP.radial_params[0][3]
 														+ gl->im[i].cP.radial_params[0][2]
 														+ gl->im[i].cP.radial_params[0][1] ) ;
@@ -469,7 +508,7 @@ int ParseScript( char* script, AlignInfo *gl )
 
 void WriteResults( char* script, fullPath *sfile,  AlignInfo *g, double ds( int i), int launch)
 {
-	char 		*res, **hres, line[1024], cmd[256];
+	char 		*res, **hres, line[LINE_LENGTH], cmd[LINE_LENGTH];
 	int 		optHfov;		 // Has hfov being optimized?
 	int			opta,optb,optc;  // same for a,b,c - the polynomial corrections
 	int         format;
@@ -563,6 +602,11 @@ void WriteResults( char* script, fullPath *sfile,  AlignInfo *g, double ds( int 
 		if( g->im[i].cP.radial )
 		{
 			sprintf( line, "a%f b%f c%f ", g->im[i].cP.radial_params[0][3], g->im[i].cP.radial_params[0][2], g->im[i].cP.radial_params[0][1]);
+			strcat( cmd, line );
+		}
+		if( g->im[i].cP.shear )
+		{
+			sprintf( line, "g%f t%f ", g->im[i].cP.shear_x, g->im[i].cP.shear_y);
 			strcat( cmd, line );
 		}
 		if( g->im[i].cP.cutFrame &&
@@ -717,7 +761,7 @@ int readAdjust( aPrefs *p,  fullPath* sfile, int insert, sPrefs *sP )
 	char*				script;
 	// Variables used by parser
 	
-	char 				line[256], *ch;
+	char 				line[LINE_LENGTH], *ch;
 	int 				lineNum = 0;
 	int 				seto;
 	
@@ -887,7 +931,7 @@ void readControlPoints(char* script, controlPoint *cp )
 
 	// Variables used by parser
 	
-	char 				line[256], *ch ,*lineStart;
+	char 				line[LINE_LENGTH], *ch ,*lineStart;
 	int 				lineNum = 0;
 	int 				i;
 	int 				numPts;
@@ -996,7 +1040,9 @@ void nextLine( register char* line, char** ch )
 		
 	i=0;
 	
-	while( *c != 0 && *c != '\n' && i++<255)
+	//Increased by Max Lyons (January 12, 2003) to increase size of optimizer
+	//lines that can be read (previously hard-coded to 255 characters).
+	while( *c != 0 && *c != '\n' && i++<LINE_LENGTH)
 		*line++ = *c++;
 	*line = 0;
 	*ch = c;
@@ -1041,7 +1087,7 @@ static int ReadControlPoint( controlPoint * cptr, char *line)
 	controlPoint		cp;
 	char *ch	= line;
 	int setn, setN, setx, setX, sety, setY; 
-	char buf[256];
+	char buf[LINE_LENGTH];
 	
 	
 	setn = setN = setx= setX = sety = setY = FALSE;
@@ -1089,9 +1135,9 @@ static int ReadControlPoint( controlPoint * cptr, char *line)
 			PrintError("Missing Control Point Parameter");
 			return -1;
 	}
-	else if( cp.type != 0 && cp.type != 1 && cp.type != 2 )
+	else if( cp.type < 0 )
 	{
-			PrintError("Control Point Type must be 0,1, or 2");
+			PrintError("Control Point Type must be positive");
 			return -1;
 	}
 	else if( cp.x[0] < 0 || cp.y[0] < 0 || cp.x[1] < 0 || cp.y[1] < 0)
@@ -1114,7 +1160,7 @@ static int ReadImageDescription( Image *imPtr, stBuf *sPtr, char *line )
 	Image im;
 	stBuf sBuf;
 	char *ch = line;
-	char buf[256];
+	char buf[LINE_LENGTH];
 	int	 i;
 
 	
@@ -1151,6 +1197,12 @@ static int ReadImageDescription( Image *imPtr, stBuf *sPtr, char *line )
 						break;
 			case 'e':	READ_VAR("%lf", &(im.cP.vertical_params[0]));
 						im.cP.vertical = TRUE;
+						break;
+			case 'g':	READ_VAR("%lf", &(im.cP.shear_x));
+						im.cP.shear 	= TRUE;
+						break;
+			case 't':	READ_VAR("%lf", &(im.cP.shear_y));
+						im.cP.shear = TRUE;
 						break;
 			case '+':	nextWord( buf, &ch );
 						sprintf( sBuf.srcName, "%s", buf);
@@ -1236,7 +1288,7 @@ static int ReadModeDescription( sPrefs *sP, char *line )
 {
 	sPrefs theSprefs;
 	char *ch = line;
-	char buf[256];
+	char buf[LINE_LENGTH];
 
 	setlocale(LC_ALL, "C");
 	memcpy( &theSprefs, 	sP,	 sizeof(sPrefs) );
@@ -1273,7 +1325,7 @@ static int ReadModeDescription( sPrefs *sP, char *line )
 int	getVRPanoOptions( VRPanoOptions *v, char *line )
 {
 	char 			*ch = line;
-	char 			buf[256];
+	char 			buf[LINE_LENGTH];
 	VRPanoOptions 	VRopt;
 
 	setlocale(LC_ALL, "C");
@@ -1315,7 +1367,7 @@ int readPositions( char* script, transformCoord *tP )
 {
 	// Variables used by parser
 	
-	char 			    line[256], *ch ;
+	char 			    line[LINE_LENGTH], *ch ;
 	int 				lineNum = 0;
 	int 				nr=0,np=0;
 
@@ -1384,7 +1436,7 @@ static int ReadCoordinates( 	CoordInfo	*cp, char *line )
 {
 	CoordInfo	ci;
 	char *ch = line;
-	char buf[256];
+	char buf[LINE_LENGTH];
 	
 	ci.num = ci.set[0] = ci.set[1] = ci.set[2] = 0;
 	ci.x[0] = ci.x[1] = ci.x[2] = 1.0;
@@ -1423,7 +1475,7 @@ int ReadMorphPoints( char *script, AlignInfo *gl, int nIm )
 {
 	// Variables used by parser
 	
-	char 			    line[256], *ch ;
+	char 			    line[LINE_LENGTH], *ch ;
 	int 				lineNum = 0;
 	int					np = 0;
 	controlPoint		cp;

@@ -38,7 +38,7 @@ static int		CheckMakeParams( aPrefs *aP);
 static int		GetOverlapRect( PTRect *OvRect, PTRect *r1, PTRect *r2 );
 int 			AddEdgePoints( AlignInfo *gl );
 int 			pt_average( UCHAR* pixel, int BytesPerLine, double rgb[3], int bytesPerChannel );
-
+double 			distLine(int N0, int N1);
 
 void adjust(TrformStr *TrPtr, aPrefs *prefs)
 {
@@ -50,6 +50,8 @@ void adjust(TrformStr *TrPtr, aPrefs *prefs)
 	PTTriangle 	*td=NULL; 
 #endif
 	SetAdjustDefaults(&aP);
+
+	//PrintError ("MRDL: In adjust");
 
 	switch( prefs->mode & 7 )// Should we use prefs, or read from script?
 	{
@@ -623,27 +625,28 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
 
 	SetDesc(	stack[i],	resize,				mp->scale		); i++; // Scale image
 	
-	if( im->cP.shear )
-	{
-		SetDesc( stack[i],shear,			mp->shear		); i++;
-	}
-	if ( im->cP.horizontal )
-	{
-		SetDesc(stack[i],horiz,				&(mp->horizontal)); i++;
-	}
-	if (  im->cP.vertical)
-	{
-		SetDesc(stack[i],vert,				&(mp->vertical)); 	i++;
-	}
 	if( im->cP.radial )
 	{
 		switch( im->cP.correction_mode & 3 )
-		{
+	{
 			case correction_mode_radial:    SetDesc(stack[i],radial,mp->rad); 	  i++; break;
 			case correction_mode_vertical:  SetDesc(stack[i],vertical,mp->rad);   i++; break;
 			case correction_mode_deregister:SetDesc(stack[i],deregister,mp->rad); i++; break;
 		}
 	}
+	if (  im->cP.vertical)
+	{
+		SetDesc(stack[i],vert,				&(mp->vertical)); 	i++;
+	}
+	if ( im->cP.horizontal )
+		{
+		SetDesc(stack[i],horiz,				&(mp->horizontal)); i++;
+		}
+	if( im->cP.shear )
+	{
+		SetDesc( stack[i],shear,			mp->shear		); i++;
+	}
+
 	stack[i].func  = (trfn)NULL;
 
 // print stack for debugging
@@ -747,6 +750,8 @@ void 	SetInvMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , 
 			mp->scale[0] = ((double)pn->hfov / im->hfov) * ((double)im->width)/ ((double) pn->width); 
 		}
 	}
+	mp->shear[0] 	= -im->cP.shear_x / im->height;
+	mp->shear[1] 	= -im->cP.shear_y / im->width;
 	
 	mp->scale[0] = 1.0 / mp->scale[0];
 	mp->scale[1] 	= mp->scale[0];
@@ -775,6 +780,10 @@ void 	SetInvMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , 
 	i = 0;	// Stack counter
 		
 		// Perform radial correction
+	if( im->cP.shear )
+	{
+		SetDesc( stack[i],shear,			mp->shear		); i++;
+	}
 		
 	if ( im->cP.horizontal )
 	{
@@ -1022,6 +1031,67 @@ double distSphere( int num ){
 
 
 
+void pt_getXY(int n, double x, double y, double *X, double *Y){
+	struct 	MakeParams	mp;
+	struct  fDesc 		stack[15];
+	double h2,w2;
+
+	SetInvMakeParams( stack, &mp, &g->im[ n ], &g->pano, 0 );
+	h2 	= (double)g->im[ n ].height / 2.0 - 0.5;
+	w2	= (double)g->im[ n ].width  / 2.0 - 0.5;
+
+
+	execute_stack( 	x - w2,	y - h2,	X, Y, stack);
+}
+
+// Return distance of 2 lines
+// The line through the two farthest apart points is calculated
+// Returned is the distance of the other two points
+double distLine(int N0, int N1){
+	double x[4],y[4], del, delmax, A, B, C, mu, d0, d1;
+	int n0, n1, n2, n3, i, k;
+
+	pt_getXY(g->cpt[N0].num[0], (double)g->cpt[N0].x[0], (double)g->cpt[N0].y[0], &x[0], &y[0]);
+	pt_getXY(g->cpt[N0].num[1], (double)g->cpt[N0].x[1], (double)g->cpt[N0].y[1], &x[1], &y[1]);
+	pt_getXY(g->cpt[N1].num[0], (double)g->cpt[N1].x[0], (double)g->cpt[N1].y[0], &x[2], &y[2]);
+	pt_getXY(g->cpt[N1].num[1], (double)g->cpt[N1].x[1], (double)g->cpt[N1].y[1], &x[3], &y[3]);
+
+	delmax = 0.0;
+	n0 = 0; n1 = 1;
+
+	for(i=0; i<4; i++){
+		for(k=i+1; k<4; k++){
+			del = (x[i]-x[k])*(x[i]-x[k])+(y[i]-y[k])*(y[i]-y[k]);
+			if(del>delmax){
+				n0=i; n1=k; delmax=del;
+			}
+		}
+	}
+	if(delmax==0.0) return 0.0;
+
+	for(i=0; i<4; i++){
+		if(i!= n0 && i!= n1){
+			n2 = i;
+			break;
+		}
+	}
+	for(i=0; i<4; i++){
+		if(i!= n0 && i!= n1 && i!=n2){
+			n3 = i;
+		}
+	}
+
+
+	A=y[n1]-y[n0]; B=x[n0]-x[n1]; C=y[n0]*(x[n1]-x[n0])-x[n0]*(y[n1]-y[n0]);
+
+	mu=1.0/sqrt(A*A+B*B);
+
+	d0 = (A*x[n2]+B*y[n2]+C)*mu;
+	d1 = (A*x[n3]+B*y[n3]+C)*mu;
+
+	return d0*d0 + d1*d1;
+
+}
 
 
 // Calculate the distance of Control Point "num" between two images
@@ -1223,10 +1293,20 @@ double x[],fvec[];
 	
 	result = 0.0;
 	for( i=0; i < g->numPts; i++){
-		if( g->cpt[i].type == 0 ){
-			fvec[i] = distSphere( i );
-		}else{
-			fvec[i] = distSquared( i );
+		int j;
+		switch(g->cpt[i].type){
+			case 0: fvec[i] = distSphere( i );
+			        break;
+			case 1:
+			case 2: fvec[i] = distSquared( i );
+				break;
+			default:for(j=0; j<g->numPts; j++){
+					if(j!=i && g->cpt[i].type == g->cpt[j].type){
+						fvec[i] = distLine(i,j);
+						break;
+					}
+				}
+				break;
 		}
 		result += fvec[i] ;
 	}
@@ -1602,6 +1682,16 @@ int	SetAlignParams( double *x )
 			if( k == 1 ){ g->im[i].cP.vertical_params[0]  =	x[j++];
 			}else{	g->im[i].cP.vertical_params[0] = g->im[k-2].cP.vertical_params[0];}
 		}
+		if( (k = g->opt[i].shear_x) > 0 ){
+			if( k == 1 ){ g->im[i].cP.shear_x  =	x[j++];
+			}else{	g->im[i].cP.shear_x = g->im[k-2].cP.shear_x;}
+		}
+
+		if( (k = g->opt[i].shear_y) > 0 ){
+			if( k == 1 ){ g->im[i].cP.shear_y  =	x[j++];
+			}else{	g->im[i].cP.shear_y = g->im[k-2].cP.shear_y;}
+		}
+
 		
 		g->im[i].cP.radial_params[0][0] = 1.0 - ( g->im[i].cP.radial_params[0][3]
 														+ g->im[i].cP.radial_params[0][2]
@@ -1652,6 +1742,12 @@ int SetLMParams( double *x )
 
 		if(g->opt[i].e == 1)  //  optimize e? 0-no 1-yes
 			x[j++] = g->im[i].cP.vertical_params[0]  ; 
+
+		if(g->opt[i].shear_x == 1)  //  optimize shear_x? 0-no 1-yes
+			x[j++] = g->im[i].cP.shear_x  ;
+
+		if(g->opt[i].shear_y == 1)  //  optimize shear_y? 0-no 1-yes
+			x[j++] = g->im[i].cP.shear_y  ;
 	}
 	
 	if( j != g->numParam )
@@ -1781,7 +1877,7 @@ void	SetStitchDefaults( struct stitchBuffer *sBuf)
 
 void		SetOptDefaults( optVars *opt )
 {
-	opt->hfov = opt->yaw = opt->pitch = opt->roll = opt->a = opt->b = opt->c = opt->d = opt->e = 0;
+	opt->hfov = opt->yaw = opt->pitch = opt->roll = opt->a = opt->b = opt->c = opt->d = opt->e = opt->shear_x = opt->shear_y = 0;
 }
 
 void DoColorCorrection( Image *im1, Image *im2, int mode )

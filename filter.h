@@ -170,6 +170,8 @@ struct optVars{									//  Indicate to optimizer which variables to optimize
 		int c;					
 		int d;
 		int e;
+		int shear_x;
+		int shear_y;
 		};
 		
 typedef struct optVars optVars;
