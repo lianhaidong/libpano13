@@ -1,13 +1,15 @@
 LANGUAGE 0x07 , 0x01 
 #pragma code_page(1252)
 
-101  DIALOG DISCARDABLE  0, 0, 186, 63
+101  DIALOG DISCARDABLE  0, 0, 220, 80
 STYLE 0x80L  | 0x80000000L  | 0x10000000L  | 0x00C00000L  | 0x00080000L 
 FONT 8, "MS Sans Serif"
 BEGIN
-    DEFPUSHBUTTON   "Cancel",2 ,67,42,50,14
-    LTEXT           " 0 %",1004 ,83,7,18,8
-    LTEXT           "",1003 ,27,23,129,10
+    CTEXT           " 0 %",     1004 ,  5, 4, 210,8
+    CTEXT           "Memory Requests (Last/Max) MB",    1005 ,  2, 16,216,8
+    CTEXT           "Memory Usage (Current) MB",    1006 ,  2, 28,216,8
+    LTEXT           "Status",         1003 ,  40,42,140,10
+    DEFPUSHBUTTON   "Cancel",   2 ,     85,56,50,14
 END
 
 SETCPREFDLG DIALOG DISCARDABLE  0, 0, 199, 198
@@ -329,14 +331,15 @@ BEGIN
     BEGIN
         BLOCK "040704b0"
         BEGIN
+			VALUE "Comments", "Modifications made by Max Lyons 2002, 2003.  See http://www.tawbaware.com/maxlyons/pano12ml.htm\0"
             VALUE "CompanyName", " \0"
             VALUE "FileDescription", "Panorama Tools\0"
-            VALUE "FileVersion", "2.5.b1\0"
-            VALUE "InternalName", "2.5.b1\0"
+            VALUE "FileVersion", "2.6.ML08\0"
+            VALUE "InternalName", "2.6.ML08\0"
             VALUE "LegalCopyright", "Copyright © 1999, 2000, 2001 Helmut Dersch\0"
             VALUE "OriginalFilename", "pano12.dll\0"
             VALUE "ProductName", "  pano12\0"
-            VALUE "ProductVersion", "2.5.b1\0"
+            VALUE "ProductVersion", "2.6.ML08\0"
         END
     END
     BLOCK "VarFileInfo"

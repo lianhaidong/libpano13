@@ -15,6 +15,28 @@
    along with this program; if not, write to the Free Software
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.  */
 
+
+/*
+    Modifications by Max Lyons (maxlyons@erols.com):
+
+    March 4, 2002.  Changes made to mymalloc and myfree functions to
+    work around a problem allocating more than 256MB of RAM from heap.
+    See Microsoft Knowledge Base article Q198959 for more information.
+    "PRB: Windows 95/98 Heaps Have A 255.9 MB Allocation Ceiling".
+
+    This problem was causing "out of memory" errors when trying to stitch
+    images that require more than 256MB of RAM (i.e. 64 megapixels)
+    to be requested using the mymalloc function.
+
+    March 6, 2002.  Added memory monitoring feature...
+    This feature reports on memory allocation requests (i.e. chunks of memory
+    that Pano Tools request from the operating system), and total memory
+    usage (the sum of all currently allocated memory).
+    This information is displayed on the progress dialog.
+
+
+*/
+
 /*------------------------------------------------------------*/
 
 #include "sys_win.h"
@@ -23,18 +45,23 @@
 #define CG_IDS_PROGRESS_CAPTION         102
 #define CG_IDC_PROGDLG_PROGRESS         1003
 #define CG_IDC_PROGDLG_PERCENT          1004
+#define CG_IDC_PROGDLG_MEM_REQUEST      1005
+#define CG_IDC_PROGDLG_MEM_USAGE        1006
 
 
 #define ID_PRG 100
 #define ID_MM  100
 #define ID_SM  101
 
-
 HINSTANCE 	hDllInstance 	= NULL;
 HWND 		wndOwner 		= NULL;
 int 		dialogDone;
 int		infoDone;
 
+//Used to keep track of memory statistics
+int         kBytesAlloced       =0;
+int         maxKBytesAlloced    =0;
+int         maxKBytesUsage      =0;
 
 
 //------------------ Public functions required by filter.h -------------------------------
@@ -406,8 +433,32 @@ void writePrefs( char* prefs, int selector )
 }
 
 
-#define signatureSize	4
+/**
+ *
+ * Function counts the amount of memory that has been virtualAlloc'd by this process
+ */
+DWORD countMemUsage()
+{
+    MEMORY_BASIC_INFORMATION mbi;
+    DWORD      dwMemUsed = 0;
+    PVOID      pvAddress = 0;
+    CHAR      szBuf[512];
 
+    memset(&mbi, 0, sizeof(MEMORY_BASIC_INFORMATION));
+
+    while(pvAddress < (PVOID)0x80000000 && VirtualQuery(pvAddress, &mbi, sizeof(MEMORY_BASIC_INFORMATION)) == sizeof(MEMORY_BASIC_INFORMATION))
+        {
+        if(mbi.State == MEM_COMMIT && mbi.Type == MEM_PRIVATE && (!GetModuleFileNameA((HINSTANCE)mbi.AllocationBase, szBuf, 512)))
+        dwMemUsed += mbi.RegionSize;
+        pvAddress = ((BYTE*)mbi.BaseAddress) + mbi.RegionSize;
+        }
+
+    return dwMemUsed/1024;
+}
+
+
+
+#define signatureSize	4
 
 void**  mymalloc( long numBytes )					// Memory allocation, use Handles
 {
@@ -418,12 +469,20 @@ void**  mymalloc( long numBytes )					// Memory allocation, use Handles
 	mHand =	(LPSTR *) GlobalAllocPtr (GHND, (sizeof (LPSTR *) + signatureSize));
 
 	if (mHand)
-		*mHand = (LPSTR) GlobalAllocPtr (GHND, numBytes);
+        //*mHand = (LPSTR) GlobalAllocPtr (GHND, numBytes);
+
+        //Use VirtualAlloc to work around Win 95/98/ME memory allocation problems
+        //See Microsoft KB article Q198959
+		*mHand = (LPSTR) VirtualAlloc (NULL, numBytes, MEM_COMMIT, PAGE_READWRITE);
 
 	if (!mHand || !(*mHand))
 		{
+		PrintError("Error allocating %ld KB of memory", numBytes/1024);
 		return NULL;
 		}
+
+	kBytesAlloced = numBytes/1024;
+    if (kBytesAlloced>maxKBytesAlloced) maxKBytesAlloced = kBytesAlloced;
 
 	// put the signature after the pointer
 	p = (char *) mHand;
@@ -431,6 +490,7 @@ void**  mymalloc( long numBytes )					// Memory allocation, use Handles
 	memcpy (p,cSig, signatureSize);
 
 	GlobalLock(mHand);
+
 	return (void**)mHand;
 		
 }
@@ -445,8 +505,10 @@ void 	myfree( void** Hdl )						// free Memory, use Handles
 
 		p = *((LPSTR*) Hdl);
 
+        //Use VirtualFree because of Win 95/98/ME memory allocation problems
+        //See Microsfot KB article Q198959
 		if (p)
-			GlobalFreePtr (p);
+            VirtualFree(p, 0, MEM_RELEASE);
 
 		GlobalFreePtr ((LPSTR) Hdl);
 	}
@@ -521,10 +583,12 @@ BOOL WINAPI DispPrg(HWND hDlg, UINT wMsg, WPARAM wParam, LPARAM lParam)       //
 {
 	int			item, cmd;
 	short			numberErr = 0;
-	char			message[32];
+	char			message[128];
 	char			bar[128];
 	long			percent;
 	int i;
+    int             memUsage;
+
 	static int *dDone;
 
 	switch  (wMsg)
@@ -551,10 +615,22 @@ BOOL WINAPI DispPrg(HWND hDlg, UINT wMsg, WPARAM wParam, LPARAM lParam)       //
 						return TRUE;
 					}
 					break;
-				case ID_PRG:
-					sprintf(message,"%ld %%",(long)lParam);
 							 
+
+				case ID_PRG:
+					sprintf(message,"Progress: %ld %%",(long)lParam);
 					SetDlgItemText( hDlg, CG_IDC_PROGDLG_PERCENT, message); // stuff string
+
+					//Show some statistics on memory allocation requests
+					sprintf(message,"Memory Requests (Last/Max): %.1lf / %.1lf MB", (double)kBytesAlloced/1024.0, (double)maxKBytesAlloced/1024.0);
+                    SetDlgItemText( hDlg, CG_IDC_PROGDLG_MEM_REQUEST, message); // stuff string
+
+					//Show some statistics on current/peak memory usage
+                    memUsage = countMemUsage();
+                    if (memUsage > maxKBytesUsage) maxKBytesUsage = memUsage;
+
+					sprintf(message,"Memory Usage (Current/Max): %.1lf / %.1lf MB", (double)memUsage/1024.0, (double)maxKBytesUsage/1024.0);
+					SetDlgItemText( hDlg, CG_IDC_PROGDLG_MEM_USAGE, message); // stuff string
 
 					percent = (long)lParam; 
 					if( percent > 100 ) 
