@@ -83,6 +83,9 @@ dnl now find the java dirs
       *mingw32*)
         java_extra_inc=win32
         ;;
+      *cygwin*)
+        java_extra_inc=win32
+        ;;
     esac
     CPPFLAGS="$CPPFLAGS -I$JAVA_HOME/$java_inc_dir -I$JAVA_HOME/$java_inc_dir/$java_extra_inc"
   fi

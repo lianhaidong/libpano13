@@ -1,14 +1,5 @@
 ACLOCAL_AMFLAGS = -I m4
 
-SUFFIXES    = .rc
-
-RC          = @WINDRES@
-RCFLAGS     = --use-temp-file --verbose -O COFF
-
-RCCOMPILE   = $(RC) $(RCFLAGS) \
-              `echo $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) |\
-	      sed -e 's/-I/--include-dir /g;s/-D/--define /g;s/-m.*//g'`
-
 STD_SRC = filter.c parser.c queryfeature.c correct.c perspect.c \
 	  adjust.c  remap.c lmdif.c  file.c \
 	  math.c pan.c PTDialogs.c fftn.c fourier.c resample.c \
@@ -30,49 +21,61 @@ else
 X11_SRC =
 endif
 
+if HAVE_CYGWIN
+WIN_SRC =  sys_win.c bmp.c
+WIN_DEFS = -D__Win__=1
+WIN_LDFS = -avoid-version -no-undefined -export-symbols $(srcdir)/libpano12.def 
+
+$(PANO_WIN32_RESOURCE): pano12.rc
+	        $(top_srcdir)/build/win32/lt-compile-resource pano12.rc $@
+
+install-exec-hook:
+	mv $(DESTDIR)$(bindir)/cygpano12.dll $(DESTDIR)$(bindir)/pano12.dll
+endif
+
 if HAVE_MINGW
-WIN_SRC =  sys_win.c bmp.c pano12.rc
-else
-WIN_SRC =
+WIN_SRC =  sys_win.c bmp.c
+WIN_DEFS = -D__Win__=1
+WIN_LDFS = -mwindows -avoid-version -no-undefined -export-symbols $(srcdir)/libpano12.def 
+
+$(PANO_WIN32_RESOURCE): pano12.rc
+	        $(top_srcdir)/build/win32/lt-compile-resource pano12.rc $@
+
+install-exec-hook:
+	mv $(DESTDIR)$(bindir)/libpano12.dll $(DESTDIR)$(bindir)/pano12.dll
 endif
 
 if HAVE_MAC
 MAC_SRC =  PixMap.c pict.c shell_mac.c sys_mac.c ppm.c
-MAC_HDR =  PixMap.h
-else
-MAC_SRC =
 MAC_HDR =  PixMap.h
 endif
 
 if HAVE_LINUX
 LIN_SRC =  sys_ansi.c ppm.c
 LIN_DEFS = -D__Ansi__=1
-else
-LIN_SRC =
-LIN_DEFS = 
+LIN_LDFS = -version-info 0:0:0
 endif
 
 if HAVE_DARWIN
 DAR_SRC =  sys_ansi.c ppm.c
 DAR_DEFS = -D__Ansi__=1
-else
-DAR_SRC =
-DAR_DEFS = 
+DAR_LDFS = -version-info 0:0:0
 endif
 
-AM_CPPFLAGS = $(JAVA_FLAGS) $(JPEG_FLAGS) $(PNG_FLAGS) $(TIFF_FLAGS) $(ZLIB_FLAGS) $(LIN_DEFS) $(DAR_DEFS)
-AM_LDFLAGS  = $(LIB_JAVA) $(LIB_JPEG) $(LIB_PNG) $(LIB_TIFF) $(LIB_ZLIB)
+AM_CPPFLAGS = $(JAVA_FLAGS) $(JPEG_FLAGS) $(PNG_FLAGS) $(TIFF_FLAGS) $(ZLIB_FLAGS) $(WIN_DEFS) $(LIN_DEFS) $(DAR_DEFS)
 
 lib_LTLIBRARIES = libpano12.la
 
 libpano12_la_SOURCES = $(STD_SRC) $(X11_SRC) $(WIN_SRC) $(MAC_SRC) $(LIN_SRC) $(DAR_SRC)
-libpano12_la_LDFLAGS = -version-info 0:0:0
+libpano12_la_LIBADD = $(LIB_JPEG) $(LIB_PNG) $(LIB_TIFF) $(LIB_ZLIB) @PANO_WIN32_LIB@ @PANO_WIN32_RESOURCE@
+libpano12_la_LDFLAGS = $(LIN_LDFS) $(WIN_LDFS) $(DAR_LDFS)
+libpano12_la_DEPENDENCIES = @PANO_WIN32_RESOURCE@
 
 pkginclude_HEADERS = $(STD_HDR) $(TOOL_HDR)
 
 noinst_HEADERS = $(INTERNAL_HDR) $(SYS_HDR) $(MAC_HDR)
 
-SUBDIRS=m4 . tools doc
+SUBDIRS=m4 . tools doc build
 
 distdir=lib$(PACKAGE)-$(VERSION)
 
@@ -83,10 +86,8 @@ dist-hook:
 EXTRA_DIST =  gpl.txt README.linux README.windows README.mac \
 	      makefile.linux makefile.mac makefile.osx makefile.win32 \
 	      bootstrap filter.r pano12.def \
-	      seamer_.c
-
-.rc.o:
-	$(RCCOMPILE) -i $< -o $@
+	      seamer_.c sys_X11.c sys_win.c bmp.c PixMap.c pict.c shell_mac.c \
+	      sys_mac.c ppm.c PixMap.h sys_ansi.c ppm.c
 
 # I know this is wrong!!!
 darwin: libpano12.la filter.r

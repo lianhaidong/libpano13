@@ -8,6 +8,7 @@ AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_HEADER([config.h])
 AC_CANONICAL_TARGET
 AM_INIT_AUTOMAKE([no-define dist-bzip2 dist-zip])
+AC_DISABLE_STATIC
 
 # Checks for programs.
 AC_PROG_CC
@@ -20,25 +21,29 @@ dnl  Check the operating system
 dnl
 case "${target_os}" in
   "")
+    PANO_WIN32_RESOURCE=
     HSYS=unknown
     ;;
   linux*)
+    PANO_WIN32_RESOURCE=
     HSYS=linux
     ;;
   darwin*)
+    PANO_WIN32_RESOURCE=
     HSYS=darwin
     ;;
   *mingw32*)
-    AC_ARG_VAR(WINDRES, [Windows Resource compiler tool path])
-    AC_PATH_TOOL(WINDRES,windres,
-                     [AC_MSG_ERROR(Could not find a windres tool in your PATH. Will not be able to compile hugin or nona_gui:)]
-                     )
-    AC_SUBST(WINDRES)
-
+    PANO_WIN32_RESOURCE=pano12.lo
+    PANO_WIN32_LIB=-lcomdlg32
     HSYS=mingw32
-
+    ;;
+  *cygwin*)
+    PANO_WIN32_RESOURCE=pano12.lo
+    PANO_WIN32_LIB=-lcomdlg32
+    HSYS=cygwin
     ;;
   *)
+    PANO_WIN32_RESOURCE=
     HSYS="${target_os}"
     ;;
 esac
@@ -47,7 +52,10 @@ AM_CONDITIONAL(HAVE_DARWIN, test "${HSYS}" = "darwin")
 AM_CONDITIONAL(HAVE_LINUX, test "${HSYS}" = "linux")
 AM_CONDITIONAL(HAVE_MAC, test "${HSYS}" = "classic")
 AM_CONDITIONAL(HAVE_MINGW, test "${HSYS}" = "mingw32")
+AM_CONDITIONAL(HAVE_CYGWIN, test "${HSYS}" = "cygwin")
 AM_CONDITIONAL(HAVE_X11, test "${HSYS}" = "x11")
+AC_SUBST(PANO_WIN32_RESOURCE)
+AC_SUBST(PANO_WIN32_LIB)
 
 # Checks for libraries.
 # FIXME: Replace `main' with a function in `-lcomdlg32':
@@ -111,10 +119,7 @@ AC_TYPE_SIGNAL
 AC_FUNC_VPRINTF
 AC_CHECK_FUNCS([floor memset pow setlocale sqrt strrchr])
 
-AC_CONFIG_FILES([Makefile
-                 doc/Makefile
-		 tools/Makefile
-		 m4/Makefile])
+AC_CONFIG_FILES([Makefile build/Makefile build/win32/Makefile doc/Makefile m4/Makefile tools/Makefile])
 
 AC_SUBST(ac_aux_dir)
 
@@ -125,6 +130,7 @@ echo "libpano is configured as follows. Please verify that this configuration"
 echo "matches your expectations."
 echo ""
 echo "Host system type : $host"
+echo "Target os : $target_os"
 echo ""
 echo "                  Option                        Value"
 echo "-------------------------------------------------------------------------"

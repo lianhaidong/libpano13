@@ -2,16 +2,11 @@
 DEFAULT_INCLUDES="-I."
 INCLUDES    = -I${top_srcdir}
 
-#SUBDIRS=tools
-
-SUFFIXES    = .rc
-
-RC          = @WINDRES@
-RCFLAGS     = --use-temp-file --verbose -O COFF
-
-RCCOMPILE   = $(RC) $(RCFLAGS) \
-              `echo $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) |\
-	      sed -e 's/-I/--include-dir /g;s/-D/--define /g;s/-m.*//g'`
+if HAVE_CYGWIN
+WIN_SRC =  panoinfo.c
+else
+WIN_SRC =
+endif
 
 if HAVE_MINGW
 WIN_SRC =  panoinfo.c
@@ -48,5 +43,3 @@ panoinfo_LDADD      = -lpano12
 
 EXTRA_DIST = makefile.panoinfo.win32 makefile.ptoptimizer.win32
 
-.rc.o:
-	$(RCCOMPILE) -i $< -o $@
