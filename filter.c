@@ -872,6 +872,10 @@ void SetSizeDefaults( sPrefs *pref)
 	pref->gamma			= 1.0;
 	pref->noAlpha		= FALSE;			// Check only for Photoshop LE
 	pref->optCreatePano = TRUE;
+
+	// FS+
+	fastTransformStep = 0;	// the value will be changed in parser.c
+	// FS-
 }
 
 

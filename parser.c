@@ -25,6 +25,21 @@
 
 /*------------------------------------------------------------*/
 
+/*
+
+	Modifications by Fulvio Senore, June.2004
+	Added support for a new letter "f" to enable fast pisels transform in "ReadModeDescription()"
+	Added code between
+
+	// FS+
+
+	and
+
+	// FS-
+
+/*------------------------------------------------------------*/
+
+
 
 #include "filter.h"
 #include <locale.h>
@@ -117,6 +132,9 @@ int ParseScript( char* script, AlignInfo *gl )
 		return -1;
 	}
 	
+	// Rik's mask-from-focus hacking
+	ZCombSetDisabled();
+	// end mask-from-focus Rik's hacking
 	SetImageDefaults(&(gl->pano));	
 	SetStitchDefaults(&(gl->st)); strcpy( gl->st.srcName, "buf" ); // Default: Use buffer 'buf' for stitching
 	for(i=0; i<gl->numIm; i++)
@@ -433,6 +451,37 @@ int ParseScript( char* script, AlignInfo *gl )
 						return -1;
 					}
 					break;
+
+		// Rik's mask-from-focus hacking
+		case 'z':	ZCombSetEnabled();
+					li = &(line[1]);
+					while( *li != 0)
+					{
+						switch(*li)
+						{
+							case 'm':	{	int mtype;
+											READ_VAR( "%d", &mtype);
+											ZCombSetMaskType(mtype);
+										}
+										break;
+							case 'f':	{	int fwHalfwidth;
+											READ_VAR( "%d", &fwHalfwidth);
+											ZCombSetFocusWindowHalfwidth(fwHalfwidth);
+										}
+										break;
+							case 's':	{	int swHalfwidth;
+											READ_VAR( "%d", &swHalfwidth);
+											ZCombSetSmoothingWindowHalfwidth(swHalfwidth);
+										}
+										break;
+							default:
+								li++;
+								break;
+						}
+					}
+					break;
+		// end Rik's mask-from-focus hacking
+
 		case '*':	// End of script-data
 					*lineStart = 0; *ch = 0;
 					break;
@@ -1290,6 +1339,9 @@ static int ReadModeDescription( sPrefs *sP, char *line )
 	sPrefs theSprefs;
 	char *ch = line;
 	char buf[LINE_LENGTH];
+	// FS+
+	int n;
+	// FS-
 
 	setlocale(LC_ALL, "C");
 	memcpy( &theSprefs, 	sP,	 sizeof(sPrefs) );
@@ -1310,6 +1362,15 @@ static int ReadModeDescription( sPrefs *sP, char *line )
 						if(theSprefs.optCreatePano != 0)
 							theSprefs.optCreatePano = TRUE;
 						break;
+			// FS+ 
+			// IMPORTANT: fastTransformStep is initialized to 0 in filter.c, function SetSizeDefaults()
+			case 'f':	READ_VAR( "%d", &n );
+						if( n == 0 || n == 1 ) {
+							if( n == 0 ) fastTransformStep = FAST_TRANSFORM_STEP_NORMAL;	
+							if( n == 1 ) fastTransformStep = FAST_TRANSFORM_STEP_MORPH;
+						}
+						break;
+			// FS-
 			default: 	ch++;
 						break;
 		}

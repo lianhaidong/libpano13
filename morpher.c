@@ -1,6 +1,10 @@
 #include "filter.h"
 
+static int lastCurTriangle = 0;
 
+int getLastCurTriangle() {
+	return lastCurTriangle;
+}
 
 // Solve equation
 // a[0][0] * x[0] + a[0][1] * x[1] = b[0]
@@ -171,6 +175,7 @@ void tmorph( double x_dest,double  y_dest, double* x_src, double* y_src, void* p
 		if( CurTriangle == nt )
 		{
 			CurTriangle = 0;
+			lastCurTriangle = CurTriangle;
 			*x_src		= OUTSIDE;
 			*y_src		= OUTSIDE;
 			return;
@@ -182,6 +187,7 @@ void tmorph( double x_dest,double  y_dest, double* x_src, double* y_src, void* p
 	
 	*x_src = s->v[0].x + c[0] * ( s->v[1].x - s->v[0].x ) + c[1] * ( s->v[2].x - s->v[0].x );
 	*y_src = s->v[0].y + c[0] * ( s->v[1].y - s->v[0].y ) + c[1] * ( s->v[2].y - s->v[0].y );
+	lastCurTriangle = CurTriangle;
 }
 
 

@@ -21,7 +21,18 @@
 // Radial Shift, when colors channels have different values and
 // d is > 1 would give incorrect results around the edge of the image
 
-
+// Modified by Fulvio Senore: June.2004
+// Added linear interpolation between pixels in the geometric transform phase
+// to speed up computation.
+// Changes are bracketed between
+//
+// // FS+
+//
+// and
+//
+// // FS-
+//
+// comments
 
 
 
@@ -59,6 +70,12 @@
 
 PTGamma glu; // Lookup table
 
+
+// FS+
+// used for fast pixel transform. It is the width of the starting step for linear interpolation
+// a value of 0 disables the fast transform
+int fastTransformStep = 0;
+// FS-
 
 
 // Some locally needed math functions
@@ -509,6 +526,166 @@ static void sinc1024_16( unsigned char *dst, unsigned char **rgb,
 		{	RESAMPLE_N( SINC, 32, short) 	}
 		
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// FS+ start of functions used to compute the pixel tranform from dest to source using linear interpolation
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// computes the source coordinates of a single pixel at position x using the math transforms
+void ComputePixelCoords( double *ax, double *ay, int *trinum, char *avalid, long x, long offset, double w2, double y_d, 
+						  fDesc *fD, double sw2, double sh2, double min_x, double max_x, double min_y, double max_y ) {
+	double x_d, Dx, Dy;
+
+	// Convert destination screen coordinates to cartesian coordinates.			
+	x_d = (double) (x + offset) - w2;
+
+	// Get source cartesian coordinates 
+	fD->func( x_d, y_d , &Dx, &Dy, fD->param);
+
+	// Convert source cartesian coordinates to screen coordinates 
+	Dx += sw2;
+	Dy =  sh2 + Dy ;
+
+	// stores the computed pixel
+	ax[x] = Dx;
+	ay[x] = Dy;
+	trinum[x] = getLastCurTriangle();
+
+	// Is the pixel valid, i.e. from within source image?
+	if( (Dx >= max_x)   || (Dy >= max_y) || (Dx < min_x) || (Dy < min_y)  )
+		avalid[x] = FALSE;
+	else
+		avalid[x] = TRUE;
+}
+
+// fills a part of the arrays with the coordinates in the source image for every pixel
+// xl is the left border of the array, xr is the right border. The array values have already been
+//   computed in xl and xr.
+void ComputePartialRowCoords( double *ax, double *ay, int *trinum, char *avalid, long xl, long xr, long offset, double w2, double y_d, 
+						  fDesc *fD, double sw2, double sh2, double min_x, double max_x, double min_y, double max_y ) {
+	long xm, idx;
+	double srcX_lin, srcY_lin;
+	double deltaX, deltaY, tmpX, tmpY;
+
+	////////////////////////////////////////////
+	// maximum estimated error to be accepted: higher values produce a faster execution but a more distorted image
+	// the real maximum error seems to be much lower, about 1/4 of MAX_ERR
+	double MAX_ERR = 1;
+
+	if( xl >= (xr - 1) ) return;
+
+	if( !avalid[xl] && !avalid[xr] ) {
+		// first and last pixel are not valid, assume that others are not valid too
+		// ax[] and ay[] values are not set since thay will not be used
+		for( idx = xl + 1; idx < xr; idx++ ) {
+			avalid[idx] = FALSE;
+		}
+		return;
+	}
+
+	// computes the source coords of the middle point of [xl, xr] using the transformation
+	xm = (xl + xr)/2;
+	ComputePixelCoords( ax, ay, trinum, avalid, xm, offset, w2, y_d, fD, sw2, sh2, min_x, max_x, min_y, max_y );
+	// computes the coords of the same point with linear interpolation
+	srcX_lin = ax[xl] + ((ax[xr] - ax[xl])/(xr - xl))*(xm - xl);
+	srcY_lin = ay[xl] + ((ay[xr] - ay[xl])/(xr - xl))*(xm - xl);
+
+	if( fabs(srcX_lin - ax[xm]) > MAX_ERR || fabs(srcY_lin - ay[xm]) > MAX_ERR ||
+	    trinum[xl] != trinum[xr] || trinum[xl] != trinum[xm]) {
+		// the error is still too large or the points are in different morph triangles: recursion
+		ComputePartialRowCoords( ax, ay, trinum, avalid, xl, xm, offset, w2, y_d, fD, sw2, sh2, min_x, max_x, min_y, max_y );
+		ComputePartialRowCoords( ax, ay, trinum, avalid, xm, xr, offset, w2, y_d, fD, sw2, sh2, min_x, max_x, min_y, max_y );
+		return;
+	}
+
+	// fills the array, first the left half...
+	if( !avalid[xl] || !avalid[xm] ) {
+		// one end is valid and the other is not: computes every pixel with math transform
+		for( idx = xl + 1; idx < xm; idx++ ) {
+			ComputePixelCoords( ax, ay, trinum, avalid, idx, offset, w2, y_d, fD, sw2, sh2, min_x, max_x, min_y, max_y );
+		}
+	}
+	else {
+		// linear interpolation	
+		deltaX = (ax[xm] - ax[xl]) / (xm - xl);
+		deltaY = (ay[xm] - ay[xl]) / (xm - xl);
+		tmpX = ax[xl];
+		tmpY = ay[xl];
+		for( idx = xl + 1; idx < xm; idx++ ) {
+			tmpX += deltaX;
+			tmpY += deltaY;
+			ax[idx] = tmpX;
+			ay[idx] = tmpY;
+			if( (tmpX >= max_x)   || (tmpY >= max_y) || (tmpX < min_x) || (tmpY < min_y)  )
+				avalid[idx] = FALSE;
+			else
+				avalid[idx] = TRUE;
+			trinum[idx] = trinum[xl];
+		}
+	}
+
+	// ...then the right half
+	if( !avalid[xm] || !avalid[xr] ) {
+		// one end is valid and the other is not: computes every pixel with math transform
+		for( idx = xm + 1; idx < xr; idx++ ) {
+			ComputePixelCoords( ax, ay, trinum, avalid, idx, offset, w2, y_d, fD, sw2, sh2, min_x, max_x, min_y, max_y );
+		}
+	}
+	else {
+		// linear interpolation	
+		deltaX = (ax[xr] - ax[xm]) / (xr - xm);
+		deltaY = (ay[xr] - ay[xm]) / (xr - xm);
+		tmpX = ax[xm];
+		tmpY = ay[xm];
+		for( idx = xm + 1; idx < xr; idx++ ) {
+			tmpX += deltaX;
+			tmpY += deltaY;
+			ax[idx] = tmpX;
+			ay[idx] = tmpY;
+			if( (tmpX >= max_x)   || (tmpY >= max_y) || (tmpX < min_x) || (tmpY < min_y)  )
+				avalid[idx] = FALSE;
+			else
+				avalid[idx] = TRUE;
+			trinum[idx] = trinum[xr];
+		}
+	}
+
+}
+
+
+// fills the arrays with the source coords computed using linear interpolation
+// asize is the number of elements of the arrays
+// the array elements lie in the interval [0, asize], the image elements in [destRect.left, destRect.right]: the offset parameter
+//   is used for the conversion
+void ComputeRowCoords( double *ax, double *ay, int *trinum, char *avalid, long asize, long offset, double w2, double y_d, 
+						  fDesc *fD, double sw2, double sh2, double min_x, double max_x, double min_y, double max_y ) {
+
+	// initial distance betwen correctly computed points. The distance will be reduced if needed.
+//	int STEP_WIDTH = 40;
+	int STEP_WIDTH = fastTransformStep;
+
+	long x;
+
+	x = 0;
+	ComputePixelCoords( ax, ay, trinum, avalid, x, offset, w2, y_d, fD, sw2, sh2, min_x, max_x, min_y, max_y );
+	x += STEP_WIDTH;
+	while( x < asize ) {
+		ComputePixelCoords( ax, ay, trinum, avalid, x, offset, w2, y_d, fD, sw2, sh2, min_x, max_x, min_y, max_y );
+		ComputePartialRowCoords( ax, ay, trinum, avalid, x - STEP_WIDTH, x, offset, w2, y_d, fD, sw2, sh2, min_x, max_x, min_y, max_y );
+		x += STEP_WIDTH;
+	}
+	// compute the last pixels, if any
+	x -= STEP_WIDTH;
+	if( x < asize - 1 ) {
+		ComputePixelCoords( ax, ay, trinum, avalid, asize - 1, offset, w2, y_d, fD, sw2, sh2, min_x, max_x, min_y, max_y );
+		ComputePartialRowCoords( ax, ay, trinum, avalid, x, asize - 1, offset, w2, y_d, fD, sw2, sh2, min_x, max_x, min_y, max_y );
+	}
+
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// FS- end of functions used to compute the pixel transform from dest to source using linear interpolation
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 
 //    Main transformation function. Destination image is calculated using transformation
@@ -563,6 +740,18 @@ void transForm( TrformStr *TrPtr, fDesc *fD, int color){
 	int			wrap_x = FALSE;
 	double			theGamma;	// gamma handed to SetUpGamma()
 
+	//////////////////////////////////////////////////////////////////////////
+	// FS+ variables used for linear interpolation of the pixel transform
+	double *ax = NULL, *ay = NULL;	// source coordinates of each pixel in a row
+	int *trinum = NULL;             // triangle number if morphing
+	char *avalid = NULL;			// is the pixel valid?
+	double maxErrX, maxErrY;
+	long offset;
+//	int useFastTransform;	// true if we will use the new fast pixel transformation
+	int evaluateError;		// true if we want to write a file with the transformation errors
+	// FS-
+	//////////////////////////////////////////////////////////////////////////
+
 	// Selection rectangle
 	PTRect			destRect;
 	if( TrPtr->dest->selection.bottom == 0 && TrPtr->dest->selection.right == 0 ){
@@ -574,6 +763,11 @@ void transForm( TrformStr *TrPtr, fDesc *fD, int color){
 		memcpy( &destRect, &TrPtr->dest->selection, sizeof(PTRect) );
 	}
 
+	// FS+
+	offset = -destRect.left;
+	maxErrX = 0;
+	maxErrY = 0;
+	// FS-
 
 	switch( TrPtr->src->bitsPerPixel ){
 		case 64:	FirstColorByte = 2; BytesPerPixel = 8; SamplesPerPixel = 4; BytesPerSample = 2; break;
@@ -679,6 +873,36 @@ void transForm( TrformStr *TrPtr, fDesc *fD, int color){
 		goto Trform_exit;
 	}
 
+	// FS+ allocates the temporary arrays
+	ax = (double *) malloc( (destRect.right - destRect.left + 20)*sizeof(double) );
+	ay = (double *) malloc( (destRect.right - destRect.left + 20)*sizeof(double) );
+	trinum = (int *) malloc( (destRect.right - destRect.left + 20)*sizeof(int) );
+	avalid = (char *) malloc( (destRect.right - destRect.left + 20)*sizeof(char) );
+	// opens the preference file to read options
+	evaluateError = FALSE;
+	if( fastTransformStep != 0 ) {
+		FILE *fp;
+		char buf[100];
+		char *s;
+		s = buf;
+//		useFastTransform = FALSE;
+		fp = fopen( "pano12_opt.txt", "rt" );
+		if( fp != NULL ) {
+			// parse the file
+			s = fgets( s, 98, fp );
+			while( !feof(fp) && buf != NULL ) {
+				//s = strupr( buf );	commented out because it causes linking problems with the microsoft compiler
+//				if( strncmp( s, "FAST_TRANSFORM", 14 )  == 0 )
+//					useFastTransform = TRUE;
+				if( strncmp( s, "EVALUATE_ERROR", 14 )  == 0 )
+					evaluateError = TRUE;
+				s = fgets( buf, 98, fp );
+			}
+			fclose( fp );
+		}
+	}
+	// FS-
+
 	for(y=destRect.top; y<destRect.bottom; y++){
 		// Update Progress report and check for cancel every 5 lines.
 		skip++;
@@ -702,30 +926,79 @@ void transForm( TrformStr *TrPtr, fDesc *fD, int color){
 		y_d = (double) y - h2 ;
 		cy  = (y-destRect.top) * TrPtr->dest->bytesPerLine;	
 		
+		// FS+ computes the transform for this row using linear interpolation
+		if( fastTransformStep != 0 || evaluateError )
+			ComputeRowCoords( ax, ay, trinum, avalid, destRect.right - destRect.left + 1, offset, w2, y_d, fD, sw2, sh2, min_x, max_x, min_y, max_y );
+		// FS-
+
 		for(x=destRect.left; x<destRect.right; x++){
 			// Calculate pixel coefficient in dest image just once
 
 			coeff = cy  + BytesPerPixel * (x-destRect.left);		
 
-			// Convert destination screen coordinates to cartesian coordinates.			
-			x_d = (double) x - w2 ;
-			
-			// Get source cartesian coordinates 
-			fD->func( x_d, y_d , &Dx, &Dy, fD->param);
+			// FS+
+			if( fastTransformStep == 0 || evaluateError ) {
+				// Convert destination screen coordinates to cartesian coordinates.			
+				x_d = (double) x - w2 ;
+				
+				// Get source cartesian coordinates 
+				fD->func( x_d, y_d , &Dx, &Dy, fD->param);
 
-			// Convert source cartesian coordinates to screen coordinates 
-			Dx += sw2;
-			Dy =  sh2 + Dy ;
-			
+				// Convert source cartesian coordinates to screen coordinates 
+				Dx += sw2;
+				Dy =  sh2 + Dy ;
+				
+				if( evaluateError ) {
+					valid = avalid[x];
+				}
+				else {
+					// Is the pixel valid, i.e. from within source image?
+					if( (Dx >= max_x)   || (Dy >= max_y) || (Dx < min_x) || (Dy < min_y)  )
+						valid = FALSE;
+					else
+						valid = TRUE;
+				}
+			} else {
+				Dx = ax[x];
+				Dy = ay[x];
+				valid = avalid[x];
+			}
+			// was:
 
-			// Is the pixel valid, i.e. from within source image?
-			if( (Dx >= max_x)   || (Dy >= max_y) || (Dx < min_x) || (Dy < min_y)  )
-				valid = FALSE;
-			else
-				valid = TRUE;
+			//// Convert destination screen coordinates to cartesian coordinates.			
+			//x_d = (double) x - w2 ;
+			//
+			//// Get source cartesian coordinates 
+			//fD->func( x_d, y_d , &Dx, &Dy, fD->param);
+
+			//// Convert source cartesian coordinates to screen coordinates 
+			//Dx += sw2;
+			//Dy =  sh2 + Dy ;
+			//
+
+			//// Is the pixel valid, i.e. from within source image?
+			//if( (Dx >= max_x)   || (Dy >= max_y) || (Dx < min_x) || (Dy < min_y)  )
+			//	valid = FALSE;
+			//else
+			//	valid = TRUE;
+
+			// FS-
 
 			// Convert only valid pixels
 			if( valid ){
+
+				// FS+
+				if( evaluateError ) {
+					double errX, errY;
+					errX = fabs( Dx - ax[x + offset] );
+					errY = fabs( Dy - ay[x + offset] );
+					if( errX > maxErrX )
+						maxErrX = errX;
+					if( errY > maxErrY )
+						maxErrY = errY;
+				}
+				// FS-
+
 				// Extract integer and fractions of source screen coordinates
 				xc 	  =  (int)floor( Dx ) ; Dx -= (double)xc;
 				yc 	  =  (int)floor( Dy ) ; Dy -= (double)yc;
@@ -849,6 +1122,22 @@ Trform_exit:
 	if( cdata ) 		free( cdata );
 	if( glu.DeGamma )	free( glu.DeGamma ); 	glu.DeGamma 	= NULL;
 	if( glu.Gamma )		free( glu.Gamma );	glu.Gamma 	= NULL;
+
+	// FS+
+	if( ax != NULL ) free( ax );
+	if( ay != NULL ) free( ay );
+	if( trinum != NULL ) free( trinum);
+	if( avalid != NULL ) free( avalid );
+
+	if( evaluateError ) {
+		FILE *fp;
+		fp = fopen( "Errors.txt", "a+t" );
+		fprintf( fp, "%f  %d\n", maxErrX, destRect.top );
+		fprintf( fp, "%f\n", maxErrY );
+		fclose( fp );
+	}
+	// FS-
+
 	return;
 }
 	

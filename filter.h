@@ -91,6 +91,10 @@ extern int JavaUI; // Flag to indicate use of java dialogs
 void JPrintError( char* text );
 
 
+extern int fastTransformStep;		// defined in resample.c
+#define FAST_TRANSFORM_STEP_NORMAL	40
+#define FAST_TRANSFORM_STEP_MORPH	6
+// FS-
 
 struct PTPoint
 {
