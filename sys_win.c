@@ -106,7 +106,7 @@ void  PrintError(char* fmt, ...){
 		JPrintError( message );
 	else
 //		MessageBox(GetFocus(), (LPSTR)message, (LPSTR)"", MB_OK | MB_ICONHAND) ;
-		MessageBox((HWND)NULL, (LPSTR)message, (LPSTR)"", MB_OK | MB_ICONHAND) ;
+		MessageBox((HWND)NULL, (LPSTR)message, (LPSTR)"Panorama Tools", MB_OK | MB_ICONHAND) ;
 }	
 
 
