@@ -919,7 +919,7 @@ unsigned short radlum16( unsigned short srcPixel, int xc, int yc, void *params )
 	register double result;
 
 	result = (xc * xc + yc * yc) * ((double*)params)[0] + ((double*)params)[1];
-    result = ((double) srcPixel) - result*128;
+    result = ((double) srcPixel) - result*256;
     // JMW 2003/08/25  randomize a little to remove banding added by Kekus Digital 26 Aug 2003
 	// JMW 2004/07/11 a power of two less randomizing for 16 bit
     result = result * ( (1 + LUMINANCE_RANDOMIZE * LUMINANCE_RANDOMIZE /2) - 
