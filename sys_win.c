@@ -39,6 +39,18 @@
 
 /*------------------------------------------------------------*/
 
+/* modified by Fulvio Senore June.2004
+
+Added a call to disable warnings from the TIFF library: some tiff files (probably created by Photoshop)
+caused annoying warnings about unknown tags while loading each tiff source image
+
+*/
+
+// FS+
+// needed for TIFFSetWarningHandler()
+#include "tiffio.h"
+// FS-
+
 #include "sys_win.h"
 
 #define CG_IDD_PROGRESS                 101
@@ -892,7 +904,13 @@ DllMain (HANDLE hDll, DWORD dwReason, LPVOID lpReserved)
         case DLL_PROCESS_ATTACH:
 	    hDllInstance = hDll;
            // Code to run when the DLL is loaded
-            break;
+
+			// FS+
+			// disable warnings for unknown tags
+			TIFFSetWarningHandler( 0 );
+			// FS-
+
+			break;
 
         case DLL_PROCESS_DETACH:
            // Code to run when the DLL is freed
