@@ -971,11 +971,14 @@ void addAlpha( Image *im ){
 			
 			if( im->bitsPerPixel == 32 )
 			{
-				for(y = 0; y < im->height; y++)
+				if( 0 != framey || 0 != framex )
 				{
-					c1 = y * im->bytesPerLine;
-					for(x = 0; x < im->width; x++)
-						src[ c1 + 4 * x ] = 0;
+					for(y = 0; y < im->height; y++)
+					{
+						c1 = y * im->bytesPerLine;
+						for(x = 0; x < im->width; x++)
+							src[ c1 + 4 * x ] = 0;
+					}
 				}
 				for(y = framey; y < yend; y++)
 				{
@@ -986,11 +989,14 @@ void addAlpha( Image *im ){
 			}
 			else // im->bitsPerPixel == 64
 			{
-				for(y = 0; y < im->height; y++)
+				if( 0 != framey || 0 != framex )
 				{
-					c1 = y * im->bytesPerLine;
-					for(x = 0; x < im->width; x++)
-						*((USHORT*)(src + c1 + 8 * x )) = 0;
+					for(y = 0; y < im->height; y++)
+					{
+						c1 = y * im->bytesPerLine;
+						for(x = 0; x < im->width; x++)
+							*((USHORT*)(src + c1 + 8 * x )) = 0;
+					}
 				}
 				for(y = framey; y < yend; y++)
 				{
