@@ -74,7 +74,7 @@ BOOL WINAPI WinFunc(HWND hDlg, UINT wMsg, WPARAM wParam, LPARAM lParam)		\
 				case  WM_INITDIALOG:										\
 					thePrefs = (VarType*)lParam;							\
 					memcpy(&localPrefs,thePrefs, sizeof( VarType ));		\
-																			\
+					SetWindowText(hDlg, Title);								\
 					CenterDialog(hDlg);										\
 					SetControl; SText;										\
 				case WM_PAINT:												\
