@@ -48,18 +48,30 @@ endif
 if HAVE_MAC
 MAC_SRC =  PixMap.c pict.c shell_mac.c sys_mac.c ppm.c
 MAC_HDR =  PixMap.h
+
+install-exec-hook:
+	@true
+
 endif
 
 if HAVE_LINUX
 LIN_SRC =  sys_ansi.c ppm.c
 LIN_DEFS = -D__Ansi__=1
 LIN_LDFS = -version-info 0:0:0
+
+install-exec-hook:
+	@true
+
 endif
 
 if HAVE_DARWIN
 DAR_SRC =  sys_ansi.c ppm.c
 DAR_DEFS = -D__Ansi__=1
 DAR_LDFS = -version-info 0:0:0
+
+install-exec-hook:
+	@true
+
 endif
 
 AM_CPPFLAGS = $(JAVA_FLAGS) $(JPEG_FLAGS) $(PNG_FLAGS) $(TIFF_FLAGS) $(ZLIB_FLAGS) $(WIN_DEFS) $(LIN_DEFS) $(DAR_DEFS)
@@ -88,6 +100,18 @@ EXTRA_DIST =  gpl.txt README.linux README.windows README.mac \
 	      bootstrap filter.r pano12.def libpano12.def pano12.rc \
 	      seamer_.c sys_X11.c sys_win.c bmp.c PixMap.c pict.c shell_mac.c \
 	      sys_mac.c ppm.c PixMap.h sys_ansi.c ppm.c
+
+MAINTAINERCLEANFILES = \
+	COPYING				\
+	INSTALL				\
+	aclocal.m4			\
+	config.h.in			\
+	config.h.in~		\
+	Makefile.in			\
+	configure
+
+maintainer-clean-local:
+	rm -rf config
 
 # I know this is wrong!!!
 darwin: libpano12.la filter.r

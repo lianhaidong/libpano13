@@ -10,6 +10,8 @@ AC_CANONICAL_TARGET
 AM_INIT_AUTOMAKE([no-define dist-bzip2 dist-zip])
 AC_DISABLE_STATIC
 
+AM_MAINTAINER_MODE
+
 # Checks for programs.
 AC_PROG_CC
 AC_PROG_LIBTOOL

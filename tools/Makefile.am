@@ -43,3 +43,5 @@ panoinfo_LDADD      = -lpano12
 
 EXTRA_DIST = makefile.panoinfo.win32 makefile.ptoptimizer.win32
 
+MAINTAINERCLEANFILES = \
+	Makefile.in
