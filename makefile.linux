@@ -24,7 +24,7 @@ CC = gcc
 
 
 
-CFLAGS = -O -I /usr/lib/java/include/ -I /usr/lib/java/include/genunix -I /usr/lib/java/include/linux -D__Ansi__=1
+CFLAGS = -O -I /usr/lib/java/include/ -I /usr/lib/java/include/genunix -I /usr/lib/java/include/linux -I /usr/lib/java/include/linux -D__Ansi__=1
 
 
 libpano12.so  : $(objects) $(ansobj)
