@@ -377,8 +377,7 @@ static int writeImageDataPlanar( Image *im, file_spec fnum )
 	}
 	else // 16
 	{
-		unsigned long storage;//Kekus 2003 16 bit support
-		unsigned short sStorage;//Jim W 2004 Windows 16 bit support
+		unsigned short storage;//Kekus 2003 16 bit support
 		for( color = 0; color<3; color++)
 		{
 			ch = *channel; idata = &(*im->data)[2*(color + channels - 3)];
@@ -388,22 +387,9 @@ static int writeImageDataPlanar( Image *im, file_spec fnum )
 				idy = y * im->bytesPerLine;
 				for(x=0; x<im->width;x++)
 				{
-					//Kekus:2003/Nov/18 
-//					*ch++ = idata [ idy + x * bpp + 1];
-//					*ch++ = idata [ idy + x * bpp ];
-					storage = (unsigned long)(*(unsigned short*)&idata [ idy + x * bpp ]) * 2 ;
-					if(storage > 0xFFFF)
-					{
-						*((unsigned short*)ch) = 0xFFFF;
-						ch+=2;
-					}
-					else    
-					{
-//						*((unsigned short*)ch) = sStorage
-						sStorage = (unsigned short)storage;
-						SHORTNUMBER( sStorage, ch );
-					}
-//					ch+=2;
+					//Kekus:2003/Nov/18	 // JMW 2004 July
+					storage = *(unsigned short*)&idata [ idy + x * bpp ];
+					SHORTNUMBER( storage, ch );
 					//Kekus.
 				}
 			}
@@ -434,8 +420,7 @@ static int writeImageDataPlanar( Image *im, file_spec fnum )
 	else if( im->bitsPerPixel == 64 )
 	{
 		// Write 2byte alpha channel
-		unsigned long storage;
-		unsigned short sStorage;
+		unsigned short storage;
 		
 		ch = *channel; idata = &(*im->data)[0];
 		
@@ -444,17 +429,8 @@ static int writeImageDataPlanar( Image *im, file_spec fnum )
 			idy = y * im->bytesPerLine;
 			for(x=0; x<im->width;x++)
 			{
-				storage = (unsigned long)(*(unsigned short*)&idata [ idy + x * bpp ]) * 2 ;
-				if(storage > 0xFFFF)
-				{
-					*((unsigned short*)ch) = 0xFFFF;
-					ch+=2;
-				}
-				else    
-				{
-					sStorage = (unsigned short)storage;
-					SHORTNUMBER( sStorage, ch );
-				}
+				storage = *(unsigned short*)&idata [ idy + x * bpp ];
+				SHORTNUMBER( storage, ch );
 			}
 		}
 	
@@ -669,6 +645,7 @@ static int readImageDataPlanar(Image *im, file_spec src )
 	int						result = 0, i, chnum,BitsPerChannel, channels;
 	long					count;
 	short					svar;
+	unsigned short			usvar;
 	char 					data[12], *d ;
 	
 	GetBitsPerChannel( im, BitsPerChannel );
@@ -736,11 +713,8 @@ static int readImageDataPlanar(Image *im, file_spec src )
 				idy = y * im->bytesPerLine;
 				for(x=0; x<im->width;x++)
 				{
-//					idata [ idy + x * bpp ] 	= *h++;
-//					idata [ idy + x * bpp + 1] 	= *h++;
-					NUMBERSHORT( svar, h );
-					*((unsigned short*)&idata [ idy + x * bpp ]) = svar/2;
-
+					NUMBERSHORT( usvar, h );
+					*((unsigned short*)&idata [ idy + x * bpp ]) = usvar;
 				}
 			}
 		}
@@ -972,13 +946,14 @@ static int writeChannelData( Image *im, file_spec fnum, int channel, PTRect *the
 	}
 	else // 16
 	{
+		unsigned short storage;
 		for(y=theRect->top; y<theRect->bottom;y++)
 		{
 			idy = y * im->bytesPerLine;
 			for(x=theRect->left; x<theRect->right;x++)
 			{
-				*c++ = idata [ idy + x * bpp ];
-				*c++ = idata [ idy + x * bpp + 1 ];
+				storage = *(unsigned short*)&idata [ idy + x * bpp ];
+				SHORTNUMBER( storage, c );
 			}
 		}
 	}	
@@ -1967,7 +1942,7 @@ int readPSDMultiLayerImage( MultiLayerImage *mim, fullPath* sfile){
 				register int x,y,cy,by;
 				register unsigned char* theData = *(mim->Layer[i].data);
 				int offset,bpp;
-				
+				// JMW ToDo Upgrade allow 16 bit.
 				offset = (mim->Layer[i].bitsPerPixel == 32?1:0) + k;
 				if( k==3 ) offset = 0;
 				
@@ -2041,7 +2016,7 @@ int	hasFeather ( Image *im )
 			{
 				if(a && *((USHORT*)alpha) != 0 )// have data
 					a = 0;
-				if( *((USHORT*)alpha) != 255 &&	*((USHORT*)alpha) != 0 )
+				if( *((USHORT*)alpha) != 0xFFFF &&	*((USHORT*)alpha) != 0 )
 					return 1;
 			}
 		}
