@@ -14,12 +14,29 @@ int writeJPEG( Image *im, fullPath *sfile, 	int quality, int progressive )
 	char filename[512];
 	int scanlines_written;
 	unsigned char *data,*buf;
+
+#ifdef __Mac__
+	unsigned char the_pcUnixFilePath[512];// added by Kekus Digital
+	Str255 the_cString;
+	Boolean the_bReturnValue;
+	CFStringRef the_FilePath;
+	CFURLRef the_Url;//till here
+#endif
 	
 	cinfo.err = jpeg_std_error(&jerr);
 	jpeg_create_compress(&cinfo);
 
 	if( GetFullPath (sfile, filename))
 		return -1;
+
+#ifdef __Mac__
+	CopyCStringToPascal(filename,the_cString);//Added by Kekus Digital
+	the_FilePath = CFStringCreateWithPascalString(kCFAllocatorDefault, the_cString, kCFStringEncodingUTF8);
+	the_Url = CFURLCreateWithFileSystemPath(kCFAllocatorDefault, the_FilePath, kCFURLHFSPathStyle, false);
+	the_bReturnValue = CFURLGetFileSystemRepresentation(the_Url, true, the_pcUnixFilePath, 512);
+
+	strcpy(filename, the_pcUnixFilePath);//till here
+#endif
 
 	if ((outfile = fopen(filename, "wb")) == NULL) 
 	{
@@ -102,6 +119,14 @@ int readJPEG ( Image *im, fullPath *sfile )
 	unsigned char*data;
 	JSAMPARRAY sarray;
 
+#ifdef __Mac__
+	unsigned char the_pcUnixFilePath[256];// added by Kekus Digital
+	Str255 the_cString;
+	Boolean the_bReturnValue;
+	CFStringRef the_FilePath;
+	CFURLRef the_Url;//till here
+#endif
+
 	//PrintError("%s", sfile->name);	
 
 	cinfo.err = jpeg_std_error(&jerr);
@@ -110,6 +135,15 @@ int readJPEG ( Image *im, fullPath *sfile )
 
 	if( GetFullPath (sfile, filename))
 		return -1;
+
+#ifdef __Mac__
+	CopyCStringToPascal(filename,the_cString);//Added by Kekus Digital
+	the_FilePath = CFStringCreateWithPascalString(kCFAllocatorDefault, the_cString, kCFStringEncodingUTF8);
+	the_Url = CFURLCreateWithFileSystemPath(kCFAllocatorDefault, the_FilePath, kCFURLHFSPathStyle, false);
+	the_bReturnValue = CFURLGetFileSystemRepresentation(the_Url, true, the_pcUnixFilePath, 256);
+
+	strcpy(filename, the_pcUnixFilePath);//till here
+#endif
 
 	if ((infile = fopen(filename, "rb")) == NULL) 
 	{

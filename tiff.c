@@ -103,11 +103,28 @@ int readTIFF(Image *im, fullPath *sfile){
 	TIFF* tif;
 	int result = 0;
 	
+#ifdef __Mac__
+	unsigned char the_pcUnixFilePath[512];//added by Kekus Digital
+	Str255 the_cString;
+	Boolean the_bReturnValue;
+	CFStringRef the_FilePath;
+	CFURLRef the_Url;//till here
+#endif
+
 	if(FullPathtoString( sfile, filename )){
 		PrintError("Could not get filename");
 		return -1;
 	}
-	
+
+#ifdef __Mac__
+	CopyCStringToPascal(filename,the_cString);//Added by Kekus Digital
+	the_FilePath = CFStringCreateWithPascalString(kCFAllocatorDefault, the_cString, kCFStringEncodingUTF8);
+	the_Url = CFURLCreateWithFileSystemPath(kCFAllocatorDefault, the_FilePath, kCFURLHFSPathStyle, false);
+	the_bReturnValue = CFURLGetFileSystemRepresentation(the_Url, true, the_pcUnixFilePath, 512);
+
+	strcpy(filename, the_pcUnixFilePath);//till here
+#endif
+    
 	tif = TIFFOpen(filename, "r");
     
 	if ( !tif){
@@ -155,10 +172,28 @@ int writeTIFF(Image *im, fullPath *sfile){
 	UCHAR* buf;
 	int bufsize,y;
 
+#ifdef __Mac__
+	unsigned char the_pcUnixFilePath[512];//added by Kekus Digital
+	Str255 the_cString;
+	Boolean the_bReturnValue;
+	CFStringRef the_FilePath;
+	CFURLRef the_Url;//till here
+#endif
+
 	if(FullPathtoString( sfile, string )){
 		PrintError("Could not get filename");
 		return -1;
 	}
+    
+#ifdef __Mac__
+	CopyCStringToPascal(string,the_cString);//added by Kekus Digital
+	the_FilePath = CFStringCreateWithPascalString(kCFAllocatorDefault, the_cString, kCFStringEncodingUTF8);
+	the_Url = CFURLCreateWithFileSystemPath(kCFAllocatorDefault, the_FilePath, kCFURLHFSPathStyle, false);
+	the_bReturnValue = CFURLGetFileSystemRepresentation(the_Url, true, the_pcUnixFilePath, 512);
+
+	strcpy(string, the_pcUnixFilePath);//till here
+#endif
+    
 	tif = TIFFOpen(string, "w");
 	if( !tif ){
 		PrintError("Could not create TIFF-file");
