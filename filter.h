@@ -881,8 +881,8 @@ extern sPrefs			*gsPrPtr;
 #else // __Mac__, use ANSI-filefunctions
 	#define		file_spec			FILE*
 	#define		myopen( path, perm, fspec )	( (fspec = fopen( (path)->name, perm )) == NULL)
-	#define		mywrite( fspec, count, data )	count = fwrite( data, 1, count, fspec)
-	#define 	myread( fspec, count, data )	count = fread( data, 1, count, fspec ) 
+	#define		mywrite( fspec, count, data )	count = (long)fwrite( data, 1, (size_t)count, fspec)
+	#define 	myread( fspec, count, data )	count = (long)fread( data, 1, (size_t)count, fspec ) 
 	#define         myclose( fspec )		fclose (fspec )
 	#define		mycreate( path, creator, type )		
 	#define		mydelete( path )		remove((path)->name )
