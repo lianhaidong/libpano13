@@ -991,10 +991,12 @@ int jpathTofullPath( const char* jpath, fullPath *fp ){
 	}
 #ifdef __Mac__
 	c = cpath + 1;
+	if( /*StringtoFullPath*/GetFullPath( fp, c) != 0 )//Kekus Digital
 #else
 	c = cpath;
+	if( StringtoFullPath( fp, c) != 0 )
 #endif
-	if( /*StringtoFullPath*/GetFullPath( fp, c) != 0 ){//Kekus Digital
+	{
 		result = -1;
 	}
 	free( cpath );
