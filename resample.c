@@ -835,6 +835,341 @@ Trform_exit:
 	return;
 }
 	
+/*This function was added by Kekus Digital on 18/9/2002. This function takes the parameter 'imageNum' which repesents the index of the image that has to be converted.*/
+void MyTransForm( TrformStr *TrPtr, fDesc *fD, int color, int imageNum){
+	register int 		x, y;		// Loop through destination image
+	register int     	i, k; 	 	// Auxilliary loop variables
+	int 			skip = 0;	// Update progress counter
+	unsigned char 		*dest,*src,*sry;// Source and destination image data
+	register unsigned char 		*sr;	// Source  image data
+	char			progressMessage[30];// Message to be displayed by progress reporter
+	char                	percent[8];	// Number displayed by Progress reporter
+	int			valid;		// Is this pixel valid? (i.e. inside source image)
+	long			coeff;		// pixel coefficient in destination image
+	long			cy;		// rownum in destimage
+	int			xc,yc;
+
+	double 			x_d, y_d;	// Cartesian Coordinates of point ("target") in Destination image
+	double 		  	Dx, Dy;		// Coordinates of target in Source image
+	int 			xs, ys;	
+
+	unsigned char		**rgb  = NULL, 
+				*cdata = NULL;	// Image data handed to sampler
+
+	double			max_x = (double) TrPtr->src->width; // Maximum x values in source image
+	double			max_y = (double) TrPtr->src->height; // Maximum y values in source image
+	double			min_x =  -1.0;//0.0; // Minimum x values in source image
+	double			min_y =  -1.0;//0.0; // Minimum y values in source image
+
+	int			mix	  = TrPtr->src->width - 1; // maximum x-index src
+	int			mix2;
+	int			miy	  = TrPtr->src->height - 1;// maximum y-index src
+	int			miy2;
+
+	// Variables used to convert screen coordinates to cartesian coordinates
+
+		
+	double 			w2 	= (double) TrPtr->dest->width  / 2.0 - 0.5;  // Steve's L
+	double 			h2 	= (double) TrPtr->dest->height / 2.0 - 0.5;
+	double 			sw2 = (double) TrPtr->src->width   / 2.0 - 0.5;
+	double 			sh2 = (double) TrPtr->src->height  / 2.0 - 0.5;
+	
+	int			BytesPerLine	= TrPtr->src->bytesPerLine;
+	int			BytesPerPixel, FirstColorByte, SamplesPerPixel, BytesPerSample;
+
+	int			n, n2;		// How many pixels should be used for interpolation	
+	intFunc 		intp; 		// Function used to interpolate
+	int 			lu = 0;		// Use lookup table?
+	int			wrap_x = FALSE;
+	double			theGamma;	// gamma handed to SetUpGamma()
+
+	// Selection rectangle
+	PTRect			destRect;
+	if( TrPtr->dest->selection.bottom == 0 && TrPtr->dest->selection.right == 0 ){
+		destRect.left 	= 0;
+		destRect.right	= TrPtr->dest->width;
+		destRect.top	= 0;
+		destRect.bottom = TrPtr->dest->height;
+	}else{
+		memcpy( &destRect, &TrPtr->dest->selection, sizeof(PTRect) );
+	}
+
+
+	switch( TrPtr->src->bitsPerPixel ){
+		case 64:	FirstColorByte = 2; BytesPerPixel = 8; SamplesPerPixel = 4; BytesPerSample = 2; break;
+		case 48:	FirstColorByte = 0; BytesPerPixel = 6; SamplesPerPixel = 3; BytesPerSample = 2; break;
+		case 32:	FirstColorByte = 1; BytesPerPixel = 4; SamplesPerPixel = 4; BytesPerSample = 1; break;
+		case 24:	FirstColorByte = 0; BytesPerPixel = 3; SamplesPerPixel = 3; BytesPerSample = 1; break;
+		case  8:	FirstColorByte = 0; BytesPerPixel = 1; SamplesPerPixel = 1; BytesPerSample = 1; break;
+		default:	PrintError("Unsupported Pixel Size: %d", TrPtr->src->bitsPerPixel);
+					TrPtr->success = 0;
+					return;
+	}
+	
+	// Set interpolator etc:
+	switch( TrPtr->interpolator ){
+		case _poly3:// Third order polynomial fitting 16 nearest pixels
+			if( BytesPerSample == 1 ) intp = poly3; else intp = poly3_16;		
+			n = 4;
+			break;
+		case _spline16:// Cubic Spline fitting 16 nearest pixels
+			if( BytesPerSample == 1 ) intp = spline16; else intp = spline16_16;		
+			n = 4;
+			break;
+		case _spline36:	// Cubic Spline fitting 36 nearest pixels
+			if( BytesPerSample == 1 ) intp = spline36; else intp = spline36_16;		
+			n = 6;
+			break;
+		case _spline64:	// Cubic Spline fitting 64 nearest pixels
+			if( BytesPerSample == 1 ) intp = spline64; else intp = spline64_16;	
+			n = 8;
+			break;
+		case _sinc256:	// sinc windowed to 256 (2*8)^2 pixels
+			if( BytesPerSample == 1 ) intp = sinc256; else intp = sinc256_16;	
+			n = 16;
+			break;
+		case _sinc1024:	// sinc windowed to 1024 (2*16)^2 pixels
+			if( BytesPerSample == 1 ) intp = sinc1024; else intp = sinc1024_16;	
+			n = 32;
+			break;
+		case _bilinear:	// Bilinear fit using 4 nearest points
+			if( BytesPerSample == 1 ) intp = bil; else intp = bil_16;	
+			n = 2;
+			break;
+		case _nn:// nearest neighbor fit using 4 nearest points
+			if( BytesPerSample == 1 ) intp = nn; else intp = nn_16;	
+			n = 1;
+			break;
+		default: 
+			PrintError( "Invalid Interpolator selected" );
+			TrPtr->success = 0;
+			return;
+	}
+
+	// Set up arrays that hold color data for interpolators
+
+	rgb 	= (unsigned char**) malloc( n * sizeof(unsigned char*) );
+	cdata	= (unsigned char*)  malloc( n * n * BytesPerPixel * sizeof( unsigned char ) );
+	
+	
+	if( rgb == NULL || cdata == NULL ){
+		PrintError( "Not enough Memory" );
+		TrPtr->success = 0;
+		goto Trform_exit;
+	}
+		
+	n2 = n/2 ;
+	mix2 = mix +1 - n;
+	miy2 = miy +1 - n;
+
+	dest = *TrPtr->dest->data;
+	src  = *TrPtr->src->data; // is locked
+
+	if(TrPtr->mode & _show_progress){
+		switch(color){
+			case 0:
+                        { 
+                            char title[30];
+                            int the_Num;
+                            NumToString(imageNum, the_Num);
+                            p2cstr(the_Num);
+                            strcpy(title, "Converting Image #");
+                            strcat(title, (char *)the_Num);
+                            strcpy(progressMessage, title);	
+                            //progressMessage = "Image Conversion"; 	
+                        }
+                        break;
+			case 1:	switch( TrPtr->src->dataformat){
+						case _RGB: 	strcpy(progressMessage,"Red Channel"); break;
+						case _Lab:	strcpy(progressMessage, "Lightness"); break;
+					} break;
+			case 2:	switch( TrPtr->src->dataformat){
+						case _RGB: 	strcpy(progressMessage, "Green Channel"); break;
+						case _Lab:	strcpy(progressMessage, "Color A"); break;
+					} break; 
+			case 3:	switch( TrPtr->src->dataformat){
+						case _RGB: 	strcpy(progressMessage, "Blue Channel"); break;
+						case _Lab:	strcpy(progressMessage, "Color B"); break;
+					} break; 
+			default: strcpy(progressMessage, "Something is wrong here");
+		}
+		Progress( _initProgress, progressMessage );
+	}
+
+	if(TrPtr->mode & _wrapX)
+		wrap_x = TRUE;
+
+	if( TrPtr->src->dataformat == _RGB )	// Gamma correct only RGB-images
+		theGamma = TrPtr->gamma;
+	else
+		theGamma = 1.0;
+	
+	if( SetUpGamma( theGamma, BytesPerSample) != 0 ){
+		PrintError( "Could not set up lookup table for Gamma Correction" );
+		TrPtr->success = 0;
+		goto Trform_exit;
+	}
+
+	for(y=destRect.top; y<destRect.bottom; y++){
+		// Update Progress report and check for cancel every 5 lines.
+		skip++;
+		if( skip == 5 ){
+			if(TrPtr->mode & _show_progress){	
+				sprintf( percent, "%d", (int) (y * 100)/ TrPtr->dest->height);
+				if( ! Progress( _setProgress, percent ) ){
+					TrPtr->success = 0;
+					goto Trform_exit;
+				}
+			}else{
+				if( ! Progress( _idleProgress, 0) ){
+					TrPtr->success = 0;
+					goto Trform_exit;
+				}
+			}
+			skip = 0;
+		}
+		
+		// y-coordinate in dest image relative to center		
+		y_d = (double) y - h2 ;
+		cy  = (y-destRect.top) * TrPtr->dest->bytesPerLine;	
+		
+		for(x=destRect.left; x<destRect.right; x++){
+			// Calculate pixel coefficient in dest image just once
+
+			coeff = cy  + BytesPerPixel * (x-destRect.left);		
+
+			// Convert destination screen coordinates to cartesian coordinates.			
+			x_d = (double) x - w2 ;
+			
+			// Get source cartesian coordinates 
+			fD->func( x_d, y_d , &Dx, &Dy, fD->param);
+
+			// Convert source cartesian coordinates to screen coordinates 
+			Dx += sw2;
+			Dy =  sh2 + Dy ;
+			
+
+			// Is the pixel valid, i.e. from within source image?
+			if( (Dx >= max_x)   || (Dy >= max_y) || (Dx < min_x) || (Dy < min_y)  )
+				valid = FALSE;
+			else
+				valid = TRUE;
+
+			// Convert only valid pixels
+			if( valid ){
+				// Extract integer and fractions of source screen coordinates
+				xc 	  =  (int)floor( Dx ) ; Dx -= (double)xc;
+				yc 	  =  (int)floor( Dy ) ; Dy -= (double)yc;
+				
+				// if alpha channel marks valid portions, set valid 
+				if(TrPtr->mode & _honor_valid)
+				switch( FirstColorByte ){
+					case 1:{
+						int xn = xc, yn = yc;
+						if( xn < 0 ) xn = 0; //  -1  crashes Windows
+						if( yn < 0 ) yn = 0; //  -1  crashes Windows
+						if( src[ yn * BytesPerLine + BytesPerPixel * xn] == 0 )
+							valid = FALSE;
+						}
+						break;
+					case 2:{
+						int xn = xc, yn = yc;
+						if( xn < 0 ) xn = 0; //  -1  crashes Windows
+						if( yn < 0 ) yn = 0; //  -1  crashes Windows
+						if( *((USHORT*)(src + yn * BytesPerLine + BytesPerPixel * xn)) == 0 )
+							valid = FALSE;
+						}
+						break;
+					default: break;
+				}
+			}
+			
+			if( valid ){	
+				ys = yc +1 - n2 ; // smallest y-index used for interpolation
+				xs = xc +1 - n2 ; // smallest x-index used for interpolation
+					
+				// y indices used: yc-(n2-1)....yc+n2
+				// x indices used: xc-(n2-1)....xc+n2
+					
+				if( ys >= 0 && ys <= miy2 && xs >= 0 && xs <= mix2 ){  // all interpolation pixels inside image
+					sry = src + ys * BytesPerLine + xs * BytesPerPixel;
+					for(i = 0;  i < n;  i++, sry += BytesPerLine){
+						rgb[i] = sry;
+					}
+				}else{ // edge pixels
+					if( ys < 0 )
+						sry = src;
+					else if( ys > miy )
+						sry = src + miy * BytesPerLine;
+					else
+						sry = src + ys  * BytesPerLine;
+					
+					for(i = 0; i < n; i++){	
+						xs = xc +1 - n2 ; // smallest x-index used for interpolation
+						if( wrap_x ){
+							while( xs < 0 )  xs += (mix+1);
+							while( xs > mix) xs -= (mix+1);
+						}
+						if( xs < 0 )
+							 sr = sry;
+						else if( xs > mix )
+							sr = sry + mix *BytesPerPixel;
+						else
+							sr = sry + BytesPerPixel * xs;
+					
+						rgb[i] = cdata + i * n * BytesPerPixel;
+						for(k = 0; k < n; k++ ){
+							memcpy( &(rgb[i][k * BytesPerPixel]), sr, BytesPerPixel);
+							xs++;
+							if( wrap_x ){
+								while( xs < 0 )  xs += (mix+1);
+								while( xs > mix) xs -= (mix+1);
+							}
+							if( xs < 0 )
+							 	sr = sry;
+							else if( xs > mix )
+								sr = sry + mix *BytesPerPixel;
+							else
+								sr = sry + BytesPerPixel * xs;
+						}
+						 ys++;
+						 if( ys > 0 && ys <= miy )
+						 	sry +=  BytesPerLine; 
+					}
+
+				}
+				
+				switch( FirstColorByte ){
+					case 1: dest[ coeff++ ] = UCHAR_MAX;		 // Set alpha channel
+							break;
+					case 2: *((USHORT*)(dest + coeff)) = USHRT_MAX; coeff+=2;
+							break;
+					default: break;
+				}
+						
+				intp( &(dest[ coeff ]), rgb, Dx, Dy, color, SamplesPerPixel ); 
+
+			}else{  // not valid
+				memset( &(dest[ coeff ]), 0 ,BytesPerPixel ); 
+			}
+
+		}
+	}
+
+//	if(TrPtr->mode & _show_progress){
+//		Progress( _disposeProgress, percent );
+//	}	
+	TrPtr->success = 1;
+
+
+Trform_exit:
+	if( rgb ) 		free( rgb );
+	if( cdata ) 		free( cdata );
+	if( glu.DeGamma )	free( glu.DeGamma ); 	glu.DeGamma 	= NULL;
+	if( glu.Gamma )		free( glu.Gamma );	glu.Gamma 	= NULL;
+	return;
+}
+	
 
 
 

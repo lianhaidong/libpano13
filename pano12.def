@@ -164,6 +164,13 @@ EXPORTS
 			CropImage @157
 			numLines @158
 			DoColorCorrection @159
+                        cutTheFrame	@160 // added by Kekus Digital
+                        LoadBufImage @161
+                        SetDestImage	@162
+                        HaveEqualSize	@163
+                        merge	@164
+                        SaveBufImage @165 
+                        MyMakePano @166 // till here
 
 
 

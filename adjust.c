@@ -476,6 +476,66 @@ void MakePano( TrformStr *TrPtr, aPrefs *aP )
 	}
 }
 
+/*This function was added by Kekus Digital on 18/9/2002. This function takes the parameter 'imageNum' which repesents the index of the image that has to be converted.*/
+void MyMakePano( TrformStr *TrPtr, aPrefs *aP, int imageNum )
+{
+	struct 	MakeParams	mp;
+	fDesc 	stack[15], fD;		// Parameters for execute 
+	void	*morph[3];	
+
+	int 	i,k, kstart, kend, color;
+
+	TrPtr->success = 1;
+	
+	if( CheckMakeParams( aP) != 0)
+	{
+		TrPtr->success = 0;
+		return;
+	}
+
+
+	if(  isColorSpecific( &(aP->im.cP) ) )			// Color dependent
+	{
+		kstart 	= 1; kend	= 4;
+	}
+	else 											// Color independent
+	{
+		kstart	= 0; kend	= 1;
+	}
+				
+	for( k = kstart; k < kend; k++ )
+	{
+		color = k-1; if( color < 0 ) color = 0;
+		SetMakeParams( stack, &mp, &(aP->im) , &(aP->pano), color );
+		
+		if( aP->nt > 0 )	// Morphing requested
+		{
+			morph[0] = (void*)aP->td;
+			morph[1] = (void*)aP->ts;
+			morph[2] = (void*)&aP->nt;
+
+			i=0; while( stack[i].func != NULL && i<14 ) i++;
+			if( i!=14 )
+			{
+				for(i=14; i>0; i--)
+				{
+					memcpy( &stack[i], &stack[i-1], sizeof( fDesc ));
+				}
+				stack[0].func 		= tmorph;
+				stack[0].param 		= (void*)morph;
+			}
+		}
+					
+			
+		
+		if( TrPtr->success != 0)
+		{
+			fD.func = execute_stack; fD.param = stack;
+			MyTransForm( TrPtr,  &fD , k, imageNum);
+		}
+	}
+}
+
 
 // Extract image from pano in TrPtr->src 
 // using parameters in prefs (ignore image parameters
