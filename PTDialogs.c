@@ -431,7 +431,7 @@ int SetLumOptions(  cPrefs * thePrefs )
 int SetRadialOptions(  cPrefs * thePrefs )
 {
 	GenDialog(cPrefs,  
-			   kSetRadialOptions_dlg, "Radial Shift Options",
+			   kSetRadialOptions_dlg, /*"Radial Shift Options"*/"Set Polynomial Coefficients for Radial Shift" /*Changed by Kekus Digital August 14 2003*/,
 			   {
 					CheckButton( kSetRadialOptions_radial, 		localPrefs.correction_mode == correction_mode_radial );
 					CheckButton( kSetRadialOptions_vertical, 	localPrefs.correction_mode == correction_mode_vertical  );
