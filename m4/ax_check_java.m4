@@ -89,13 +89,37 @@ dnl now find the java dirs
       java_extra_inc=win32
       ;;
   esac
-  CPPFLAGS="$CPPFLAGS -I$JAVA_HOME/$java_inc_dir -I$JAVA_HOME/$java_inc_dir/$java_extra_inc"
+dnl Check if extra inc is required
+  CPPFLAGS="$CPPFLAGS -I$JAVA_HOME/$java_inc_dir"
   AC_LANG_SAVE
   AC_LANG_C
-  AC_CHECK_HEADER(jni.h,passed=`expr $passed + 1`,failed=`expr $failed + 1`,)
+  AC_COMPILE_IFELSE(
+    AC_LANG_SOURCE(
+      [[#include <jni.h>]]
+    ),
+    passed=`expr $passed + 1`,failed=`expr $failed + 1`
+  )
   AC_LANG_RESTORE
   CPPFLAGS="$JAVA_OLD_CPPFLAGS"
-
+  JAVA_FLAGS="-I$JAVA_HOME/$java_inc_dir -DHasJava"
+  
+  if test $failed -gt 0
+  then
+    echo "configure: __oline__: checking if extra_inc required" >&AC_FD_CC
+    failed=0;
+    CPPFLAGS="$CPPFLAGS -I$JAVA_HOME/$java_inc_dir -I$JAVA_HOME/$java_inc_dir/$java_extra_inc"
+    AC_LANG_SAVE
+    AC_LANG_C
+    AC_COMPILE_IFELSE(
+      AC_LANG_SOURCE(
+	[[#include <jni.h>]]
+      ),
+      passed=`expr $passed + 1`,failed=`expr $failed + 1`
+    )
+    AC_LANG_RESTORE
+    CPPFLAGS="$JAVA_OLD_CPPFLAGS"
+    JAVA_FLAGS="-I$JAVA_HOME/$java_inc_dir -I$JAVA_HOME/$java_inc_dir/$java_extra_inc -DHasJava"
+  fi
   AC_MSG_CHECKING(if JAVA package is complete)
   if test $passed -gt 0
   then
@@ -103,19 +127,20 @@ dnl now find the java dirs
     then
       AC_MSG_RESULT(no -- some components failed test)
       have_java='no (failed tests)'
+      JAVA_FLAGS=
     else
       if test "x$JAVA_HOME" = 'x'
       then
         JAVA_FLAGS=
       else
         LIB_JAVA="-L$JAVA_HOME/lib"
-        JAVA_FLAGS="-I$JAVA_HOME/$java_inc_dir -I$JAVA_HOME/$java_inc_dir/$java_extra_inc -DHasJava"
       fi
       AC_DEFINE(HasJava,1,Define if you have Java)
       AC_MSG_RESULT(yes)
       have_java='yes'
     fi
   else
+    JAVA_FLAGS=
     AC_MSG_RESULT(no)
   fi
 fi
