@@ -33,7 +33,7 @@ Lib_Exports		=		pano12.x
 PPCInc			=		panorama.h filter.h fftn.h f2c.h PixMap.h pteditor.h  ¶
 						ptutils.h sys_mac.h version.h
 
-PPCSrc			= 		filter.c parser.c sys_mac.c  correct.c perspect.c ¶
+PPCSrc			= 		filter.c parser.c queryfeature.c sys_mac.c  correct.c perspect.c ¶
                         adjust.c  remap.c lmdif.c  file.c ¶
 						math.c pan.c PTDialogs.c fftn.c fourier.c resample.c ¶
 						shell_mac.c optimize.c morpher.c Triangulate.c png.c	¶
@@ -45,7 +45,7 @@ OtherSrc		=		filter.r Gimpmain.c bmp.c pano12.x pano12.def ppm.c resource.h ¶
 						
 
 
-PPCObjs 		= 		filter.x.o parser.x.o sys_mac.x.o  correct.x.o perspect.x.o ¶
+PPCObjs 		= 		filter.x.o parser.x.o queryfeature.x.o sys_mac.x.o  correct.x.o perspect.x.o ¶
                         adjust.x.o  remap.x.o lmdif.x.o  file.x.o ¶
 						math.x.o pan.x.o PTDialogs.x.o fftn.x.o fourier.x.o resample.x.o ¶
 						shell_mac.x.o optimize.x.o morpher.x.o Triangulate.x.o png.x.o	¶

@@ -1,3 +1,4 @@
+#include "version.h"
 LANGUAGE 0x07 , 0x01 
 #pragma code_page(1252)
 
@@ -315,8 +316,8 @@ BEGIN
 END
 
 1  VERSIONINFO
- FILEVERSION 1,0,0,1
- PRODUCTVERSION 1,0,0,1
+ FILEVERSION PTVERSION_FILEVERSIONNUMBER
+ PRODUCTVERSION PTVERSION_FILEVERSIONNUMBER
  FILEFLAGSMASK 0x3fL
 
 
@@ -331,15 +332,13 @@ BEGIN
     BEGIN
         BLOCK "040704b0"
         BEGIN
-			VALUE "Comments", "Modifications made by Max Lyons 2002, 2003.  See http://www.tawbaware.com/maxlyons/pano12ml.htm\0"
-            VALUE "CompanyName", " \0"
-            VALUE "FileDescription", "Panorama Tools\0"
-            VALUE "FileVersion", "2.6.ML08\0"
-            VALUE "InternalName", "2.6.ML08\0"
-            VALUE "LegalCopyright", "Copyright © 1999, 2000, 2001 Helmut Dersch\0"
+			VALUE PTVERSION_NAME_COMMENT, PTVERSION_COMMENT
+            VALUE "FileDescription", "Panorama Tools Library\0"
+            VALUE PTVERSION_NAME_FILEVERSION, PTVERSION_FILEVERSION
+            VALUE "InternalName", "pano12.dll\0"
+            VALUE PTVERSION_NAME_LEGALCOPYRIGHT, PTVERSION_LEGALCOPYRIGHT
             VALUE "OriginalFilename", "pano12.dll\0"
-            VALUE "ProductName", "  pano12\0"
-            VALUE "ProductVersion", "2.6.ML08\0"
+            VALUE "ProductName", "Panorama Tools\0"
         END
     END
     BLOCK "VarFileInfo"

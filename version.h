@@ -25,14 +25,39 @@
 #define VERS2 0x00
 #endif
 
-
+//version of preferences file, used to verify data
 #ifndef VERSION
 #define VERSION "2.6.b1 "
 #endif
 
+#ifndef PTVERSION_NAME_LONG
+#define PTVERSION_NAME_LONG "LongVersion"
+#endif
 #ifndef LONGVERSION
-#define LONGVERSION "2.6.b1 , Copyright © 1998-2001, H. Dersch, der@fh-furtwangen.de"
+#define LONGVERSION "2.7 , Copyright © 1998-2001, H. Dersch, der@fh-furtwangen.de"
 #endif
 
+#ifndef PTVERSION_FILEVERSIONNUMBER
+#define PTVERSION_FILEVERSIONNUMBER 2,7,0,2
+#endif
 
+#ifndef PTVERSION_NAME_FILEVERSION
+#define PTVERSION_NAME_FILEVERSION "FileVersion"
+#endif
+#ifndef PTVERSION_FILEVERSION
+#define PTVERSION_FILEVERSION "2.7\0"
+#endif
 
+#ifndef PTVERSION_NAME_LEGALCOPYRIGHT 
+#define PTVERSION_NAME_LEGALCOPYRIGHT "LegalCopyright"
+#endif
+#ifndef PTVERSION_LEGALCOPYRIGHT 
+#define PTVERSION_LEGALCOPYRIGHT "Copyright © 1999, 2000, 2001 Helmut Dersch\0"
+#endif
+
+#ifndef PTVERSION_NAME_COMMENT
+#define PTVERSION_NAME_COMMENT "Comments"
+#endif
+#ifndef PTVERSION_COMMENT
+#define PTVERSION_COMMENT "Improved optimizer modifications made by Rik Littlefield, 2004.  See http://www.janrik.net/ptools\0"
+#endif

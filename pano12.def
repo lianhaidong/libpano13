@@ -153,7 +153,7 @@ EXPORTS
 			readTIFF	@146
 			CheckParams	@147
 			Java_ptutils_CGetImageFormat	= Java_ptutils_CGetImageFormat@12 @148
- 			Java_ptutils_CGetHfov	=	Java_ptutils_CGetHfov@12	@149
+			Java_ptutils_CGetHfov	=	Java_ptutils_CGetHfov@12	@149
 			Java_ptutils_CGetYaw	=	Java_ptutils_CGetYaw@12	@150
 			Java_ptutils_CGetPitch	=	Java_ptutils_CGetPitch@12	@151
 			Java_ptutils_CGetRoll	=	Java_ptutils_CGetRoll@12	@152
@@ -164,23 +164,15 @@ EXPORTS
 			CropImage @157
 			numLines @158
 			DoColorCorrection @159
-                        cutTheFrame	@160
-                        LoadBufImage @161
-                        SetDestImage	@162
-                        HaveEqualSize	@163
-                        merge	@164
-                        SaveBufImage @165 
-                        MyMakePano @166
-
-
-
-
-
-
-
-				
-
-
-
-
-
+			cutTheFrame @160
+			LoadBufImage @161
+			SetDestImage @162
+			HaveEqualSize @163
+			merge @164
+			SaveBufImage @165 
+			MyMakePano @166
+			queryFeatureCount @167
+			queryFeatures @168
+			queryFeatureInt @169
+			queryFeatureDouble @170
+			queryFeatureString @171

@@ -52,21 +52,21 @@ ifeq "$(JAVASDK)" ""
 $(warning "No java sdk found - assuming it is already in your include and library paths"
 endif
 
-sources = panorama.h filter.h fftn.h f2c.h pteditor.h  \
+sources = panorama.h filter.h fftn.h f2c.h pteditor.h \
           ptutils.h sys_win.h version.h \
-          filter.c parser.c sys_win.c  correct.c perspect.c \
+          filter.c parser.c queryfeature.c sys_win.c  correct.c perspect.c \
           adjust.c  remap.c lmdif.c  file.c \
-	  math.c pan.c PTDialogs.c fftn.c fourier.c resample.c \
+          math.c pan.c PTDialogs.c fftn.c fourier.c resample.c \
           optimize.c morpher.c Triangulate.c \
-	  seamer.c ptpicker.c pteditor.c seamer_.c \
+          seamer.c ptpicker.c pteditor.c seamer_.c \
           tiff.c bmp.c jpeg.c png.c  multilayer.c \
           Makefile pano12.rc pano12.def sys_ansi.c ppm.c
 
-objects = filter.o parser.o  correct.o perspect.o \
+objects = filter.o parser.o queryfeature.o correct.o perspect.o \
           adjust.o  remap.o lmdif.o  file.o math.o pan.o \
           PTDialogs.o fftn.o fourier.o resample.o optimize.o \
           morpher.o Triangulate.o seamer.o ptpicker.o pteditor.o \
-          tiff.o jpeg.o png.o multilayer.o 
+          tiff.o jpeg.o png.o multilayer.o
 
 winobj =  sys_win.o bmp.o pano12rc.o
 
