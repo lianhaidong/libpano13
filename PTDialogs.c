@@ -315,7 +315,7 @@ int SetFourierOptions( cPrefs * thePrefs )
 					SetText( kSetFourierOptions_fourier_frame,	"%g", localPrefs.fourier_frame);
 				},
 				{
-					GetText( kSetFourierOptions_PSDname, 	"%s", &(localPrefs.psf) );
+					GetLbl( kSetFourierOptions_PSDname, (char*)&(localPrefs.psf), 255 );
 					GetText( kSetFourierOptions_filterfactor, 	"%lf", &localPrefs.filterfactor );
 					GetText( kSetFourierOptions_fourier_frame,	"%lf", &localPrefs.fourier_frame);
 				},
@@ -838,8 +838,8 @@ int setSizePrefs( sPrefs *thePrefs, int can_resize )
 				SetLbl( kSetSizePrefs_AppName,   (char*)&localPrefs.lApp);
 			},
 			{
-			//	GetText( kSetSizePrefs_FileName, 	"%s",  &localPrefs.sFile);
-			//	GetText( kSetSizePrefs_AppName, 	"%s",  &localPrefs.lApp);
+				GetLbl( kSetSizePrefs_FileName, (char*)&(localPrefs.sFile), 255);
+				GetLbl( kSetSizePrefs_AppName, (char*)&(localPrefs.lApp), 255);
 			},
 			{
 				case kSetSizePrefs_Crop:

@@ -46,6 +46,8 @@
 			SetDlgItemText(hDlg, rNum, numString); 
 
 
+#define		GetLbl( rNum, string, length )									\
+			GetDlgItemText(hDlg, rNum, string, length);							\
 
 #define		GetText( rNum, string, varaddr )									\
 			GetDlgItemText(hDlg, rNum, numString, 255);							\

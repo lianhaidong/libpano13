@@ -295,7 +295,7 @@ BEGIN
     DEFPUSHBUTTON   "OK",1 ,95,130,50,14
     PUSHBUTTON      "Cancel",2 ,33,130,50,14
     LTEXT           "Point Spread Image:",303,18,14,68,10,NOT 0x00020000L 
-    EDITTEXT        305,18,27,114,12
+    EDITTEXT        305,18,27,114,12,0x0080L
     DEFPUSHBUTTON   "Browse",10,141,28,34,11
     RADIOBUTTON     "Add Noise",320,58,54,59,8,0x00004000L  | 0x00020000L  | 
                     0x00010000L 
@@ -360,10 +360,10 @@ BEGIN
     PUSHBUTTON      "Cancel",2 ,51,145,50,14
     CHECKBOX        "(a) Display Cropped/Framed Resultimage",213,20,15,151,8
     CHECKBOX        "(b) Save full sized Result to File",214,20,30,130,8
-    EDITTEXT        212,32,51,138,14
+    EDITTEXT        212,32,51,138,14,0x0080L
     PUSHBUTTON      "Browse",217,191,51,28,14
     CHECKBOX        "(c) Open Result with Application",215,20,71,124,8
-    EDITTEXT        216,32,94,137,14
+    EDITTEXT        216,32,94,137,14,0x0080L
     PUSHBUTTON      "Browse",218,191,94,28,14
     PUSHBUTTON      "More",219,217,7,23,9
     LTEXT           "File Name:",223,32,40,38,8,NOT 0x00020000L 
