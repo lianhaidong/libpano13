@@ -17,6 +17,10 @@
 
 /*------------------------------------------------------------*/
 
+// Added Fix of Kekus Kratzke: March.2004
+// Radial Shift, when colors channels have different values and
+// d is > 1 would give incorrect results around the edge of the image
+
 
 
 
@@ -815,7 +819,20 @@ void transForm( TrformStr *TrPtr, fDesc *fD, int color){
 				intp( &(dest[ coeff ]), rgb, Dx, Dy, color, SamplesPerPixel ); 
 
 			}else{  // not valid
-				memset( &(dest[ coeff ]), 0 ,BytesPerPixel ); 
+				//Fix: Correct would use incorrect correction values if different factors were set for each color channel
+				//Kekus.Begin: March.2004
+				//was:
+				//memset( &(dest[ coeff ]), 0 ,BytesPerPixel );
+				//now:
+				if(color)
+				{
+					char*   ptr = &(dest[ coeff ]);
+					ptr += FirstColorByte + (color - 1)*BytesPerSample;
+					memset( ptr, 0 , BytesPerSample ); //Kekus_test
+				}	
+				else
+					memset( &(dest[ coeff ]), 0 ,BytesPerPixel ); //Kekus_test
+				//Kekus.End: March.2004
 			}
 
 		}
@@ -1154,7 +1171,20 @@ void MyTransForm( TrformStr *TrPtr, fDesc *fD, int color, int imageNum){
 				intp( &(dest[ coeff ]), rgb, Dx, Dy, color, SamplesPerPixel ); 
 
 			}else{  // not valid
-				memset( &(dest[ coeff ]), 0 ,BytesPerPixel ); 
+				//Fix: Correct would use incorrect correction values if different factors were set for each color channel
+				//Kekus.Begin: March.2004
+				//was:
+				//memset( &(dest[ coeff ]), 0 ,BytesPerPixel );
+				//now:
+				if(color)
+				{
+					char*   ptr = &(dest[ coeff ]);
+					ptr += FirstColorByte + (color - 1)*BytesPerSample;
+					memset( ptr, 0 , BytesPerSample ); //Kekus_test
+				}	
+				else
+					memset( &(dest[ coeff ]), 0 ,BytesPerPixel ); //Kekus_test
+				//Kekus.End: March.2004
 			}
 
 		}
