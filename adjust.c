@@ -1716,13 +1716,13 @@ int SetLMParams( double *x )
 
 
 	for( i=0; i<g->numIm; i++ ){
-		if(g->opt[i].yaw)  //  optimize alpha? 0-no 1-yes
+		if(g->opt[i].yaw == 1)  //  optimize alpha? 0-no 1-yes
 			x[j++] = g->im[i].yaw;
 
-		if(g->opt[i].pitch)  //  optimize pitch? 0-no 1-yes
+		if(g->opt[i].pitch == 1)  //  optimize pitch? 0-no 1-yes
 			x[j++] = g->im[i].pitch; 
 
-		if(g->opt[i].roll)  //  optimize gamma? 0-no 1-yes
+		if(g->opt[i].roll == 1)  //  optimize gamma? 0-no 1-yes
 			x[j++] = g->im[i].roll ; 
 
 		if(g->opt[i].hfov == 1)  //  optimize hfov? 0-no 1-yes
