@@ -44,6 +44,7 @@
 // Also fix ReadPSD to handle multilayers
 
 // Update by Rik Littlefield 2004 June 29
+// Fix getImageRectangle to not pagefault so badly.
 // Dynamically allocate scanline buffer in writeWhiteBackground,
 // to avoid buffer overflow and crash on large images.
 // Fix 16bit Radial Shift and Adjust - Kevin & Jim 2004 July
@@ -1051,7 +1052,7 @@ static int writeTransparentAlpha( Image *im, file_spec fnum, PTRect *theRect )
 static void getImageRectangle( Image *im, PTRect *theRect )
 {
 	register unsigned char *alpha, *data;
-	register int cx,x,y,cy,bpp,channels;
+	register int x,y,cy,bpp,channels;
 	int BitsPerChannel;
 
 	GetChannels( im, channels );
@@ -1059,21 +1060,24 @@ static void getImageRectangle( Image *im, PTRect *theRect )
 	bpp = im->bitsPerPixel/8;
 
 
-	theRect->top 			= 0;
-	theRect->left 			= 0;
-	theRect->bottom 		= im->height;
-	theRect->right 			= im->width;
+	theRect->top 			= im->height;
+	theRect->left 			= im->width;
+	theRect->bottom 		= 0;
+	theRect->right 			= 0;
 
-	if( channels == 4 ){ //  alpha channel present
-
+	if( channels == 4 ){ //  alpha channel present: use image and alpha
 		if( BitsPerChannel == 8 ){
 			for(y=0; y<im->height; y++){
 				for(x=0, alpha = *(im->data) + y * im->bytesPerLine; 
 				    x<im->width; 
 				    x++, alpha += 4){
-					if( * (int*) alpha ){
-						theRect->top = y;
-						goto _get_bottom;
+					data = alpha + 1;
+					if( *alpha || 
+						*(data) || *(data+1) || *(data+2) ){
+						if (y   < theRect->top)    theRect->top = y;
+						if (y+1 > theRect->bottom) theRect->bottom = y+1;
+						if (x   < theRect->left)   theRect->left = x;
+						if (x+1 > theRect->right)  theRect->right = x+1;
 					}
 				}
 			}
@@ -1082,90 +1086,19 @@ static void getImageRectangle( Image *im, PTRect *theRect )
 				for(x=0, alpha = *(im->data) + y * im->bytesPerLine; 
 				    x<im->width; 
 				    x++, alpha += 8){
-					if( * (int*) alpha || * (int*) (alpha+4) ){
-						theRect->top = y;
-						goto _get_bottom;
-					}
-				}
-			}
-		}
-		
-
-	_get_bottom:
-		if( BitsPerChannel == 8 ){
-			for(y=im->height-1; y>=0; y--){
-				for(x=0, alpha = *(im->data) + y * im->bytesPerLine; 
-				    x<im->width; 
-				    x++, alpha += 4){
-					if( * (int*) alpha ){
-						theRect->bottom = y+1;
-						goto _get_left;
-					}
-				}
-			}
-		}else{ // 16
-			for(y=im->height-1; y>=0; y--){
-				for(x=0, alpha = *(im->data) + y * im->bytesPerLine; 
-				    x<im->width; 
-				    x++, alpha += 8){
-					if( * (int*) alpha || * (int*) (alpha+4) ){
-						theRect->bottom = y+1;
-						goto _get_left;
-					}
-				}
-			}
-		}
-		
-	_get_left:
-		if( BitsPerChannel == 8 ){
-			for(x=0; x<im->width; x++){
-				for(y=0, alpha = *(im->data) + x*bpp; 
-				    y<im->height; 
-				    y++, alpha += im->bytesPerLine){
-					if( * (int*) alpha ){
-						theRect->left = x;
-						goto _get_right;
-					}
-				}
-			}
-		}else{ // 16
-			for(x=0; x<im->width; x++){
-				for(y=0, alpha = *(im->data) + x*bpp; 
-				    y<im->height; 
-				    y++, alpha += im->bytesPerLine){
-					if( * (int*) alpha || * (int*) (alpha+4) ){
-						theRect->left = x;
-						goto _get_right;
-					}
-				}
-			}
-		}	
-	_get_right:
-		if( BitsPerChannel == 8 ){
-			for(x=im->width-1; x>=0; x--){
-				for(y=0, alpha = *(im->data) + x*bpp; 
-				    y<im->height; 
-				    y++, alpha += im->bytesPerLine){
-					if( * (int*) alpha ){
-						theRect->right = x + 1;
-						goto _get_exit;
-					}
-				}
-			}
-		}else{ // 16
-			for(x=im->width-1; x>=0; x--){
-				for(y=0, alpha = *(im->data) + x*bpp; 
-				    y<im->height; 
-				    y++, alpha += im->bytesPerLine){
-					if( * (int*) alpha || * (int*) (alpha+4) ){
-						theRect->right = x + 1;
-						goto _get_exit;
+					data = alpha + 2;
+					if( *((USHORT*)alpha) || 
+						*((USHORT*)data) || *(((USHORT*)data)+1) || *(((USHORT*)data)+2) ){
+						if (y   < theRect->top)    theRect->top = y;
+						if (y+1 > theRect->bottom) theRect->bottom = y+1;
+						if (x   < theRect->left)   theRect->left = x;
+						if (x+1 > theRect->right)  theRect->right = x+1;
 					}
 				}
 			}
 		}
 	}
-	else //  no alpha channel: Use non black rectangle
+	else //  no alpha channel: Use non black rectangle only
 	{
 		alpha 		= *(im->data);
 
@@ -1179,8 +1112,10 @@ static void getImageRectangle( Image *im, PTRect *theRect )
 					data = alpha + cy + bpp*x;
 					if( *data || *(data+1) || *(data+2) )
 					{
-						theRect->top = y;
-						goto _get_bottom_noalpha;
+						if (y   < theRect->top)    theRect->top = y;
+						if (y+1 > theRect->bottom) theRect->bottom = y+1;
+						if (x   < theRect->left)   theRect->left = x;
+						if (x+1 > theRect->right)  theRect->right = x+1;
 					}
 				}
 			}
@@ -1195,116 +1130,29 @@ static void getImageRectangle( Image *im, PTRect *theRect )
 					data = alpha + cy + bpp*x;
 					if( *((USHORT*)data) || *(((USHORT*)data)+1) || *(((USHORT*)data)+2) )
 					{
-						theRect->top = y;
-						goto _get_bottom_noalpha;
-					}
-				}
-			}
-		}
-
-	_get_bottom_noalpha:
-		if( BitsPerChannel == 8 )
-		{
-			for(y=im->height-1; y>=0; y--)
-			{
-				cy = y * im->bytesPerLine;
-				for(x=0; x<im->width; x++)
-				{
-					data = alpha + cy + bpp*x;
-					if( *data || *(data+1) || *(data+2) )
-					{
-						theRect->bottom = y+1;
-						goto _get_left_noalpha;
-					}
-				}
-			}
-		}
-		else // 16
-		{
-			for(y=im->height-1; y>=0; y--)
-			{
-				cy = y * im->bytesPerLine;
-				for(x=0; x<im->width; x++)
-				{
-					data = alpha + cy + bpp*x;
-					if( *((USHORT*)data) || *(((USHORT*)data)+1) || *(((USHORT*)data)+2) )
-					{
-						theRect->bottom = y+1;
-						goto _get_left_noalpha;
-					}
-				}
-			}
-		}
-		
-	_get_left_noalpha:
-		if( BitsPerChannel == 8 )
-		{
-			for(x=0; x<im->width; x++)
-			{
-				cx = bpp * x;
-				for(y=0; y<im->height; y++)
-				{
-					data = alpha + y * im->bytesPerLine + cx;
-					if( *data || *(data+1) || *(data+2) )
-					{
-						theRect->left = x;
-						goto _get_right_noalpha;
-					}
-				}
-			}
-		}
-		else // 16
-		{
-			for(x=0; x<im->width; x++)
-			{
-				cx = bpp * x;
-				for(y=0; y<im->height; y++)
-				{
-					data = alpha + y * im->bytesPerLine + cx;
-					if( *((USHORT*)data) || *(((USHORT*)data)+1) || *(((USHORT*)data)+2) )
-					{
-						theRect->left = x;
-						goto _get_right_noalpha;
-					}
-				}
-			}
-		}
-	
-	_get_right_noalpha:
-		if( BitsPerChannel == 8 )
-		{
-			for(x=im->width-1; x>=0; x--)
-			{
-				cx = bpp * x;
-				for(y=0; y<im->height; y++)
-				{
-					data = alpha + y * im->bytesPerLine + cx;
-					if( *data || *(data+1) || *(data+2) )
-					{
-						theRect->right = x + 1;
-						goto _get_exit;
-					}
-				}
-			}
-		}
-		else // 16
-		{
-			for(x=im->width-1; x>=0; x--)
-			{
-				cx = bpp * x;
-				for(y=0; y<im->height; y++)
-				{
-					data = alpha + y * im->bytesPerLine + cx;
-					if( *((USHORT*)data) || *(((USHORT*)data)+1) || *(((USHORT*)data)+2) )
-					{
-						theRect->right = x + 1;
-						goto _get_exit;
+						if (y   < theRect->top)    theRect->top = y;
+						if (y+1 > theRect->bottom) theRect->bottom = y+1;
+						if (x   < theRect->left)   theRect->left = x;
+						if (x+1 > theRect->right)  theRect->right = x+1;
 					}
 				}
 			}
 		}
 	}
-	_get_exit: ;
+	if (theRect->bottom <= theRect->top) { // no valid pixels found
+		theRect->top 			= 0;
+		theRect->left 			= 0;
+		theRect->bottom 		= im->height;
+		theRect->right 			= im->width;
+	}
+
+#if 0
+	{ char msg[1000];
+	  sprintf(msg,"width=%d, height=%d, top = %d, bottom = %d, left = %d, right = %d\n",
+	          im->width, im->height, theRect->top, theRect->bottom, theRect->left, theRect->right);
+	  PrintError(msg);
+    }
+#endif
 }		
 
 
@@ -2154,50 +2002,50 @@ readPSDMultiLayerImage_exit:
 
 
 	
-
-
+// JMW:  July 2 2004,  Check to see if alpha has any semi transparent pixels.
+//    Also check to see if alpha is completely black
+//    If completely black or using feathering then alpha
+//    channel can not be used as shape mask.
 int	hasFeather ( Image *im )
 {
-	register int		BitsPerChannel, bpp, w ,y, idy, x;
-	register unsigned char 	*idata;
-	//register int		x,y,ay,by,w;	
-	PTRect 				theRect;
+	register int		y, x, a;
+	register unsigned char 	*alpha;
+	int					BitsPerChannel;
 
 	GetBitsPerChannel( im, BitsPerChannel );
 
-	if( im->bitsPerPixel != 32 && im->bitsPerPixel != 64) return 0;
+	if( im->bitsPerPixel != 32 && im->bitsPerPixel != 64) return 1;
 
-	bpp = im->bitsPerPixel/8;
-	getImageRectangle( im, &theRect );
-	
-	w = (theRect.right - theRect.left);
-	idata = &((*(im->data))[0*BitsPerChannel/8]);
+	a = 1;
 	
 	if( BitsPerChannel == 8 )
 	{
-		for(y=theRect.top; y<theRect.bottom; y++)
+		for(y=0; y<im->height; y++)
 		{
-			idy = y * im->bytesPerLine;
-			for(x=theRect.left; x<theRect.right;x++)
+			for(x=0, alpha = *(im->data) + y * im->bytesPerLine; x<im->width;
+				x++, alpha += 4)
 			{
-				if( idata [ idy + x * bpp ] != 0 && idata [ idy + x * bpp ] != 255 )
+				if(a && *alpha != 0)// have data
+					a = 0;
+				if( *alpha != 0 && *alpha != 255 )
 					return 1;
 			}
 		}
 	}
 	else // 16
 	{
-		for(y=theRect.top; y<theRect.bottom; y++)
+		for(y=0; y<im->height; y++)
 		{
-			idy = y * im->bytesPerLine;
-			for(x=theRect.left; x<theRect.right;x++)
+			for(x=0, alpha = *(im->data) + y * im->bytesPerLine; x<im->width;
+				x++, alpha += 8)
 			{
-				if( idata [ idy + x * bpp ] != 0 && idata [ idy + x * bpp ] != 255 &&
-					idata [ idy + x * bpp + 1] != 0 && idata [ idy + x * bpp + 1] != 255 )
+				if(a && *((USHORT*)alpha) != 0 )// have data
+					a = 0;
+				if( *((USHORT*)alpha) != 255 &&	*((USHORT*)alpha) != 0 )
 					return 1;
 			}
 		}
 	}
-	return 0;
+	return a;
 }
 
