@@ -1,0 +1,8 @@
+# Makefile for PTOtimizer
+# This should compile on Windows systems using mingw 2.0 (www.mingw.org).
+# You'll need to adjust the path to libraries, include files, etc. if your 
+# system isn't configured the same as mine.  (See below).
+# Created Jim Watters May 15 2004
+
+PTOptimizer.exe  : PTOptimizer.c 
+	gcc -oPTOptimizer -l../pano12 PTOptimizer.c 
