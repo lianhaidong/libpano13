@@ -43,6 +43,10 @@
 // Update by Jim Watters 2003 Dec 29
 // Also fix ReadPSD to handle multilayers
 
+// Update by Rik Littlefield 2004 June 29
+// Dynamically allocate scanline buffer in writeWhiteBackground,
+// to avoid buffer overflow and crash on large images.
+
 #include "filter.h"
 
 
@@ -438,15 +442,24 @@ static void writeWhiteBackground( int width, int height, file_spec fnum )
 {
 	short 			svar;
 	long 			count,  w8, w;
-	char 			data[12], *d, scanline[256];
+	char 			data[12], *d, **scanline;
 	
 	int numChannels = 3, i, bytecount, dim = height*numChannels;
+	
+	long maxscanline = (width/128)*2 + 2;
+	scanline = (unsigned char**)mymalloc( maxscanline );
+	if( scanline == NULL )
+	{
+		PrintError("Not enough memory");
+		return;
+	}
+
 	
 	WRITESHORT( 1 );  	// RLE compressed
 
 	w8 = width;
 	
-	d = scanline;
+	d = *scanline;
 	// Set up scanline
 	for(w=w8; w>128; w-=128)
 	{
@@ -462,7 +475,7 @@ static void writeWhiteBackground( int width, int height, file_spec fnum )
 				break;
 	}
 	
-	bytecount = d - scanline;
+	bytecount = d - *scanline;
 	
 	// Scanline counts (rows*channels)
 	for(i=0; i < dim; i++)
@@ -474,8 +487,9 @@ static void writeWhiteBackground( int width, int height, file_spec fnum )
 	count = bytecount;
 	for(i=0; i < dim; i++)
 	{
-		mywrite( fnum, count, scanline );
+		mywrite( fnum, count, *scanline );
 	}
+	myfree((void**)scanline);
 	
 }
 
