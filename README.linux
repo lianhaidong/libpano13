@@ -57,7 +57,7 @@ and
 
 Then build the library using the command
 
- make libpano12.so
+ make -f makefile.linux libpano12.so
 
 
 Limits and Modifications:

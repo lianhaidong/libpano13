@@ -70,7 +70,7 @@ in the directory c:\mingw, include files for the
 format libraries (jpeg,png,tiff) in c:\mingw\usr\include,
 and the format libraries themselves in c:\mingw\usr\lib.
 Adjust these paths to your needs, and issue
-the command 'make pano12.dll' inside the
+the command 'make -f makefile.win32 pano12.dll' inside the
 sources directory. There will be a couple of warning
 messages which are non-fatal and can be ignored.
 
