@@ -1,0 +1,7 @@
+# Makefile for PanoInfo
+# This should compile on Windows systems using mingw 2.0 (www.mingw.org).
+# Created Jim Watters May 26 2004
+
+#-O2 -mms-bitfields
+panoinfo.exe  : panoinfo.c 
+	gcc  -opanoinfo panoinfo.c 
