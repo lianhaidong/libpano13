@@ -904,9 +904,9 @@ void transForm( TrformStr *TrPtr, fDesc *fD, int color){
 	// FS-
 
 	for(y=destRect.top; y<destRect.bottom; y++){
-		// Update Progress report and check for cancel every 5 lines.
+		// Update Progress report and check for cancel every 2%.
 		skip++;
-		if( skip == 5 ){
+		if( skip == (int)ceil(TrPtr->dest->height/50.0) ){
 			if(TrPtr->mode & _show_progress){	
 				sprintf( percent, "%d", (int) (y * 100)/ TrPtr->dest->height);
 				if( ! Progress( _setProgress, percent ) ){
@@ -1321,9 +1321,9 @@ void MyTransForm( TrformStr *TrPtr, fDesc *fD, int color, int imageNum){
 	}
 
 	for(y=destRect.top; y<destRect.bottom; y++){
-		// Update Progress report and check for cancel every 5 lines.
+		// Update Progress report and check for cancel every 2%.
 		skip++;
-		if( skip == 5 ){
+		if( skip == (int)ceil(TrPtr->dest->height/50.0) ){
 			if(TrPtr->mode & _show_progress){	
 				sprintf( percent, "%d", (int) (y * 100)/ TrPtr->dest->height);
 				if( ! Progress( _setProgress, percent ) ){

@@ -481,6 +481,7 @@ static int getFrame( Image *im, int *xoff, int *yoff, int width, int height, int
 	unsigned char *sry, *srx, *sl, *st, *sb;
 	register double result = 0.0;
 	char  percent[8];		// Number displayed by Progress reporter
+	int 			skip = 0;	// Update progress counter
 	
 	if(height > im->height || width > im->width)
 	{
@@ -513,20 +514,25 @@ static int getFrame( Image *im, int *xoff, int *yoff, int width, int height, int
 
 	for( xul = 0; xul <= dx; srx += bpp)
 	{
-		if( showprogress )
-		{	
-			sprintf( percent, "%d", (int) (xul * 100)/(dx>0?dx:1));
-			if( ! Progress( _setProgress, percent ) )
-			{
-				return -1;	
+		// Update Progress report and check for cancel every 2%.
+		skip++;
+		if( skip == (int)ceil(dx/50.0) ){
+			if( showprogress )
+			{	
+				sprintf( percent, "%d", (int) (xul * 100)/(dx>0?dx:1));
+				if( ! Progress( _setProgress, percent ) )
+				{
+					return -1;	
+				}
 			}
-		}
-		else
-		{				
-			if( ! Progress( _idleProgress, 0) )
-			{
-					return -1;
+			else
+			{				
+				if( ! Progress( _idleProgress, 0) )
+				{
+						return -1;
+				}
 			}
+			skip = 0;
 		}
 
 		br = brx;

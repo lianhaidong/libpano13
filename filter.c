@@ -353,9 +353,9 @@ void filter( TrformStr *TrPtr, flfn func, flfn16 func16, void* params, int color
 
 
 	for(y=destRect.top; y<destRect.bottom; y++){
-		// Update Progress report and check for cancel every 5 lines.
+		// Update Progress report and check for cancel every 2%
 		skip++;
-		if( skip == 5 )
+		if( skip == (int)ceil(TrPtr->dest->height/50.0) )
 		{
 			if(TrPtr->mode & _show_progress)
 			{	
