@@ -20,44 +20,43 @@ if test "x$with_java" != 'xno'
 then
   AC_MSG_CHECKING([for JAVA installation at ${with_java}])
   AC_MSG_RESULT()
+
+dnl these two lines should let u find most java installations
+  java_dirs="/usr /usr/local /usr/lib/j2sdk1.4-sun /opt /mingw"
+  java_inc_dirs="include include/libgcj"
+  
   if test "x$with_java" != 'x'
   then
     if test -d "$with_java"
     then
       JAVA_HOME="$with_java"
+      for j in $java_inc_dirs
+      do
+        if test -r "$JAVA_HOME/$j/jni.h"; then
+	  java_inc_dir="$j"
+	  break
+        fi
+      done
     else
       AC_MSG_WARN([Sorry, $with_java does not exist, checking usual places])
                   with_java=''
     fi
   fi
-case "${target_os}" in
-  "")
-    java_inc_dir=include/libgcj
-    ;;
-  linux*)
-    java_inc_dir=include/libgcj
-    ;;
-  darwin*)
-    java_inc_dir=include/libgcj
-    ;;
-  *mingw32*)
-    java_inc_dir=include
-    ;;
-  *)
-    java_inc_dir=include/libgcj
-    ;;
-esac
 
+dnl now find the java dirs
 
   if test "x$JAVA_HOME" = 'x'
   then
-    java_dirs="/usr /usr/local /opt /mingw"
     for i in $java_dirs;
     do
-       if test -r "$i/$java_inc_dir/jni.h"; then
-         JAVA_HOME="$i"
-	 break
-       fi
+      for j in $java_inc_dirs
+      do
+        if test -r "$i/$j/jni.h"; then
+          JAVA_HOME="$i"
+	  java_inc_dir="$j"
+	  break
+        fi
+      done
     done
     if test "x$JAVA_HOME" != 'x'
     then
@@ -90,9 +89,9 @@ esac
     else
       if test "x$JAVA_HOME" = 'x'
       then
-        JAVA_FLAGS="-DHasJava"
+        JAVA_FLAGS=
       else
-        LIB_JAVA="-L$PNG_HOME/lib -lpng"
+        LIB_JAVA="-L$JAVA_HOME/lib"
         JAVA_FLAGS="-I$JAVA_HOME/$java_inc_dir -DHasJava"
       fi
       AC_DEFINE(HasJava,1,Define if you have Java)
