@@ -34,30 +34,32 @@ char							mLine[256];
 Image im;
 int JavaUI 			= FALSE;
 static JNIEnv 		*ptenv;
-static jobject 		picker;
+// since gPicker is already defined in ColorPicker.h I change picker to gPicker : Kekus Digital
+//static jobject 	picker; //commented by Kekus Digital
+static jobject 		gPicker;//added by Kekus Digital
 
-#define SET_JAVA JavaUI = TRUE; ptenv = env; picker = obj;
+#define SET_JAVA JavaUI = TRUE; ptenv = env; gPicker = obj;
 
 void JPrintError( char* text ){
-	jclass cls = (*ptenv)->GetObjectClass(ptenv, picker);
+	jclass cls = (*ptenv)->GetObjectClass(ptenv, gPicker);
   	jmethodID mid = (*ptenv)->GetMethodID(ptenv, cls, "PrintError", "(Ljava/lang/String;)V");
     if (mid == 0)  return;
-   	(*ptenv)->CallVoidMethod(ptenv, picker, mid, (*ptenv)->NewStringUTF(ptenv, text));
+   	(*ptenv)->CallVoidMethod(ptenv, gPicker, mid, (*ptenv)->NewStringUTF(ptenv, text));
 }
 
 #if 0
 int JinfoDlg( int command, char* argument ){
-	jclass cls = (*ptenv)->GetObjectClass(ptenv, picker);
+	jclass cls = (*ptenv)->GetObjectClass(ptenv, gPicker);
   	jmethodID mid = (*ptenv)->GetMethodID(ptenv, cls, "infoDlg", "(ILjava/lang/String;)I");
     if (mid == 0)  return -1;
-   	(*ptenv)->CallIntMethod(ptenv, picker, mid, command, (*ptenv)->NewStringUTF(ptenv, argument));
+   	(*ptenv)->CallIntMethod(ptenv, gPicker, mid, command, (*ptenv)->NewStringUTF(ptenv, argument));
 }
 	
 int JProgress( int command, char* argument ){
-	jclass cls = (*ptenv)->GetObjectClass(ptenv, picker);
+	jclass cls = (*ptenv)->GetObjectClass(ptenv, gPicker);
   	jmethodID mid = (*ptenv)->GetMethodID(ptenv, cls, "Progress", "(ILjava/lang/String;)I");
     if (mid == 0)  return -1;
-   	(*ptenv)->CallIntMethod(ptenv, picker, mid, command, (*ptenv)->NewStringUTF(ptenv, argument));
+   	(*ptenv)->CallIntMethod(ptenv, gPicker, mid, command, (*ptenv)->NewStringUTF(ptenv, argument));
 }
 #endif
 JNIEXPORT void JNICALL Java_ptutils_CSaveProject
@@ -346,7 +348,7 @@ JNIEXPORT void JNICALL Java_ptutils_CLoadImage
 			else
 				gl->im[n].hfov = 4.0 * asin( 5.7 / (-gl->im[n].hfov) );
 		}
-		gl->im[n].hfov = RAD_TO_DEG( gl->im[n].hfov );
+		gl->im[n].hfov = /*RAD_TO_DEG*/(( gl->im[n].hfov) * 360.0 / ( 2.0 * PI ) );
 		
 		if( gl->im[n].hfov < dYaw )
 			PrintError( "Warning: No overlap of images");
@@ -992,7 +994,7 @@ int jpathTofullPath( const char* jpath, fullPath *fp ){
 #else
 	c = cpath;
 #endif
-	if( StringtoFullPath( fp, c) != 0 ){
+	if( /*StringtoFullPath*/GetFullPath( fp, c) != 0 ){//Kekus Digital
 		result = -1;
 	}
 	free( cpath );
