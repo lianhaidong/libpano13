@@ -54,7 +54,7 @@ endif
 
 if HAVE_DARWIN
 DAR_SRC =  sys_ansi.c ppm.c
-DAR_DEFS = -D__Ansi__=1
+DAR_DEFS = -I/System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers -I/sw/include -D__Ansi__=1
 else
 DAR_SRC =
 DAR_DEFS = 
