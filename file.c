@@ -46,6 +46,7 @@
 // Update by Rik Littlefield 2004 June 29
 // Dynamically allocate scanline buffer in writeWhiteBackground,
 // to avoid buffer overflow and crash on large images.
+// Fix 16bit Radial Shift and Adjust - Kevin & Jim 2004 July
 
 #include "filter.h"
 
@@ -375,6 +376,8 @@ static int writeImageDataPlanar( Image *im, file_spec fnum )
 	}
 	else // 16
 	{
+		unsigned long storage;//Kekus 2003 16 bit support
+		unsigned short sStorage;//Jim W 2004 Windows 16 bit support
 		for( color = 0; color<3; color++)
 		{
 			ch = *channel; idata = &(*im->data)[2*(color + channels - 3)];
@@ -384,8 +387,23 @@ static int writeImageDataPlanar( Image *im, file_spec fnum )
 				idy = y * im->bytesPerLine;
 				for(x=0; x<im->width;x++)
 				{
-					*ch++ = idata [ idy + x * bpp ];
-					*ch++ = idata [ idy + x * bpp + 1];
+					//Kekus:2003/Nov/18 
+//					*ch++ = idata [ idy + x * bpp + 1];
+//					*ch++ = idata [ idy + x * bpp ];
+					storage = (unsigned long)(*(unsigned short*)&idata [ idy + x * bpp ]) * 2 ;
+					if(storage > 0xFFFF)
+					{
+						*((unsigned short*)ch) = 0xFFFF;
+						ch+=2;
+					}
+					else    
+					{
+//						*((unsigned short*)ch) = sStorage
+						sStorage = (unsigned short)storage;
+						SHORTNUMBER( sStorage, ch );
+					}
+//					ch+=2;
+					//Kekus.
 				}
 			}
 	
@@ -415,6 +433,8 @@ static int writeImageDataPlanar( Image *im, file_spec fnum )
 	else if( im->bitsPerPixel == 64 )
 	{
 		// Write 2byte alpha channel
+		unsigned long storage;
+		unsigned short sStorage;
 		
 		ch = *channel; idata = &(*im->data)[0];
 		
@@ -422,10 +442,19 @@ static int writeImageDataPlanar( Image *im, file_spec fnum )
 		{
 			idy = y * im->bytesPerLine;
 			for(x=0; x<im->width;x++)
+			{
+				storage = (unsigned long)(*(unsigned short*)&idata [ idy + x * bpp ]) * 2 ;
+				if(storage > 0xFFFF)
 				{
-					*ch++ = idata [ idy + x * bpp ];
-					*ch++ = idata [ idy + x * bpp + 1];
+					*((unsigned short*)ch) = 0xFFFF;
+					ch+=2;
 				}
+				else    
+				{
+					sStorage = (unsigned short)storage;
+					SHORTNUMBER( sStorage, ch );
+				}
+			}
 		}
 	
 		mywrite( fnum, count, *channel );
@@ -447,7 +476,7 @@ static void writeWhiteBackground( int width, int height, file_spec fnum )
 	int numChannels = 3, i, bytecount, dim = height*numChannels;
 	
 	long maxscanline = (width/128)*2 + 2;
-	scanline = (unsigned char**)mymalloc( maxscanline );
+	scanline = (char**)mymalloc( maxscanline );
 	if( scanline == NULL )
 	{
 		PrintError("Not enough memory");
@@ -706,8 +735,11 @@ static int readImageDataPlanar(Image *im, file_spec src )
 				idy = y * im->bytesPerLine;
 				for(x=0; x<im->width;x++)
 				{
-					idata [ idy + x * bpp ] 	= *h++;
-					idata [ idy + x * bpp + 1] 	= *h++;
+//					idata [ idy + x * bpp ] 	= *h++;
+//					idata [ idy + x * bpp + 1] 	= *h++;
+					NUMBERSHORT( svar, h );
+					*((unsigned short*)&idata [ idy + x * bpp ]) = svar/2;
+
 				}
 			}
 		}

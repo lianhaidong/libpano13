@@ -275,7 +275,7 @@ int SetPrefs(  panoPrefs *prPtr )
 //   Filter function; src and dest should be equal sized
 
 
-void filter( TrformStr *TrPtr, flfn func, void* params, int color)
+void filter( TrformStr *TrPtr, flfn func, flfn16 func16, void* params, int color)
 {
 	register int 		x, y;			// Loop through destination image
 	register int     	i,  col; 		// Auxilliary loop variables
@@ -293,16 +293,27 @@ void filter( TrformStr *TrPtr, flfn func, void* params, int color)
 	int 				w2 = TrPtr->dest->width / 2.0 - 0.5;  // Steve's L
 	int 				h2 = TrPtr->dest->height / 2.0 - 0.5;  
 
-
-	// We can handle 3 and 4 Bytes/Pixel (and more, if exists).
-	
-	int					BytesPerPixel 	= TrPtr->src->bitsPerPixel / 8;
-	int					FirstColorByte	= BytesPerPixel - 3;
-
-
-
 	// Selection rectangle
 	PTRect			destRect;
+
+	// Jim W July 11 2004 for 16bit
+	int					BytesPerPixel = 0;
+	int					FirstColorByte = 0;
+	int					SamplesPerPixel = 0;
+	int					BytesPerSample = 0;
+	
+	switch( TrPtr->src->bitsPerPixel ){
+		case 64:	FirstColorByte = 2; BytesPerPixel = 8; SamplesPerPixel = 4; BytesPerSample = 2; break;
+		case 48:	FirstColorByte = 0; BytesPerPixel = 6; SamplesPerPixel = 3; BytesPerSample = 2; break;
+		case 32:	FirstColorByte = 1; BytesPerPixel = 4; SamplesPerPixel = 4; BytesPerSample = 1; break;
+		case 24:	FirstColorByte = 0; BytesPerPixel = 3; SamplesPerPixel = 3; BytesPerSample = 1; break;
+		case  8:	FirstColorByte = 0; BytesPerPixel = 1; SamplesPerPixel = 1; BytesPerSample = 1; break;
+		default:	PrintError("Unsupported Pixel Size: %d", TrPtr->src->bitsPerPixel);
+					TrPtr->success = 0;
+					return;
+	}
+	// Jim W
+
 	if( TrPtr->dest->selection.bottom == 0 && TrPtr->dest->selection.right == 0 ){
 		destRect.left 	= 0;
 		destRect.right	= TrPtr->dest->width;
@@ -381,11 +392,20 @@ void filter( TrformStr *TrPtr, flfn func, void* params, int color)
 				valid = TRUE;
 
 			// if alpha channel marks valid portions, set valid 
-
-			if( (TrPtr->mode & _honor_valid) && 
-				(FirstColorByte == 1)		 &&
-				(src[ ys * TrPtr->src->bytesPerLine + BytesPerPixel * xs] == 0))
-				valid = FALSE;		
+			if(1 == BytesPerSample)//8bit
+			{
+				if( (TrPtr->mode & _honor_valid) && 
+					(SamplesPerPixel == 4)		 &&
+					(src[ ys * TrPtr->src->bytesPerLine + BytesPerPixel * xs] == 0))
+					valid = FALSE;		
+			}
+			else //16bit
+			{
+				if( (TrPtr->mode & _honor_valid) && 
+					(SamplesPerPixel == 4)		 &&
+					(*(unsigned short*)&src[ ys * TrPtr->src->bytesPerLine + BytesPerPixel * xs] == 0))
+					valid = FALSE;		
+			}
 
 
 			// Check for and handle edge locations
@@ -404,26 +424,45 @@ void filter( TrformStr *TrPtr, flfn func, void* params, int color)
 			{
 				if( color == 0 ) // Convert all color channels equally 
 				{
-					for( col = FirstColorByte; col < FirstColorByte + 3; col++)
+					for( col = FirstColorByte; col < BytesPerPixel; col += BytesPerSample)
 					{
-						dest[ coeff + col] = func( src[ ys * TrPtr->src->bytesPerLine + BytesPerPixel * xs + col ], x-w2, y-h2, params );
+                        //Kekus 16 bit 2003/Nov/18
+                            if( BytesPerSample == 2 )
+								*(unsigned short*)&dest[ coeff + col] = (unsigned short) func16( *(unsigned short*)&src[ ys * TrPtr->src->bytesPerLine + BytesPerPixel * xs + col], x-w2, y-h2, params );
+                            else
+								dest[ coeff + col] = func( src[ ys * TrPtr->src->bytesPerLine + BytesPerPixel * xs + col ], x-w2, y-h2, params );
+                        //Kekus.     
 					}
-					if( FirstColorByte == 1 )
-						dest[ coeff ] = 255; // Set alpha channel
+					if( SamplesPerPixel == 4 )
+					{
+						if( BytesPerSample == 2 ) //16bit
+							*(unsigned short*)&dest[ coeff ] = *(unsigned short*)&src[ ys * TrPtr->src->bytesPerLine + BytesPerPixel * xs + col]; // Set alpha channel
+						else
+							dest[ coeff ] = src[ ys * TrPtr->src->bytesPerLine + BytesPerPixel * xs + col ]; // Set alpha channel
+					}
 				}
 				else // Convert just one channel
 				{
 					col = (FirstColorByte ? color : color-1); 
 					
-					dest[ coeff + col] = func( src[ ys * TrPtr->src->bytesPerLine + BytesPerPixel * xs + col ], x-w2, y-h2, params );
-
-					if( FirstColorByte == 1 )
-						dest[ coeff ] = 255; // Set alpha channel
+                    //Kekus: 2003/Nov/18 
+                        if( BytesPerSample == 2 )
+                            *(unsigned short*)&dest[ coeff + col*2] = (unsigned short) func16( *(unsigned short*)&src[ ys * TrPtr->src->bytesPerLine + BytesPerPixel * xs + col*2 ], x-w2, y-h2, params );
+                        else
+							dest[ coeff + col] = func( src[ ys * TrPtr->src->bytesPerLine + BytesPerPixel * xs + col ], x-w2, y-h2, params );
+                    //Kekus.     
+					if( SamplesPerPixel == 4 )
+					{
+						if( BytesPerSample == 2 ) //16bit
+							*(unsigned short*)&dest[ coeff ] = *(unsigned short*)&src[ ys * TrPtr->src->bytesPerLine + BytesPerPixel * xs ]; // Set alpha channel
+						else
+							dest[ coeff ] = src[ ys * TrPtr->src->bytesPerLine + BytesPerPixel * xs]; // Set alpha channel
+					}
 				}
 			}
 			else
 			{
-				for(i = 0; i < 3 + FirstColorByte; i++)
+				for(i = 0; i < BytesPerPixel; i++)
 					dest[ coeff + i] = 0;
 			}
 

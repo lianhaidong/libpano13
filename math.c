@@ -911,6 +911,25 @@ unsigned char radlum( unsigned char srcPixel, int xc, int yc, void *params )
 	return( (unsigned char)(result+0.5) );
 }
 
+//Kekus 16 bit: 2003/Nov/18
+//Correct radial luminance change using parabel (16-bit supported)
+unsigned short radlum16( unsigned short srcPixel, int xc, int yc, void *params ) 
+{
+	// params: second and zero order polynomial coeff
+	register double result;
+
+	result = (xc * xc + yc * yc) * ((double*)params)[0] + ((double*)params)[1];
+    result = ((double) srcPixel) - result*128;
+    // JMW 2003/08/25  randomize a little to remove banding added by Kekus Digital 26 Aug 2003
+	// JMW 2004/07/11 a power of two less randomizing for 16 bit
+    result = result * ( (1 + LUMINANCE_RANDOMIZE * LUMINANCE_RANDOMIZE /2) - 
+		LUMINANCE_RANDOMIZE * LUMINANCE_RANDOMIZE * rand() / (double)RAND_MAX );
+    if(result > 65535.0) return 65535;
+	if(result < 0.0) return 0;
+
+	return( (unsigned short)(result+0.5) );
+}
+//Kekus.
 
 // Get smallest positive (non-zero) root of polynomial with degree deg and
 // (n+1) real coefficients p[i]. Return it, or 1000.0 if none exists or error occured

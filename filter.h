@@ -464,6 +464,7 @@ typedef		void (*fnPtr)(TrformStr *TrPtr);
 // Filter function type
 
 typedef unsigned char (*flfn)( unsigned char srcPixel, int xc, int yc, void *params );
+typedef unsigned short (*flfn16)( unsigned short srcPixel, int xc, int yc, void *params );
 
 
 // Interpolating functions for resampler
@@ -643,7 +644,7 @@ int		ReadMorphPoints( char *script, AlignInfo *gl, int nIm );
 
 void 	addAlpha			( Image *im ); 
 void 	transForm			( TrformStr *TrPtr, fDesc *fD, int color);
-void    filter				( TrformStr *TrPtr, flfn func, void* params, int color);		
+void    filter				( TrformStr *TrPtr, flfn func, flfn16 func16, void* params, int color);		
 void 	CopyImageData		( Image *dest, Image *src );
 void 	laplace				( Image *im );
 void 	blurr				( Image *im );
@@ -801,8 +802,10 @@ void shift_scale_rotate ( double x_dest,double  y_dest, double* x_src, double* y
 
 
 
-unsigned char radlum	( unsigned char srcPixel, int xc, int yc, void *params );
-
+unsigned char radlum            ( unsigned char srcPixel, int xc, int yc, void *params );
+//Kekus 16 bit 2003/Nov/18
+unsigned short radlum16         ( unsigned short srcPixel, int xc, int yc, void *params );// , long bitsPerComponent);
+//Kekus.
 
 extern TrformStr 		*gTrPtr;
 extern sPrefs			*gsPrPtr;

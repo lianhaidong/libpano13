@@ -110,7 +110,7 @@ void 	correct	(TrformStr *TrPtr, cPrefs *prefs)
 			lum_params[1] =    prefs->lum_params[0] / 2.0 ;
 			if( TrPtr->success != 0 )
 			{
-				filter( TrPtr, radlum, (void*) lum_params, 0 );
+				filter( TrPtr, radlum, radlum16, (void*) lum_params, 0 );
 			}
 		}
 		else // Color dependent
@@ -121,7 +121,7 @@ void 	correct	(TrformStr *TrPtr, cPrefs *prefs)
 				lum_params[1] =   prefs->lum_params[k-1] / 2.0 ;
 				if( TrPtr->success != 0 )
 				{
-					filter( TrPtr, radlum, (void*) lum_params, k );
+					filter( TrPtr, radlum, radlum16, (void*) lum_params, k );
 				}
 			}
 		}
