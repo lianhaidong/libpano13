@@ -22,7 +22,7 @@ then
   AC_MSG_RESULT()
 
 dnl these two lines should let u find most java installations
-  java_dirs="/usr /usr/local /usr/lib/j2sdk1.4-sun /opt /mingw"
+  java_dirs="/usr /usr/local /usr/lib/j2sdk1.4-sun /usr/lib/jvm/java /opt /mingw"
   java_inc_dirs="include include/libgcj"
   
   if test "x$with_java" != 'x'
@@ -66,12 +66,25 @@ dnl now find the java dirs
     fi
   fi
 
+
+
   failed=0;
   passed=0;
   JAVA_OLD_CPPFLAGS=$CPPFLAGS
   if test "x$JAVA_HOME" != 'x'
   then
-    CPPFLAGS="$CPPFLAGS -I$JAVA_HOME/$java_inc_dir"
+    case "${target_os}" in
+      linux*)
+        java_extra_inc=linux
+        ;;
+      darwin*)
+        java_extra_inc=darwin
+        ;;
+      *mingw32*)
+        java_extra_inc=win32
+        ;;
+    esac
+    CPPFLAGS="$CPPFLAGS -I$JAVA_HOME/$java_inc_dir -I$JAVA_HOME/$java_inc_dir/$java_extra_inc"
   fi
   AC_LANG_SAVE
   AC_LANG_C
@@ -92,7 +105,7 @@ dnl now find the java dirs
         JAVA_FLAGS=
       else
         LIB_JAVA="-L$JAVA_HOME/lib"
-        JAVA_FLAGS="-I$JAVA_HOME/$java_inc_dir -DHasJava"
+        JAVA_FLAGS="-I$JAVA_HOME/$java_inc_dir -I$JAVA_HOME/$java_inc_dir/$java_extra_inc -DHasJava"
       fi
       AC_DEFINE(HasJava,1,Define if you have Java)
       AC_MSG_RESULT(yes)
