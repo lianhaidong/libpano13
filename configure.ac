@@ -55,7 +55,7 @@ AM_CONDITIONAL(HAVE_X11, test "${HSYS}" = "x11")
 
 AX_CHECK_JAVA
 if test "x$have_java" != xyes; then
-    AC_MSG_WARN([
+    AC_MSG_ERROR([
         java must be installed on your system
         but configure could not find it.
     ])
@@ -63,7 +63,7 @@ fi
 
 AX_CHECK_ZLIB
 if test "x$have_zlib" != xyes; then
-    AC_MSG_WARN([
+    AC_MSG_ERROR([
         the zlib library must be installed on your system
         but configure could not find it.
     ])
@@ -71,7 +71,7 @@ fi
 
 AX_CHECK_PNG
 if test "x$have_png" != xyes; then
-    AC_MSG_WARN([
+    AC_MSG_ERROR([
         the png library must be installed on your system
         but configure could not find it.
     ])
@@ -79,7 +79,7 @@ fi
 
 AX_CHECK_JPEG
 if test "x$have_jpeg" != xyes; then
-    AC_MSG_WARN([
+    AC_MSG_ERROR([
         the jpeg library must be installed on your system
         but configure could not find it.
     ])
@@ -87,7 +87,7 @@ fi
 
 AX_CHECK_TIFF
 if test "x$have_tiff" != xyes; then
-    AC_MSG_WARN([
+    AC_MSG_ERROR([
         the tiff library must be installed on your system
         but configure could not find it.
     ])
