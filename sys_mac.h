@@ -22,6 +22,8 @@
 
 
 #include "filter.h"
+#include <Carbon/Carbon.h> // added by Kekus Digital
+/*			   // commented by Kekus Digital
 #include <Controls.h>
 #include <TextUtils.h>
 #include <Menus.h>
@@ -45,6 +47,9 @@
 #include <MixedMode.h>
 #include <CodeFragments.h>
 #include <Fonts.h>
+*/			// till here
+
+#define c2pstr(x)  MyCtoPStr(x) // added by Kekus Digital
 
 
 
@@ -85,9 +90,9 @@
 																				\
 			dialog = GetNewDialog( DlgRes , nil , (WindowPtr)-1L);				\
 			strcpy( numString, Title);											\
-			SetWTitle( dialog, c2pstr( numString ));							\
+			SetWTitle( GetDialogWindow( dialog), c2pstr( numString ));							\
 			ShowWindow( dialog );												\
-			SetPort( dialog );													\
+			SetPort( GetWindowPort(GetDialogWindow(dialog)) );													\
 																				\
 			SetDialogDefaultItem( dialog, ok );									\
 			SetDialogCancelItem( dialog, cancel );								\
@@ -308,7 +313,7 @@
 
 void    		open_selection( FSSpec *filespec );
 
-
+unsigned char *MyCtoPStr(char *x); // added by Kekus Digital
 
 #endif
 

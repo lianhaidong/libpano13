@@ -30,8 +30,11 @@
 
 #define		PREFNAME		"\ppano.prefs"
 
-pascal OSErr 	__my_initialize(const CFragInitBlock *theInitBlock);
-pascal void 	__my_terminate(void);
+//pascal OSErr 	__my_initialize(const CFragInitBlock *theInitBlock); //commented by Kekus Digital
+//pascal void 	__my_terminate(void); //commented by Kekus Digital
+
+pascal OSErr 	MyInitialize(CFBundleRef bundle); //added by Kekus Digital
+pascal void 	MyTerminate(CFBundleRef bundle); //added by Kekus Digital
 
 static void 	pstrcpy(unsigned char* from, unsigned char *to);
 static void 	create_event_for_finder(AppleEvent *the_event);
@@ -56,11 +59,11 @@ void filter_main( TrformStr *TrPtr, sPrefs *spref)
 	Handle			sleepHandle;
 
 	// Check if lib has been opened as resource file	
-	if( shlib == -1 )
+	/*if( shlib == -1 ) //commented by Kekus Digital
 	{
 		TrPtr->success = 0;
 		return;
-	}
+	}*/
 
 	// Set sleep value	
 	sleepHandle = GetResource('SLEP', 128 );
@@ -73,14 +76,14 @@ void filter_main( TrformStr *TrPtr, sPrefs *spref)
 	//	PrintError( "%ld", sleep);
 	}
 	
-		
 	dispatch	( TrPtr, spref );
 }
 
 
 void setLibToResFile( void )
 {
-	shlib		= FSpOpenResFile(&panoLib,   fsRdPerm);
+	//shlib		= FSpOpenResFile(&panoLib,   fsRdPerm);//commented by Kekus Digital
+	shlib		= FSpOpenResFile(&prFile,   fsRdPerm);//added by Kekus Digital
 }
 
 void unsetLibToResFile( void )
@@ -130,18 +133,20 @@ int Progress( int command, char* argument )
 	switch( command )
 	{
 		case _initProgress:
-				if( dialog != nil){
+            if( dialog != nil)
+            {
 					strcpy(  title, argument);
-					SetWTitle( dialog, (unsigned char*) c2pstr( title )); 
+                SetWTitle( GetDialogWindow(dialog), (unsigned char*) c2pstr( title )); 
 					return TRUE;
 					break;
 				}
 				GetPort(&port);
 				dialog = GetNewDialog( kProgressDialog , nil , (WindowPtr)-1L);
 				strcpy(  title, argument);
-				SetWTitle( dialog, (unsigned char*) c2pstr( title )); 
+            SetWTitle(GetDialogWindow(dialog), (unsigned char*)c2pstr(title)); 
+            //SetThemeWindowBackground(GetDialogWindow(dialog), kThemeTextColorDialogActive, true);//Added by Kekus Digital
 				ShowWindow( dialog );
-				SetPort( dialog );
+            SetPort(/* dialog*/GetWindowPort(GetDialogWindow(dialog) )); //changed by Kekus Digital
 				GetDialogItem( dialog, kProgressBar, &itemType, &barHandle, &itemRect);
 				SetControlValue((ControlRef)barHandle, 0);
 				inProgress = true;
@@ -164,6 +169,7 @@ int Progress( int command, char* argument )
 							{
 								SetPort(port);
 								DisposeDialog(dialog);
+                                dialog = nil;
 								inProgress = false;
 								return FALSE;
 							}
@@ -177,6 +183,7 @@ int Progress( int command, char* argument )
 								{
 									SetPort(port);
 									DisposeDialog(dialog);
+                                    dialog = nil;
 									inProgress = false;
 									return FALSE;
 								}
@@ -194,6 +201,7 @@ int Progress( int command, char* argument )
 			{
 					SetPort(port);
 					DisposeDialog(dialog);
+                    dialog = nil;
 			}
 			return TRUE;
 			break;
@@ -212,6 +220,7 @@ int Progress( int command, char* argument )
 					break;
 			}
 			return TRUE;
+                break;
 	}
 	return TRUE;
 }
@@ -243,6 +252,7 @@ int infoDlg ( int command, char* argument )	// Display info: same argumenmts as 
 			GetDialogItem( dialog, 3, &itemType, &progress, &itemRect);
 			SetDialogItemText (title, 	c2pstr(text) );
 			SetDialogItemText (progress, 	"\p");
+                        //SetThemeWindowBackground(GetDialogWindow(dialog), kThemeTextColorDialogActive, true);//Added by Kekus Digital
 			ShowWindow( dialog );
 			SetPort( dialog );
 			inProgress = true;
@@ -606,8 +616,8 @@ static void add_path_name(AppleEvent * the_event_ptr,  const FSSpec* f)
 	FSMakeFSSpec(f->vRefNum,f->parID,"\p",&dir_spec) ;
 	NewAliasMinimal(&dir_spec,&alias) ;
 	HLock((char **)alias);
-	AEPutParamPtr(the_event_ptr, keyDirectObject, typeAlias, StripAddress(*alias),
-					 	(**alias).aliasSize) ;
+	//AEPutParamPtr(the_event_ptr, keyDirectObject, typeAlias, StripAddress(*alias), (**alias).aliasSize) ;//commented by Kekus Digital
+	AEPutParamPtr(the_event_ptr, keyDirectObject, typeAlias, *alias, (**alias).aliasSize) ;//added by Kekus Digital
 
 	HUnlock((char **)alias);
 	DisposeHandle((char **)alias);
@@ -624,8 +634,8 @@ static void add_selection(AppleEvent * the_event_ptr,  const FSSpec* f)
 
 	AECreateList(nil, 0, FALSE, &selection_list) ;
 	HLock((char **)alias);
-	AEPutPtr(&selection_list, 1, typeAlias, StripAddress(*alias), 
-				   (**alias).aliasSize) ;
+	//AEPutPtr(&selection_list, 1, typeAlias, StripAddress(*alias), (**alias).aliasSize) ;//commented by Kekus Digital
+	AEPutPtr(&selection_list, 1, typeAlias, *alias, (**alias).aliasSize) ; //added by Kekus Digital
 	HUnlock((char **)alias);
 	DisposeHandle((char **)alias);
 
@@ -689,9 +699,7 @@ int makePathToHost ( fullPath *path )
 
 
 // Thanks to Brian Fitzgerald Future Point
-
-
-pascal OSErr __my_initialize(const CFragInitBlock *theInitBlock)
+/*pascal OSErr __my_initialize(const CFragInitBlock *theInitBlock)//commented by Kekus Digital
 {
    	OSErr 	err;
 
@@ -723,6 +731,34 @@ pascal void __my_terminate(void)
         
    __term_lib();
 }
+*/ //till here
+
+short gResNum = -1;//added by Kekus Digital
+pascal OSErr MyInitialize(CFBundleRef bundle)
+{
+   	OSErr 	err;
+ 
+         if(bundle != NULL)
+            gResNum = CFBundleOpenBundleResourceMap(bundle);
+        
+	err = FindFolder( kOnSystemDisk, kPreferencesFolderType, 
+				   kDontCreateFolder, &prFile.vRefNum, &prFile.parID) ;
+	
+	if( err == noErr )
+	{
+		pstrcpy( PREFNAME , prFile.name );
+                FSpCreateResFile( &prFile, 'GKON', '????', 0 );
+                err = ResError();
+	}
+	return err;
+}
+	
+
+pascal void MyTerminate(CFBundleRef bundle)
+{
+    if(gResNum != -1 && bundle != NULL)
+        CFBundleCloseBundleResourceMap(bundle, gResNum);     
+}// till here
 
 
 // Create FSSpec for temporary buffer file 
@@ -752,13 +788,9 @@ void MakeTempName( fullPath *fspec, char *fname )
 }
 
 
-
-
-
-
 // Present 'Save As...' dialog
 
-int SaveFileAs( fullPath *path, char *prompt, char *name )
+/*int SaveFileAs( fullPath *path, char *prompt, char *name ) // commented by Kekus Digital
 {
 	StandardFileReply	reply;
 
@@ -772,16 +804,41 @@ int SaveFileAs( fullPath *path, char *prompt, char *name )
 	}
 	else
 		return -1;
-}
+}*/ //till here
 	
+int SaveFileAs( fullPath *path, char *prompt, char *name ) //added by Kekus Digital
+{
+    NavReplyRecord reply;
+    NavDialogOptions the_dialogOptions;
 	
+    OSErr the_sErr = NavGetDefaultDialogOptions(&the_dialogOptions);
+    CopyCStringToPascal(prompt,the_dialogOptions.windowTitle); 
+    CopyCStringToPascal(name,the_dialogOptions.savedFileName); 
 	
+    the_sErr = NavPutFile(NULL, &reply, &the_dialogOptions, NULL, '????', '????', NULL);
+    if( reply.validRecord )
+    {
 	
+        AEDesc resultDesc;
+        OSErr the_sErr = noErr;
 
+        //grab information about file for opening:	
+        if ((the_sErr = AEGetNthDesc( &(reply.selection),1, typeFSS, NULL, &resultDesc )) ==noErr)
+        {	
+            the_sErr = AEGetDescData(&resultDesc, path,sizeof(*path));
+            if(the_sErr == noErr)
+                AEDisposeDesc( &resultDesc ); 
+        }    
+            
+        return 0;
+    }
+    else
+        return -1;
+} // till here
 
 // Present "Find File" dialog
 
-int FindFile( fullPath *fspec )
+/*int FindFile( fullPath *fspec ) //commented by Kekus Digital
 {
 	StandardFileReply	reply;
 	SFTypeList	typeList;
@@ -795,7 +852,38 @@ int FindFile( fullPath *fspec )
 	}
 	else
 		return -1;
+}*/ //till here
+
+int FindFile( fullPath *fspec ) //added by Kekus Digital
+{
+    NavReplyRecord reply;
+    NavTypeList  typeList = {0};
+    NavTypeListPtr theTypeListPtr;
+        
+    typeList.componentSignature = kNavGenericSignature;
+    typeList.reserved = 1;
+    typeList.osTypeCount = 1;
+    typeList.osType[0]='TEXT';
+        
+    theTypeListPtr = &typeList;
+    NavGetFile(NULL, &reply, NULL, NULL, NULL, NULL, &theTypeListPtr, NULL);
+    if( reply.validRecord )
+    {
+        AEDesc resultDesc;
+        OSErr the_sErr = noErr;
+			
+        //grab information about file for opening:	
+        if ((the_sErr = AEGetNthDesc( &(reply.selection),1, typeFSS, NULL, &resultDesc )) ==noErr)
+        {	
+            the_sErr = AEGetDescData(&resultDesc, fspec,sizeof(*fspec));
+            if(the_sErr == noErr)
+                AEDisposeDesc( &resultDesc ); 
+        }    
+        return 0;
 }
+    else
+        return -1;
+}// till here
 
 
 void ConvFileName( fullPath *fspec,char *string)
@@ -886,7 +974,8 @@ int IsTextFile( char* fname )
 			 strcmp( strrchr( fname, '.' ), ".TXT") == 0)	)
 	return TRUE;
 	
-	StringtoFullPath(&f, fname);
+	//StringtoFullPath(&f, fname); //commented by Kekus Digital
+	GetFullPath(&f, fname);//addded by Kekus Digital
 				
 	FSpGetFInfo	(&f, (FInfo*)&fInfo );
 
@@ -1037,3 +1126,8 @@ int LaunchAndSendScript(char* application, char* script){
 	return 0;
 }		
 	
+unsigned char *MyCtoPStr(char *x) //added by Kekus Digital
+{ 
+    CopyCStringToPascal(x,x); 
+    return x;
+}//till here

@@ -1,4 +1,4 @@
-#include <Gestalt.h>
+/*#include <Gestalt.h> //commented by Kekus Digital
 #include "filter.h"
 
 #include <FixMath.h>
@@ -12,10 +12,13 @@
 #include <ToolUtils.h>
 #include <Math.h>
 #include <Gestalt.h>
-#include <ImageCompression.h>
+#include <ImageCompression.h>*/ // till here
 #include "PixMap.h"
+#include <carbon/carbon.h> //added by Kekus Digital
+#include <QuickTime/QuickTimeComponents.h>
+#include <QuickTime/ImageCompression.h> // till here
+
 #include <String.h>
-#include "filter.h"
 #include "filter.h"
 #include <stdio.h>
 
@@ -125,11 +128,12 @@ static PicHandle FSpReadPicture (const FSSpec *spec)
 
 static PicHandle ImageToPICT(Image *im) 
 {
-	PixMapHandle 	pix = NULL;
-	PicHandle 		pic = NULL;
 	GrafPtr saved;
-	CGrafPort port;
+	//CGrafPort port;//commented by Kekus Digital
+	CGrafPtr port;//added by Kekus Digital
 	Rect bounds;
+	PixMapHandle 	pix = NULL;
+	PicHandle 	pic = NULL;
 	
 	long row_bytes;
 	Ptr raster_data;
@@ -192,13 +196,15 @@ static PicHandle ImageToPICT(Image *im)
 
 	bounds = (*pix)->bounds;
 	GetPort(&saved);
-	OpenCPort(&port);
+	//OpenCPort(&port);//commented by Kekus Digital
+        port = CreateNewPort();//added by Kekus Digital
 	pic = OpenPicture(&bounds);
 	ClipRect(&bounds);
 	PlotPixMap(pix, 0, 0, srcCopy);
 	ClosePicture();
 	SetPort(saved);
-	ClosePort((GrafPtr) &port);
+	//ClosePort((GrafPtr) &port);//commented by Kekus Digital
+        DisposePort(port);//added by Kekus Digital
 	if (GetHandleSize((Handle) pic) == sizeof(Picture)) {
 		KillPicture(pic);
 		pic = NULL;

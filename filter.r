@@ -17,18 +17,19 @@
 
 /*------------------------------------------------------------*/
 
-#include "SysTypes.r"
-#include "Types.r"
-#include "version.h"
+//#include "SysTypes.r"//commented by Kekus Digital
+//#include "Types.r"
+//#include "version.h"//till here
+#include <Carbon.r>//added by Kekus Digital
 
 #define SystemSevenOrLater 1
 
-resource 'vers' (1) {
+/*resource 'vers' (1) { // commented by Kekus Digital
 	VERS1, VERS2, release, 0,
 	verUS,
 	VERSION,
 	LONGVERSION
-};
+};*/
 
 data 'SLEP' (128, "Sleep Value") {
 	$"0000 0000"
@@ -47,7 +48,7 @@ resource 'DITL' (200) {
 		{104, 56, 125, 124},
 		Button {
 			enabled,
-			"CANCEL"
+			"Cancel"
 		},
 		/* [3] */
 		{44, 39, 65, 241},
@@ -74,6 +75,13 @@ resource 'DLOG' (200) {
 	"",centerParentWindowScreen;
 };
 
+resource 'dlgx' (200) {
+	versionZero {
+		kDialogFlagsUseThemeControls | kDialogFlagsHandleMovableModal/* | kDialogFlagsUseControlHierarchy*/ | kDialogFlagsUseThemeBackground
+	}
+};
+
+
 resource 'ALRT' (130,purgeable) {
 	{40, 40, 154, 342},
 	130,
@@ -97,7 +105,7 @@ resource 'ALRT' (130,purgeable) {
 resource 'DITL' (130, purgeable) {
 	{	/* array DITLarray: 2 elements */
 		/* [1] */
-		{82, 122, 102, 180},
+		{72, 222, 92, 280},
 		Button {
 			enabled,
 			"OK"
@@ -113,9 +121,8 @@ resource 'DITL' (130, purgeable) {
 
 
 resource 'DLOG' (110) {
-/*	{98, 98, 165, 428},*/
-	{40, 40, 220, 320},
-	documentProc,
+	/*{40, 40, 160, 280}*/{40, 40, 160, 285}, //changed by Kekus Digital 11 August 2003
+	/*documentProc*/noGrowDocProc,//changed by Kekus Digital
 	visible,
 	noGoAway,
 	0x0,
@@ -131,13 +138,13 @@ resource 'DLOG' (110) {
 resource 'DITL' (110) {
 	{	/* array DITLarray: 2 elements */
 		/* [1] */
-		{100, 90, 120, 190},
+		{80, 162, 100, 220},
 		Button {
 			enabled,
-			"STOP"
+			"Stop"
 		},
 		/* [2] */
-		{41, 40, 52, 240},
+		{30, 20, 46, 220},
 		Control {
 			enabled,
 			128
@@ -145,420 +152,314 @@ resource 'DITL' (110) {
 	}
 };
 
+resource 'dlgx' (110) {
+	versionZero {
+		kDialogFlagsUseThemeControls | kDialogFlagsHandleMovableModal /*| kDialogFlagsUseControlHierarchy*/ | kDialogFlagsUseThemeBackground
+	}
+};
+
+
 resource 'CNTL' (128, "Standard Progress Bar", purgeable) {
-	{0, 0, 11, 200},
+	{0, 0, 16, 200},
 	67,
 	visible,
 	100,
 	0,
-	3200,
+	80/*3200*/,//changed by Kekus Digital
 	0,
 	"Standard progress bar"
 };
 
 
-data 'CDEF' (200, "ProgressCDEF") {
-	$"600A 0000 4344 4546 00C8 0000 4EFA 0016"            /* `...CDEF.»..N... */
-	$"41FA FFEE D1FC 0000 073A 2008 A055 C18C"            /* A...—....: .†U¡å */
-	$"4E75 4E75 48E7 1C30 246F 001E 4EBA FFE2"            /* NuNuH..0$o..N∫.. */
-	$"2A00 204A A069 1800 204A A029 7600 2652"            /* *. J†i.. J†)v.&R */
-	$"302F 001C 670E 5340 671E 5340 672E 5140"            /* 0/..g.S@g.S@g.Q@ */
-	$"6732 603A 4A2B 0010 6734 3F2F 0022 2F0A"            /* g2`:J+..g4?/."/. */
-	$"4EBA 0046 5C4F 6026 554F 2F2F 001A 486B"            /* N∫.F\O`&UO//..Hk */
-	$"0008 A8AD 101F 6716 7632 6012 02AF 7FFF"            /* ..®≠..g.v2`..Ø.. */
-	$"FFFF 0018 2F2F 0018 486B 0008 A8DF 204A"            /* ....//..Hk..®. J */
-	$"1004 A06A 2005 C18C 2F43 0024 4CDF 0C38"            /* ..†j .¡å/C.$L..8 */
-	$"205F 4FEF 000C 4ED0 48E7 1E32 4FEF FFB2"            /*  _O...N–H..2O..≤ */
-	$"3C2F 0072 206F 006E 2450 266A 0004 2F6C"            /* </.r o.n$P&j../l */
-	$"0006 0012 3F6C 000A 0016 2F6A 0008 0046"            /* ....?l..../j...F */
-	$"2F6A 000C 004A 2A2A 0024 7800 486F 0024"            /* /j...J**.$x.Ho.$ */
-	$"A874 2F0B A873 302B 0006 0240 C000 0C40"            /* ®t/.®s0+...@¿..@ */
-	$"C000 57C0 4400 4880 3600 486F 002C 2F3C"            /* ¿.W¿D.HÄ6.Ho.,/< */
-	$"0004 0000 4EBA 05F6 4857 A898 A89E 4A43"            /* ....N∫..HW®ò®ûJC */
-	$"6746 486F 001E AA19 486F 0018 AA1A 3F06"            /* gFHo..™.Ho..™.?. */
-	$"2F05 486F 0040 486F 003E 2F0B 4EBA 02BE"            /* /.Ho.@Ho.>/.N∫.æ */
-	$"2F0B 486F 003E AA42 101F 4267 206F 003A"            /* /.Ho.>™B..Bg o.: */
-	$"2050 2F28 0008 4EBA 0270 2F50 0056 3F68"            /*  P/(..N∫.p/P.V?h */
-	$"0004 005A 4FEF 0016 0C2A 00FF 0011 6608"            /* ...ZO....*....f. */
-	$"0C46 0008 6C02 7801 4A43 671A 4A04 6708"            /* .F..l.x.JCg.J.g. */
-	$"486C 0000 AA14 6006 486F 0012 AA14 486F"            /* Hl..™.`.Ho..™.Ho */
-	$"0040 AA15 600A 4A04 6706 486F 002C A89D"            /* .@™.`.J.g.Ho.,®ù */
-	$"486F 0046 A8A1 486F 0046 2F3C 0001 0001"            /* Ho.F®°Ho.F/<.... */
-	$"A8A9 4A04 6702 A89E 594F A8D8 205F 2C48"            /* ®©J.g.®ûYO®ÿ _,H */
-	$"2F0E A87A 594F A8D8 205F 2648 2F0B 486F"            /* /.®zYO®ÿ _&H/.Ho */
-	$"004A A8DF 2F0B 2F0E 2F0B A8E4 2F0B A879"            /* .J®./././.®./.®y */
-	$"2F0B A8D9 0C85 0000 03E8 6D16 3F03 486F"            /* /.®..Ö....m.?.Ho */
-	$"0036 486F 0040 2F0A 4EBA 00E2 4FEF 000E"            /* .6Ho.@/.N∫..O... */
-	$"6014 3F03 486F 0036 486F 0040 2F0A 4EBA"            /* `.?.Ho.6Ho.@/.N∫ */
-	$"0052 4FEF 000E 4A04 671C 4A43 6706 486F"            /* .RO...J.g.JCg.Ho */
-	$"0040 AA15 3F3C 000F A89C 486F 002C A89D"            /* .@™.?<..®úHo.,®ù */
-	$"486A 0008 A8A2 4A43 670C 486F 001E AA14"            /* Hj..®¢JCg.Ho..™. */
-	$"486F 0018 AA15 4857 A899 2F0E A879 2F0E"            /* Ho..™.HW®ô/.®y/. */
-	$"A8D9 2F2F 0024 A873 4FEF 004E 4CDF 4C78"            /* ®.//.$®sO..NL.Lx */
-	$"4E75 2F0A 514F 246F 0010 2EAA 0008 2F6A"            /* Nu/.QO$o...™../j */
-	$"000C 0004 4857 2F3C 0001 0001 A8A9 2F0A"            /* ....HW/<....®©/. */
-	$"3F2F 000A 3F2F 0008 4EBA 0110 3F40 000E"            /* ?/..?/..N∫..?@.. */
-	$"4A6F 0024 504F 670C 2F2F 0014 AA14 4878"            /* Jo.$POg.//..™.Hx */
-	$"001E A863 4857 A8A2 3F6F 0006 0002 302A"            /* ..®cHW®¢?o....0* */
-	$"000E 5340 3F40 0006 4A6F 001C 670E 2F2F"            /* ..S@?@..Jo..g.// */
-	$"0018 AA14 4878 0021 A863 6006 3F3C 000B"            /* ..™.Hx.!®c`.?<.. */
-	$"A89C 4857 A8A2 504F 245F 4E75 48E7 1C20"            /* ®úHW®¢PO$_NuH..  */
-	$"514F 246F 001C 2EAA 0008 2F6A 000C 0004"            /* QO$o...™../j.... */
-	$"4857 2F3C 0001 0001 A8A9 2F3C 0001 0008"            /* HW/<....®©/<.... */
-	$"A89B 4A6F 0028 670C 2F2F 0020 AA14 2F2F"            /* ®õJo.(g.//. ™.// */
-	$"0024 AA15 382F 0004 9857 306A 0012 2A08"            /* .$™.8/..òW0j..*. */
-	$"8BFC 0010 4845 3604 D645 0643 000E 3043"            /* ã...HE6.÷E.C..0C */
-	$"2008 81FC 0010 3600 3003 D040 E748 322F"            /*  .Å...6.0.–@.H2/ */
-	$"0002 9240 D245 3601 5143 6040 5043 3F3C"            /* ..í@“E6.QC`@PC?< */
-	$"0008 A89C 3F03 3F2F 0002 A893 3003 D044"            /* ..®ú?.?/..®ì0.–D */
-	$"3F00 302F 0006 5340 3F00 A891 5043 3F3C"            /* ?.0/..S@?.®ëPC?< */
-	$"000B A89C 3F03 3F2F 0002 A893 3003 D044"            /* ..®ú?.?/..®ì0.–D */
-	$"3F00 302F 0006 5340 3F00 A891 B66F 0006"            /* ?.0/..S@?.®ë∂o.. */
-	$"6DBA 504F 4CDF 0438 4E75 4E56 0000 322E"            /* m∫POL..8NuNV..2. */
-	$"000A 302E 0008 9240 206E 000C 3428 0012"            /* ..0...í@ n..4(.. */
-	$"9468 0014 670E C2C2 3428 0016 9468 0014"            /* îh..g.¬¬4(..îh.. */
-	$"82C2 D041 4E5E 4E75 226F 0004 2051 3228"            /* Ç¬–AN^Nu"o.. Q2( */
-	$"0006 6014 3041 2008 E788 2051 3030 0808"            /* ..`.0A ..à Q00.. */
-	$"B06F 0008 6706 5341 4A41 66E8 3041 2008"            /* ∞o..g.SAJAf.0A . */
-	$"E788 2051 D1C0 5088 5488 4E75 48E7 1F30"            /* .à Q—¿PàTàNuH..0 */
-	$"514F 246F 002C 266F 0030 7601 3A3C 4444"            /* QO$o.,&o.0v.:<DD */
-	$"7C00 554F 2F2F 002A 486F 000A AA42 101F"            /* |.UO//.*Ho..™B.. */
-	$"206F 0004 2050 2068 0008 2050 3828 0006"            /*  o.. P h.. P8(.. */
-	$"0C44 000B 6C1C 554F 42A7 486F 000A AA42"            /* .D..l.UOBßHo..™B */
-	$"101F 206F 0004 2050 2068 0008 2050 3828"            /* .. o.. P h.. P8( */
-	$"0006 554F 2F3C 4161 726E 486F 0006 4EBA"            /* ..UO/<AarnHo..N∫ */
-	$"009E 301F 3600 4A43 660A 0CAF 0000 03E8"            /* .û0.6.JCf..Ø.... */
-	$"0034 6D04 7000 6002 7001 1E00 0C44 000B"            /* .4m.p.`.p....D.. */
-	$"6D0C 0C6F 0001 0038 6704 4A07 6712 357C"            /* m..o...8g.J.g.5| */
-	$"CCCC 0002 34BC CCCC 357C FFFF 0004 6040"            /* ÃÃ..4ºÃÃ5|....`@ */
-	$"206F 0004 2050 2068 0008 2050 24A8 0062"            /*  o.. P h.. P$®.b */
-	$"3568 0066 0004 3012 B06A 0002 6622 302A"            /* 5h.f..0.∞j..f"0* */
-	$"0002 B06A 0004 6618 4A6A 0004 6612 357C"            /* ..∞j..f.Jj..f.5| */
-	$"FFFF 0004 357C FFFF 0002 34BC FFFF 7C01"            /* ....5|....4º..|. */
-	$"4A43 6702 5245 4A06 6702 7A00 3745 0004"            /* JCg.REJ.g.z.7E.. */
-	$"3745 0002 3685 504F 4CDF 0CF8 4E75 4E56"            /* 7E..6ÖPOL...NuNV */
-	$"0000 203C 0000 A89F A746 2F08 203C 0000"            /* .. <..®üßF/. <.. */
-	$"A0AD A346 B1DF 670E 202E 000C A1AD 226E"            /* †≠£F±.g. ...°≠"n */
-	$"0008 2288 6026 41FA 0036 303C EA51 222E"            /* .."à`&A..60<.Q". */
-	$"000C B298 6706 4A98 6712 60F6 43FA 0020"            /* ..≤òg.Jòg.`.C..  */
-	$"D3D0 4ED1 226E 0008 2280 4240 3D40 0010"            /* ”–N—"n.."ÄB@=@.. */
-	$"4E5E 205F 508F 4ED0 303C EA52 60EE 7665"            /* N^ _PèN–0<.R`.ve */
-	$"7273 0000 0060 6D61 6368 0000 0064 7379"            /* rs...`mach...dsy */
-	$"7376 0000 0088 7072 6F63 0000 0092 6670"            /* sv...àproc...ífp */
-	$"7520 0000 009E 7164 2020 0000 00E8 6B62"            /* u ...ûqd  ....kb */
-	$"6420 0000 011A 6174 6C6B 0000 0142 6D6D"            /* d ....atlk...Bmm */
-	$"7520 0000 0164 7261 6D20 0000 0188 6C72"            /* u ...dram ...àlr */
-	$"616D 0000 0188 0000 0000 0000 0000 7001"            /* am...à........p. */
-	$"6082 2278 02AE 7004 0C69 0075 0008 6712"            /* `Ç"x.Æp..i.u..g. */
-	$"0C69 0276 0008 6604 5240 6006 1038 0CB3"            /* .i.v..f.R@`..8.≥ */
-	$"5C80 6000 FF60 7000 3038 015A 6000 FF56"            /* \Ä`..`p.08.Z`..V */
-	$"7000 1038 012F 5240 6000 FF4A 0C38 0004"            /* p..8./R@`..J.8.. */
-	$"012F 6738 0838 0004 0B22 6734 204F F280"            /* ./g8.8..."g4 O.Ä */
-	$"0000 F327 3017 2E48 0C40 1F18 6716 0C40"            /* ...'0..H.@..g..@ */
-	$"3F18 6710 0C40 3F38 670E 0C40 1F38 6708"            /* ?.g..@?8g..@.8g. */
-	$"7000 600E 7001 600A 7002 6006 7003 6002"            /* p.`.p.`.p.`.p.`. */
-	$"7000 6000 FF00 0C78 3FFF 028E 6E1C 303C"            /* p.`....x?..én.0< */
-	$"A89F A746 2408 203C 0000 AB03 A746 203C"            /* ®üßF$. <..´.ßF < */
-	$"0000 0100 B488 6606 600A 7000 6006 203C"            /* ....¥àf.`.p.`. < */
-	$"0000 0200 6000 FECE 1038 021E 41FA 0016"            /* ....`..Œ.8..A... */
-	$"2248 1218 6700 FED2 B200 66F6 91C9 2008"            /* "H..g..“≤.f.ë... . */
-	$"6000 FEB2 0313 0B02 0106 0704 0508 0900"            /* `..≤..........∆. */
-	$"7000 4A38 0291 6B16 1238 01FB 0201 000F"            /* p.J8.ëk..8...... */
-	$"0C01 0001 6608 2078 02DC 1028 0007 6000"            /* ....f. x...(..`. */
-	$"FE84 0C38 0002 012F 6D16 7000 1038 0CB1"            /* .Ñ.8.../m.p..8.± */
-	$"0C00 0001 670C 0C00 0003 6D04 5340 6002"            /* ....g.....m.S@`. */
-	$"7000 6000 FE60 303C A89F A746 2408 203C"            /* p.`..`0<®üßF$. < */
-	$"0000 A88F A746 2038 0108 B488 670A 598F"            /* ..®èßF 8..¥àg.Yè */
-	$"3F3C 0016 A88F 201F 6000 FE3A 4E56 0000"            /* ?<..®è .`..:NV.. */
-	$"594F 2F3C 5041 5423 3F2E 000A A9A0 226E"            /* YO/<PAT#?...©†"n */
-	$"000C 201F 671C 2040 2050 3018 322E 0008"            /* .. .g. @ P0.2... */
-	$"6710 B240 620C 5341 6704 5048 60F8 22D8"            /* g.≤@b.SAg.PH`."ÿ */
-	$"2290 4E5E 205F 508F 4ED0 7FFF 7FFF 7FFF"            /* "êN^ _PèN–...... */
-	$"0000 0000 0000"                                     /* ...... */
-};
-
 
 resource 'DITL' (300) {
 	{	/* array DITLarray: 21 elements */
 		/* [1] */
-		{152, 211, 172, 269},
+		{260, 272, 280, 340},
 		Button {
 			enabled,
 			"OK"
 		},
 		/* [2] */
-		{152, 143, 172, 201},
+		{260, 192, 280, 260},
 		Button {
 			enabled,
-			"CANCEL"
+			"Cancel"
 		},
 		/* [3] */
-		{152, 77, 172, 135},
+		{260, 112, 280, 180},
 		Button {
 			enabled,
-			"SAVE"
+			"Save"
 		},
 		/* [4] */
-		{152, 11, 172, 69},
+		{260, 32, 280, 100},
 		Button {
 			enabled,
-			"LOAD"
+			"Load"
 		},
 		/* [5] */
-		{4, 13, 22, 119},
+		{14, 20, 32, 126},
 		CheckBox {
 			enabled,
 			"Radial Shift"
 		},
 		/* [6] */
-		{7, 169, 22, 227},
+		{14, 169, 34, 253},
 		Button {
 			enabled,
-			"Options"
+			"Options…"
 		},
 		/* [7] */
-		{22, 13, 40, 119},
+		{44, 20, 62, 126},
 		CheckBox {
 			enabled,
 			"Vertical Shift"
 		},
 		/* [8] */
-		{24, 169, 39, 227},
+		{44, 169, 64, 253},
 		Button {
 			enabled,
-			"Options"
+			"Options…"
 		},
 		/* [9] */
-		{39, 13, 58, 140},
+		{74, 20, 92, 155},
 		CheckBox {
 			enabled,
 			"Horizontal Shift"
 		},
 		/* [10] */
-		{41, 169, 56, 227},
+		{74, 169, 94, 253},
 		Button {
 			enabled,
-			"Options"
+			"Options…"
 		},
 		/* [11] */
-		{57, 13, 75, 119},
+		{104, 20, 122, 126},
 		CheckBox {
 			enabled,
 			"Shear"
 		},
 		/* [12] */
-		{59, 169, 74, 227},
+		{104, 169, 124, 253},
 		Button {
 			enabled,
-			"Options"
+			"Options…"
 		},
 		/* [13] */
-		{75, 13, 93, 119},
+		{134, 20, 152, 126},
 		CheckBox {
 			enabled,
 			"Scale"
 		},
 		/* [14] */
-		{76, 169, 91, 227},
+		{134, 169, 154, 253},
 		Button {
 			enabled,
-			"Options"
+			"Options…"
 		},
 		/* [15] */
-		{93, 13, 110, 148},
+		{164, 20, 182, 155},
 		CheckBox {
 			enabled,
 			"Radial Luminance"
 		},
 		/* [16] */
-		{93, 169, 109, 227},
+		{164, 169, 184, 253},
 		Button {
 			enabled,
-			"Options"
+			"Options…"
 		},
 		/* [17] */
-		{6, 245, 22, 275},
+		{14, 272, 34, 340},
 		Button {
 			enabled,
-			"Pref"
+			"Pref…"
 		},
 		/* [18] */
-		{110, 13, 127, 148},
+		{194, 20, 212, 155},
 		CheckBox {
 			enabled,
 			"Cut Frame"
 		},
 		/* [19] */
-		{112, 169, 128, 227},
+		{194, 169, 214, 253},
 		Button {
 			enabled,
-			"Options"
+			"Options…"
 		},
 		/* [20] */
-		{127, 13, 144, 148},
+		{224, 20, 242, 155},
 		CheckBox {
 			enabled,
 			"Fourier Filter"
 		},
 		/* [21] */
-		{131, 169, 147, 227},
+		{224, 169, 244, 253},
 		Button {
 			enabled,
-			"Options"
+			"Options…"
 		}
 	}
 };
 
+resource 'dlgx' (300) {
+	versionZero {
+		kDialogFlagsUseThemeControls | kDialogFlagsHandleMovableModal /*| kDialogFlagsUseControlHierarchy*/ | kDialogFlagsUseThemeBackground
+	}
+};
 
 
 resource 'DITL' (301) {
 	{	/* array DITLarray: 25 elements */
 		/* [1] */
-		{153, 152, 173, 210},
+		/*{190, 224, 210, 292}*/{190, 324, 210, 392},//changed by Kekus Digital 12 August 2003
 		Button {
 			enabled,
 			"OK"
 		},
 		/* [2] */
-		{153, 67, 173, 125},
+		/*{190, 144, 210, 212}*/{190, 244, 210, 312},//changed by Kekus Digital 12 August 2003
 		Button {
 			enabled,
-			"CANCEL"
+			"Cancel"
 		},
 		/* [3] */
-		{34, 8, 51, 38},
+		{36, 20, 53, 50},
 		StaticText {
 			disabled,
 			"red"
 		},
 		/* [4] */
-		{56, 8, 73, 52},
+		{60, 20, 77, 64},
 		StaticText {
 			disabled,
 			"green"
 		},
 		/* [5] */
-		{81, 8, 98, 43},
+		{87, 20, 104, 55},
 		StaticText {
 			disabled,
 			"blue"
 		},
+
+/* I changed the order of the parameters to a, b, c, d from the original d, c, b, a. Some users were getting confused as the order of the parameters differed between the Windows and Mac versions.  These changes make the order the same.  Kekus Digital. Changed 12 August 2003 from here*/
 		/* [6] */
-		{5, 75, 22, 104},
+                /*{12, 77, 28, 103}*/{12, 356, 28, 366},
 		StaticText {
 			disabled,
 			"d"
 		},
 		/* [7] */
-		{5, 130, 22, 155},
+                /*{12, 134, 28, 161}*/{12, 274, 28, 284},
 		StaticText {
 			disabled,
 			"c"
 		},
 		/* [8] */
-		{5, 174, 20, 197},
+                /*{12, 189, 28, 255}*/{12, 190, 28, 200},
 		StaticText {
 			disabled,
 			"b"
 		},
 		/* [9] */
-		{5, 218, 21, 244},
+                /*{12, 251, 28, 277}*/{12, 107, 28, 117},
 		StaticText {
 			disabled,
 			"a"
 		},
 		/* [10] */
-		{33, 69, 49, 109},
+		/*{35, 72, 51, 118}*/{35, 321, 51, 392},
 		EditText {
 			enabled,
 			""
 		},
 		/* [11] */
-		{33, 119, 49, 162},
+		/*{35, 130, 51, 176}*/{35, 238, 51, 309},
 		EditText {
 			enabled,
 			""
 		},
 		/* [12] */
-		{33, 171, 49, 210},
+		/*{35, 188, 51, 234}*/{35, 155, 51, 226},
 		EditText {
 			enabled,
 			""
 		},
 		/* [13] */
-		{33, 218, 49, 264},
+		/*{35, 246, 51, 292}*/{35, 72, 51, 143},
 		EditText {
 			enabled,
 			""
 		},
 		/* [14] */
-		{58, 69, 74, 109},
+		/*{63, 72, 79, 118}*/{63, 321, 79, 392},
 		EditText {
 			enabled,
 			""
 		},
 		/* [15] */
-		{58, 119, 74, 162},
+		/*{63, 130, 79, 176}*/{63, 238, 79, 309},
 		EditText {
 			enabled,
 			""
 		},
 		/* [16] */
-		{58, 171, 74, 210},
+		/*{63, 188, 79, 234}*/{63, 155, 79, 226},
 		EditText {
 			enabled,
 			""
 		},
 		/* [17] */
-		{58, 218, 74, 264},
+		/*{63, 246, 79, 292}*/{63, 72, 79, 143},
 		EditText {
 			enabled,
 			""
 		},
 		/* [18] */
-		{82, 69, 98, 109},
+		/*{91, 72, 107, 118}*/{91, 321, 107, 392},
 		EditText {
 			enabled,
 			""
 		},
 		/* [19] */
-		{82, 119, 98, 162},
+		/*{91, 130, 107, 176}*/{91, 238, 107, 309},
 		EditText {
 			enabled,
 			""
 		},
 		/* [20] */
-		{82, 171, 98, 210},
+		/*{91, 188, 107, 234}*/{91, 155, 107, 226},
 		EditText {
 			enabled,
 			""
 		},
 		/* [21] */
-		{82, 218, 98, 264},
+		/*{91, 246, 107, 292}*/{91, 72, 107, 143}, //End of 12 August 2003 Kekus changes
 		EditText {
 			enabled,
 			""
 		},
 		/* [22] */
-		{109, 63, 126, 126},
+		{117, 68, 133, 131},
 		RadioButton {
 			enabled,
 			"Radial"
 		},
 		/* [23] */
-		{125, 63, 143, 134},
+		{138, 68, 154, 139},
 		RadioButton {
 			enabled,
 			"Vertical"
 		},
 		/* [24] */
-		{107, 149, 126, 239},
+		{159, 68, 175, 158},
 		RadioButton {
 			enabled,
 			"Horizontal"
 		},
 		/* [25] */
-		{109, 7, 127, 55},
+		{117, 20, 135, 68},
 		StaticText {
 			disabled,
 			"Mode:"
@@ -566,93 +467,105 @@ resource 'DITL' (301) {
 	}
 };
 
+resource 'dlgx' (301) {
+	versionZero {
+		kDialogFlagsUseThemeControls | kDialogFlagsHandleMovableModal/* | kDialogFlagsUseControlHierarchy */| kDialogFlagsUseThemeBackground
+	}
+};
+
 resource 'DITL' (302) {
 	{	/* array DITLarray: 8 elements */
 		/* [1] */
-		{126, 169, 146, 227},
+		{120, 172, 140, 240},
 		Button {
 			enabled,
 			"OK"
 		},
 		/* [2] */
-		{126, 46, 146, 104},
+		{120, 92, 140, 160},
 		Button {
 			enabled,
-			"CANCEL"
+			"Cancel"
 		},
 		/* [3] */
-		{30, 45, 46, 120},
+		{26, 57, 42, 120},
 		StaticText {
 			disabled,
-			"red"
+			"Red"
 		},
 		/* [4] */
-		{50, 45, 66, 120},
+		{50, 57, 66, 120},
 		StaticText {
 			disabled,
-			"green"
+			"Green"
 		},
 		/* [5] */
-		{72, 45, 88, 120},
+		{76, 57, 92, 120},
 		StaticText {
 			disabled,
-			"blue"
+			"Blue"
 		},
 		/* [6] */
-		{29, 154, 43, 220},
+		{25, 122, 39, 188},
 		EditText {
 			enabled,
 			""
 		},
 		/* [7] */
-		{51, 154, 65, 220},
+		{51, 122, 65, 188},
 		EditText {
 			enabled,
 			""
 		},
 		/* [8] */
-		{74, 154, 88, 220},
+		{77, 122, 91, 188},
 		EditText {
 			enabled,
 			""
 		}
+	}
+};
+
+resource 'dlgx' (302) {
+	versionZero {
+		kDialogFlagsUseThemeControls | kDialogFlagsHandleMovableModal /*| kDialogFlagsUseControlHierarchy */| kDialogFlagsUseThemeBackground
 	}
 };
 
 resource 'DITL' (303) {
 	{	/* array DITLarray: 6 elements */
 		/* [1] */
-		{127, 170, 147, 228},
+		{120, 172, 140, 240},
 		Button {
 			enabled,
 			"OK"
 		},
 		/* [2] */
-		{127, 48, 147, 106},
+		{120, 92, 140, 160},
 		Button {
 			enabled,
-			"CANCEL"
+			"Cancel"
 		},
 		/* [3] */
-		{36, 42, 52, 117},
+		{34, 47, 52, 112},
 		StaticText {
 			disabled,
 			"Width:"
 		},
 		/* [4] */
-		{34, 154, 50, 229},
+		{34, 129, 50, 204},
 		EditText {
 			enabled,
 			""
 		},
 		/* [5] */
-		{71, 42, 87, 117},
+		{64, 47, 82, 112},
 		StaticText {
 			disabled,
 			"Height:"
 		},
 		/* [6] */
-		{69, 154, 85, 229},
+		{64, 129, 80, 204},
 		EditText {
 			enabled,
 			""
@@ -660,134 +573,146 @@ resource 'DITL' (303) {
 	}
 };
 
+resource 'dlgx' (303) {
+	versionZero {
+		kDialogFlagsUseThemeControls | kDialogFlagsHandleMovableModal /*| kDialogFlagsUseControlHierarchy*/ | kDialogFlagsUseThemeBackground
+	}
+};
+
 resource 'DITL' (310) {
 	{	/* array DITLarray: 21 elements */
 		/* [1] */
-		{150, 147, 170, 205},
+		{190, 232, 210, 300},
 		Button {
 			enabled,
 			"OK"
 		},
 		/* [2] */
-		{150, 49, 170, 107},
+		{190, 152, 210, 220},
 		Button {
 			enabled,
-			"CANCEL"
+			"Cancel"
 		},
 		/* [3] */
-		{2, 5, 21, 73},
+		{14, 23, 32, 91},
 		StaticText {
 			disabled,
 			"From:"
 		},
 		/* [4] */
-		{18, 2, 36, 95},
+		{34, 20, 52, 113},
 		RadioButton {
 			enabled,
 			"Normal"
 		},
 		/* [5] */
-		{35, 2, 53, 94},
+		{53, 20, 71, 112},
 		RadioButton {
 			enabled,
-			"QTVR"
+			/* "QTVR" */ "Cylindrical" //Changed by Kekus Digital 11 August 2003
 		},
 		/* [6] */
-		{51, 2, 70, 93},
+		{72, 20, 90, 111},
 		RadioButton {
 			enabled,
 			"PSphere"
 		},
 		/* [7] */
-		{68, 2, 87, 124},
+		{91, 20, 109, 142},
 		RadioButton {
 			enabled,
 			"Fisheye Hor"
 		},
 		/* [8] */
-		{2, 151, 18, 226},
+		{14, 161, 32, 230},
 		StaticText {
 			disabled,
 			"To:"
 		},
 		/* [9] */
-		{18, 149, 36, 242},
+		{34, 159, 52, 230},
 		RadioButton {
 			enabled,
 			"Normal"
 		},
 		/* [10] */
-		{35, 149, 53, 241},
+		{53, 159, 71, 251},
 		RadioButton {
 			enabled,
-			"QTVR"
+			/* "QTVR" */ "Cylindrical" // Changed by Kekus Digital 11 August 2003
 		},
 		/* [11] */
-		{51, 149, 70, 240},
+		{72, 159, 90, 250},
 		RadioButton {
 			enabled,
 			"PSphere"
 		},
 		/* [12] */
-		{68, 149, 85, 241},
+		{91, 159, 109, 261},
 		RadioButton {
 			enabled,
 			"Fisheye Hor"
 		},
 		/* [13] */
-		{121, 6, 140, 45},
+		{155, 24, 174, 60},
 		StaticText {
 			disabled,
 			"Hfov:"
 		},
 		/* [14] */
-		{123, 51, 140, 95},
+		{157, 64, 174, 108},
 		EditText {
 			enabled,
 			""
 		},
 		/* [15] */
-		{85, 2, 104, 124},
+		{110, 20, 128, 142},
 		RadioButton {
 			enabled,
 			"Fisheye Vrt"
 		},
 		/* [16] */
-		{85, 149, 102, 241},
+		{110, 159, 128, 251},
 		RadioButton {
 			enabled,
 			"Fisheye Vrt"
 		},
 		/* [17] */
-		{120, 141, 137, 177},
+		{154, 163, 174, 199},
 		StaticText {
 			disabled,
 			"Vfov:"
 		},
 		/* [18] */
-		{123, 179, 140, 223},
+		{157, 203, 174, 247},
 		EditText {
 			enabled,
 			""
 		},
 		/* [19] */
-		{102, 2, 121, 124},
+		{129, 20, 147, 142},
 		RadioButton {
 			enabled,
-			"Cnvx. Mirror"
+			"Convex Mirror"
 		},
 		/* [20] */
-		{102, 149, 119, 251},
+		{129, 159, 147, 271},
 		RadioButton {
 			enabled,
-			"Cnvx. Mirror"
+			"Convex Mirror"
 		},
 		/* [21] */
-		{4, 245, 20, 275},
+		{14, 232, 34, 300},
 		Button {
 			enabled,
-			"Pref"
+			"Pref…"
 		}
+	}
+};
+
+resource 'dlgx' (310) {
+	versionZero {
+		kDialogFlagsUseThemeControls | kDialogFlagsHandleMovableModal /*| kDialogFlagsUseControlHierarchy*/ | kDialogFlagsUseThemeBackground
 	}
 };
 
@@ -795,149 +720,155 @@ resource 'DITL' (310) {
 resource 'DITL' (320) {
 	{	/* array DITLarray: 23 elements */
 		/* [1] */
-		{150, 166, 170, 224},
+		{205, 232, 225, 300},
 		Button {
 			enabled,
 			"OK"
 		},
 		/* [2] */
-		{150, 52, 170, 110},
+		{205, 152, 225, 220},
 		Button {
 			enabled,
-			"CANCEL"
+			"Cancel"
 		},
 		/* [3] */
-		{2, 8, 21, 72},
+		{14, 20, 32, 75},
 		StaticText {
 			disabled,
 			"Format:"
 		},
 		/* [4] */
-		{2, 78, 21, 149},
+		{14, 82, 32, 153},
 		RadioButton {
 			enabled,
 			"Normal"
 		},
 		/* [5] */
-		{2, 154, 20, 229},
+		{33, 82, 51, 153},
 		RadioButton {
 			enabled,
 			"Fisheye"
 		},
 		/* [6] */
-		{80, 151, 97, 190},
+		{119, 166, 135, 205},
 		StaticText {
 			disabled,
 			"Hfov:"
 		},
 		/* [7] */
-		{80, 206, 97, 260},
+		{119, 221, 135, 275},
 		EditText {
 			enabled,
 			""
 		},
 		/* [8] */
-		{26, 8, 41, 63},
+		{61, 20, 76, 75},
 		StaticText {
 			disabled,
 			"Turn to:"
 		},
 		/* [9] */
-		{26, 72, 44, 107},
+		{62, 82, 78, 117},
 		StaticText {
 			disabled,
 			"Hor"
 		},
 		/* [10] */
-		{27, 111, 42, 168},
+		{62, 121, 78, 178},
 		EditText {
 			enabled,
 			""
 		},
 		/* [11] */
-		{47, 111, 62, 168},
+		{90, 121, 106, 178},
 		EditText {
 			enabled,
 			""
 		},
 		/* [12] */
-		{47, 72, 64, 105},
+		{90, 82, 106, 115},
 		StaticText {
 			disabled,
 			"Vert"
 		},
 		/* [13] */
-		{47, 186, 64, 256},
+		{85, 196, 102, 270},
 		RadioButton {
 			enabled,
 			"Degrees"
 		},
 		/* [14] */
-		{26, 186, 45, 250},
+		{64, 196, 83, 260},
 		RadioButton {
 			enabled,
 			"Points"
 		},
 		/* [15] */
-		{80, 8, 95, 59},
+		{119, 25, 134, 75},
 		StaticText {
 			disabled,
 			"Rotate:"
 		},
 		/* [16] */
-		{80, 75, 96, 124},
+		{119, 85, 135, 147},
 		EditText {
 			enabled,
 			""
 		},
 		/* [17] */
-		{125, 151, 142, 195},
+		{175, 166, 191, 213},
 		StaticText {
 			disabled,
-			"Width"
+			"Width:"
 		},
 		/* [18] */
-		{123, 206, 140, 260},
+		{175, 221, 191, 275},
 		EditText {
 			enabled,
 			""
 		},
 		/* [19] */
-		{104, 151, 121, 198},
+		{147, 166, 163, 213},
 		StaticText {
 			disabled,
-			"Height"
+			"Height:"
 		},
 		/* [20] */
-		{102, 206, 118, 260},
+		{147, 221, 163, 275},
 		EditText {
 			enabled,
 			""
 		},
 		/* [21] */
-		{104, 8, 124, 44},
+		{145, 38, 165, 75},
 		StaticText {
 			disabled,
 			"Size:"
 		},
 		/* [22] */
-		{104, 73, 125, 128},
+		{145, 83, 165, 151},
 		Button {
 			enabled,
 			"Source"
 		},
 		/* [23] */
-		{5, 245, 21, 275},
+		{15, 242, 35, 300},
 		Button {
 			enabled,
-			"Pref"
+			"Pref…"
 		}
+		}
+};
+
+resource 'dlgx' (320) {
+	versionZero {
+		kDialogFlagsUseThemeControls | kDialogFlagsHandleMovableModal /*| kDialogFlagsUseControlHierarchy */| kDialogFlagsUseThemeBackground
 	}
 };
 
 resource 'DLOG' (300) {
-	{40, 40, 220, 320},
-	noGrowDocProc,
+	{40, 40, 340, 400},
+	/*noGrowDocProc*/movableDBoxProc,//changed by Kekus Digital
 	visible,
 	noGoAway,
 	0x0,
@@ -950,8 +881,8 @@ resource 'DLOG' (300) {
 };
 
 resource 'DLOG' (301) {
-	{40, 40, 220, 320},
-	noGrowDocProc,
+	/*{40, 40, 270, 352}*/{40, 40, 270, 452},//changed by Kekus Digital 12 August 2003
+	/*noGrowDocProc*/movableDBoxProc,//changed by Kekus Digital
 	visible,
 	noGoAway,
 	0x0,
@@ -964,8 +895,8 @@ resource 'DLOG' (301) {
 };
 
 resource 'DLOG' (302) {
-	{40, 40, 220, 320},
-	documentProc,
+	{40, 40, 200, 300},
+	/*documentProc*/movableDBoxProc,//changed by Kekus Digital
 	visible,
 	noGoAway,
 	0x0,
@@ -978,8 +909,8 @@ resource 'DLOG' (302) {
 };
 
 resource 'DLOG' (303) {
-	{40, 40, 220, 320},
-	documentProc,
+	{40, 40, 200, 300},
+	/*documentProc*/movableDBoxProc,//changed by Kekus Digital
 	visible,
 	goAway,
 	0x0,
@@ -993,8 +924,8 @@ resource 'DLOG' (303) {
 
 
 resource 'DLOG' (310) {
-	{40, 40, 220, 320},
-	noGrowDocProc,
+	{40, 40, 270, 360},
+	/*noGrowDocProc*/movableDBoxProc, //changed by Kekus Digital
 	visible,
 	noGoAway,
 	0x0,
@@ -1007,8 +938,8 @@ resource 'DLOG' (310) {
 };
 
 resource 'DLOG' (320) {
-	{40, 40, 220, 320},
-	noGrowDocProc,
+	{40, 40, 285, 360},
+	/*noGrowDocProc*/movableDBoxProc, //changed by Kekus Digital
 	visible,
 	noGoAway,
 	0x0,
@@ -1024,8 +955,8 @@ resource 'DLOG' (320) {
 /*  Resources for adjust	*/
 
 resource 'DLOG' (330) {
-	{40, 40, 220, 320},
-	noGrowDocProc,
+	{40, 40, 275, 360},
+	/*noGrowDocProc*/movableDBoxProc, //changed by Kekus Digital
 	visible,
 	noGoAway,
 	0x0,
@@ -1038,8 +969,8 @@ resource 'DLOG' (330) {
 };
 
 resource 'DLOG' (331) {
-	{40, 40, 292, 565},
-	noGrowDocProc,
+	{40, 40, 370, 625},
+	/*noGrowDocProc*/movableDBoxProc, //changed by Kekus Digital
 	visible,
 	noGoAway,
 	0x0,
@@ -1097,85 +1028,85 @@ resource 'DLOG' (334) {
 resource 'DITL' (330) {
 	{	/* array DITLarray: 14 elements */
 		/* [1] */
-		{150, 156, 170, 214},
+		{195, 232, 215, 300},
 		Button {
 			enabled,
 			"OK"
 		},
 		/* [2] */
-		{150, 56, 170, 114},
+		{195, 152, 215, 220},
 		Button {
 			enabled,
-			"CANCEL"
+			"Cancel"
 		},
 		/* [3] */
-		{39, 103, 58, 201},
+		{49, 103, 68, 201},
 		RadioButton {
 			enabled,
 			"Use Options"
 		},
 		/* [4] */
-		{39, 209, 58, 261},
+		{48, 209, 68, 286},
 		Button {
 			enabled,
-			"Set"
+			"Set…"
 		},
 		/* [5] */
-		{123, 20, 140, 217},
+		{166, 20, 183, 217},
 		RadioButton {
 			enabled,
 			"Run Position Optimizer"
 		},
 		/* [6] */
-		{60, 209, 79, 262},
+		{80, 209, 100, 286},
 		Button {
 			enabled,
-			"Browse"
+			"Browse…"
 		},
 		/* [7] */
-		{39, 20, 58, 84},
+		{49, 20, 68, 84},
 		RadioButton {
 			enabled,
 			"Insert"
 		},
 		/* [8] */
-		{4, 246, 20, 276},
+		{14, 242, 33, 300},
 		Button {
 			enabled,
-			"Pref"
+			"Pref…"
 		},
 		/* [9] */
-		{106, 20, 123, 222},
+		{142, 20, 159, 222},
 		RadioButton {
 			enabled,
 			"Read  marked Control Points"
 		},
 		/* [10] */
-		{60, 20, 80, 89},
+		{75, 20, 95, 89},
 		RadioButton {
 			enabled,
 			"Extract"
 		},
 		/* [11] */
-		{60, 103, 77, 190},
+		{75, 103, 95, 190},
 		RadioButton {
 			enabled,
 			"Use Script"
 		},
 		/* [12] */
-		{78, 11, 94, 278},
+		{102, 18, 119, 285},
 		StaticText {
 			disabled,
-			"-------------------------------------"
+			"---------------------------------------"
 		},
 		/* [13] */
-		{89, 20, 107, 204},
+		{119, 20, 137, 204},
 		StaticText {
 			disabled,
 			"Tools for Script Generation:"
 		},
 		/* [14] */
-		{14, 21, 32, 183},
+		{28, 20, 46, 182},
 		StaticText {
 			disabled,
 			"Insert or Extract Image:"
@@ -1183,311 +1114,316 @@ resource 'DITL' (330) {
 	}
 };
 
+resource 'dlgx' (330) {
+	versionZero {
+		kDialogFlagsUseThemeControls | kDialogFlagsHandleMovableModal /*| kDialogFlagsUseControlHierarchy*/ | kDialogFlagsUseThemeBackground
+	}
+};
 
 resource 'DITL' (331) {
 	{	/* array DITLarray: 51 elements */
 		/* [1] */
-		{221, 318, 239, 450},
+		{290, 497, 310, 565},
 		Button {
 			enabled,
 			"OK"
 		},
 		/* [2] */
-		{221, 108, 239, 240},
+		{290, 417, 310, 485},
 		Button {
 			enabled,
-			"CANCEL"
+			"Cancel"
 		},
 		/* [3] */
-		{13, 119, 31, 176},
+		{40, 153, 58, 210},
 		StaticText {
 			disabled,
 			"Format:"
 		},
 		/* [4] */
-		{11, 174, 30, 267},
+		{38, 208, 56, 301},
 		RadioButton {
 			enabled,
-			"Rectilinear"
+			/* "Rectilinear" */ "Normal" //Changed by Kekus Digital
 		},
 		/* [5] */
-		{46, 174, 63, 278},
+		{76, 208, 94, 317},
 		RadioButton {
 			enabled,
 			"Fisheye fullfr."
 		},
 		/* [6] */
-		{33, 59, 47, 102},
+		{40, 74, 56, 127},
 		EditText {
 			enabled,
 			"Edit Text"
 		},
 		/* [7] */
-		{32, 5, 52, 45},
+		{40, 20, 58, 60},
 		StaticText {
 			disabled,
 			"HFov:"
 		},
 		/* [8] */
-		{32, 287, 50, 400},
+		/*{40, 342, 58, 467}*/{40, 342, 58, 475}, //Changed by Kekus Digital 11 August 2003
 		StaticText {
 			disabled,
 			"Yaw:  -180°...+180°"
 		},
 		/* [9] */
-		{31, 416, 45, 457},
+		{40, 476, 56, 527},
 		EditText {
 			enabled,
 			"Edit Text"
 		},
 		/* [10] */
-		{52, 287, 69, 407},
+		/*{66, 342, 84, 467}*/{66, 342, 84, 475}, //Changed by Kekus Digital 11 August 2003
 		StaticText {
 			disabled,
 			"Pitch:     -90°...+90°"
 		},
 		/* [11] */
-		{51, 416, 65, 457},
+		{66, 476, 82, 527},
 		EditText {
 			enabled,
 			"Edit Text"
 		},
 		/* [12] */
-		{71, 287, 88, 332},
+		{92, 342, 110, 387},
 		StaticText {
 			disabled,
 			"Roll:"
 		},
 		/* [13] */
-		{71, 416, 86, 457},
+		{92, 476, 108, 527},
 		EditText {
 			enabled,
 			"Edit Text"
 		},
 		/* [14] */
-		{29, 174, 47, 280},
+		{57, 208, 75, 314},
 		RadioButton {
 			enabled,
-			"Panoramic"
+			/*"Panoramic"*/ "Cylindrical" //Changed by Kekus Digital 11 August 2003
 		},
 		/* [15] */
-		{2, 6, 18, 60},
+		{14, 20, 30, 74},
 		StaticText {
 			disabled,
 			"Image:"
 		},
 		/* [16] */
-		{31, 108, 50, 119},
+		{39, 135, 58, 141},
 		StaticText {
 			disabled,
 			"°"
 		},
 		/* [17] */
-		{109, 7, 125, 85},
+		{155, 20, 173, 98},
 		StaticText {
 			disabled,
 			"Panorama:"
 		},
 		/* [18] */
-		{99, 4, 111, 271},
+		{141, 14, 151, 290},
 		StaticText {
 			disabled,
-			"-------------------------------------"
+			"------------------------------------------------"
 		},
 		/* [19] */
-		{6, 286, 23, 350},
+		{14, 341, 30, 405},
 		StaticText {
 			disabled,
 			"Position:"
 		},
 		/* [20] */
-		{62, 174, 80, 280},
+		{95, 208, 113, 314},
 		RadioButton {
 			enabled,
 			"Fisheye circ."
 		},
 		/* [21] */
-		{54, 59, 69, 102},
+		{66, 74, 82, 127},
 		EditText {
 			enabled,
 			"Edit Text"
 		},
 		/* [22] */
-		{76, 59, 92, 102},
+		{92, 74, 108, 127},
 		EditText {
 			enabled,
 			"Edit Text"
 		},
 		/* [23] */
-		{52, 5, 69, 52},
+		{66, 20, 84, 67},
 		StaticText {
 			disabled,
 			"Width:"
 		},
 		/* [24] */
-		{75, 5, 93, 56},
+		{92, 20, 110, 71},
 		StaticText {
 			disabled,
 			"Height:"
 		},
 		/* [25] */
-		{118, 119, 137, 175},
+		{183, 153, 201, 210},
 		StaticText {
 			disabled,
 			"Format:"
 		},
 		/* [26] */
-		{116, 174, 134, 268},
+		{181, 208, 199, 302},
 		RadioButton {
 			enabled,
-			"Rectilinear"
+			/* "Rectilinear"*/ "Normal" // Changed by Kekus Digital 11 August 2003
 		},
 		/* [27] */
-		{134, 174, 152, 280},
+		{200, 208, 218, 314},
 		RadioButton {
 			enabled,
-			"QTVR-pan."
+			/* "QTVR-pan." */ "Cylindrical" // Changed by Kekus Digital 11 August 2003
 		},
 		/* [28] */
-		{151, 174, 170, 253},
+		{219, 208, 237, 287},
 		RadioButton {
 			enabled,
 			"PSphere"
 		},
 		/* [29] */
-		{131, 6, 151, 46},
+		{182, 20, 200, 60},
 		StaticText {
 			disabled,
 			"HFov:"
 		},
 		/* [30] */
-		{132, 60, 146, 103},
+		{182, 74, 198, 127},
 		EditText {
 			enabled,
 			"Edit Text"
 		},
 		/* [31] */
-		{151, 6, 168, 53},
+		{208, 20, 226, 67},
 		StaticText {
 			disabled,
 			"Width:"
 		},
 		/* [32] */
-		{153, 60, 168, 103},
+		{208, 74, 224, 127},
 		EditText {
 			enabled,
 			"Edit Text"
 		},
 		/* [33] */
-		{174, 6, 192, 57},
+		{234, 20, 252, 71},
 		StaticText {
 			disabled,
 			"Height:"
 		},
 		/* [34] */
-		{175, 60, 191, 103},
+		{234, 74, 250, 127},
 		EditText {
 			enabled,
 			"Edit Text"
 		},
 		/* [35] */
-		{131, 110, 146, 121},
+		{183, 135, 198, 141},
 		StaticText {
 			disabled,
 			"°"
 		},
 		/* [36] */
-		{98, 282, 111, 525},
+		{141, 290, 151, 567},
 		StaticText {
 			disabled,
-			"---------------------------------"
+			"----------------------------------------------------"
 		},
 		/* [37] */
-		{126, 286, 146, 385},
+		{183, 341, 201, 440},
 		CheckBox {
 			enabled,
 			"Load  Buffer "
 		},
 		/* [38] */
-		{108, 285, 127, 358},
+		{155, 340, 173, 413},
 		StaticText {
 			disabled,
 			"Stitching:"
 		},
 		/* [39] */
-		{147, 286, 165, 371},
+		{202, 341, 220, 426},
 		RadioButton {
 			enabled,
 			"and Paste"
 		},
 		/* [40] */
-		{163, 286, 179, 366},
+		{221, 341, 239, 431},
 		RadioButton {
 			enabled,
 			"or Blend"
 		},
 		/* [41] */
-		{183, 285, 202, 345},
+		{246, 340, 264, 400},
 		StaticText {
 			disabled,
 			"Feather:"
 		},
 		/* [42] */
-		{182, 355, 199, 392},
+		{246, 405, 262, 442},
 		EditText {
 			enabled,
 			"Edit Text"
 		},
 		/* [43] */
-		{75, 111, 96, 164},
+		{118, 20, 138, 100},
 		Button {
 			enabled,
-			"Correct"
+			"Correct…"
 		},
 		/* [44] */
-		{178, 122, 196, 236},
+		{260, 20, 278, 134},
 		CheckBox {
 			enabled,
 			"Save to Buffer"
 		},
 		/* [45] */
-		{115, 393, 131, 507},
+		{183, 448, 200, 567},
 		StaticText {
 			disabled,
 			"Color Adjustment:"
 		},
 		/* [46] */
-		{134, 444, 152, 507},
+		{202, 499, 220, 562},
 		RadioButton {
 			enabled,
 			"Image"
 		},
 		/* [47] */
-		{151, 444, 169, 505},
+		{221, 499, 239, 560},
 		RadioButton {
 			enabled,
 			"Buffer"
 		},
 		/* [48] */
-		{168, 444, 187, 494},
+		{240, 499, 258, 549},
 		RadioButton {
 			enabled,
 			"both"
 		},
 		/* [49] */
-		{185, 444, 205, 498},
+		{259, 499, 277, 553},
 		RadioButton {
 			enabled,
 			"none"
 		},
 		/* [50] */
-		{3, 275, 223, 286},
+		{14, 325, 290, 330},
 		StaticText {
 			disabled,
-			"|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|"
+			"|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|"
 		},
 		/* [51] */
-		{79, 174, 97, 254},
+		{114, 208, 132, 288},
 		RadioButton {
 			enabled,
 			"PSphere"
@@ -1495,6 +1431,11 @@ resource 'DITL' (331) {
 	}
 };
 
+resource 'dlgx' (331) {
+	versionZero {
+		kDialogFlagsUseThemeControls | kDialogFlagsHandleMovableModal /*| kDialogFlagsUseControlHierarchy*/ | kDialogFlagsUseThemeBackground
+	}
+};
 
 
 resource 'DITL' (332) {
@@ -1521,7 +1462,7 @@ resource 'DITL' (332) {
 		{12, 179, 31, 272},
 		RadioButton {
 			enabled,
-			"Rectilinear"
+			/*"Rectilinear"*/ "Normal" //Changed by Kekus Digital 11 August 2003
 		},
 		/* [5] */
 		{45, 179, 62, 281},
@@ -1948,8 +1889,8 @@ resource 'DITL' (340) {
 
 
 resource 'DLOG' (360) {
-	{40, 40, 220, 320},
-	noGrowDocProc,
+	{40, 40, 250, 350},
+	/*noGrowDocProc*/movableDBoxProc,//changed by Kekus Digital
 	visible,
 	noGoAway,
 	0x0,
@@ -1988,7 +1929,7 @@ resource 'DITL' (350) {
 		{144, 56, 164, 114},
 		Button {
 			enabled,
-			"CANCEL"
+			"Cancel"
 		},
 		/* [3] */
 		{13, 17, 33, 229},
@@ -2017,58 +1958,64 @@ resource 'DITL' (350) {
 	}
 };
 
+resource 'dlgx' (350) {
+	versionZero {
+		kDialogFlagsUseThemeControls | kDialogFlagsHandleMovableModal /*| kDialogFlagsUseControlHierarchy*/ | kDialogFlagsUseThemeBackground
+	}
+};
+
 resource 'DITL' (360) {
 	{	/* array DITLarray: 9 elements */
 		/* [1] */
-		{144, 156, 164, 214},
+		{170, 222, 190, 290},
 		Button {
 			enabled,
 			"OK"
 		},
 		/* [2] */
-		{144, 56, 164, 114},
+		{170, 142, 190, 210},
 		Button {
 			enabled,
-			"CANCEL"
+			"Cancel"
 		},
 		/* [3] */
-		{13, 17, 33, 229},
+		{39, 20, 59, 232},
 		StaticText {
 			disabled,
 			"If Source and Result size differ:"
 		},
 		/* [4] */
-		{42, 11, 61, 253},
+		{61, 20, 79, 262},
 		CheckBox {
 			enabled,
 			"(a) Display Cropped/Framed Image"
 		},
 		/* [5] */
-		{63, 11, 83, 203},
+		{83, 20, 101, 212},
 		CheckBox {
 			enabled,
 			"(b) Create New Image File"
 		},
 		/* [6] */
-		{2, 241, 20, 278},
+		{14, 222, 34, 290},
 		Button {
 			enabled,
-			"More"
+			"More…"
 		},
 		/* [7] */
-		{65, 217, 84, 261},
+		{83, 222, 103, 290},
 		Button {
 			enabled,
-			"Set"
+			"Set…"
 		},
 		/* [8] */
-		{85, 11, 103, 204},
+		{105, 20, 123, 213},
 		CheckBox {
 			enabled,
 			"(c) Automatically Open File"
 		},
 		/* [9] */
-		{106, 11, 124, 252},
+		{127, 20, 145, 261},
 		CheckBox {
 			enabled,
 			"(d) Don't Save Mask (Photoshop LE)"
@@ -2076,81 +2023,104 @@ resource 'DITL' (360) {
 	}
 };
 
+resource 'dlgx' (360) {
+	versionZero {
+		kDialogFlagsUseThemeControls | kDialogFlagsHandleMovableModal /*| kDialogFlagsUseControlHierarchy*/ | kDialogFlagsUseThemeBackground
+	}
+};
+
 resource 'DITL' (400) {
 	{	/* array DITLarray: 11 elements */
 		/* [1] */
-		{150, 156, 170, 214},
+		{160, 212, 180, 280},
 		Button {
 			enabled,
 			"OK"
 		},
 		/* [2] */
-		{150, 56, 170, 114},
+		{160, 132, 180, 200},
 		Button {
 			enabled,
-			"CANCEL"
+			"Cancel"
 		},
 		/* [3] */
-		{30, 22, 46, 189},
+		{37, 22, 53, 200},
 		RadioButton {
 			enabled,
 			"Polynomial:      16 Pixels"
 		},
 		/* [4] */
-		{50, 22, 66, 186},
+		{57, 22, 73, 200},
 		RadioButton {
 			enabled,
 			"Spline:                16 Pixels"
 		},
 		/* [5] */
-		{71, 22, 87, 199},
+		{78, 22, 94, 200},
 		RadioButton {
 			enabled,
 			"Spline:                36 Pixels"
 		},
 		/* [6] */
-		{91, 22, 108, 194},
+		{98, 22, 115, 200},
 		RadioButton {
 			enabled,
 			"Sinc:                  256 Pixels"
 		},
 		/* [7] */
-		{51, 204, 67, 279},
+		{56, 226, 72, 279},
 		StaticText {
 			disabled,
-			"\0x19 Faster"
+			"Faster"
 		},
 		/* [8] */
-		{79, 204, 95, 279},
+		{78, 226, 94, 279},
 		StaticText {
 			disabled,
-			"\0x10 Better"
+                        "Better"
 		},
 		/* [9] */
-		{7, 20, 27, 173},
+		{14, 20, 34, 173},
 		StaticText {
 			disabled,
 			"Interpolation options:"
 		},
 		/* [10] */
-		{117, 23, 134, 84},
+		{125, 20, 142, 81},
 		StaticText {
 			disabled,
 			"Gamma:"
 		},
 		/* [11] */
-		{120, 98, 136, 136},
+		{127, 83, 143, 123},
 		EditText {
 			enabled,
 			"Edit Text"
+		},
+		/* [12] */
+		{72, 194, 104, 226},
+		Icon {
+			disabled,
+                        128
+		},
+		/* [13] */
+		{49, 194, 78, 226},
+		Icon {
+			disabled,
+                        129
 		}
 	}
 };
 
+resource 'dlgx' (400) {
+	versionZero {
+		kDialogFlagsUseThemeControls | kDialogFlagsHandleMovableModal /*| kDialogFlagsUseControlHierarchy*/ | kDialogFlagsUseThemeBackground
+	}
+};
 
 resource 'DLOG' (400) {
-	{40, 40, 220, 320},
-	documentProc,
+	{40, 40, 240, 340},
+	/*documentProc*/movableDBoxProc,//changed by Kekus Digital
 	visible,
 	noGoAway,
 	0x0,
@@ -2162,13 +2132,19 @@ resource 'DLOG' (400) {
 	;
 };
 
+resource 'dlgx' (115) {
+	versionZero {
+		kDialogFlagsUseThemeControls | kDialogFlagsHandleMovableModal /*| kDialogFlagsUseControlHierarchy */| kDialogFlagsUseThemeBackground
+	}
+};
+
 resource 'DITL' (115, "Info") {
 	{	/* array DITLarray: 3 elements */
 		/* [1] */
-		{138, 88, 158, 188},
+		{140, 202, 160, 260},
 		Button {
 			enabled,
-			"STOP"
+			"Stop"
 		},
 		/* [2] */
 		{20, 25, 42, 262},
@@ -2187,7 +2163,7 @@ resource 'DITL' (115, "Info") {
 
 resource 'DLOG' (115) {
 	{40, 40, 220, 320},
-	documentProc,
+	/*documentProc*/noGrowDocProc,//changed by Kekus Digital
 	visible,
 	noGoAway,
 	0x0,
@@ -2202,109 +2178,109 @@ resource 'DLOG' (115) {
 resource 'DITL' (450) {
 	{	/* array DITLarray: 18 elements */
 		/* [1] */
-		{154, 154, 174, 212},
+		{220, 212, 240, 280},
 		Button {
 			enabled,
 			"OK"
 		},
 		/* [2] */
-		{154, 68, 174, 126},
+		{220, 132, 240, 200},
 		Button {
 			enabled,
-			"CANCEL"
+			"Cancel"
 		},
 		/* [3] */
-		{2, 154, 13, 262},
+		{2, 178, 13, 279},
 		StaticText {
 			disabled,
 			""
 		},
 		/* [4] */
-		{5, 6, 24, 142},
+		{14, 20, 32, 166},
 		StaticText {
 			disabled,
 			"Point Spread Image:"
 		},
 		/* [5] */
-		{22, 7, 42, 174},
+		{37, 104, 55, 280},
 		StaticText {
 			disabled,
 			""
 		},
 		/* [6] */
-		{11, 202, 31, 260},
+		{35, 20, 55, 98},
 		Button {
 			enabled,
-			"Browse"
+			"Browse…"
 		},
 		/* [7] */
-		{55, 112, 73, 192},
+		{88, 112, 104, 192},
 		RadioButton {
 			enabled,
 			"Add Blur"
 		},
 		/* [8] */
-		{71, 112, 89, 218},
+		{109, 112, 125, 218},
 		RadioButton {
 			enabled,
 			"Remove Blur"
 		},
 		/* [9] */
-		{43, 8, 60, 68},
+		{65, 70, 82, 110},
 		StaticText {
 			disabled,
 			"Mode:"
 		},
 		/* [10] */
-		{89, 6, 106, 93},
+		{132, 30, 149, 110},
 		StaticText {
 			disabled,
 			"Noise Filter:"
 		},
 		/* [11] */
-		{87, 112, 104, 200},
+		{134, 112, 150, 200},
 		RadioButton {
 			enabled,
 			"Internal"
 		},
 		/* [12] */
-		{104, 112, 122, 183},
+		{155, 112, 171, 183},
 		RadioButton {
 			enabled,
 			"Custom"
 		},
 		/* [13] */
-		{102, 202, 121, 263},
+		{135, 202, 156, 280},
 		Button {
 			enabled,
-			"Browse"
+			"Browse…"
 		},
 		/* [14] */
-		{124, 6, 141, 91},
+		{180, 25, 197, 110},
 		StaticText {
 			disabled,
 			"Filter Factor:"
 		},
 		/* [15] */
-		{127, 92, 144, 148},
+		{182, 111, 199, 163},
 		EditText {
 			enabled,
 			"Edit Text"
 		},
 		/* [16] */
-		{125, 157, 146, 208},
+		{180, 174, 197, 224},
 		StaticText {
 			disabled,
 			"Frame:"
 		},
 		/* [17] */
-		{127, 213, 144, 266},
+		{182, 223, 199, 275},
 		EditText {
 			enabled,
 			"Edit Text"
 		},
 		/* [18] */
-		{40, 112, 57, 185},
+		{67, 112, 83, 185},
 		RadioButton {
 			enabled,
 			"Scale"
@@ -2312,10 +2288,15 @@ resource 'DITL' (450) {
 	}
 };
 
+resource 'dlgx' (450) {
+	versionZero {
+		kDialogFlagsUseThemeControls | kDialogFlagsHandleMovableModal /*| kDialogFlagsUseControlHierarchy*/ | kDialogFlagsUseThemeBackground
+	}
+};
 
 resource 'DLOG' (450) {
-	{40, 40, 220, 320},
-	documentProc,
+	{40, 40, 300, 340},
+	/*documentProc*/movableDBoxProc,//changed by Kekus Digital
 	visible,
 	noGoAway,
 	0x0,

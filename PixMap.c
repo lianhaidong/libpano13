@@ -20,13 +20,14 @@
 
 #include "PixMap.h"
 #include <Memory.h>
-#include <OSUtils.h>
-#include <ToolUtils.h>
-#include <FixMath.h>
+//#include <OSUtils.h> //commented by Kekus Digital
+//#include <ToolUtils.h> //commented by Kekus Digital
+//#include <FixMath.h> //commented by Kekus Digital
 #include <Math.h>
-#include <Gestalt.h>
-#include <ImageCompression.h>
-#include <PictUtils.h>
+//#include <Gestalt.h> //commented by Kekus Digital
+//#include <ImageCompression.h> //commented by Kekus Digital
+//#include <PictUtils.h> //commented by Kekus Digital
+#include <QuickTime/ImageCompression.h> //added by Kekus Digital
 #include <String.h>
 
 
@@ -848,17 +849,20 @@ PixMapHandle PICTTo32BitPixMap(PicHandle pic) {
 PicHandle PixMapToPICT(PixMapHandle pix) {
 	PicHandle pic;
 	GrafPtr saved;
-	CGrafPort port;
+	//CGrafPort port;//commented by Kekus Digital
+	CGrafPtr port;//added by Kekus Digital
 	Rect bounds;
 	bounds = (*pix)->bounds;
 	GetPort(&saved);
-	OpenCPort(&port);
+	//OpenCPort(&port);//commented by Kekus Digital
+        port = CreateNewPort();//added by Kekus Digital
 	pic = OpenPicture(&bounds);
 	ClipRect(&bounds);
 	PlotPixMap(pix, 0, 0, srcCopy);
 	ClosePicture();
 	SetPort(saved);
-	ClosePort((GrafPtr) &port);
+	//ClosePort((GrafPtr) &port);//commented by Kekus Digital
+        DisposePort(port);//added by Kekus Digital
 	if (GetHandleSize((Handle) pic) == sizeof(Picture)) {
 		KillPicture(pic);
 		pic = NULL;
@@ -869,7 +873,8 @@ PicHandle PixMapToPICT(PixMapHandle pix) {
 
 PicHandle PixMapToCompressedPICT(PixMapHandle pix) {
 	GrafPtr saved;
-	CGrafPort port;
+	//CGrafPort port;//commented by Kekus Digital
+	CGrafPtr port;//added by Kekus Digital
 	PicHandle pic;
 	Rect bounds;
 	OSErr err;
@@ -889,7 +894,8 @@ PicHandle PixMapToCompressedPICT(PixMapHandle pix) {
 
 		/* draw the picture, make sure we have a port */
 	GetPort(&saved);
-	OpenCPort(&port);
+	//OpenCPort(&port);//commented by Kekus Digital
+        port = CreateNewPort();//added by Kekus Digital
 	ClipRect(&bounds);
 	port_open = true;
 	
@@ -919,7 +925,8 @@ PicHandle PixMapToCompressedPICT(PixMapHandle pix) {
 	
 		/* clean up and go */
 	SetPort(saved);
-	ClosePort((GrafPtr) &port);
+	//ClosePort((GrafPtr) &port);//commented by Kekus Digital
+        DisposePort(port);//added by Kekus Digital
 	DisposePtr(compBuffer);
 	DisposeHandle((Handle) iDesc);
 	return pic;
@@ -927,7 +934,8 @@ PicHandle PixMapToCompressedPICT(PixMapHandle pix) {
 bail:
 	if (port_open)  {
 		SetPort(saved);
-		ClosePort((GrafPtr) &port);
+		//ClosePort((GrafPtr) &port);//commented by Kekus Digital
+                DisposePort(port);//added by Kekus Digital
 	}
 	if (pic != NULL) KillPicture(pic);
 	if (compBuffer != NULL) DisposePtr(compBuffer);
@@ -942,6 +950,7 @@ PixMapPort* NewPxMP(PixMapHandle pix) {
 	PixMapPort* pxmp;
 	Boolean device_active;
 	Rect r;
+        RgnHandle the_VisRgn = nil;
 	
 		/* set up initial variable states */
 	the_device = NULL;
@@ -984,12 +993,17 @@ PixMapPort* NewPxMP(PixMapHandle pix) {
 	device_active = true;
 
 		/* Open the new grafport*/
-	OpenCPort(&pxmp->pport);
-	SetPort((GrafPtr) &pxmp->pport);
+	//OpenCPort(&pxmp->pport);//commented by Kekus Digital
+        pxmp->pport = CreateNewPort();//added by Kekus Digital
+	//SetPort((GrafPtr) &pxmp->pport); //commented by Kekus Digital
+	SetPort((GrafPtr) pxmp->pport); //added by Kekus Digital
 	r = (*pix)->bounds;
 	PortSize(r.right, r.bottom);
 	ClipRect(&r);
-	RectRgn(pxmp->pport.visRgn, &r);
+	//RectRgn(pxmp->pport.visRgn, &r);//commented by Kekus Digital
+        
+        GetPortVisibleRegion(pxmp->pport,the_VisRgn );//added by Kekus Digital
+	RectRgn(the_VisRgn, &r);//added by Kekus Digital
 
 		/* done */
 	return pxmp;
@@ -1007,7 +1021,8 @@ void DisposePxMP(PixMapPort* px) {
 		SetGDevice(px->saved_device);
 		SetPort(px->saved_port);
 	}
-	CloseCPort(&px->pport);
+	//CloseCPort(&px->pport);//commented by Kekus Digital
+        DisposePort(px->pport);//added by Kekus Digital
 	DisposeHandle((Handle) ((*px->pdevice)->gdITable));
 	DisposeHandle((Handle) (px->pdevice));
 	DisposePtr((Ptr) px);
@@ -1022,7 +1037,8 @@ void PlotPixMap(PixMapHandle pix, short h, short v, short mode) {
 	HLock((Handle) pix);
 	src = dst = (*pix)->bounds;
 	OffsetRect(&dst, h, v);
-	CopyBits((BitMap *) (*pix), &port->portBits, &src, &dst, mode, NULL);
+	//CopyBits((BitMap *) (*pix), &port->portBits, &src, &dst, mode, NULL);//commented by Kekus Digital
+	CopyBits((BitMap *) (*pix), GetPortBitMapForCopyBits(port), &src, &dst, mode, NULL);//added by Kekus Digital
 	HSetState((Handle) pix, hstate);
 }
 
@@ -1032,7 +1048,8 @@ void PixMapCopy(PixMapHandle pix, Rect *src, Rect *dst, short mode) {
 	GetPort(&port);
 	hstate = HGetState((Handle) pix);
 	HLock((Handle) pix);
-	CopyBits((BitMap *) (*pix), &port->portBits, src, dst, mode, NULL);
+	//CopyBits((BitMap *) (*pix), &port->portBits, src, dst, mode, NULL);//commented by Kekus Digital
+	CopyBits((BitMap *) (*pix), GetPortBitMapForCopyBits(port), src, dst, mode, NULL);//added by Kekus Digital
 	HSetState((Handle) pix, hstate);
 }
 

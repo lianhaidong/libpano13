@@ -22,8 +22,9 @@
 
 */
 
-#include <Types.h>
-#include <QuickDraw.h>
+//#include <Types.h> // commented by Kekus Digital
+//#include <QuickDraw.h> // commented by Kekus Digital
+#include <Carbon/Carbon.h> // added by Kekus Digital
 
 #ifdef __cplusplus
 extern "C" { 
@@ -156,7 +157,8 @@ PicHandle PixMapToCompressedPICT(PixMapHandle pix);
 	record directly as it's all taken care of by NewBMP and DisposeBMP. */
 
 typedef struct {
-	CGrafPort pport;		/* the grafport record for drawing into the pixmap */
+	//CGrafPort pport;		/* the grafport record for drawing into the pixmap */ // commented by Kekus Digital
+	CGrafPtr pport;		/* the grafport record for drawing into the pixmap */ // added by Kekus Digital
 	GDHandle pdevice;		/* gdevice for drawing into the pixmap */
 	GDHandle saved_device;	/* saved gdevice */
 	GrafPtr saved_port;		/* saved grafport for later restoration */
