@@ -13,7 +13,9 @@ typedef struct {char* name; int value;}    TIntFeature;
 typedef struct {char* name; double value;} TDoubleFeature;
 typedef struct {char* name; char* value;}  TStringFeature;
 
-#ifdef MSVS
+// Fulvio Senore June.2004 changed the check to work with microsoft compiler
+#ifdef _MSC_VER
+//#ifdef MSVS
 #define snprintf _snprintf
 #endif
 
