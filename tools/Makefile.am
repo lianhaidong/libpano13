@@ -25,14 +25,16 @@ endif
 
 if HAVE_DARWIN
 DAR_SRC =  panoinfo_unix.c
-DAR_DEFS = -D__Ansi__=1
+DAR_DEFS = "-I/System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers -I/sw/include -D__Ansi__=1"
+DAR_LDFLAGS = "-L/sw/lib -ltiff -ljpeg"
 else
 DAR_SRC =
 DAR_DEFS = 
+DAR_LDFLAGS =
 endif
 
 AM_CPPFLAGS = $(JAVA_FLAGS) $(LIN_DEFS) $(DAR_DEFS)
-AM_LDFLAGS  = -L.. 
+AM_LDFLAGS  = -L.. $(DAR_LDFLAGS)
 
 bin_PROGRAMS = panoinfo PTOptimizer
 

@@ -44,7 +44,7 @@
 
 // Create a definition if we're on a Macintosh:
 #ifndef __Mac__
-	#if (defined(macintosh) || defined(__MC68K__) || defined(__POWERPC__) || defined(__powerc))
+	#if (defined(macintosh) || defined(__MC68K__) || defined(__powerc))
 		#define __Mac__			1
 		#define PT_BIGENDIAN		1
 	#endif
