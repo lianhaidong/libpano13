@@ -1483,7 +1483,7 @@ int pt_average( UCHAR* pixel, int BytesPerLine, double rgb[3], int bytesPerChann
 
 
 	rgb[0] = rgb[1] = rgb[2] = 0.0;
-	if( bytesPerChannel != 1 ) return;
+	if( bytesPerChannel != 1 ) return -1;
 
 	for(y=0; y<5; y++){
 		for(x=0; x<5; x++){
@@ -1495,6 +1495,7 @@ int pt_average( UCHAR* pixel, int BytesPerLine, double rgb[3], int bytesPerChann
 		}
 	}
 	for( i=0; i<3; i++) rgb[i]/=sum;
+	return 0;
 
 }
 

@@ -875,7 +875,7 @@ int CropImage(Image *im, PTRect *r){
 
 
 	data = (unsigned char**) mymalloc( dataSize );
-	if( data == NULL ) return;
+	if( data == NULL ) return -1;
 	
 	for(y=0; y<height; y++){
 		for(x=0, 
