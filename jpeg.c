@@ -56,9 +56,12 @@ int writeJPEG( Image *im, fullPath *sfile, 	int quality, int progressive )
 
 	jpeg_set_defaults(&cinfo);
 
+	if( 2 != (progressive & 2) )
+		cinfo.optimize_coding = TRUE;
+
 	jpeg_set_quality (&cinfo, quality, TRUE);
 	
-	if( progressive )
+	if( 1 == (progressive & 1) )
 		jpeg_simple_progression (&cinfo);
 
 	

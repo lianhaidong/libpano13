@@ -49,14 +49,15 @@ TStringFeature stringFeatures[]={
   {"LensMask3","R"},
   {"LensMask4","R"},
   // Patches that have been applied
+  {"Patch200410a", "Jim Watters, JPEG optimization, http://photocreations.ca/panotools"},
   {"FastTransform01", "Fulvio Senore, Fast transform, http://www.fsoft.it/panorama/pano12.htm"},
   {"Patch200407a", "Rik Littlefield, Kevin Kratzke, & Jim Watters, Fix multiple bugs - PSD, 16bit"},
   {"MaskFromFocus_001", "Rik Littlefield, added mask-from-focus, http://www.janrik.ptools"},
   {"Patch200405a", "Rik Littlefield, Improved optimizer, http://www.janrik.ptools"},
   {"Patch200403a", "Kevin Kratzke, Radial Shift fix, http://www.kekus.com"},
-  {"Patch200312a", "Jim Watters, Updated PSD format, http://members.rogers.com/jimwatters/panotools"},
-  {"Patch200309a", "Jim Watters, Allowed linking of y, p, & r values, http://members.rogers.com/jimwatters/panotools"},
-  {"Patch200308a", "Jim Watters, Improved Radial Luminance, http://members.rogers.com/jimwatters/panotools"}
+  {"Patch200312a", "Jim Watters, Updated PSD format, http://photocreations.ca/panotools"},
+  {"Patch200309a", "Jim Watters, Allowed linking of y, p, & r values, http://photocreations.ca/panotools"},
+  {"Patch200308a", "Jim Watters, Improved Radial Luminance, http://photocreations.ca/panotools"}
 };
 /***************** end feature tables **********************/
 
