@@ -1,0 +1,81 @@
+Readme Sources
+
+This file describes how to build the library pano12.lib
+for the Macintosh operating system. This library is required
+for running the Panorama Tools plug-in and any of the
+Panorama Tools applications (PTStitcher, etc). 
+
+Legal Issues:
+
+This software is distributed under GNU-license, see the
+file COPYING for details. Some parts of the software
+are derived from other sources, which are distributed under
+different copyrights. These are:
+(1) The JPEG-library distributed by the Independent JPEG group.
+This package contains a precompiled binary of the JPEG
+library and the header files required for compilation
+in the folder Sources/libs/. The legal terms for using the
+JPEG library can be found in the file /copyright/README_JPEG.
+(2) The PNG-library written by G.E.Schalnat et al.
+This package contains a precompiled binary of the PNG
+library and the header files required for compilation
+in the folder Sources/libs/. The legal terms for using the
+PNG library can be found in the file Sources/libs/png.h
+(3) The TIFF-library by Sam Leffler/ Silicon Graphics Inc.
+This package contains a precompiled binary of the TIFF
+library and the header files required for compilation
+in the folder Sources/libs/. The legal terms for using the
+TIFF library can be found in the file /copyright/README_TIFF.
+(4) The ZLIB-library by Jean-loup Gailly and Mark Adler.
+This package contains a precompiled binary of the ZLIB
+library and the header files required for compilation
+in the folder Sources/libs/. The legal terms for using the
+ZLIB library can be found in the file zlib.h.
+(5) The public domain Levenberg-Marquardt solver 
+of the Argonne National Laboratories MINPACK mathematical library,
+C translation by Steve Moshier (file lmdif.c).
+(6) Fast fourier transformation, code by:
+RC Singleton, Stanford Research Institute, Sept. 1968
+Copyright MJ Olesen, Queen's University at Kingston, 1995-97.
+See the file fftn.c for details.
+(7) PixMap-manipulation routines by John Montbriand. See
+the file PixMap.h for the copyright notice.
+
+
+Requirements:
+
+A working MPW installation (Macintosh Programmers Workshop)
+is required to build  the library. MPW is free and can be
+downloaded from www.apple.com.
+
+The Java Development MRJ is required. It is also free
+and can be downloaded from www.apple.com.
+During the build of pano12.lib the java include
+files have to be accessed by the MRC-compiler.
+
+
+Building the Library:
+
+The source files of this distribution have to be unpacked.
+Open the Makefile (folder 'src') using MPW, and edit path settings
+for your system (eg the path to your MRJ-installation).
+In the directory 'src' issue the command 'Build pano12.lib'.
+There will be a couple of warning
+messages which are non-fatal and can be ignored.
+
+Limits and Modifications:
+
+This distribution of the sources limits processing
+of fisheye images to fields of view smaller than
+160 degrees. This limit is controlled by the constant
+MAX_FISHEYE_FOV in the file filter.h. There
+is some controversy regarding the legality of processing
+hemispherical images (ie images having 180 degree field
+of view) in connection with virtual reality panoramas.
+If your application of fisheye lenses is not prohibited
+by patents, you can build and use your own unlimited version 
+of the library by changing the source code.
+
+Helmut Dersch
+der@fh-furtwangen.de
+
