@@ -34,7 +34,7 @@
 #define PTVERSION_NAME_LONG "LongVersion"
 #endif
 #ifndef LONGVERSION
-#define LONGVERSION "2.7.0.3 , Copyright © 1998-2001, H. Dersch, der@fh-furtwangen.de"
+#define LONGVERSION "2.7.0.3.Alpha.007 , Copyright © 1998-2001, H. Dersch, der@fh-furtwangen.de"
 #endif
 
 #ifndef PTVERSION_FILEVERSIONNUMBER
@@ -45,7 +45,7 @@
 #define PTVERSION_NAME_FILEVERSION "FileVersion"
 #endif
 #ifndef PTVERSION_FILEVERSION
-#define PTVERSION_FILEVERSION "2.7.0.3.Alpha.004\0"
+#define PTVERSION_FILEVERSION "2.7.0.3.Alpha.007\0"
 #endif
 
 #ifndef PTVERSION_NAME_LEGALCOPYRIGHT 
