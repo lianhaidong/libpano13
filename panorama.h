@@ -36,7 +36,7 @@
 
 // Create a definition if we're on a Windows machine:
 #ifndef __Win__
-	#if (defined(MSDOS) || defined(WIN32) || defined(__INTEL__))
+	#if (defined(MSDOS) || defined(WIN32))
 		#define __Win__			1
 	#endif
 #endif
