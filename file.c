@@ -218,7 +218,7 @@ int addLayerToFile( Image *im, fullPath* sfile, fullPath* dfile, stBuf *sB)
 	
 	if( ParsePSDHeader( header, &sim ) != 0 )
 	{
-		PrintError("Wrong File Format");
+		PrintError("addLayerToFile: Wrong File Format");
 		myclose( src );
 		return -1;
 	}
@@ -487,7 +487,7 @@ int readPSD(Image *im, fullPath *sfile, int mode)
 	
 	if( ParsePSDHeader( header, im ) != 0 )
 	{
-		PrintError("Wrong File Format");
+		PrintError("readPSD: Wrong File Format");
 		myclose( src );
 		return -1;
 	}
@@ -544,7 +544,10 @@ static int ParsePSDHeader( char *header, Image *im )
 	if( *h++ != '8' || *h++ != 'B' || *h++ != 'P' || *h++ != 'S' ||
 		*h++ != 0   || *h++ != 1   ||
 		*h++ != 0	|| *h++ != 0   || *h++ != 0	  || *h++ != 0	 || *h++ != 0	|| *h++ != 0 )
+		{
+			PrintError( "ParsePSDHeader: Error reading PSD Header: %c%c%c%c", header[0], header[1], header[2], header[3] );
 		return -1;
+		}
 	
 	NUMBERSHORT( s, h );
 	
@@ -1758,7 +1761,7 @@ int readPSDMultiLayerImage( MultiLayerImage *mim, fullPath* sfile){
 	}
 	
 	if( ParsePSDHeader( header, &im ) != 0 ){
-		PrintError("Wrong File Format");
+		PrintError("readPSDMultiLayerImage: Wrong File Format");
 		myclose( src );
 		return -1;
 	}

@@ -428,7 +428,7 @@ JNIEXPORT void JNICALL Java_ptutils_CGetImageRow
   (JNIEnv *env, jobject obj, jintArray jdata, jint nrow){
 #pragma unused(obj)
   	if(im.data != NULL){
-#ifdef BIGENDIAN
+#ifdef PT_BIGENDIAN
 		(*env)->SetIntArrayRegion( env, jdata, 0, im.width , 
 								(jint*)((*im.data) + im.bytesPerLine * nrow) ) ;
 #else

@@ -812,7 +812,7 @@ extern sPrefs			*gsPrPtr;
 
 // Endian stuff: Read and write numbers from and to memory (ptr)
 
-#ifdef BIGENDIAN
+#ifdef PT_BIGENDIAN
 	#define	LONGNUMBER( number, ptr )					*ptr++ = ((char*)(&number))[0];	\
 														*ptr++ = ((char*)(&number))[1];	\
 														*ptr++ = ((char*)(&number))[2];	\
@@ -848,7 +848,7 @@ extern sPrefs			*gsPrPtr;
 
 
 
-#endif // BIGENDIAN
+#endif // PT_BIGENDIAN
 
 // Cross platform file functions
 

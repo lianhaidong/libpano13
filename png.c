@@ -211,7 +211,7 @@ int readPNG	( Image *im, fullPath *sfile )
 	 	LOOP_IMAGE( im, p = (USHORT*)idata; pix=p[0]; p[0]=p[3];p[3]=p[2];p[2]=p[1];p[1]=pix; )		
 	}
 
-#ifndef BIGENDIAN
+#ifndef PT_BIGENDIAN
 	// Swap bytes in shorts
 	if(im->bitsPerPixel == 48){ 
 		UCHAR  b,*id;	

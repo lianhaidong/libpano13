@@ -25,11 +25,13 @@
 
 #include "version.h"
 
+// MRDL: Replaced BIGENDIAN with PT_BIGENDIAN to eliminate conflict with 
+// BIGENDIAN defined in winsock2.h distributed with MingW 2.0
 
-// Determine which machine we are using. Macs are set to BIGENDIAN, all others not
+// Determine which machine we are using. Macs are set to PT_BIGENDIAN, all others not
 
-// If you need BIGENDIAN, and don't use MacOS, define it here:
-// #define BIGENDIAN			1
+// If you need PT_BIGENDIAN, and don't use MacOS, define it here:
+//#define PT_BIGENDIAN			1
 
 
 // Create a definition if we're on a Windows machine:
@@ -44,7 +46,7 @@
 #ifndef __Mac__
 	#if (defined(macintosh) || defined(__MC68K__) || defined(__POWERPC__) || defined(__powerc))
 		#define __Mac__			1
-		#define BIGENDIAN		1
+		#define PT_BIGENDIAN		1
 	#endif
 #endif
 

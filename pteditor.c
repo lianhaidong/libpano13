@@ -97,14 +97,14 @@ JNIEXPORT void JNICALL Java_pteditor_CGetImageRow
 			int x;
 			UCHAR *p = *(pano->data) + pano->bytesPerLine * nrow,*q = (UCHAR*)pix;
 			for(x=0; x<pano->width; x++, p+=8, q+=4){
-#ifdef BIGENDIAN
+#ifdef PT_BIGENDIAN
 				q[0] = p[0]; q[1] = p[2]; q[2] = p[4]; q[3] = p[6];
 #else
 				q[0] = p[7]; q[1] = p[5]; q[2] = p[3]; q[3] = p[1];
 #endif
 			}
 		}else{
-#ifdef BIGENDIAN
+#ifdef PT_BIGENDIAN
 			memcpy( pix, *(pano->data) + pano->bytesPerLine * nrow, pano->width * sizeof(jint));				
 #else
 			int x;
@@ -326,7 +326,7 @@ JNIEXPORT void JNICALL Java_pteditor_CSetImageRow
 
 	(*env)->GetIntArrayRegion( env, jdata, 0, pano->width , 
 				(jint*)((*pano->data) + pano->bytesPerLine * nrow) ) ;
-#ifdef BIGENDIAN
+#ifdef PT_BIGENDIAN
 #else
 	{
 		jint *row = (jint*)((*pano->data) + pano->bytesPerLine * nrow), pix;
