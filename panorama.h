@@ -56,8 +56,8 @@
 #define PATH_SEP							'/'
 
 #ifdef __Mac__
-
-	#include <Files.h>
+        //#include  <Files.h> // commented by Kekus Digital
+	#include <Carbon/Carbon.h> // added by Kekus Digital
 	#define			fullPath							FSSpec
 	#undef  PATH_SEP
 	#define PATH_SEP									':'

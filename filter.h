@@ -853,7 +853,7 @@ extern sPrefs			*gsPrPtr;
 
 #ifdef __Mac__
 
-	#include <Files.h>
+	#include <Carbon/Carbon.h> // Kekus Digital<Files.h>
 	#include "sys_mac.h"
 	
 	#define			file_spec							short
