@@ -82,15 +82,10 @@ AM_CONDITIONAL(HAVE_AMD64, test "${HCPU}" = "amd64")
 AC_SUBST(PANO_WIN32_RESOURCE)
 
 # Checks for libraries.
-# FIXME: Replace `main' with a function in `-lcomdlg32':
-# AC_CHECK_LIB([comdlg32], [main])
 
 AX_CHECK_JAVA
 if test "x$have_java" != xyes; then
-    AC_MSG_ERROR([
-        java must be installed on your system
-        but configure could not find it.
-    ])
+    AC_MSG_WARN([java will not be used! PTEditor and PTPicker support disabled])
 fi
 
 AX_CHECK_ZLIB

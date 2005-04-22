@@ -4,8 +4,14 @@ STD_SRC = filter.c parser.c queryfeature.c correct.c perspect.c \
 	  adjust.c  remap.c lmdif.c  file.c \
 	  math.c pan.c PTDialogs.c fftn.c fourier.c resample.c \
 	  optimize.c morpher.c Triangulate.c \
-	  seamer.c ptpicker.c pteditor.c \
+	  seamer.c \
 	  tiff.c jpeg.c png.c  multilayer.c 
+
+if HasJava
+JAVA_SRC = ptpicker.c pteditor.c
+else
+JAVA_SRC = javastub.c
+endif
 
 STD_HDR = panorama.h filter.h version.h 
 
@@ -78,7 +84,7 @@ AM_CPPFLAGS = $(JAVA_FLAGS) $(JPEG_FLAGS) $(PNG_FLAGS) $(TIFF_FLAGS) $(ZLIB_FLAG
 
 lib_LTLIBRARIES = libpano12.la
 
-libpano12_la_SOURCES = $(STD_SRC) $(X11_SRC) $(WIN_SRC) $(MAC_SRC) $(LIN_SRC) $(DAR_SRC)
+libpano12_la_SOURCES = $(STD_SRC) $(JAVA_SRC) $(X11_SRC) $(WIN_SRC) $(MAC_SRC) $(LIN_SRC) $(DAR_SRC)
 libpano12_la_LIBADD = $(LIB_JPEG) $(LIB_PNG) $(LIB_TIFF) $(LIB_ZLIB) @PANO_WIN32_RESOURCE@
 libpano12_la_LDFLAGS = $(LIN_LDFS) $(WIN_LDFS) $(DAR_LDFS)
 libpano12_la_DEPENDENCIES = @PANO_WIN32_RESOURCE@
