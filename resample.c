@@ -42,6 +42,9 @@
 
 #include "filter.h" 			
 
+/* Defined in resample.c*/
+void MyTransForm( TrformStr *TrPtr, fDesc *fD, int color, int imageNum);
+
 
 // Standard C includes
 
@@ -308,7 +311,7 @@ unsigned short gamma_correct( double pix )
 
 /////////// N x N Sampler /////////////////////////////////////////////
 
-#define RESAMPLE_N( intpol, ndim, psize )								\
+#define RESAMPLE_N( intpol, ndim, psize)								\
 	double yr[ndim], yg[ndim], yb[ndim], w[ndim];						\
 	register double rd, gd, bd, weight ;								\
 	register int k,i;													\
@@ -343,9 +346,14 @@ unsigned short gamma_correct( double pix )
 			gd += yg[i] * weight;										\
 			bd += yb[i] * weight;										\
 		}																\
-		*((unsigned psize*)dst)++ 	= 	gamma_correct( rd );			\
-		*((unsigned psize*)dst)++	= 	gamma_correct( gd );			\
-		*((unsigned psize*)dst) 	=  	gamma_correct( bd );			\
+		{																\
+		register unsigned psize *tdst;									\
+		tdst = (unsigned psize *)dst;									\
+        *tdst++   =   gamma_correct( rd );   	    				    \
+		*tdst++   =   gamma_correct( gd );      	      				\
+		*tdst     =   gamma_correct( bd );      	      				\
+		dst = (unsigned char *)tdst;									\
+		}																\
 	}																	\
 	else																\
 	{																	\
@@ -368,7 +376,11 @@ unsigned short gamma_correct( double pix )
 		{																\
 			rd += yr[i] * w[ i ];										\
 		}																\
-		 *((unsigned psize*)dst+color)  = 	gamma_correct( rd );		\
+		{																\
+		register unsigned psize *tdst;									\
+		tdst = (unsigned psize *)dst;									\
+		*(tdst+color)  = 	gamma_correct( rd );						\
+		}																\
 	}																	\
 
 
@@ -701,7 +713,8 @@ void transForm( TrformStr *TrPtr, fDesc *fD, int color){
 	int 			skip = 0;	// Update progress counter
 	unsigned char 		*dest,*src,*sry;// Source and destination image data
 	register unsigned char 		*sr;	// Source  image data
-	char*			progressMessage;// Message to be displayed by progress reporter
+										// Message to be displayed by progress reporter
+	char*			progressMessage = "Something is wrong here";
 	char                	percent[8];	// Number displayed by Progress reporter
 	int			valid;		// Is this pixel valid? (i.e. inside source image)
 	long			coeff;		// pixel coefficient in destination image
@@ -738,7 +751,7 @@ void transForm( TrformStr *TrPtr, fDesc *fD, int color){
 
 	int			n, n2;		// How many pixels should be used for interpolation	
 	intFunc 		intp; 		// Function used to interpolate
-	int 			lu = 0;		// Use lookup table?
+	// int 			lu = 0;		// Use lookup table?
 	int			wrap_x = FALSE;
 	double			theGamma;	// gamma handed to SetUpGamma()
 
@@ -750,7 +763,7 @@ void transForm( TrformStr *TrPtr, fDesc *fD, int color){
 	double maxErrX, maxErrY;
 	long offset;
 //	int useFastTransform;	// true if we will use the new fast pixel transformation
-	int evaluateError;		// true if we want to write a file with the transformation errors
+	int evaluateError = FALSE;		// true if we want to write a file with the transformation errors
 	// FS-
 	//////////////////////////////////////////////////////////////////////////
 
@@ -856,7 +869,7 @@ void transForm( TrformStr *TrPtr, fDesc *fD, int color){
 						case _RGB: 	progressMessage = "Blue Channel"; break;
 						case _Lab:	progressMessage = "Color B" 	; break;
 					} break; 
-			default: progressMessage = "Something is wrong here";
+//			default: progressMessage = "Something is wrong here";
 		}
 		Progress( _initProgress, progressMessage );
 	}
@@ -910,7 +923,7 @@ void transForm( TrformStr *TrPtr, fDesc *fD, int color){
 		skip++;
 		if( skip == (int)ceil(TrPtr->dest->height/50.0) ){
 			if(TrPtr->mode & _show_progress){	
-				sprintf( percent, "%d", (int) (y * 100)/ TrPtr->dest->height);
+				sprintf( percent, "%d", (int) ((y * 100)/ TrPtr->dest->height));
 				if( ! Progress( _setProgress, percent ) ){
 					TrPtr->success = 0;
 					goto Trform_exit;
@@ -1134,7 +1147,7 @@ Trform_exit:
 	if( evaluateError ) {
 		FILE *fp;
 		fp = fopen( "Errors.txt", "a+t" );
-		fprintf( fp, "%f  %d\n", maxErrX, destRect.top );
+		fprintf( fp, "%f  %ld\n", maxErrX, destRect.top );
 		fprintf( fp, "%f\n", maxErrY );
 		fclose( fp );
 	}
@@ -1187,7 +1200,7 @@ void MyTransForm( TrformStr *TrPtr, fDesc *fD, int color, int imageNum){
 
 	int			n, n2;		// How many pixels should be used for interpolation	
 	intFunc 		intp; 		// Function used to interpolate
-	int 			lu = 0;		// Use lookup table?
+	// int 			lu = 0;		// Use lookup table?
 	int			wrap_x = FALSE;
 	double			theGamma;	// gamma handed to SetUpGamma()
 
@@ -1327,7 +1340,7 @@ void MyTransForm( TrformStr *TrPtr, fDesc *fD, int color, int imageNum){
 		skip++;
 		if( skip == (int)ceil(TrPtr->dest->height/50.0) ){
 			if(TrPtr->mode & _show_progress){	
-				sprintf( percent, "%d", (int) (y * 100)/ TrPtr->dest->height);
+				sprintf( percent, "%d", (int) ((y * 100)/ TrPtr->dest->height));
 				if( ! Progress( _setProgress, percent ) ){
 					TrPtr->success = 0;
 					goto Trform_exit;
