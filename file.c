@@ -119,7 +119,11 @@ int writePSD(Image *im, fullPath *sfile )
 	}
 
 	// Write PSD Header
-	WRITELONG( '8BPS' );
+	// WRITELONG( '8BPS' );
+	WRITEUCHAR( '8' );
+	WRITEUCHAR( 'B' );
+	WRITEUCHAR( 'P' );
+	WRITEUCHAR( 'S' );
 	WRITESHORT( 1 );
 	WRITELONG( 0 ); WRITESHORT( 0 );
 
@@ -178,7 +182,11 @@ int writePSDwithLayer(Image *im, fullPath *sfile )
 	}
 
 	// Write PSD Header
-	WRITELONG( '8BPS' );
+	// WRITELONG( '8BPS' );
+	WRITEUCHAR( '8' );
+	WRITEUCHAR( 'B' );
+	WRITEUCHAR( 'P' );
+	WRITEUCHAR( 'S' );
 	WRITESHORT( 1 );
 	WRITELONG( 0 ); WRITESHORT( 0 );
 
@@ -815,8 +823,16 @@ static int writeLayerAndMask( Image *im, file_spec fnum )
 
 	// ********** End Channel information ***************************** //
 	
-	WRITELONG( '8BIM'); // Blend mode signature Always 8BIM.
-	WRITELONG( 'norm'); // Blend mode key
+	// WRITELONG( '8BIM'); // Blend mode signature Always 8BIM.
+	WRITEUCHAR( '8' );
+	WRITEUCHAR( 'B' );
+	WRITEUCHAR( 'I' );
+	WRITEUCHAR( 'M' );
+	// WRITELONG( 'norm'); // Blend mode key
+	WRITEUCHAR( 'n' );
+	WRITEUCHAR( 'o' );
+	WRITEUCHAR( 'r' );
+	WRITEUCHAR( 'm' );
 
 	WRITEUCHAR(255); // 1 byte Opacity 0 = transparent ... 255 = opaque
 	WRITEUCHAR( 0 ); // 1 byte Clipping 0 = base, 1 = non–base
@@ -1315,8 +1331,16 @@ static int addLayer( Image *im, file_spec src, file_spec fnum, stBuf *sB )
 		}
 		// ********** End Channel information ***************************** //
 	
-		WRITELONG( '8BIM'); // Blend mode signature Always 8BIM.
-		WRITELONG( 'norm'); // Blend mode key
+		// WRITELONG( '8BIM'); // Blend mode signature Always 8BIM.
+		WRITEUCHAR( '8' );
+		WRITEUCHAR( 'B' );
+		WRITEUCHAR( 'I' );
+    	WRITEUCHAR( 'M' );
+    	// WRITELONG( 'norm'); // Blend mode key
+    	WRITEUCHAR( 'n' );
+    	WRITEUCHAR( 'o' );
+    	WRITEUCHAR( 'r' );
+    	WRITEUCHAR( 'm' );
 		WRITELONG( nflag[i] );	// Opacity, clipping, flag, filler
 		WRITELONG( nextra[i] );	// Extra data size Length of the extra data field. This is the total length of the next five fields.
 		WRITELONG( nmask[i] );	// Layer Mask data
@@ -1364,8 +1388,16 @@ static int addLayer( Image *im, file_spec src, file_spec fnum, stBuf *sB )
 
 	// ********** End Channel information ***************************** //
 	
-	WRITELONG( '8BIM'); // Blend mode signature Always 8BIM.
-	WRITELONG( 'norm'); // Blend mode key
+	// WRITELONG( '8BIM'); // Blend mode signature Always 8BIM.
+	WRITEUCHAR( '8' );
+	WRITEUCHAR( 'B' );
+	WRITEUCHAR( 'I' );
+    WRITEUCHAR( 'M' );
+    // WRITELONG( 'norm'); // Blend mode key
+    WRITEUCHAR( 'n' );
+    WRITEUCHAR( 'o' );
+    WRITEUCHAR( 'r' );
+    WRITEUCHAR( 'm' );
 
 	WRITEUCHAR(255); // 1 byte Opacity 0 = transparent ... 255 = opaque
 	WRITEUCHAR( 0 ); // 1 byte Clipping 0 = base, 1 = non–base
@@ -1626,7 +1658,7 @@ int LoadOptions( cPrefs * thePrefs )
 char* LoadScript( fullPath* scriptFile )
 {
 	fullPath	sfile;
-	int 		result = FALSE, i;
+	int 		i;
 	file_spec 	fnum;
 	long		count;
 	char		*script = NULL, ch;
@@ -1680,7 +1712,6 @@ _loadError:
 int WriteScript( char* res, fullPath* scriptFile, int launch )
 {
 	fullPath	sfile;
-	int 		result = FALSE;
 	file_spec 	fnum;
 	long		count;
 
@@ -1776,7 +1807,7 @@ int readPSDMultiLayerImage( MultiLayerImage *mim, fullPath* sfile){
 
 	char    		header[128], *h;
 	long			count,chlength;
-	unsigned long 		var;
+	unsigned long 		iul, kul, var;
 	char			data[12], *d;
 	short 			svar;
 	int 			i, k, result = 0,nchannel, odd = 0;
@@ -1811,7 +1842,7 @@ int readPSDMultiLayerImage( MultiLayerImage *mim, fullPath* sfile){
 	// Read (and ignore) Color mode data
 	READLONG( var ); 
 	count = 1;
-	for( i=0; i<var; i++ )
+	for( iul=0; iul<var; iul++ )
 	{
 		myread(src,count,h);
 	}
@@ -1819,7 +1850,7 @@ int readPSDMultiLayerImage( MultiLayerImage *mim, fullPath* sfile){
 	// Read (and ingnore) Image resources
 	READLONG( var ); 
 	count = 1;
-	for( i=0; i<var; i++ )
+	for( iul=0; iul<var; iul++ )
 	{
 		myread(src,count,h);
 	}
@@ -1895,7 +1926,7 @@ int readPSDMultiLayerImage( MultiLayerImage *mim, fullPath* sfile){
 		READLONG( var ); 					// Layer Mask data
 		if(var)								// either 0 or 20
 		{
-			for(k=0; k<var; k++)
+			for(kul=0; kul<var; kul++)
 			{
 				READUCHAR ( ch );			// Layer Mask Data
 			}
