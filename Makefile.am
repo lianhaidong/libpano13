@@ -5,7 +5,7 @@ STD_SRC = filter.c parser.c queryfeature.c correct.c perspect.c \
 	  math.c pan.c PTDialogs.c fftn.c fourier.c resample.c \
 	  optimize.c morpher.c Triangulate.c \
 	  seamer.c \
-	  tiff.c jpeg.c png.c  multilayer.c 
+	  tiff.c ZComb.c jpeg.c png.c  multilayer.c 
 
 if HasJava
 JAVA_SRC = ptpicker.c pteditor.c
@@ -15,7 +15,7 @@ endif
 
 STD_HDR = panorama.h filter.h version.h 
 
-INTERNAL_HDR = fftn.h f2c.h 
+INTERNAL_HDR = fftn.h f2c.h ZComb.h adjust.h
 
 TOOL_HDR = queryfeature.h pteditor.h ptutils.h 
 
@@ -105,7 +105,7 @@ EXTRA_DIST =  gpl.txt README.linux README.windows README.mac \
 	      makefile.linux makefile.mac makefile.osx makefile.win32 \
 	      bootstrap filter.r pano12.def libpano12.def pano12.rc \
 	      seamer_.c sys_X11.c sys_win.c bmp.c PixMap.c pict.c shell_mac.c \
-	      sys_mac.c ppm.c PixMap.h sys_ansi.c ppm.c
+	      sys_mac.c ppm.c PixMap.h sys_ansi.c ppm.c ZComb.h adjust.h 
 
 MAINTAINERCLEANFILES = \
 	COPYING				\
