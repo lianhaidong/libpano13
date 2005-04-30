@@ -727,7 +727,7 @@ int writeProject( AlignInfo *g, fullPath *pFile)
 		
 		
 	
-	sprintf(line, "p f%d w%d h%d v%lg u%d %s n\"%s\" %s\n\n", pf, g->pano.width, g->pano.height, g->pano.hfov, g->st.feather, cv, g->pano.name, ch );
+	sprintf(line, "p f%d w%ld h%ld v%lg u%d %s n\"%s\" %s\n\n", pf, g->pano.width, g->pano.height, g->pano.hfov, g->st.feather, cv, g->pano.name, ch );
 	count = strlen( line ); mywrite( fnum, count, line );
 	
 	for(i=0; i<g->numIm; i++)
@@ -739,7 +739,7 @@ int writeProject( AlignInfo *g, fullPath *pFile)
 		else
 			sprintf(ch, "v%lg", g->im[i].hfov);
 			
-		sprintf(line, "i f%d w%d h%d y%lg p%lg r%lg %s %s n\"%s\" ", im->format, im->width, im->height, 
+		sprintf(line, "i f%ld w%ld h%ld y%lg p%lg r%lg %s %s n\"%s\" ", im->format, im->width, im->height, 
 											im->yaw, im->pitch, im->roll, 
 											(im->cP.correction_mode & correction_mode_morph ? "o" : "" ),
 											ch, im->name );
@@ -780,7 +780,7 @@ int writeProject( AlignInfo *g, fullPath *pFile)
 		}
 
 		if( g->im[i].selection.bottom != 0 || g->im[i].selection.right != 0 ){
-			sprintf( ch, " S%d,%d,%d,%d ",g->im[i].selection.left, g->im[i].selection.right,
+			sprintf( ch, " S%ld,%ld,%ld,%ld ",g->im[i].selection.left, g->im[i].selection.right,
 						       g->im[i].selection.top, g->im[i].selection.bottom );
 			strcat(line, ch);
 		}
