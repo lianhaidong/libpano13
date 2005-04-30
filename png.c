@@ -119,7 +119,7 @@ int readPNG	( Image *im, fullPath *sfile )
    	png_infop info_ptr;
 	png_bytep *row_pointers;
 	int row;
-	long  dataSize;
+	unsigned long  dataSize;
 
 #ifdef __Mac__
 	unsigned char the_pcUnixFilePath[256];//added by Kekus Digital
@@ -244,19 +244,39 @@ int readPNG	( Image *im, fullPath *sfile )
 #ifndef PT_BIGENDIAN
 	// Swap bytes in shorts
 	if(im->bitsPerPixel == 48){ 
-		UCHAR  b,*id;	
+		UCHAR  b,*id;
+
+// the original construct of *id = *(++id) results in:
+//.L80:
+//	movb    (%edx), %al
+// 	incl    %ecx
+//	movb    %al, 1(%edx)
+//	movb    2(%edx), %al
+//	movb    %al, 3(%edx)
+//	movb    4(%edx), %al
+//	movb    %al, 5(%edx)
+//	movb    6(%edx), %al
+//	movb    %al, 7(%edx)
+//	addl    %edi, %edx
+//	movl    8(%ebp), %eax
+//	cmpl    %ecx, (%eax)
+//	jg  .L80
+//
+// when compiled with -O2 which is incorrect since it does not swap the bytes. 
+// Force explicit ordering with *id=*(id+1); id++ for correct output
+
 	 	LOOP_IMAGE( im, id = idata; \
-				b = *id; *id = *(++id); *(id++)=b;\
-				b = *id; *id = *(++id); *(id++)=b;\
-				b = *id; *id = *(++id); *id=b; )
-	}
+				b = *id; *id = *(id + 1); id++; *(id++)=b; \
+				b = *id; *id = *(id + 1); id++; *(id++)=b; \
+				b = *id; *id = *(id + 1); id++; *(id)=b; )
+		}
 	if(im->bitsPerPixel == 64){ 
 		UCHAR  b,*id;	
 	 	LOOP_IMAGE( im, id = idata; \
-				b = *id; *id = *(++id); *(id++)=b;\
-				b = *id; *id = *(++id); *(id++)=b;\
-				b = *id; *id = *(++id); *(id++)=b;\
-				b = *id; *id = *(++id); *id=b; )
+				b = *id; *id = *(id + 1); id++; *(id++)=b; \
+				b = *id; *id = *(id + 1); id++; *(id++)=b; \
+				b = *id; *id = *(id + 1); id++; *(id++)=b; \
+				b = *id; *id = *(id + 1); id++; *(id)=b; )
 	}
 	
 #endif	
