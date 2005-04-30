@@ -29,7 +29,8 @@
 #include "filter.h"
 #include <stdio.h>
 
-static  AlignInfo	*g;
+//static  AlignInfo	*g;
+int                     CheckParams( AlignInfo *g );
 
 int main(int argc,char *argv[])
 {
@@ -40,7 +41,7 @@ int main(int argc,char *argv[])
 	AlignInfo	ainf;
 
 	fullPath	infile;
-	fullPath	outfile;
+	//fullPath	outfile;
 
 	SetAdjustDefaults(&aP);
 
