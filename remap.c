@@ -30,7 +30,7 @@ void remap(TrformStr *TrPtr, rPrefs *r_prefs)
 											// vars[1] 
 											// vars[2] 
 	double	a,b;							// horizontal/vertical field of view in 'rad'
-	int		destwidth, destheight;
+	int		destwidth=0, destheight=0;
 
 	
 	fD.param 	= (void*) vars;
