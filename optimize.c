@@ -2,6 +2,7 @@
 #include "math.h"
 #include "float.h"
 
+#include "adjust.h"
 
 lmfunc	fcn; 
 static int			AllocateLMStruct( struct LMStruct *LM );
@@ -199,17 +200,6 @@ void  RunBROptimizer ( OptInfo	*o, double minStepWidth)
 {
 	struct 	LMStruct	LM;
 	int 	iflag;
-	char 	*infmsg[] = {
-				"improper input parameters",
-				"the relative error in the sum of squares is at most tol",
-				"the relative error between x and the solution is at most tol",
-				"conditions for info = 1 and info = 2 both hold",
-				"fvec is orthogonal to the columns of the jacobian to machine precision",
-				"number of calls to fcn has reached or exceeded 200*(n+1)",
-				"tol is too small. no further reduction in the sum of squares is possible",
-				"tol too small. no further improvement in approximate solution x possible",
-				"Interrupted"
-				};
 
 	// PrintError("RunBROptimizer");
 	LM.n = o->numVars;
@@ -283,7 +273,7 @@ void  RunBROptimizer ( OptInfo	*o, double minStepWidth)
 
 int	AllocateLMStruct( struct LMStruct *LM )
 {
-	int i,k, result = 0 ;
+	int i,k;
 	
 
 	if( LM->n <= 0 || LM->m <= 0 || LM->n > LM->m )
