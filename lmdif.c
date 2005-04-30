@@ -921,8 +921,6 @@ int ipvt[];
 int pivot;
 double a[],rdiag[],acnorm[],wa[];
 {
-#pragma unused(lipvt)
-#pragma unused(lda)
 /*
 *     **********
 *
@@ -1511,7 +1509,6 @@ int *iflag;
 double epsfcn;
 double x[],fvec[],fjac[],wa[];
 {
-#pragma unused(ldfjac)
 /*
 *     **********
 *

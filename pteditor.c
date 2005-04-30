@@ -90,7 +90,6 @@ JNIEXPORT jint JNICALL Java_pteditor_CGetImageHeight
 
 JNIEXPORT void JNICALL Java_pteditor_CGetImageRow
   (JNIEnv *env, jobject obj, jintArray jdata, jint nrow){
-#pragma unused(obj)
 	if(pano == NULL) return;
   	if(pano->data != NULL){
 		jint *pix = (jint*)malloc(pano->width * sizeof(jint));

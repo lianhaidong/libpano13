@@ -1490,7 +1490,6 @@ int m,n;
 int *iflag;
 double x[],fvec[]; 
 {
-#pragma unused(n)
 	int i;
 	static int numIt;
 	double result;

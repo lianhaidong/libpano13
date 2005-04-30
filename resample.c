@@ -415,8 +415,6 @@ static double cubic12( double x )
 static void nn( unsigned char *dst, unsigned char **rgb, 
 		register double Dx, register double Dy,	int color, int SamplesPerPixel)
 		{
-#pragma unused(Dx)
-#pragma unused(Dy)
 			RESAMPLE_N( NNEIGHBOR, 1, char)	}
 
 // Bilinear sampling, nowhere used (yet).
@@ -477,8 +475,6 @@ static void sinc1024( unsigned char *dst, unsigned char **rgb,
 static void nn_16( unsigned char *dst, unsigned char **rgb, 
 		register double Dx, register double Dy,	int color, int SamplesPerPixel)
 		{
-#pragma unused(Dx)
-#pragma unused(Dy)
 			RESAMPLE_N( NNEIGHBOR, 1, short)	}
 
 // Bilinear sampling, nowhere used (yet).

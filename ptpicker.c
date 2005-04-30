@@ -84,8 +84,6 @@ JNIEXPORT void JNICALL Java_ptutils_CSaveProject
 
 JNIEXPORT void JNICALL Java_ptutils_CSetControlPointCount
   (JNIEnv *env, jobject obj, jint nc){
-#pragma unused(obj)
-#pragma unused(env)
 	if( gl && nc != gl->numPts ){
 		free(gl->cpt);
 		gl->numPts = nc;
@@ -95,8 +93,6 @@ JNIEXPORT void JNICALL Java_ptutils_CSetControlPointCount
 
 JNIEXPORT void JNICALL Java_ptutils_CSetCP
   (JNIEnv *env, jobject obj, jint i, jint n0, jint n1, jdouble x0, jdouble x1, jdouble y0, jdouble y1, jint type){
-#pragma unused(obj)
-#pragma unused(env)
 	if( gl && i < gl->numPts ){
 		controlPoint *c = &(gl->cpt[i]);
 		c->num[0] = n0;
@@ -111,8 +107,6 @@ JNIEXPORT void JNICALL Java_ptutils_CSetCP
 
 JNIEXPORT void JNICALL Java_ptutils_CSetTriangleCount
   (JNIEnv *env, jobject obj, jint nt){
-#pragma unused(obj)
-#pragma unused(env)
 	if( gl && nt != gl->nt ){
 		free( gl->t );
 		gl->nt = nt;
@@ -122,8 +116,6 @@ JNIEXPORT void JNICALL Java_ptutils_CSetTriangleCount
 
 JNIEXPORT void JNICALL Java_ptutils_CSetTR
   (JNIEnv *env, jobject obj, jint i, jint v0, jint v1, jint v2, jint nIm){
-#pragma unused(obj)
-#pragma unused(env)
 	if( gl && i< gl->nt ){
 		triangle *t = &(gl->t[i]);
 		t->vert[0] = v0;
@@ -158,8 +150,6 @@ JNIEXPORT void JNICALL Java_ptutils_CLoadProject
 
 JNIEXPORT jint JNICALL Java_ptutils_CGetImageCount
   (JNIEnv *env, jobject obj){
-#pragma unused(obj)
-#pragma unused(env)
 	if( gl )
 		return (jint)gl->numIm;
 	else
@@ -177,8 +167,6 @@ JNIEXPORT jstring JNICALL Java_ptutils_CGetImageName
 
 JNIEXPORT jint JNICALL Java_ptutils_CGetControlPointCount
   (JNIEnv *env, jobject obj){
-#pragma unused(obj)
-#pragma unused(env)
 	if( gl )
 		return (jint)gl->numPts;
 	else
@@ -187,8 +175,6 @@ JNIEXPORT jint JNICALL Java_ptutils_CGetControlPointCount
 
 JNIEXPORT jint JNICALL Java_ptutils_CGetCP_1n
   (JNIEnv *env, jobject obj, jint ncpt, jint nim){
-#pragma unused(obj)
-#pragma unused(env)
 	if(gl)
   		return (jint)gl->cpt[(int)ncpt].num[(int)nim];
   	else
@@ -197,8 +183,6 @@ JNIEXPORT jint JNICALL Java_ptutils_CGetCP_1n
 
 JNIEXPORT jdouble JNICALL Java_ptutils_CGetCP_1x
   (JNIEnv *env, jobject obj, jint ncpt, jint nim){
-#pragma unused(obj)
-#pragma unused(env)
 	if( gl )
   		return (jdouble)gl->cpt[(int)ncpt].x[(int)nim];
   	else
@@ -207,8 +191,6 @@ JNIEXPORT jdouble JNICALL Java_ptutils_CGetCP_1x
 
 JNIEXPORT jdouble JNICALL Java_ptutils_CGetCP_1y
   (JNIEnv *env, jobject obj, jint ncpt, jint nim){
-#pragma unused(obj)
-#pragma unused(env)
 	if(gl)
   		return (jdouble)gl->cpt[(int)ncpt].y[(int)nim];
   	else
@@ -217,8 +199,6 @@ JNIEXPORT jdouble JNICALL Java_ptutils_CGetCP_1y
 
 JNIEXPORT jint JNICALL Java_ptutils_CGetCP_1t
   (JNIEnv *env, jobject obj, jint ncpt){
-#pragma unused(obj)
-#pragma unused(env)
 	if( gl )
  		 return (jint)gl->cpt[(int)ncpt].type;
  	else
@@ -227,8 +207,6 @@ JNIEXPORT jint JNICALL Java_ptutils_CGetCP_1t
   
 JNIEXPORT jint JNICALL Java_ptutils_CGetTriangleCount
   (JNIEnv *env, jobject obj){
-#pragma unused(obj)
-#pragma unused(env)
 	if( gl )
   		return (jint)gl->nt;
   	else
@@ -237,8 +215,6 @@ JNIEXPORT jint JNICALL Java_ptutils_CGetTriangleCount
 
 JNIEXPORT jint JNICALL Java_ptutils_CGetTR_1v
   (JNIEnv *env, jobject obj, jint ntr, jint nv){
-#pragma unused(obj)
-#pragma unused(env)
 	if( gl )
  		return (jint)gl->t[(int)ntr].vert[(int)nv];
  	else
@@ -247,14 +223,11 @@ JNIEXPORT jint JNICALL Java_ptutils_CGetTR_1v
   
 JNIEXPORT jint JNICALL Java_ptutils_CGetTR_1i
   (JNIEnv *env, jobject obj, jint ntr){
-#pragma unused(obj)
-#pragma unused(env)
   	return (jint)gl->t[(int)ntr].nIm;
 }
   
 JNIEXPORT void JNICALL Java_ptutils_CSetImageName
   (JNIEnv *env, jobject obj, jint n, jstring jname){
-#pragma unused(obj)
     const char *name = (*env)->GetStringUTFChars(env, jname, 0);
     if( n < gl->numIm ){
   		strcpy( gl->im[n].name, name );
@@ -264,7 +237,6 @@ JNIEXPORT void JNICALL Java_ptutils_CSetImageName
 
 JNIEXPORT jint JNICALL Java_ptutils_CGetIndex
  (JNIEnv *env, jobject obj, jstring jname){
-#pragma unused(obj)
  
  	const char *name =(*env)->GetStringUTFChars(env, jname, 0);
 	jint i;
@@ -428,7 +400,6 @@ JNIEXPORT void JNICALL Java_ptutils_CLoadImage
 
 JNIEXPORT void JNICALL Java_ptutils_CGetImageRow
   (JNIEnv *env, jobject obj, jintArray jdata, jint nrow){
-#pragma unused(obj)
   	if(im.data != NULL){
 #ifdef PT_BIGENDIAN
 		(*env)->SetIntArrayRegion( env, jdata, 0, im.width , 
@@ -461,8 +432,6 @@ JNIEXPORT void JNICALL Java_ptutils_CGetImageRow
 	
 JNIEXPORT jint JNICALL Java_ptutils_CGetImageWidth
   (JNIEnv *env, jobject obj, jint n){
-#pragma unused(obj)
-#pragma unused(env)
 	if( n == -1 )
 		return (jint)gl->pano.width;
 	if( im.data != NULL )
@@ -473,8 +442,6 @@ JNIEXPORT jint JNICALL Java_ptutils_CGetImageWidth
 
 JNIEXPORT jint JNICALL Java_ptutils_CGetImageHeight
    (JNIEnv *env, jobject obj, jint n){
-#pragma unused(obj)
-#pragma unused(env)
 	if( n == -1 )
 		return (jint)gl->pano.height;
 	if( im.data != NULL )
@@ -1110,7 +1077,6 @@ int m,n;
 int *iflag;
 double x[],fvec[]; 
 {
-#pragma unused(n)
 	int i;
 	double r = 0.0;
 	static int numIt,a=0;
