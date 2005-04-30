@@ -1077,7 +1077,7 @@ int m,n;
 int *iflag;
 double x[],fvec[]; 
 {
-	int i;
+	// int i;
 	double r = 0.0;
 	static int numIt,a=0;
 	
