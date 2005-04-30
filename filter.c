@@ -281,7 +281,8 @@ void filter( TrformStr *TrPtr, flfn func, flfn16 func16, void* params, int color
 	register int     	i,  col; 		// Auxilliary loop variables
 	int 				skip = 0;		// Update progress counter
 	unsigned char 		*dest, *src;	// Source and destination image data
-	char*				progressMessage;// Message to be displayed by progress reporter
+										// Default message to be displayed by progress reporter
+	char*				progressMessage	= "Something is wrong here";
 	char                percent[8];		// Number displayed by Progress reporter
 	int					valid;			// Is this pixel valid? (i.e. inside source image)
 	long				coeff;			// pixel coefficient in destination image
@@ -345,7 +346,6 @@ void filter( TrformStr *TrPtr, flfn func, flfn16 func16, void* params, int color
 						case _RGB: 	progressMessage = "Blue Channel"; break;
 						case _Lab:	progressMessage = "Color B" 	; break;
 					} break; 
-			default: progressMessage = "Something is wrong here";
 		}
 		Progress( _initProgress, progressMessage );
 	}
@@ -359,7 +359,7 @@ void filter( TrformStr *TrPtr, flfn func, flfn16 func16, void* params, int color
 		{
 			if(TrPtr->mode & _show_progress)
 			{	
-				sprintf( percent, "%d", (int) (y * 100)/ TrPtr->dest->height);
+				sprintf( percent, "%d", (int) ((y * 100)/ TrPtr->dest->height));
 				if( ! Progress( _setProgress, percent ) )
 				{
 					//myfree( (void**)TrPtr->dest->data );
