@@ -1,6 +1,8 @@
 #include "filter.h"
 #include "pteditor.h"
 
+//defined in ptpicker.c
+int jpathTofullPath( const char* jpath, fullPath *fp );
 
 static Image *pano = NULL;
 
