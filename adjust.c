@@ -40,6 +40,9 @@
 #include "f2c.h"
 #include <float.h>
 
+/*Defined in resample.c*/
+void MyTransForm( TrformStr *TrPtr, fDesc *fD, int color, int imageNum);
+
 #define C_FACTOR	100.0
 
 static  AlignInfo	*g;	// This struct holds all informations for the optimization
@@ -61,7 +64,7 @@ void 			getControlPoints( Image *im, struct controlPoint *cp );
 void 			writeControlPoints( struct controlPoint *cp,char* cdesc );
 int 			CheckParams( AlignInfo *g );
 static int		CheckMakeParams( aPrefs *aP);
-static int		GetOverlapRect( PTRect *OvRect, PTRect *r1, PTRect *r2 );
+//static int		GetOverlapRect( PTRect *OvRect, PTRect *r1, PTRect *r2 );
 int 			AddEdgePoints( AlignInfo *gl );
 int 			pt_average( UCHAR* pixel, int BytesPerLine, double rgb[3], int bytesPerChannel );
 double 			distsqLine(int N0, int N1);
@@ -69,7 +72,7 @@ double 			distsqLine(int N0, int N1);
 void adjust(TrformStr *TrPtr, aPrefs *prefs)
 {
 	int	 	destwidth, destheight;
-	aPrefs		aP, *aPtr;
+	aPrefs		aP, *aPtr=NULL;
 #if 0
 	int 		nt = 0;		// Morph  parameters
 	PTTriangle 	*ts=NULL; 
@@ -183,7 +186,7 @@ void adjust(TrformStr *TrPtr, aPrefs *prefs)
 		case _insert:			// Create a panoramic image using src; merge with buffer if required
 			// Find brightest rectangle if this is a circular fishey image
 			{
-			Image ImCrop, *theSrc;
+			Image ImCrop, *theSrc=NULL;
 			
 			if( aPtr->im.format ==_fisheye_circ	&& aPtr->im.cP.cutFrame )
 			{
@@ -1239,7 +1242,7 @@ void pt_getXY(int n, double x, double y, double *X, double *Y){
 // Returned is the sum distance squared of the other two points from the line
 double distsqLine(int N0, int N1){
 	double x[4],y[4], del, delmax, A, B, C, mu, d0, d1;
-	int n0, n1, n2, n3, i, k;
+	int n0, n1, n2=-1, n3=-1, i, k;
 
 	pt_getXY(g->cpt[N0].num[0], (double)g->cpt[N0].x[0], (double)g->cpt[N0].y[0], &x[0], &y[0]);
 	pt_getXY(g->cpt[N0].num[1], (double)g->cpt[N0].x[1], (double)g->cpt[N0].y[1], &x[1], &y[1]);
@@ -2102,7 +2105,7 @@ int SetLMParams( double *x )
 
 void getControlPoints( Image *im, controlPoint *cp )
 {
-	int y, x, cy,cx, bpp, r,g,b,n, nim, k,i,np;
+	int y, x, cy,cx, bpp, r,g,b,n, nim=0, k,i,np;
 	register unsigned char *p,*ch;
 	
 	
@@ -2190,7 +2193,8 @@ void writeControlPoints( controlPoint *cp,char* cdesc )
 	*cdesc = 0;
 	for(i=0; i<NUMPTS && cp[i].num[0] != -1; i++)
 	{
-		sprintf( line, "c n%d N%d x%d y%d X%d Y%d\n", cp[i].num[0], cp[i].num[1], 
+		//sprintf( line, "c n%d N%d x%d y%d X%d Y%d\n", cp[i].num[0], cp[i].num[1], 
+		sprintf( line, "c n%d N%d x%lf y%lf X%lf Y%lf\n", cp[i].num[0], cp[i].num[1], 
 													   cp[i].x[0], cp[i].y[0],
 													   cp[i].x[1], cp[i].y[1]);
 		strcat( cdesc, line );
@@ -2354,6 +2358,7 @@ static int		CheckMakeParams( aPrefs *aP)
 			
 
 // return 0, if overlap exists, else -1
+/*
 static int GetOverlapRect( PTRect *OvRect, PTRect *r1, PTRect *r2 )
 {
 	OvRect->left 	= max( r1->left, r2->left );
@@ -2366,6 +2371,7 @@ static int GetOverlapRect( PTRect *OvRect, PTRect *r1, PTRect *r2 )
 	else
 		return -1;
 }
+*/
 
 void SetGlobalPtr( AlignInfo *p )
 {
