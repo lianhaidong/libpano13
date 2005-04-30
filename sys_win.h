@@ -60,7 +60,7 @@
 			return( DialogBoxParam(hDllInstance,							\
 							 (LPSTR) DlgRes,								\
 							 (HWND)wndOwner,								\
-							 (FARPROC)WinFunc,								\
+							 (DLGPROC)WinFunc,								\
 							 (LPARAM)thePrefs) == 1);						\
 																			\
 		}																	\
