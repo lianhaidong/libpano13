@@ -89,7 +89,7 @@ void sigHandler(int sig){
 
 int infoDlg ( int command, char* argument ){
 	static char	mainMessage[256];	
-	int reply;
+	// int reply;
 	
 	*mainMessage = 0;
 
