@@ -318,7 +318,7 @@ fftradix (double Re[], double Im[],
 static int
 fftradixf (float Re[], float Im[],
 	   size_t nTotal, size_t nPass, size_t nSpan, int isign,
-	   int maxFactors, int maxPerm);
+	   int maxFactors, size_t maxPerm);
 # include  __FILE__			/* include this file again */
 #endif
 /*}}}*/
@@ -436,16 +436,16 @@ FFTN (int ndim,
    /* Divide through by the normalizing constant: */
    if (scaling && scaling != 1.0)
      {
-	int i;
+	size_t ist;
 
 	if (iSign < 0) iSign = -iSign;
 	if (scaling < 0.0)
 	  scaling = (scaling < -1.0) ? sqrt (nTotal) : nTotal;
 	scaling = 1.0 / scaling;	/* multiply is often faster */
-	for (i = 0; i < nTotal; i += iSign)
+	for (ist = 0; ist < nTotal; ist += iSign)
 	  {
-	     Re_Data (i) *= scaling;
-	     Im_Data (i) *= scaling;
+	     Re_Data (ist) *= scaling;
+	     Im_Data (ist) *= scaling;
 	  }
      }
    return 0;
@@ -543,7 +543,7 @@ FFTRADIX (REAL Re [],
 	/* allow full use of alloc'd space */
 	maxFactors = SpaceAlloced / sizeof (REAL);
      }
-   if (MaxPermAlloced < maxPerm)
+   if (MaxPermAlloced < (size_t)maxPerm)
      {
 #ifdef SUN_BROKEN_REALLOC
 	if (!MaxPermAlloced)	/* first time */
