@@ -179,9 +179,7 @@ int TriangulatePoints( AlignInfo *g, int nIm )
 								if(g->t[m].nIm == nIm)
 								{
 									PTTriangle tcp;
-									triangle *tp = &g->t[m];
-																			
-																
+									
 									SetTriangleCoordinates( &g->t[m], &tcp, g );
 								
 									if( TrianglesOverlap( &tcp, &tC ) != 0 )
