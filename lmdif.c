@@ -21,7 +21,10 @@ double MACHEP = 1.2e-16;
 /* smallest nonzero number */ 
 double DWARF = 1.0e-38; 
 
-
+int fdjac2(int,int,double*,double*,double*,int,int*,double,double*);
+int qrfac(int,int,double*,int,int,int*,int,double*,double*,double*);
+int lmpar(int,double*,int,int*,double*,double*,double,double*,double*,double*,double*,double*);
+int qrsolv(int,double*,int,int*,double*,double*,double*,double*,double*);
 
 /*********************** lmdif.c ****************************/
 #define BUG 0
@@ -29,7 +32,7 @@ double DWARF = 1.0e-38;
 
 extern double MACHEP;
 
-lmdif(m,n,x,fvec,ftol,xtol,gtol,maxfev,epsfcn,
+int lmdif(m,n,x,fvec,ftol,xtol,gtol,maxfev,epsfcn,
  diag,mode,factor,nprint,info,nfev,fjac,
  ldfjac,ipvt,qtf,wa1,wa2,wa3,wa4)
 int m,n,maxfev,mode,nprint,ldfjac;
@@ -222,9 +225,9 @@ int ipvt[];
 *     **********
 */
 int i,iflag,ij,jj,iter,j,l;
-double actred,delta,dirder,fnorm,fnorm1,gnorm;
+double actred,delta = 1.0e-4,dirder,fnorm,fnorm1,gnorm;
 double par,pnorm,prered,ratio;
-double sum,temp,temp1,temp2,temp3,xnorm;
+double sum,temp,temp1,temp2,temp3,xnorm = 1.0e-4;
 double enorm(), fabs(), dmax1(), dmin1(), sqrt();
 // int fcn();	/* user supplied function */
 static double one = 1.0;
@@ -234,7 +237,6 @@ static double p25 = 0.25;
 static double p75 = 0.75;
 static double p0001 = 1.0e-4;
 static double zero = 0.0;
-static double p05 = 0.05;
 
 
 MACHEP 	= DBL_EPSILON;  	// machine precision, was 1.2e-16;
@@ -300,7 +302,7 @@ if(iflag < 0)
 if( nprint > 0 )
 	{
 	iflag = 0;
-	if(mod(iter-1,nprint) == 0)
+	if((iter-1)%nprint == 0)
 		{
 		fcn(m,n,x,fvec,&iflag);
 		if(iflag < 0)
@@ -588,7 +590,7 @@ return 0;
 
 #define BUG 0
 
-lmpar(n,r,ldr,ipvt,diag,qtb,delta,par,x,sdiag,wa1,wa2)
+int lmpar(n,r,ldr,ipvt,diag,qtb,delta,par,x,sdiag,wa1,wa2)
 int n,ldr;
 int ipvt[];
 double delta;
@@ -695,10 +697,10 @@ double dxnorm,fp,gnorm,parc,parl,paru;
 double sum,temp;
 double enorm(), fabs(), dmax1(), dmin1(), sqrt();
 static double zero = 0.0;
-static double one = 1.0;
+// static double one = 1.0;
 static double p1 = 0.1;
 static double p001 = 0.001;
-extern double MACHEP;
+// extern double MACHEP;
 extern double DWARF;
 
 #if BUG
@@ -915,7 +917,7 @@ return 0;
 
 #define BUG 0
 
-qrfac(m,n,a,lda,pivot,ipvt,lipvt,rdiag,acnorm,wa)
+int qrfac(m,n,a,lda,pivot,ipvt,lipvt,rdiag,acnorm,wa)
 int m,n,lda,lipvt;
 int ipvt[];
 int pivot;
@@ -991,7 +993,7 @@ double a[],rdiag[],acnorm[],wa[];
 *
 *	minpack-supplied ... dpmpar,enorm
 *
-*	fortran-supplied ... dmax1,dsqrt,min0
+*	fortran-supplied ... dmax1,dsqrt
 *
 *     argonne national laboratory. minpack project. march 1980.
 *     burton s. garbow, kenneth e. hillstrom, jorge j. more
@@ -1024,7 +1026,7 @@ for( j=0; j<n; j++ )
 /*
 *     reduce a to r with householder transformations.
 */
-minmn = min0(m,n);
+minmn = m<=n?m:n;
 for( j=0; j<minmn; j++ )
 {
 if(pivot == 0)
@@ -1129,7 +1131,7 @@ return 0;
 
 #define BUG 0
 
-qrsolv(n,r,ldr,ipvt,diag,qtb,x,sdiag,wa)
+int qrsolv(n,r,ldr,ipvt,diag,qtb,x,sdiag,wa)
 int n,ldr;
 int ipvt[];
 double r[],diag[],qtb[],x[],sdiag[],wa[];
@@ -1503,7 +1505,7 @@ return(ans);
 
 #define BUG 0
 
-fdjac2(m,n,x,fvec,fjac,ldfjac,iflag,epsfcn,wa)
+int fdjac2(m,n,x,fvec,fjac,ldfjac,iflag,epsfcn,wa)
 int m,n,ldfjac;
 int *iflag;
 double epsfcn;
@@ -1643,23 +1645,7 @@ else
 	return(b);
 }
 
-int min0(a,b)
-int a,b;
-{
-if( a <= b )
-	return(a);
-else
-	return(b);
-}
-
-int mod( k, m )
-int k, m;
-{
-return( k % m );
-}
-
-
-pmat( m, n, y  )
+int pmat( m, n, y  )
 int m, n;
 double y[];
 {
