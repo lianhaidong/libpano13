@@ -27,9 +27,9 @@ static 	void 	makePSF				( int width, int height, Image *image, double *re, doub
 static  void 	makeDoubleDiffImage ( Image *src, Image *fimage, double *re, double *im, int color );
 static  int 	makeDoubleImage		( Image *image, double *re, double *im, int color, double pgamma );
 static  void 	makeUcharImage		( Image *image, double *re, int color );
-static  void 	makeGaussPSF		( Image *im, double s );
+// static  void 	makeGaussPSF		( Image *im, double s );
 static  void 	windowFunction		( double *im, int width, int height, double frame);
-static  void 	invWindowFunction	( double *im, int width, int height, double frame);
+// static  void 	invWindowFunction	( double *im, int width, int height, double frame);
 static void 	fresize				( TrformStr *TrPtr );
 
 
@@ -625,6 +625,7 @@ static void makeUcharImage( Image *image, double *re, int color )
 }
 
 
+/*
 static void makeGaussPSF( Image *im, double s )
 {
 	register int x,y,cy,bpp,fc;
@@ -655,7 +656,7 @@ static void makeGaussPSF( Image *im, double s )
 		}
 	}
 }
-
+*/
 
 
 // Mask image with window function exp( -frame/x )
@@ -665,7 +666,7 @@ static void windowFunction( double *im, int width, int height, double frame)
 {
 	double *wf;
 	register double z;
-	int dim = width * height, w2 = width/2, h2 = height/2,dx,dy,cy,i,x,y;
+	int w2 = width/2, h2 = height/2,dx,dy,cy,i,x,y;
 	int dl = (width < height ? width : height) / 2 + 1;
 	
 	
@@ -711,10 +712,11 @@ static void windowFunction( double *im, int width, int height, double frame)
 
 // Unmask image with window function exp( -frame/x )
 
+/* 
 static void invWindowFunction( double *im, int width, int height, double frame)
 {
 	double *wf;
-	int dim = width * height, w2 = width/2, h2 = height/2,dx,dy,cy,i,x,y;
+	int w2 = width/2, h2 = height/2,dx,dy,cy,i,x,y;
 	int dl = (width < height ? width : height) / 2 + 1;
 	
 	
@@ -753,7 +755,7 @@ static void invWindowFunction( double *im, int width, int height, double frame)
 	}
 	free( wf );
 }
-
+*/
 
 #define UPDATE_PROGRESS_ANTIALIAS		prog += delta; sprintf( percent, "%d", prog );		\
 											if( ! Progress( _setProgress, percent ) )			\
@@ -768,8 +770,9 @@ static void fresize( TrformStr *TrPtr )
 	double		**Re = NULL, **Im = NULL;
 	char		percent[25];
 	double 		*re,*im;
-	unsigned char *ch;
-	int 		x,y,dy,sy,x1,x2,y1,y2,rx,ry;
+	// unsigned char *ch;
+	// int 		x,y,dy,sy,x1,x2,y1,y2,rx,ry;
+	int 		x,y,dy,sy,x1,y1,rx,ry;
 
 	
 	dims[0] = TrPtr->src->width;
