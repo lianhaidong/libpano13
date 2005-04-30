@@ -28,7 +28,7 @@ static int 		getFrame( Image *im, int *xoff, int *yoff, int width, int height, i
 void 	correct	(TrformStr *TrPtr, cPrefs *prefs) 
 {
 
-	int 	i,j,k, kstart, kend, color;
+	int 	i=0,j,k, kstart, kend, color;
 
 	double 	scale_params[2];			// scaling factors for resize;
 	double 	shear_params[2];			// shear values
@@ -596,7 +596,7 @@ static void ShiftImage(TrformStr *TrPtr, int xoff, int yoff)
 {
 	register int x,y;
 	int cdy, csy;
-	unsigned char *dest, *src, *d,*s;
+	unsigned char *dest, *src;
 	int bpp = TrPtr->src->bitsPerPixel/8;
 	int BitsPerChannel,channels,fcb;
 
@@ -620,6 +620,7 @@ static void ShiftImage(TrformStr *TrPtr, int xoff, int yoff)
 
 	if( BitsPerChannel == 8 )
 	{
+		unsigned char *d,*s;
 		for(y=0; y<TrPtr->dest->height; y++)
 		{
 			cdy = y * TrPtr->dest->bytesPerLine;
@@ -640,21 +641,22 @@ static void ShiftImage(TrformStr *TrPtr, int xoff, int yoff)
 	}
 	else // 16
 	{
+		USHORT *dus, *sus;
 		for(y=0; y<TrPtr->dest->height; y++)
 		{
 			cdy = y * TrPtr->dest->bytesPerLine;
 			csy = (y+yoff) * TrPtr->src->bytesPerLine;
 			for(x=0; x<TrPtr->dest->width; x++)
 			{
-				d = dest + cdy + x*bpp;
-				s = src  + csy + (x+xoff)*bpp;
+				dus = (USHORT *)(dest + cdy + x*bpp);
+				sus = (USHORT *)(src  + csy + (x+xoff)*bpp);
 				if(fcb)
 				{
-					*(((USHORT*)d)++) = *(((USHORT*)s)++);
+					*(dus++) = *(sus++);
 				}
-				*(((USHORT*)d)++) = *(((USHORT*)s)++);
-				*(((USHORT*)d)++) = *(((USHORT*)s)++);
-				*(((USHORT*)d)++) = *(((USHORT*)s)++);
+				*(dus++) = *(sus++);
+				*(dus++) = *(sus++);
+				*(dus++) = *(sus++);
 			}
 		}
 	}
