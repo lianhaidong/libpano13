@@ -23,7 +23,7 @@
     on number of parameters than can be read by optimizer
 
 
-/*------------------------------------------------------------*/
+/ *------------------------------------------------------------*/
 
 /*
 
@@ -37,12 +37,17 @@
 
 	// FS-
 
-/*------------------------------------------------------------*/
+/ *------------------------------------------------------------*/
 
 
 
 #include "filter.h"
 #include <locale.h>
+
+#include "ZComb.h"
+
+/* defined in adjust.c */
+int AddEdgePoints( AlignInfo *gl );
 
 static int 		ReadControlPoint	( controlPoint * cptr, char *line);
 static int 		ReadImageDescription( Image *imPtr, stBuf *sPtr, char *line );
@@ -65,7 +70,7 @@ static int 		ReadCoordinates( 	CoordInfo	*cp, char *line );
 								
 								
 #define READ_OPT_VAR(var)		nextWord( buf, &li );			\
-								MY_SSCANF( buf, "%ld", &k);		\
+								MY_SSCANF( buf, "%d", &k);		\
 								if( k<0 || k>= numIm )			\
 								{								\
 									PrintError("Syntax error in script: Line %d\n\nIllegal image number: %ld", lineNum, k);\
@@ -177,8 +182,8 @@ int ParseScript( char* script, AlignInfo *gl )
 					{
 						switch(*li)
 						{
-							case 'w': 	READ_VAR( "%d", &(im->width) ); break;
-							case 'h': 	READ_VAR( "%d", &(im->height)); break;
+							case 'w': 	READ_VAR( "%ld", &(im->width) ); break;
+							case 'h': 	READ_VAR( "%ld", &(im->height)); break;
 							case 'v': 	if( *(li+1) == '=' ){
 									  		li++;
 											READ_VAR( "%d", &(opt->hfov));
@@ -326,10 +331,10 @@ int ParseScript( char* script, AlignInfo *gl )
 							case 'Z':	READ_VAR( "%lf", &ci->x[2] );
 										break;
 							case 'S':	nextWord( buf, &li );		
-									sscanf( buf, "%d,%d,%d,%d", &im->selection.left, &im->selection.right, &im->selection.top, &im->selection.bottom );
+									sscanf( buf, "%ld,%ld,%ld,%ld", &im->selection.left, &im->selection.right, &im->selection.top, &im->selection.bottom );
 									break;
 							case 'C':	nextWord( buf, &li );		
-									sscanf( buf, "%d,%d,%d,%d", &im->selection.left, &im->selection.right, &im->selection.top, &im->selection.bottom );
+									sscanf( buf, "%ld,%ld,%ld,%ld", &im->selection.left, &im->selection.right, &im->selection.top, &im->selection.bottom );
 									im->cP.cutFrame = TRUE;
 									break;
 							default: 
@@ -349,7 +354,7 @@ int ParseScript( char* script, AlignInfo *gl )
 						{
 							case ' ' : 
 							case '\t': li++; break;
-							case 'i' : READ_VAR( "%ld", &(gl->t[nt].nIm)); 	break;
+							case 'i' : READ_VAR( "%d", &(gl->t[nt].nIm)); 	break;
 							default  : if(i<3)
 										{
 											li--;
@@ -587,6 +592,7 @@ void WriteResults( char* script, fullPath *sfile,  AlignInfo *g, double ds( int 
 		case _equirectangular:		format = 2; break;
 		case _rectilinear:			format = 0; break;
 		case _panorama:				format = 1; break;
+		default:			format = -1; break;
 	}
 		
 	sprintf( line, "# p f%d w%ld h%ld v%g n\"%s\"\n\n", format, g->pano.width, g->pano.height, g->pano.hfov, g->pano.name );strcat( res, line );
@@ -663,11 +669,11 @@ void WriteResults( char* script, fullPath *sfile,  AlignInfo *g, double ds( int 
 		{
 			if( g->im[i].cP.frame != 0 )
 			{
-				sprintf( line, "m%ld ",g->im[i].cP.frame );
+				sprintf( line, "m%d ",g->im[i].cP.frame );
 			}
 			else
 			{
-				sprintf( line, "mx%ld my%d ",g->im[i].cP.fwidth, g->im[i].cP.fheight );
+				sprintf( line, "mx%d my%d ",g->im[i].cP.fwidth, g->im[i].cP.fheight );
 			}
 			strcat( cmd, line );
 		}
@@ -702,10 +708,10 @@ void WriteResults( char* script, fullPath *sfile,  AlignInfo *g, double ds( int 
 		}
 		if( g->im[i].selection.bottom != 0 || g->im[i].selection.right != 0 ){
 			if( g->im[i].cP.cutFrame ){
-				sprintf( line, " C%d,%d,%d,%d ",g->im[i].selection.left, g->im[i].selection.right,
+				sprintf( line, " C%ld,%ld,%ld,%ld ",g->im[i].selection.left, g->im[i].selection.right,
 						       g->im[i].selection.top, g->im[i].selection.bottom );
 			}else{
-				sprintf( line, " S%d,%d,%d,%d ",g->im[i].selection.left, g->im[i].selection.right,
+				sprintf( line, " S%ld,%ld,%ld,%ld ",g->im[i].selection.left, g->im[i].selection.right,
 						       g->im[i].selection.top, g->im[i].selection.bottom );
 			}
 			strcat( cmd, line );
@@ -987,8 +993,6 @@ void readControlPoints(char* script, controlPoint *cp )
 	int 				numPts;
 
 
-	int 				n=0; // Number of parameters to optimize
-
 	setlocale(LC_ALL, "C");
 
 	defCn.num[0] 	= 	defCn.num[1] = -1;
@@ -1148,12 +1152,12 @@ static int ReadControlPoint( controlPoint * cptr, char *line)
 	{
 		switch(*ch)
 		{
-			case 't':	READ_VAR("%ld", &(cp.type)); 	
+			case 't':	READ_VAR("%d", &(cp.type)); 	
 						break;
-			case 'n':	READ_VAR("%ld", &(cp.num[0]));
+			case 'n':	READ_VAR("%d", &(cp.num[0]));
 						setn = TRUE;
 						break;
-			case 'N':	READ_VAR("%ld", &(cp.num[1]));
+			case 'N':	READ_VAR("%d", &(cp.num[1]));
 						setN = TRUE;
 						break;
 			case 'x':	READ_VAR("%lf", &(cp.x[0]));
@@ -1168,7 +1172,7 @@ static int ReadControlPoint( controlPoint * cptr, char *line)
 			case 'Y':	READ_VAR("%lf", &(cp.y[1]));
 						setY = TRUE;
 						break;
-			case 'i':	READ_VAR("%ld", &(cp.num[0]));
+			case 'i':	READ_VAR("%d", &(cp.num[0]));
 						cp.num[1] = cp.num[0];
 						setn = TRUE;
 						setN = TRUE;
@@ -1233,7 +1237,7 @@ static int ReadImageDescription( Image *imPtr, stBuf *sPtr, char *line )
 			case 'c':	READ_VAR("%lf", &(im.cP.radial_params[0][1]));
 						im.cP.radial	= TRUE;
 						break;
-			case 'f':	READ_VAR( "%d", &im.format );
+			case 'f':	READ_VAR( "%ld", &im.format );
 						if( im.format == _panorama || im.format == _equirectangular )
 							im.cP.correction_mode |= correction_mode_vertical;
 						break;
@@ -1269,9 +1273,9 @@ static int ReadImageDescription( Image *imPtr, stBuf *sPtr, char *line )
 								sBuf.seam = _middle;
 						}
 						break;
-			case 'w':	READ_VAR( "%d", &im.width );
+			case 'w':	READ_VAR( "%ld", &im.width );
 						break;
-			case 'h':	READ_VAR("%d", &im.height);
+			case 'h':	READ_VAR("%ld", &im.height);
 						break;
 			case 'o':	ch++;
 						im.cP.correction_mode |= correction_mode_morph;
@@ -1306,10 +1310,10 @@ static int ReadImageDescription( Image *imPtr, stBuf *sPtr, char *line )
 						strcpy( im.name, buf );
 						break;	
 			case 'S':  nextWord( buf, &ch );		
-				   sscanf( buf, "%d,%d,%d,%d", &im.selection.left, &im.selection.right, &im.selection.top, &im.selection.bottom );
+				   sscanf( buf, "%ld,%ld,%ld,%ld", &im.selection.left, &im.selection.right, &im.selection.top, &im.selection.bottom );
 				   break;
 			case 'C':  nextWord( buf, &ch );		
-				   sscanf( buf, "%d,%d,%d,%d", &im.selection.left, &im.selection.right, &im.selection.top, &im.selection.bottom );
+				   sscanf( buf, "%ld,%ld,%ld,%ld", &im.selection.left, &im.selection.right, &im.selection.top, &im.selection.bottom );
 				   im.cP.cutFrame = TRUE;
 				   break;
 			default: 	ch++;
@@ -1410,9 +1414,9 @@ int	getVRPanoOptions( VRPanoOptions *v, char *line )
 						break;
 			case 'c':	READ_VAR("%d", &VRopt.codec);
 						break;
-			case 'q':	READ_VAR("%ld", &VRopt.cquality);
+			case 'q':	READ_VAR("%d", &VRopt.cquality);
 						break;
-			case 'g':	READ_VAR("%ld", &VRopt.progressive);
+			case 'g':	READ_VAR("%d", &VRopt.progressive);
 						break;
 			default: 	ch++;
 						break;
