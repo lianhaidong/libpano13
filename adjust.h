@@ -19,3 +19,5 @@ void setFcnPanoNperCP (int i);
 int getFcnPanoNperCP(void);
 void setFcnPanoDoNotInitAvgFov(void);
 void forceFcnPanoReinitAvgFov(void);
+AlignInfo   *GetGlobalPtr();
+
