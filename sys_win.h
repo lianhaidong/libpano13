@@ -123,7 +123,7 @@ extern HWND wndOwner;
 
 void SetWindowOwner(HWND Owner);
 void CenterDialog(HWND hDlg);
-BOOL WINAPI DispPrg			(HWND hDlg, UINT wMsg, WPARAM wParam, LPARAM lParam);       // Win32 Change
+INT_PTR CALLBACK DispPrg			(HWND hDlg, UINT wMsg, WPARAM wParam, LPARAM lParam);       // Win32 Change
 BOOL WINAPI SetLumOpt		(HWND hDlg, UINT wMsg, WPARAM wParam, LPARAM lParam);
 BOOL WINAPI SetCPrefs		(HWND hDlg, UINT wMsg, WPARAM wParam, LPARAM lParam);
 BOOL WINAPI SetRadOpt		(HWND hDlg, UINT wMsg, WPARAM wParam, LPARAM lParam);       // Win32 Change
@@ -138,7 +138,7 @@ BOOL WINAPI SetPerspPrefs	(HWND hDlg, UINT wMsg, WPARAM wParam, LPARAM lParam); 
 BOOL WINAPI SetRem			(HWND hDlg, UINT wMsg, WPARAM wParam, LPARAM lParam);       // Win32 Change
 BOOL WINAPI SetSiz			(HWND hDlg, UINT wMsg, WPARAM wParam, LPARAM lParam);       // Win32 Change
 BOOL WINAPI SetIntp			(HWND hDlg, UINT wMsg, WPARAM wParam, LPARAM lParam);  
-BOOL WINAPI InfoPrg			(HWND hDlg, UINT wMsg, WPARAM wParam, LPARAM lParam);       // Win32 Change
+INT_PTR CALLBACK InfoPrg			(HWND hDlg, UINT wMsg, WPARAM wParam, LPARAM lParam);       // Win32 Change
 BOOL WINAPI SetCutOpt		(HWND hDlg, UINT wMsg, WPARAM wParam, LPARAM lParam);       // Win32 Change
 BOOL WINAPI SetPanOpt		(HWND hDlg, UINT wMsg, WPARAM wParam, LPARAM lParam);       // Win32 Change
 BOOL WINAPI SetFrPrefs		(HWND hDlg, UINT wMsg, WPARAM wParam, LPARAM lParam); 
