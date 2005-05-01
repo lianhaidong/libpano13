@@ -1,6 +1,11 @@
+
 #include "filter.h"
 #include "ptutils.h"
 #include <locale.h>
+
+#if _MSC_VER > 1000
+#pragma warning(disable: 4100) // disable unreferenced formal parameter warning
+#endif
 
 void ReadMLine( char *script, char *m );
 int loadProject( fullPath *fspec );
@@ -1072,10 +1077,7 @@ int	pc_SetVarsToX( double *x ){
 }
 
 
-int fcnAlign(m,n,x,fvec,iflag)
-int m,n;
-int *iflag;
-double x[],fvec[]; 
+int fcnAlign(int m, int n, double x[], double fvec[],int *iflag)
 {
 	// int i;
 	double r = 0.0;
