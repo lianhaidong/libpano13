@@ -477,16 +477,16 @@ static void writeWhiteBackground( int width, int height, file_spec fnum )
 	// Set up scanline
 	for(w=w8; w>128; w-=128)
 	{
-		*d++ = -127; *d++ = (char)255;
+		*d++ = -127; *d++ = 0xFF;
 	}
 
 	switch(w)
 	{
 		case 0: break;
-		case 1: *d++=0; 		*d++ = (char)255;
+		case 1: *d++ = 0; *d++ = 0xFF;
 				break;
-		default: *d++=1-w; 		*d++ = (char)255;
-				break;
+		default: *d++ = 1-w; *d++ = 0xFF;
+				 break;
 	}
 	
 	bytecount = d - *scanline;
