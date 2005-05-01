@@ -46,6 +46,7 @@ caused annoying warnings about unknown tags while loading each tiff source image
 
 */
 
+
 // FS+
 // needed for TIFFSetWarningHandler()
 #include "tiffio.h"
@@ -75,6 +76,9 @@ int         kBytesAlloced       =0;
 int         maxKBytesAlloced    =0;
 int         maxKBytesUsage      =0;
 
+#if _MSC_VER > 1000
+#pragma warning(disable: 4100) // disable unreferenced formal parameter warning
+#endif
 
 //------------------ Public functions required by filter.h -------------------------------
 
@@ -556,7 +560,8 @@ void CenterDialog(HWND hDlg)
     int  xScreen;
     int  yScreen;
 
-    if  ( ! (hParent = GetParent(hDlg)))
+	hParent = GetParent(hDlg);
+    if  (hParent == NULL)
         hParent = GetDesktopWindow();
 
     GetClientRect(hParent, &rcParent);
@@ -596,10 +601,10 @@ int getConfirmation(HWND hWnd, char *message)
 }
 
 
-BOOL WINAPI DispPrg(HWND hDlg, UINT wMsg, WPARAM wParam, LPARAM lParam)       // Win32 Change
+INT_PTR CALLBACK DispPrg(HWND hDlg, UINT wMsg, WPARAM wParam, LPARAM lParam)       // Win32 Change
 {
 	int			item, cmd;
-	short			numberErr = 0;
+	// short			numberErr = 0;
 	char			message[128];
 	char			bar[128];
 	long			percent;
@@ -675,10 +680,10 @@ BOOL WINAPI DispPrg(HWND hDlg, UINT wMsg, WPARAM wParam, LPARAM lParam)       //
 	return  TRUE;
 }
 
-BOOL WINAPI InfoPrg(HWND hDlg, UINT wMsg, WPARAM wParam, LPARAM lParam)       // Win32 Change
+INT_PTR CALLBACK InfoPrg(HWND hDlg, UINT wMsg, WPARAM wParam, LPARAM lParam)       // Win32 Change
 {
 	int				item, cmd;
-	short			numberErr = 0;
+	// short			numberErr = 0;
 	static int *dDone;
 
 	switch  (wMsg)
