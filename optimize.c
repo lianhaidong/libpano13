@@ -36,8 +36,6 @@ void  RunLMOptimizer( OptInfo	*o)
 	int i;
 	int lmInfo;
 	AlignInfo	*g;	              // obtained from adjust.c
-	AlignInfo   *GetGlobalPtr();  // likewise
-
 
 	// PrintError("RunLMOptimizer");
 	
