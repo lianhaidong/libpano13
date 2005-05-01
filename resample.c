@@ -37,7 +37,6 @@
 // comments
 
 
-
 // Program specific includes
 
 #include "filter.h" 			
@@ -54,6 +53,9 @@ void MyTransForm( TrformStr *TrPtr, fDesc *fD, int color, int imageNum);
 #include <string.h>
 #include <math.h>
 
+#if _MSC_VER > 1000
+#pragma warning(disable: 4100) // disable unreferenced formal parameter warning
+#endif
 
 // 			This file uses functions of type
 // 	resample( unsigned char *dst, 	unsigned char **rgb,

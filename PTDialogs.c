@@ -35,7 +35,9 @@
 #include "sys_x11.h"
 #endif
 
-
+#if _MSC_VER > 1000
+#pragma warning(disable: 4100) // disable unreferenced formal parameter warning
+#endif
 
 // Please do not change the way these dialogs work. You will certainly mess
 // up one of the platform specific versions.

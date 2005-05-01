@@ -1,6 +1,10 @@
 #include "filter.h"
 #include "pteditor.h"
 
+#if _MSC_VER > 1000
+#pragma warning(disable: 4100) // disable unreferenced formal parameter warning
+#endif
+
 //defined in ptpicker.c
 int jpathTofullPath( const char* jpath, fullPath *fp );
 

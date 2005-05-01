@@ -22,6 +22,9 @@
 
 #include "filter.h"
 
+#if _MSC_VER > 1000
+#pragma warning(disable: 4100) // disable unreferenced formal parameter warning
+#endif
 
 void	DisposeMultiLayerImage( MultiLayerImage *mim ){
 	int i;
