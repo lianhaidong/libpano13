@@ -39,7 +39,7 @@ void 	correct	(TrformStr *TrPtr, cPrefs *prefs)
 	struct  fDesc stack[10];			// Parameters for execute stack function
 
 	int		destwidth, destheight;
-	int 	xoff, yoff;
+	int 	xoff = 0, yoff = 0;
 	int		sizesqr;
 	
 	double  xdoff, ydoff;
