@@ -184,9 +184,11 @@ void adjust(TrformStr *TrPtr, aPrefs *prefs)
 	switch( prefs->mode & 7)
 	{
 		case _insert:			// Create a panoramic image using src; merge with buffer if required
-			// Find brightest rectangle if this is a circular fishey image
+			// Find brightest rectangle if this is a circular fisheye image
 			{
 			Image ImCrop, *theSrc=NULL;
+			// Initialise at least the data pointer since cutTheFrame may not do it
+			ImCrop.data = NULL;
 			
 			if( aPtr->im.format ==_fisheye_circ	&& aPtr->im.cP.cutFrame )
 			{
@@ -1488,10 +1490,7 @@ void forceFcnPanoReinitAvgFov() { // applies to next call to fcnPano
 	needInitialAvgFov = 1;
 }
 
-int fcnPano(m,n,x,fvec,iflag)
-int m,n;
-int *iflag;
-double x[],fvec[]; 
+int fcnPano(int m, int n, double x[], double fvec[], int *iflag)
 {
 	int i;
 	static int numIt;
