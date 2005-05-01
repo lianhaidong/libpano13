@@ -13,6 +13,10 @@
 #include <float.h>
 extern lmfunc fcn;
 
+#if _MSC_VER > 1000
+#pragma warning(disable: 4100) // disable unreferenced formal parameter warning
+#endif
+
 // These globals are needed by MINPACK
 
 /* resolution of arithmetic */
@@ -26,21 +30,23 @@ int qrfac(int,int,double*,int,int,int*,int,double*,double*,double*);
 int lmpar(int,double*,int,int*,double*,double*,double,double*,double*,double*,double*,double*);
 int qrsolv(int,double*,int,int*,double*,double*,double*,double*,double*);
 
+static double enorm(int n, double x[]);
+static double dmax1(double a, double b);
+static double dmin1(double a, double b);
+
 /*********************** lmdif.c ****************************/
 #define BUG 0
 
 
 extern double MACHEP;
 
-int lmdif(m,n,x,fvec,ftol,xtol,gtol,maxfev,epsfcn,
- diag,mode,factor,nprint,info,nfev,fjac,
- ldfjac,ipvt,qtf,wa1,wa2,wa3,wa4)
-int m,n,maxfev,mode,nprint,ldfjac;
-int *info, *nfev;
-double ftol, xtol, gtol, epsfcn, factor;
-double x[], fvec[], diag[], fjac[], qtf[];
-double wa1[], wa2[], wa3[], wa4[];
-int ipvt[];
+int lmdif(int m, int n, double x[], double fvec[], 
+		  double ftol, double xtol, double gtol,
+		  int maxfev, double epsfcn, double diag[],
+		  int mode, double factor, int nprint,
+		  int *info, int *nfev, double fjac[],
+		  int ldfjac, int ipvt[], double qtf[],
+		  double wa1[], double wa2[], double wa3[], double wa4[])
 {
 /*
 *     **********
@@ -228,7 +234,6 @@ int i,iflag,ij,jj,iter,j,l;
 double actred,delta = 1.0e-4,dirder,fnorm,fnorm1,gnorm;
 double par,pnorm,prered,ratio;
 double sum,temp,temp1,temp2,temp3,xnorm = 1.0e-4;
-double enorm(), fabs(), dmax1(), dmin1(), sqrt();
 // int fcn();	/* user supplied function */
 static double one = 1.0;
 static double p1 = 0.1;
@@ -590,12 +595,10 @@ return 0;
 
 #define BUG 0
 
-int lmpar(n,r,ldr,ipvt,diag,qtb,delta,par,x,sdiag,wa1,wa2)
-int n,ldr;
-int ipvt[];
-double delta;
-double *par;
-double r[],diag[],qtb[],x[],sdiag[],wa1[],wa2[];
+int lmpar(int n, double r[], int ldr, int ipvt[],
+		  double diag[], double qtb[], double delta,
+		  double *par, double x[], double sdiag[],
+		  double wa1[], double wa2[])
 {
 /*     **********
 *
@@ -695,7 +698,6 @@ double r[],diag[],qtb[],x[],sdiag[],wa1[],wa2[];
 int i,iter,ij,jj,j,jm1,jp1,k,l,nsing;
 double dxnorm,fp,gnorm,parc,parl,paru;
 double sum,temp;
-double enorm(), fabs(), dmax1(), dmin1(), sqrt();
 static double zero = 0.0;
 // static double one = 1.0;
 static double p1 = 0.1;
@@ -917,11 +919,9 @@ return 0;
 
 #define BUG 0
 
-int qrfac(m,n,a,lda,pivot,ipvt,lipvt,rdiag,acnorm,wa)
-int m,n,lda,lipvt;
-int ipvt[];
-int pivot;
-double a[],rdiag[],acnorm[],wa[];
+int qrfac(int m, int n, double a[], int lda, int pivot,
+		  int ipvt[], int lipvt, double rdiag[], 
+		  double acnorm[], double wa[])
 {
 /*
 *     **********
@@ -1006,7 +1006,6 @@ static double zero = 0.0;
 static double one = 1.0;
 static double p05 = 0.05;
 extern double MACHEP;
-double enorm(), dmax1(), sqrt();
 /*
 *     compute the initial column norms and initialize several arrays.
 */
@@ -1131,10 +1130,8 @@ return 0;
 
 #define BUG 0
 
-int qrsolv(n,r,ldr,ipvt,diag,qtb,x,sdiag,wa)
-int n,ldr;
-int ipvt[];
-double r[],diag[],qtb[],x[],sdiag[],wa[];
+int qrsolv(int n, double r[], int ldr, int ipvt[], double diag[],
+		   double qtb[], double x[], double sdiag[], double wa[])
 {
 /*
 *     **********
@@ -1366,9 +1363,7 @@ return 0;
 }
 /************************enorm.c*************************/
  
-double enorm(n,x)
-int n;
-double x[];
+static double enorm(int n, double x[])
 {
 /*
 *     **********
@@ -1505,11 +1500,8 @@ return(ans);
 
 #define BUG 0
 
-int fdjac2(m,n,x,fvec,fjac,ldfjac,iflag,epsfcn,wa)
-int m,n,ldfjac;
-int *iflag;
-double epsfcn;
-double x[],fvec[],fjac[],wa[];
+int fdjac2(int m, int n, double x[], double fvec[], double fjac[],
+		   int ldfjac, int *iflag, double epsfcn, double wa[])
 {
 /*
 *     **********
@@ -1590,7 +1582,6 @@ double x[],fvec[],fjac[],wa[];
 */
 int i,j,ij;
 double eps,h,temp;
-double fabs(), dmax1(), sqrt();
 static double zero = 0.0;
 extern double MACHEP;
 
@@ -1627,8 +1618,7 @@ return 0;
 }
 /************************lmmisc.c*************************/
 
-double dmax1(a,b)
-double a,b;
+static double dmax1(double a, double b)
 {
 if( a >= b )
 	return(a);
@@ -1636,8 +1626,7 @@ else
 	return(b);
 }
 
-double dmin1(a,b)
-double a,b;
+static double dmin1(double a, double b)
 {
 if( a <= b )
 	return(a);
@@ -1645,9 +1634,7 @@ else
 	return(b);
 }
 
-int pmat( m, n, y  )
-int m, n;
-double y[];
+static int pmat( int m, int n, double y[] )
 {
 int i, j, k;
 
