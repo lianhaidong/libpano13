@@ -139,7 +139,7 @@ typedef struct PTTriangle PTTriangle;
 //----------------------- Structures -------------------------------------------
 
 struct remap_Prefs{								// Preferences Structure for remap
-		long    		magic;					//  File validity check, must be 30
+		pt_int32    		magic;					//  File validity check, must be 30
 		int				from;					// Image format source image
 		int				to;						// Image format destination image
 		double			hfov;					// horizontal field of view /in degrees
@@ -149,7 +149,7 @@ struct remap_Prefs{								// Preferences Structure for remap
 typedef struct remap_Prefs rPrefs;
 
 struct perspective_Prefs{						//  Preferences structure for tool perspective
-		long			magic;					//  File validity check, must be 40
+		pt_int32			magic;					//  File validity check, must be 40
 		int				format;					//  rectilinear or fisheye?
 		double  		hfov;					//  Horizontal field of view (in degree)
 		double			x_alpha;				//  New viewing direction (x coordinate or angle)
@@ -220,8 +220,8 @@ enum{										// Enumerates for aPrefs.mode
 	};
 
 struct adjust_Prefs{		//  Preferences structure for tool adjust
-		long	magic;	//  File validity check, must be 50
-		long	mode;	//  What to do: create Panorama etc?
+		pt_int32	magic;	//  File validity check, must be 50
+		pt_int32	mode;	//  What to do: create Panorama etc?
 		Image	im;	//  Image to be inserted/extracted
 		Image	pano;	//  Panorama to be created/ used for extraction
 		
@@ -252,7 +252,7 @@ typedef union panoPrefs panoPrefs;
 
 
 struct size_Prefs{								// Preferences structure for 'pref' dialog
-		long			magic;					//  File validity check; must be 70
+		pt_int32			magic;					//  File validity check; must be 70
 		int				displayPart;			// Display cropped/framed image ?
 		int				saveFile;				// Save to tempfile? 0-no, 1-yes
 		fullPath		sFile;					// Full path to file (short name)
@@ -662,7 +662,7 @@ void 	CopyPosition		( Image *to, Image *from );
 int  	isColorSpecific		( cPrefs *p );
 void 	ThreeToFourBPP		( Image *im );
 void 	FourToThreeBPP		( Image *im );
-int 	SetUpGamma			( double pgamma, int psize);
+int 	SetUpGamma			( double pgamma, unsigned int psize);
 int 	cutTheFrame			( Image *dest, Image *src, int width, int height, int showprogress );
 int 	PositionCmp			( Image *im1, Image *im2 );
 int 	MorphImage			( Image *src, Image *dst, PTTriangle *ts, PTTriangle *td, int nt );
@@ -695,7 +695,7 @@ int 	numLines			( char* script, char first );
 // Memory
 
 void 	DisposeAlignInfo	( AlignInfo *g );
-void**  mymalloc			( long numBytes );					// Memory allocation, use Handles
+void**  mymalloc			( size_t numBytes );					// Memory allocation, use Handles
 void 	myfree				( void** Hdl );						// free Memory, use Handles
 int 	SetDestImage		( TrformStr *TrPtr, int width, int height) ;
 void	DisposeMultiLayerImage( MultiLayerImage *mim );
@@ -881,8 +881,8 @@ extern sPrefs			*gsPrPtr;
 #else // __Mac__, use ANSI-filefunctions
 	#define		file_spec			FILE*
 	#define		myopen( path, perm, fspec )	( (fspec = fopen( (path)->name, perm )) == NULL)
-	#define		mywrite( fspec, count, data )	count = (long)fwrite( data, 1, (size_t)count, fspec)
-	#define 	myread( fspec, count, data )	count = (long)fread( data, 1, (size_t)count, fspec ) 
+	#define		mywrite( fspec, count, data )	count = fwrite( data, 1, count, fspec)
+	#define 	myread( fspec, count, data )	count = fread( data, 1, count, fspec ) 
 	#define         myclose( fspec )		fclose (fspec )
 	#define		mycreate( path, creator, type )		
 	#define		mydelete( path )		remove((path)->name )

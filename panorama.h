@@ -24,6 +24,7 @@
 
 
 #include "version.h"
+#include "panotypes.h"
 
 // MRDL: Replaced BIGENDIAN with PT_BIGENDIAN to eliminate conflict with 
 // BIGENDIAN defined in winsock2.h distributed with MingW 2.0
@@ -144,7 +145,7 @@ enum{							// Interpolators
 // Corrections
 
 struct  correct_Prefs{							//  Preferences structure for tool correct
-		unsigned long 	magic;					//  File validity check, must be 20
+		pt_uint32 	magic;					//  File validity check, must be 20
 		int 			radial;					//  Radial correction requested?
 		double			radial_params[3][5];	//  3 colors x (4 coeffic. for 3rd order polys + correction radius)
 		int 			vertical;				//  Vertical shift requested ?
@@ -155,8 +156,8 @@ struct  correct_Prefs{							//  Preferences structure for tool correct
 		double			shear_x;				//  horizontal shear values
 		double			shear_y;				//  vertical shear values
 		int 			resize;					//  scaling requested ?
-		long			width;					//  new width
-		long			height;					//  new height
+		pt_int32			width;					//  new width
+		pt_int32			height;					//  new height
 		int			luminance;				//  correct luminance variation?
 		double			lum_params[3];			//  parameters for luminance corrections
 		int			correction_mode;		//  0 - radial correction;1 - vertical correction;2 - deregistration
@@ -208,24 +209,24 @@ enum{				// Enumerates for Image.format
 // A large rectangle
 
 typedef struct{
-	long	top;
-	long	bottom;
-	long	left;
-	long	right;
+	pt_int32	top;
+	pt_int32	bottom;
+	pt_int32	left;
+	pt_int32	right;
 	}	PTRect;
 
 
 
 struct Image{
 		// Pixel data
-		long 			width;
-		long 			height;
-		long 			bytesPerLine;
-		long 			bitsPerPixel;	// Must be 24 or 32
-		unsigned long 	dataSize; 
+		pt_int32 			width;
+		pt_int32		 	height;
+		pt_int32		 	bytesPerLine;
+		pt_int32 			bitsPerPixel;	// Must be 24 or 32
+		pt_uint32 	dataSize; 
 		unsigned char** data;
-		long			dataformat;		// rgb, Lab etc
-		long			format;			// Projection: rectilinear etc
+		pt_int32			dataformat;		// rgb, Lab etc
+		pt_int32			format;			// Projection: rectilinear etc
 		double			hfov;
 		double			yaw;
 		double			pitch;
@@ -242,17 +243,17 @@ struct TrformStr 				// This structure holds all image information
 	{
 		Image *src;				// Source image, must be supplied on entry
 		Image *dest;			// Destination image data, valid if success = 1 
-		long success; 			// 0 - no, 1 - yes 
+		pt_int32 success; 			// 0 - no, 1 - yes 
 
 
-		long tool;				// Panorama Tool requested
-		long mode;				// how to run transformation
+		pt_int32 tool;				// Panorama Tool requested
+		pt_int32 mode;				// how to run transformation
 		void *data;				// data for tool requested.
 								// Required only if mode = _usedata; then it
 								// must point to valid preferences structure
 								// for requested tool (see filter.h).
 
-		long interpolator;		// Select interpolator
+		pt_int32 interpolator;		// Select interpolator
 		double gamma;			// Gamma value for internal gamma correction
 	};
 
