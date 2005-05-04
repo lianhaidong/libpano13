@@ -13,7 +13,7 @@ else
 JAVA_SRC = javastub.c
 endif
 
-STD_HDR = panorama.h filter.h version.h 
+STD_HDR = panorama.h filter.h version.h panotypes.h
 
 INTERNAL_HDR = fftn.h f2c.h ZComb.h adjust.h
 
