@@ -17,18 +17,17 @@
 
 /*------------------------------------------------------------*/
    
-
 #include "filter.h"
 #include "fftn.h"
 #include "f2c.h"
 
 static  void 	fconvolution		( TrformStr *TrPtr, Image *psf );
-static 	void 	makePSF				( int width, int height, Image *image, double *re, double *im, int color, int direction );
+static 	void 	makePSF				( pt_int32 width, pt_int32 height, Image *image, double *re, double *im, int color, int direction );
 static  void 	makeDoubleDiffImage ( Image *src, Image *fimage, double *re, double *im, int color );
 static  int 	makeDoubleImage		( Image *image, double *re, double *im, int color, double pgamma );
 static  void 	makeUcharImage		( Image *image, double *re, int color );
 // static  void 	makeGaussPSF		( Image *im, double s );
-static  void 	windowFunction		( double *im, int width, int height, double frame);
+static  void 	windowFunction		( double *im, pt_int32 width, pt_int32 height, double frame);
 // static  void 	invWindowFunction	( double *im, int width, int height, double frame);
 static void 	fresize				( TrformStr *TrPtr );
 
@@ -62,7 +61,7 @@ void	fourier	( TrformStr *TrPtr, cPrefs *cP )
 				if( cP->fourier_nf == _nf_internal )
 				{
 					memcpy( &nff, TrPtr->src, sizeof( Image ));
-					nff.data = (unsigned char**) mymalloc( nff.dataSize );
+					nff.data = (unsigned char**) mymalloc( (size_t)nff.dataSize );
 					if( nff.data == NULL )
 					{ 
 						PrintError("Not enough memory");
@@ -157,7 +156,7 @@ void noisefilter( Image *dest, Image *src )
 	}
 		
 	
-	memcpy( d, s, dest->dataSize);
+	memcpy( d, s, (size_t)(dest->dataSize));
 	
 		
 	for(y=BX; y<src->height-BX; y++)
@@ -426,10 +425,10 @@ _fwiener_exit:
 // Move point from center to (x|y) = (0|0)
 // Mirror image (both x & y) if backXform (direction = -1)
 
-static void makePSF( int width, int height, Image *image, double *re, double *im, int color, int direction )
+static void makePSF( pt_int32 width, pt_int32 height, Image *image, double *re, double *im, int color, int direction )
 {
-	int w, h, w2, h2, dim = width*height, cb, bpp, bpl, yw, cy;
-	register int i,x,y;
+	pt_int32 w, h, w2, h2, dim = width*height, cb, bpp, bpl, yw, cy;
+	register pt_int32 i,x,y;
 	register unsigned char *data = *(image->data);
 	register double scale, *r;
 	
@@ -662,12 +661,12 @@ static void makeGaussPSF( Image *im, double s )
 // Mask image with window function exp( -frame/x )
 #define MEDIUMGRAY	127.0
 
-static void windowFunction( double *im, int width, int height, double frame)
+static void windowFunction( double *im, pt_int32 width, pt_int32 height, double frame)
 {
 	double *wf;
 	register double z;
-	int w2 = width/2, h2 = height/2,dx,dy,cy,i,x,y;
-	int dl = (width < height ? width : height) / 2 + 1;
+	pt_int32 w2 = width/2, h2 = height/2,dx,dy,cy,i,x,y;
+	pt_int32 dl = (width < height ? width : height) / 2 + 1;
 	
 	
 	wf = (double*)malloc( dl * sizeof( double ) );

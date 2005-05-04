@@ -201,7 +201,7 @@ int MorphImage( Image *src, Image *dst, PTTriangle *ts, PTTriangle *td, int nt )
 
 	// Set dest image
 	// memcpy( dst, src, sizeof( Image ));
-	dst->data = (unsigned char**)mymalloc(dst->dataSize);
+	dst->data = (unsigned char**)mymalloc((size_t)dst->dataSize);
 	if(dst->data == NULL)
 	{
 		PrintError("Not enough memory");
@@ -302,7 +302,7 @@ int MorphImageFile( fullPath *sfile, fullPath *dfile, AlignInfo *g,int nIm )
 int blendImages( fullPath *f0,  fullPath *f1, fullPath *result, double s )
 {
 	double u = 1.0 - s, r;
-	int x,y,cy,i;
+	pt_int32 x,y,cy,i;
 	Image im0, im1;
 	unsigned char *c0, *c1;
 	

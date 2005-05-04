@@ -69,7 +69,7 @@ int writeJPEG( Image *im, fullPath *sfile, 	int quality, int progressive )
 	
 	scanlines_written = 0;
 	data = *(im->data);
-	buf = (unsigned char*)malloc( im->bytesPerLine );
+	buf = (unsigned char*)malloc( (size_t)im->bytesPerLine );
 	if(buf == NULL) 	
 	{
 	
@@ -81,7 +81,7 @@ int writeJPEG( Image *im, fullPath *sfile, 	int quality, int progressive )
 
 	while ( scanlines_written < im->height ) 
 	{
-		memcpy(buf, data, im->bytesPerLine );
+		memcpy(buf, data, (size_t)im->bytesPerLine );
 		if( im->bitsPerPixel == 32 )	// Convert 4->3 samples
 		{
 			int x;
@@ -118,7 +118,8 @@ int readJPEG ( Image *im, fullPath *sfile )
 	struct jpeg_error_mgr jerr;
 	FILE * infile;
 	char filename[256];
-	int scan_lines_to_be_read, i, scanheight, scan_lines_read;
+	int scan_lines_to_be_read, scan_lines_read;
+	unsigned int i, scanheight;
 	unsigned char*data;
 	JSAMPARRAY sarray;
 
@@ -174,7 +175,7 @@ int readJPEG ( Image *im, fullPath *sfile )
 	im->bitsPerPixel = 24;
 	im->bytesPerLine = im->width * 3;
 	im->dataSize = im->width * 4 * im->height;
-	im->data = (unsigned char**)mymalloc( im->dataSize );
+	im->data = (unsigned char**)mymalloc( (size_t)im->dataSize );
 	if( im->data == NULL )
 	{
 		PrintError("Not enough memory");
