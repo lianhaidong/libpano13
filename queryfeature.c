@@ -100,18 +100,17 @@ int queryFeatureDouble(const char *name, double *result)
 
 int queryFeatureString(const char *name,char *result, const int bufsize)
 {
-  int i,intvalue;
-  int count = sizeof( stringFeatures ) / sizeof( stringFeatures[0] );
+  int intvalue;
   double doublevalue;
-  int length=0;
+  size_t i, length=0, count = (sizeof( stringFeatures ) / sizeof( stringFeatures[0] ));
+  const size_t tmp_len=200;
   
   // Fulvio Senore, August 2004
   // allocates a dummy buffer for the calls to snprintf
   // the original code passed NULL to snprintf() but it caused problems (asserts) when compiling 
   // with the microsoft compiler that links with the debug libraries to avoid crashes
-  #define TMP_LEN 200
-  char *cpTmp = malloc( TMP_LEN + 1 );
-  cpTmp[TMP_LEN] = '\0';
+  char *cpTmp = malloc( tmp_len + 1 );
+  cpTmp[tmp_len] = '\0';
 
   for(i=0; i < count; i++)
   {
@@ -119,7 +118,7 @@ int queryFeatureString(const char *name,char *result, const int bufsize)
     {
       if(result != NULL)
       {
-        strncpy(result,stringFeatures[i].value,bufsize);
+        strncpy(result, stringFeatures[i].value, (size_t)bufsize);
       }
       length=strlen(stringFeatures[i].value);
       break;
@@ -134,10 +133,10 @@ int queryFeatureString(const char *name,char *result, const int bufsize)
       if(queryFeatureInt(name, &intvalue))
       {
         // length=snprintf(NULL,0,"%d",intvalue);
-        length=snprintf(cpTmp,TMP_LEN,"%d",intvalue);
+        length=snprintf(cpTmp,tmp_len,"%d",intvalue);
         if(result != NULL)
         {
-          snprintf(result,bufsize,"%d",intvalue);
+          snprintf(result,(size_t)bufsize,"%d",intvalue);
         }
         break;
       }
@@ -151,10 +150,10 @@ int queryFeatureString(const char *name,char *result, const int bufsize)
       if(queryFeatureDouble(name, &doublevalue))
       {
 //        length=snprintf(NULL,0,"%0.f",doublevalue);
-        length=snprintf(cpTmp,TMP_LEN,"%0.f",doublevalue);
+        length=snprintf(cpTmp,tmp_len,"%0.f",doublevalue);
         if(result != NULL)
         {
-          snprintf(result,bufsize,"%0.f",doublevalue);
+          snprintf(result,(size_t)bufsize,"%0.f",doublevalue);
         }
         break;
       }
@@ -179,7 +178,7 @@ int queryFeatureCount()
 
 void queryFeatures(int index,char** name,Tp12FeatureType* type)
 {
-  if(index < sizeof( intFeatures ) / sizeof( intFeatures[0] ))
+  if(index < (sizeof( intFeatures ) / sizeof( intFeatures[0] )))
   {
     if(name) *name=intFeatures[index].name;
     if(type) *type=p12FeatureInt;
