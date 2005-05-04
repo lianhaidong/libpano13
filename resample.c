@@ -239,7 +239,7 @@ static void sinc1024_16( unsigned char *dst, unsigned char **rgb,
 
 // Set up the arrays for gamma correction
 
-int SetUpGamma( double pgamma, int psize)
+int SetUpGamma( double pgamma, unsigned int psize)
 {
 	int i;
 	double gnorm, xg, rgamma = 1.0/pgamma;
@@ -547,7 +547,7 @@ static void sinc1024_16( unsigned char *dst, unsigned char **rgb,
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // computes the source coordinates of a single pixel at position x using the math transforms
-void ComputePixelCoords( double *ax, double *ay, int *trinum, char *avalid, long x, long offset, double w2, double y_d, 
+void ComputePixelCoords( double *ax, double *ay, int *trinum, char *avalid, pt_int32 x, long offset, double w2, double y_d, 
 						  fDesc *fD, double sw2, double sh2, double min_x, double max_x, double min_y, double max_y ) {
 	double x_d, Dx, Dy;
 
@@ -576,9 +576,9 @@ void ComputePixelCoords( double *ax, double *ay, int *trinum, char *avalid, long
 // fills a part of the arrays with the coordinates in the source image for every pixel
 // xl is the left border of the array, xr is the right border. The array values have already been
 //   computed in xl and xr.
-void ComputePartialRowCoords( double *ax, double *ay, int *trinum, char *avalid, long xl, long xr, long offset, double w2, double y_d, 
+void ComputePartialRowCoords( double *ax, double *ay, int *trinum, char *avalid, pt_int32 xl, pt_int32 xr, long offset, double w2, double y_d, 
 						  fDesc *fD, double sw2, double sh2, double min_x, double max_x, double min_y, double max_y ) {
-	long xm, idx;
+	pt_int32 xm, idx;
 	double srcX_lin, srcY_lin;
 	double deltaX, deltaY, tmpX, tmpY;
 
@@ -672,14 +672,14 @@ void ComputePartialRowCoords( double *ax, double *ay, int *trinum, char *avalid,
 // asize is the number of elements of the arrays
 // the array elements lie in the interval [0, asize], the image elements in [destRect.left, destRect.right]: the offset parameter
 //   is used for the conversion
-void ComputeRowCoords( double *ax, double *ay, int *trinum, char *avalid, long asize, long offset, double w2, double y_d, 
+void ComputeRowCoords( double *ax, double *ay, int *trinum, char *avalid, pt_int32 asize, long offset, double w2, double y_d, 
 						  fDesc *fD, double sw2, double sh2, double min_x, double max_x, double min_y, double max_y ) {
 
 	// initial distance betwen correctly computed points. The distance will be reduced if needed.
 //	int STEP_WIDTH = 40;
 	int STEP_WIDTH = fastTransformStep;
 
-	long x;
+	pt_int32 x;
 
 	x = 0;
 	ComputePixelCoords( ax, ay, trinum, avalid, x, offset, w2, y_d, fD, sw2, sh2, min_x, max_x, min_y, max_y );
@@ -710,8 +710,8 @@ void ComputeRowCoords( double *ax, double *ay, int *trinum, char *avalid, long a
 //    must have been allocated and locked!
 
 void transForm( TrformStr *TrPtr, fDesc *fD, int color){
-	register int 		x, y;		// Loop through destination image
-	register int     	i, k; 	 	// Auxilliary loop variables
+	register pt_int32 		x, y;		// Loop through destination image
+	register pt_int32     	i, k; 	 	// Auxilliary loop variables
 	int 			skip = 0;	// Update progress counter
 	unsigned char 		*dest,*src,*sry;// Source and destination image data
 	register unsigned char 		*sr;	// Source  image data
@@ -749,7 +749,8 @@ void transForm( TrformStr *TrPtr, fDesc *fD, int color){
 	double 			sh2 = (double) TrPtr->src->height  / 2.0 - 0.5;
 	
 	int			BytesPerLine	= TrPtr->src->bytesPerLine;
-	int			BytesPerPixel, FirstColorByte, SamplesPerPixel, BytesPerSample;
+	int			FirstColorByte, SamplesPerPixel;
+	unsigned int	BytesPerPixel, BytesPerSample;
 
 	int			n, n2;		// How many pixels should be used for interpolation	
 	intFunc 		intp; 		// Function used to interpolate
@@ -1078,7 +1079,7 @@ void transForm( TrformStr *TrPtr, fDesc *fD, int color){
 					
 						rgb[i] = cdata + i * n * BytesPerPixel;
 						for(k = 0; k < n; k++ ){
-							memcpy( &(rgb[i][k * BytesPerPixel]), sr, BytesPerPixel);
+							memcpy( &(rgb[i][k * BytesPerPixel]), sr, (size_t)BytesPerPixel);
 							xs++;
 							if( wrap_x ){
 								while( xs < 0 )  xs += (mix+1);
@@ -1116,12 +1117,12 @@ void transForm( TrformStr *TrPtr, fDesc *fD, int color){
 				//now:
 				if(color)
 				{
-					char*   ptr = &(dest[ coeff ]);
+					unsigned char*   ptr = &(dest[ coeff ]);
 					ptr += FirstColorByte + (color - 1)*BytesPerSample;
-					memset( ptr, 0 , BytesPerSample ); //Kekus_test
+					memset( ptr, 0 , (size_t)BytesPerSample ); //Kekus_test
 				}	
 				else
-					memset( &(dest[ coeff ]), 0 ,BytesPerPixel ); //Kekus_test
+					memset( &(dest[ coeff ]), 0 ,(size_t)BytesPerPixel ); //Kekus_test
 				//Kekus.End: March.2004
 			}
 
@@ -1149,7 +1150,7 @@ Trform_exit:
 	if( evaluateError ) {
 		FILE *fp;
 		fp = fopen( "Errors.txt", "a+t" );
-		fprintf( fp, "%f  %ld\n", maxErrX, destRect.top );
+		fprintf( fp, "%f  "FMT_INT32"\n", maxErrX, destRect.top );
 		fprintf( fp, "%f\n", maxErrY );
 		fclose( fp );
 	}
@@ -1198,7 +1199,8 @@ void MyTransForm( TrformStr *TrPtr, fDesc *fD, int color, int imageNum){
 	double 			sh2 = (double) TrPtr->src->height  / 2.0 - 0.5;
 	
 	int			BytesPerLine	= TrPtr->src->bytesPerLine;
-	int			BytesPerPixel, FirstColorByte, SamplesPerPixel, BytesPerSample;
+	int			FirstColorByte, SamplesPerPixel;
+	unsigned int	BytesPerPixel, BytesPerSample;
 
 	int			n, n2;		// How many pixels should be used for interpolation	
 	intFunc 		intp; 		// Function used to interpolate
@@ -1446,7 +1448,7 @@ void MyTransForm( TrformStr *TrPtr, fDesc *fD, int color, int imageNum){
 					
 						rgb[i] = cdata + i * n * BytesPerPixel;
 						for(k = 0; k < n; k++ ){
-							memcpy( &(rgb[i][k * BytesPerPixel]), sr, BytesPerPixel);
+							memcpy( &(rgb[i][k * BytesPerPixel]), sr, (size_t)BytesPerPixel);
 							xs++;
 							if( wrap_x ){
 								while( xs < 0 )  xs += (mix+1);
@@ -1484,12 +1486,12 @@ void MyTransForm( TrformStr *TrPtr, fDesc *fD, int color, int imageNum){
 				//now:
 				if(color)
 				{
-					char*   ptr = &(dest[ coeff ]);
+					unsigned char*   ptr = &(dest[ coeff ]);
 					ptr += FirstColorByte + (color - 1)*BytesPerSample;
-					memset( ptr, 0 , BytesPerSample ); //Kekus_test
+					memset( ptr, 0 , (size_t)BytesPerSample ); //Kekus_test
 				}	
 				else
-					memset( &(dest[ coeff ]), 0 ,BytesPerPixel ); //Kekus_test
+					memset( &(dest[ coeff ]), 0 ,(size_t)BytesPerPixel ); //Kekus_test
 				//Kekus.End: March.2004
 			}
 
