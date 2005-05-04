@@ -52,7 +52,7 @@ void 	pan	(TrformStr *TrPtr, panControls *pc )
 			
 			im					= TrPtr->dest;
 			TrPtr->dest 		= &aP.pano;
-			TrPtr->dest->data 	= (unsigned char**) mymalloc( TrPtr->dest->dataSize );
+			TrPtr->dest->data 	= (unsigned char**) mymalloc( (size_t)TrPtr->dest->dataSize );
 			if( TrPtr->dest->data == NULL )
 			{
 				PrintError( "Not enough memory to create Panorama");
