@@ -470,15 +470,15 @@ static void writeWhiteBackground( pt_int32 width, pt_int32 height, file_spec fnu
 	// Set up scanline
 	for(w=w8; w>128; w-=128)
 	{
-		*d++ = -127; *d++ = 0xFF;
+		*d++ = -127; *d++ = 255U;
 	}
 
 	switch(w)
 	{
 		case 0: break;
-		case 1: *d++ = 0; *d++ = 0xFF;
+		case 1: *d++ = 0; *d++ = 255U;
 				break;
-		default: *d++ = 1-w; *d++ = 0xFF;
+		default: *d++ = 1-w; *d++ = 255U;
 				 break;
 	}
 	
