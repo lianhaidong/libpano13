@@ -25,7 +25,7 @@ if test "x$with_zlib" != 'xno' || test "x$with_png" != 'xno' || test "x$with_tif
     fi
   fi
   if test "x$ZLIB_HOME" = 'x' ; then
-    zlib_dirs="/usr /usr/local /opt /mingw"
+    zlib_dirs="/usr /usr/local /opt /mingw /sw"
     for i in $zlib_dirs;
     do
       if test -r "$i/include/zlib.h"; then
@@ -114,7 +114,7 @@ if test "x$with_png" != 'xno' ; then
     fi
   fi
   if test "x$PNG_HOME" = 'x' ; then
-    png_dirs="/usr /usr/local /opt /mingw"
+    png_dirs="/usr /usr/local /opt /mingw /sw"
     for i in $png_dirs;
     do
       if test -r "$i/include/png.h"; then
@@ -205,7 +205,7 @@ if test "x$with_jpeg" != 'xno' || test "x$with_tiff" != 'xno'  ; then
     fi
   fi
   if test "x$JPEG_HOME" = 'x' ; then
-    jpeg_dirs="/usr /usr/local /opt /mingw"
+    jpeg_dirs="/usr /usr/local /opt /mingw /sw"
     for i in $jpeg_dirs;
     do
       if test -r "$i/include/jpeglib.h"; then
@@ -320,7 +320,7 @@ if test "x$with_tiff" != 'xno' ; then
     fi
   fi
   if test "x$TIFF_HOME" = 'x' ; then
-    tiff_dirs="/usr /usr/local /opt /mingw"
+    tiff_dirs="/usr /usr/local /opt /mingw /sw"
     for i in $tiff_dirs;
     do
       if test -r "$i/include/tiff.h"; then

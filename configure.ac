@@ -45,7 +45,7 @@ case "${target_os}" in
 		;;
 	esac
 	;;
-  darwin*)
+  *darwin*)
     PANO_WIN32_RESOURCE=
     HSYS=darwin
     HCPU="${target_cpu}"
