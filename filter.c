@@ -499,7 +499,7 @@ int SetDestImage( TrformStr *TrPtr, int width, int height)
 	TrPtr->dest->bytesPerLine	=	TrPtr->dest->width * (TrPtr->dest->bitsPerPixel / 8) ; 
 
 	TrPtr->dest->dataSize 		= TrPtr->dest->height * TrPtr->dest->bytesPerLine;
-	TrPtr->dest->data 			= (unsigned char**) mymalloc (TrPtr->dest->dataSize);
+	TrPtr->dest->data 			= (unsigned char**) mymalloc ((size_t)TrPtr->dest->dataSize);
 	
 	if( TrPtr->dest->data 		== NULL )
 		result = -1;
@@ -899,13 +899,13 @@ void	SetVRPanoOptionsDefaults( VRPanoOptions *v)
 // Crop Image to selection rectangle	
 int CropImage(Image *im, PTRect *r){
 
-	int x,y,i;
+	pt_int32 x,y,i;
 	unsigned char *src, *dst, **data = NULL;
-	int width = r->right - r->left;
-	int height = r->bottom - r->top;
+	pt_int32 width = r->right - r->left;
+	pt_int32 height = r->bottom - r->top;
 	int bytesPerPixel = im->bitsPerPixel / 8 ;
 	int bytesPerLine = width * im->bitsPerPixel / 8 ;
-	int dataSize = bytesPerLine * height;
+	size_t dataSize = bytesPerLine * height;
 
 	// Some checks first
 	if( r->left < 0 || r->left >im->width ||
