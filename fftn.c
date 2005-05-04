@@ -52,9 +52,9 @@
  *	fftradix / fftradixf
  *
  * ----------------------------------------------------------------------*
- * int fftradix (REAL Re[], REAL Im[], size_t nTotal, size_t nPass,
- *		 size_t nSpan, int iSign, size_t maxFactors,
- *		 size_t maxPerm);
+ * int fftradix (REAL Re[], REAL Im[], unsigned int nTotal, unsigned int nPass,
+ *		 unsigned int nSpan, int iSign, unsigned int maxFactors,
+ *		 unsigned int maxPerm);
  *
  * RE and IM hold the real and imaginary components of the data, and
  * return the resulting real and imaginary Fourier coefficients.
@@ -216,10 +216,11 @@ fft_free (void)
 
 /* return the number of factors */
 static int
-factorize (int nPass, int * kt)
+factorize (unsigned int nPass, int * kt)
 {
    int nFactor = 0;
-   int j, jj;
+   int j;
+   unsigned int jj;
 
    *kt = 0;
    /* determine the factors of n */
@@ -295,8 +296,8 @@ factorize (int nPass, int * kt)
 /* double precision routine */
 static int
 fftradix (double Re[], double Im[],
-	  size_t nTotal, size_t nPass, size_t nSpan, int isign,
-	  int maxFactors, int maxPerm);
+	  unsigned int nTotal, unsigned int nPass, unsigned int nSpan, int isign,
+	  unsigned int maxFactors, unsigned int maxPerm);
 # include __FILE__			/* include this file again */
 #endif
 /*}}}*/
@@ -317,8 +318,8 @@ fftradix (double Re[], double Im[],
 /* float precision routine */
 static int
 fftradixf (float Re[], float Im[],
-	   size_t nTotal, size_t nPass, size_t nSpan, int isign,
-	   int maxFactors, size_t maxPerm);
+	   unsigned int nTotal, unsigned int nPass, unsigned int nSpan, int isign,
+	   unsigned int maxFactors, unsigned int maxPerm);
 # include  __FILE__			/* include this file again */
 #endif
 /*}}}*/
@@ -339,14 +340,14 @@ fftradixf (float Re[], float Im[],
  */
 int
 FFTN (int ndim,
-      const int dims [],
+      const unsigned int dims [],
       REAL Re [],
       REAL Im [],
       int iSign,
       double scaling)
 {
-   size_t nTotal;
-   int maxFactors, maxPerm;
+   unsigned int nTotal;
+   unsigned int maxFactors, maxPerm;
 
    /*
     * tally the number of elements in the data array
@@ -409,7 +410,7 @@ FFTN (int ndim,
    /* loop over the dimensions: */
    if (dims != NULL)
      {
-	size_t nSpan = 1;
+	unsigned int nSpan = 1;
 	int i;
 
 	for (i = 0; i < ndim; i++)
@@ -466,12 +467,12 @@ FFTN (int ndim,
 static int
 FFTRADIX (REAL Re [],
 	  REAL Im [],
-	  size_t nTotal,
-	  size_t nPass,
-	  size_t nSpan,
+	  unsigned int nTotal,
+	  unsigned int nPass,
+	  unsigned int nSpan,
 	  int iSign,
-	  int maxFactors,
-	  int maxPerm)
+	  unsigned int maxFactors,
+	  unsigned int maxPerm)
 {
    int ii, nFactor, kspan, ispan, inc;
    int j, jc, jf, jj, k, k1, k3, kk, kt, nn, ns, nt;

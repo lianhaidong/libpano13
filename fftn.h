@@ -94,7 +94,7 @@ extern "C" {
 
    /* double precision routine */
    extern int fftn (int /* ndim */,
-		    const int /* dims */[],
+		    const unsigned int /* dims */[],
 		    double /* Re */[],
 		    double /* Im */[],
 		    int /* isign */,
@@ -102,7 +102,7 @@ extern "C" {
 
    /* float precision routine */
    extern int fftnf (int /* ndim */,
-		     const int /* dims */[],
+		     const unsigned int /* dims */[],
 		     float /* Re */[],
 		     float /* Im */[],
 		     int /* isign */,
