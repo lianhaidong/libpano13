@@ -30,7 +30,7 @@ void perspective(TrformStr *TrPtr, pPrefs *prefs)
 	double  	alpha, beta, gammar; 				// Angles in rad
 	double		x_off, y_off, d;
 	double		a;
-	int			destwidth, destheight;
+	pt_int32	destwidth, destheight;
 	fDesc		fD;
 
 	void		*params[4];		// Parameters for perspective control functions
