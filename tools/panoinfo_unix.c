@@ -38,6 +38,11 @@ int main(int argc,char *argv[])
 	char			sResult[256];
 	char			str1[1000];
 	char			str2[10000];
+	int 			i,bufsize,numfeatures;
+	char 		   *name;
+	char 		   *value;
+	Tp12FeatureType type;
+
 
 	if(queryFeatureString (PTVERSION_NAME_FILEVERSION, sResult, sizeof(sResult)/sizeof(sResult[0]) ))
 	{
@@ -74,11 +79,6 @@ int main(int argc,char *argv[])
 		sprintf(str1, "Max FoV:\t\t%f\n\n", dResult );
 		strcat(str2 ,str1);
 	}
-
-	int i,bufsize,numfeatures;
-	char *name;
-	char *value;
-	Tp12FeatureType type;
 
 	strcat(str2 ,"Feature List:\n\n");
 	numfeatures = queryFeatureCount();
