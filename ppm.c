@@ -31,7 +31,7 @@ static int readPPMFileHeader(file_spec src, Image *im);
 int readPPM(Image *im, fullPath *sfile)
 {
 	file_spec	src;
-	long count;
+	size_t		count;
 	
 	if( myopen( sfile, read_bin, src ) )
 	{	
@@ -51,7 +51,7 @@ int readPPM(Image *im, fullPath *sfile)
 	im->bytesPerLine 	= im->width * 3;
 	im->dataSize		= im->bytesPerLine * im->height;
 	
-	im->data			= (unsigned char**) mymalloc( im->width * im->height * 4 );
+	im->data			= (unsigned char**) mymalloc( (size_t)(im->width * im->height * 4) );
 	if ( im->data == NULL )
 	{
 		PrintError("Not enough memory");
@@ -59,7 +59,7 @@ int readPPM(Image *im, fullPath *sfile)
 		return -1;
 	}
 	
-	count = 	im->width * im->height * 3;
+	count = (size_t)(im->width * im->height * 3);
 	
 	myread(src,count,*(im->data));
 	
@@ -80,7 +80,7 @@ static int readPPMFileHeader(file_spec src, Image *im)
 {
 	int 			i;
 	char 			smallBuf[32], c;
-	long 			count = 1;
+	size_t 			count = 1;
 	
 	/* read the file header (including height and width) */
 
@@ -175,7 +175,7 @@ static int readPPMFileHeader(file_spec src, Image *im)
 int writePPM( Image *im, fullPath *sfile )
 {
 	char header[30];
-	long count;
+	size_t count;
 	file_spec	fnum;
 	int y, cy, cpy;
 	unsigned char* data;
@@ -199,14 +199,14 @@ int writePPM( Image *im, fullPath *sfile )
 			cy = im->height * im->bytesPerLine;
 			cpy = im->height * im->width * 3;
 
-			memcpy( data+cpy, data+cy, im->width * 3);
+			memcpy( data+cpy, data+cy, (size_t)(im->width * 3));
 		}
 		im->bytesPerLine = im->width * 3;
 		im->dataSize = im->height * im->bytesPerLine;
 	}
 					
 
-	sprintf( header, "P6\n%ld %ld\n%ld\n", im->width, im->height, 255L);
+	sprintf( header, "P6\n"FMT_INT32" "FMT_INT32"\n%ld\n", im->width, im->height, 255L);
 
 	count = strlen( header );
 	mywrite( fnum, count, header );
