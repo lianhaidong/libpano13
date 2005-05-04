@@ -182,8 +182,8 @@ int ParseScript( char* script, AlignInfo *gl )
 					{
 						switch(*li)
 						{
-							case 'w': 	READ_VAR( "%ld", &(im->width) ); break;
-							case 'h': 	READ_VAR( "%ld", &(im->height)); break;
+							case 'w': 	READ_VAR( FMT_INT32, &(im->width) ); break;
+							case 'h': 	READ_VAR( FMT_INT32, &(im->height)); break;
 							case 'v': 	if( *(li+1) == '=' ){
 									  		li++;
 											READ_VAR( "%d", &(opt->hfov));
@@ -331,10 +331,10 @@ int ParseScript( char* script, AlignInfo *gl )
 							case 'Z':	READ_VAR( "%lf", &ci->x[2] );
 										break;
 							case 'S':	nextWord( buf, &li );		
-									sscanf( buf, "%ld,%ld,%ld,%ld", &im->selection.left, &im->selection.right, &im->selection.top, &im->selection.bottom );
+									sscanf( buf, FMT_INT32","FMT_INT32","FMT_INT32","FMT_INT32, &im->selection.left, &im->selection.right, &im->selection.top, &im->selection.bottom );
 									break;
 							case 'C':	nextWord( buf, &li );		
-									sscanf( buf, "%ld,%ld,%ld,%ld", &im->selection.left, &im->selection.right, &im->selection.top, &im->selection.bottom );
+									sscanf( buf, FMT_INT32","FMT_INT32","FMT_INT32","FMT_INT32, &im->selection.left, &im->selection.right, &im->selection.top, &im->selection.bottom );
 									im->cP.cutFrame = TRUE;
 									break;
 							default: 
@@ -595,7 +595,7 @@ void WriteResults( char* script, fullPath *sfile,  AlignInfo *g, double ds( int 
 		default:			format = -1; break;
 	}
 		
-	sprintf( line, "# p f%d w%ld h%ld v%g n\"%s\"\n\n", format, g->pano.width, g->pano.height, g->pano.hfov, g->pano.name );strcat( res, line );
+	sprintf( line, "# p f%d w"FMT_INT32" h"FMT_INT32" v%g n\"%s\"\n\n", format, g->pano.width, g->pano.height, g->pano.hfov, g->pano.name );strcat( res, line );
 	
 	
 	
@@ -708,10 +708,10 @@ void WriteResults( char* script, fullPath *sfile,  AlignInfo *g, double ds( int 
 		}
 		if( g->im[i].selection.bottom != 0 || g->im[i].selection.right != 0 ){
 			if( g->im[i].cP.cutFrame ){
-				sprintf( line, " C%ld,%ld,%ld,%ld ",g->im[i].selection.left, g->im[i].selection.right,
+				sprintf( line, " C"FMT_INT32","FMT_INT32","FMT_INT32","FMT_INT32" ",g->im[i].selection.left, g->im[i].selection.right,
 						       g->im[i].selection.top, g->im[i].selection.bottom );
 			}else{
-				sprintf( line, " S%ld,%ld,%ld,%ld ",g->im[i].selection.left, g->im[i].selection.right,
+				sprintf( line, " S"FMT_INT32","FMT_INT32","FMT_INT32","FMT_INT32" ",g->im[i].selection.left, g->im[i].selection.right,
 						       g->im[i].selection.top, g->im[i].selection.bottom );
 			}
 			strcat( cmd, line );
@@ -1237,7 +1237,7 @@ static int ReadImageDescription( Image *imPtr, stBuf *sPtr, char *line )
 			case 'c':	READ_VAR("%lf", &(im.cP.radial_params[0][1]));
 						im.cP.radial	= TRUE;
 						break;
-			case 'f':	READ_VAR( "%ld", &im.format );
+			case 'f':	READ_VAR( FMT_INT32, &im.format );
 						if( im.format == _panorama || im.format == _equirectangular )
 							im.cP.correction_mode |= correction_mode_vertical;
 						break;
@@ -1273,9 +1273,9 @@ static int ReadImageDescription( Image *imPtr, stBuf *sPtr, char *line )
 								sBuf.seam = _middle;
 						}
 						break;
-			case 'w':	READ_VAR( "%ld", &im.width );
+			case 'w':	READ_VAR( FMT_INT32, &im.width );
 						break;
-			case 'h':	READ_VAR("%ld", &im.height);
+			case 'h':	READ_VAR( FMT_INT32, &im.height );
 						break;
 			case 'o':	ch++;
 						im.cP.correction_mode |= correction_mode_morph;
@@ -1310,10 +1310,10 @@ static int ReadImageDescription( Image *imPtr, stBuf *sPtr, char *line )
 						strcpy( im.name, buf );
 						break;	
 			case 'S':  nextWord( buf, &ch );		
-				   sscanf( buf, "%ld,%ld,%ld,%ld", &im.selection.left, &im.selection.right, &im.selection.top, &im.selection.bottom );
+				   sscanf( buf, FMT_INT32","FMT_INT32","FMT_INT32","FMT_INT32, &im.selection.left, &im.selection.right, &im.selection.top, &im.selection.bottom );
 				   break;
 			case 'C':  nextWord( buf, &ch );		
-				   sscanf( buf, "%ld,%ld,%ld,%ld", &im.selection.left, &im.selection.right, &im.selection.top, &im.selection.bottom );
+				   sscanf( buf, FMT_INT32","FMT_INT32","FMT_INT32","FMT_INT32, &im.selection.left, &im.selection.right, &im.selection.top, &im.selection.bottom );
 				   im.cP.cutFrame = TRUE;
 				   break;
 			default: 	ch++;
