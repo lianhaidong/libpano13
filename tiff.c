@@ -35,7 +35,7 @@ int	readtif(Image *im, TIFF* tif);
 
 int readtif(Image *im, TIFF* tif){
 	short BitsPerSample, tPhotoMetric, config;
-    	long w, h;
+    	pt_int32 w, h;
     	unsigned long  **hdl_raster;
 
 	if(tif == NULL || im == NULL) return -1;
@@ -54,7 +54,7 @@ int readtif(Image *im, TIFF* tif){
 	im->dataSize		= im->bytesPerLine * im->height;
 
 		
-    	hdl_raster 		= (unsigned long**) mymalloc(im->dataSize);
+    	hdl_raster 		= (unsigned long**) mymalloc((size_t)im->dataSize);
     	if( hdl_raster == NULL){
 		PrintError("Not enough memory");
  		return -1;
@@ -66,12 +66,14 @@ int readtif(Image *im, TIFF* tif){
 	   	return readplanarTIFF(im, tif);
 	}
 	
-	if (TIFFReadRGBAImage(tif, w, h, (void*)*(im->data), 0)) {
+	if (TIFFReadRGBAImage(tif, (uint32)w, (uint32)h, (uint32*)*(im->data), 0)) {
 		// Convert agbr to argb; flip image vertically
 		unsigned char *cline, *ct, *cb;
 		int h2 = im->height/2, y;
+		// Only do the conversion once
+		size_t localBytesPerLine = im->bytesPerLine;
 					
-		cline = (unsigned char*)malloc(im->bytesPerLine);
+		cline = (unsigned char*)malloc(localBytesPerLine);
 		if(cline==NULL){
 			PrintError("Not enough memory");
 			return -1;
@@ -83,9 +85,9 @@ int readtif(Image *im, TIFF* tif){
 		for(y=0; y<h2; y++,ct+=im->bytesPerLine,cb-=im->bytesPerLine){
 			RGBAtoARGB(ct, im->width, im->bitsPerPixel);
 			RGBAtoARGB(cb, im->width, im->bitsPerPixel);
-			memcpy(cline,ct,im->bytesPerLine);
-			memcpy(ct,cb,im->bytesPerLine);
-			memcpy(cb,cline,im->bytesPerLine);
+			memcpy(cline,ct,localBytesPerLine);
+			memcpy(ct,cb,localBytesPerLine);
+			memcpy(cb,cline,localBytesPerLine);
 		}
 		if(im->height != 2*h2){ // odd number of scanlines
 			RGBAtoARGB(*im->data+y*im->bytesPerLine, im->width, im->bitsPerPixel);
@@ -141,7 +143,7 @@ int readTIFF(Image *im, fullPath *sfile){
 
 int readplanarTIFF(Image *im, TIFF* tif){
    	UCHAR* buf;
-   	int y;
+   	pt_int32 y;
 	short SamplesPerPixel;
 	
 	TIFFGetField(tif, TIFFTAG_SAMPLESPERPIXEL, &SamplesPerPixel);
@@ -151,16 +153,16 @@ int readplanarTIFF(Image *im, TIFF* tif){
 		im->bytesPerLine = im->bytesPerLine * 3 / 4;
 	}
  
- 	buf = (UCHAR*)malloc(TIFFScanlineSize(tif));
+ 	buf = (UCHAR*)malloc((size_t)TIFFScanlineSize(tif));
    	if( buf == NULL ){
    		PrintError("Not enough memory");
 		return -1;
 	}
  	
 	for (y = 0; y < im->height; y++){
-    		TIFFReadScanline(tif, buf, y, 0);
+    		TIFFReadScanline(tif, buf, (uint32)y, 0);
 		RGBAtoARGB( buf, im->width, im->bitsPerPixel);
-		memcpy( *(im->data) + y*im->bytesPerLine, buf, im->bytesPerLine );
+		memcpy( *(im->data) + y*im->bytesPerLine, buf, (size_t)(im->bytesPerLine) );
 	}
 	free( buf );
 	ThreeToFourBPP( im );
@@ -172,7 +174,8 @@ int writeTIFF(Image *im, fullPath *sfile){
 	char string[512];
 	TIFF *tif;
 	UCHAR* buf;
-	int bufsize,y;
+	unsigned int y;
+	size_t	bufsize;
 
 #ifdef __Mac__
 	unsigned char the_pcUnixFilePath[512];//added by Kekus Digital
@@ -227,7 +230,7 @@ int writeTIFF(Image *im, fullPath *sfile){
 	}
 
 	for (y = 0; y < im->height; y++){
-		memcpy( buf, *(im->data) + y*im->bytesPerLine, im->bytesPerLine );
+		memcpy( buf, *(im->data) + y*im->bytesPerLine, (size_t)im->bytesPerLine );
 		ARGBtoRGBA( buf, im->width, im->bitsPerPixel);
 		TIFFWriteScanline(tif, buf, y, 1);		
 	}
