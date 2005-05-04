@@ -32,7 +32,7 @@
 #endif
 
 #if !__Mac__ && !__Win__ && !__Ansi__
-#include "sys_x11.h"
+#include "sys_X11.h"
 #endif
 
 #if _MSC_VER > 1000
