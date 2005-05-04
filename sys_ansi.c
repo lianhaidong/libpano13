@@ -274,7 +274,7 @@ void writePrefs( char* prefs, int selector ){
 
 #define signatureSize	4
 
-void**  mymalloc( long numBytes )					// Memory allocation, use Handles
+void**  mymalloc( size_t numBytes )					// Memory allocation, use Handles
 {
 	char **mem;
 	
