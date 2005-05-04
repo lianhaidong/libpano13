@@ -83,7 +83,7 @@ void 	correct	(TrformStr *TrPtr, cPrefs *prefs)
 		else // Further Xform requested: use separate new image
 		{
 			memcpy( &im, TrPtr->src, sizeof(Image) );
-			im.data = (unsigned char**) mymalloc( im.dataSize );
+			im.data = (unsigned char**) mymalloc( (size_t)im.dataSize );
 			if( im.data == NULL )
 			{
 				TrPtr->success = 0;
@@ -187,7 +187,7 @@ void 	correct	(TrformStr *TrPtr, cPrefs *prefs)
 			im.width = destwidth; im.height = destheight;
 			im.bytesPerLine = im.width * im.bitsPerPixel/8;
 			im.dataSize = im.height * im.bytesPerLine;
-			im.data = (unsigned char**) mymalloc( im.dataSize );
+			im.data = (unsigned char**) mymalloc( (size_t)im.dataSize );
 			if( im.data == NULL )
 			{
 				TrPtr->success = 0;
@@ -439,7 +439,7 @@ int 	cutTheFrame	( Image *dest, Image *src, int width, int height, int showprogr
 		dest->height 			= height;
 		dest->bytesPerLine 		= dest->width * dest->bitsPerPixel/8;
 		dest->dataSize 			= dest->height * dest->bytesPerLine ;
-		dest->data 				= (unsigned char**) mymalloc( dest->dataSize );
+		dest->data 				= (unsigned char**) mymalloc( (size_t)dest->dataSize );
 		if( dest->data == NULL )
 		{
 			PrintError("Could not allocate %ld bytes", dest->dataSize );
