@@ -50,7 +50,9 @@ TStringFeature stringFeatures[]={
   {"LensMask2","C"},
   {"LensMask3","R"},
   {"LensMask4","R"},
-#ifndef HasJava
+#ifdef HasJava
+  {"Patch200504a", "Douglas Wilkins, Java support enabled"},
+#else
   {"Patch200504a", "Douglas Wilkins, Java support disabled"},
 #endif
   // Patches that have been applied
