@@ -46,3 +46,16 @@ typedef	unsigned long pt_uint32;	/* sizeof (uint32) must == 4 */
 #endif
 #endif /* _PANO_DATA_TYPEDEFS_ */
 
+/* The macro PT_UNUSED indicates that a function, function argument or
+ * variable may potentially be unused.
+ * Examples:
+ *   1) static int PT_UNUSED unused_function (char arg);
+ *   2) int foo (char unused_argument PT_UNUSED);
+ *   3) int unused_variable PT_UNUSED;
+ */
+
+#ifdef __GNUC__
+  #define PT_UNUSED __attribute__ ((__unused__))
+#else
+  #define PT_UNUSED
+#endif

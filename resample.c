@@ -427,7 +427,8 @@ static double cubic12( double x )
 // Nearest neighbor sampling, nowhere used (yet)
 
 static void nn( unsigned char *dst, unsigned char **rgb, 
-		register double Dx, register double Dy,	int color, int SamplesPerPixel)
+		register double Dx PT_UNUSED, register double Dy PT_UNUSED,	
+		int color, int SamplesPerPixel)
 		{
 			RESAMPLE_N( NNEIGHBOR, 1, char)	}
 
@@ -487,7 +488,8 @@ static void sinc1024( unsigned char *dst, unsigned char **rgb,
 // Nearest neighbor sampling, nowhere used (yet)
 
 static void nn_16( unsigned char *dst, unsigned char **rgb, 
-		register double Dx, register double Dy,	int color, int SamplesPerPixel)
+		register double Dx PT_UNUSED, register double Dy PT_UNUSED,
+		int color, int SamplesPerPixel)
 		{
 			RESAMPLE_N( NNEIGHBOR, 1, short)	}
 

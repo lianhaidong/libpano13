@@ -40,6 +40,6 @@ void	DisposeMultiLayerImage( MultiLayerImage *mim ){
 }
 
 // obsolete dummies
-double OverlapRMS( MultiLayerImage *mim ){ return 0.0; }
+double OverlapRMS( MultiLayerImage *mim PT_UNUSED){ return 0.0; }
 
 

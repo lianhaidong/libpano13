@@ -12,7 +12,7 @@ static Image *pano = NULL;
 
 
 JNIEXPORT void JNICALL Java_pteditor_CLoadImage
-	(JNIEnv *env, jobject obj, jstring path){
+	(JNIEnv *env, jobject obj PT_UNUSED, jstring path){
 	fullPath fp;
 	const char *jpath = (*env)->GetStringUTFChars(env, path, 0);
 
@@ -50,7 +50,7 @@ JNIEXPORT void JNICALL Java_pteditor_CLoadImage
 
 
 JNIEXPORT void JNICALL Java_pteditor_CSaveImage
-	(JNIEnv *env, jobject obj, jstring path){
+	(JNIEnv *env, jobject obj PT_UNUSED, jstring path){
 	fullPath fp;
 	const char *jpath = (*env)->GetStringUTFChars(env, path, 0);
 
@@ -77,7 +77,7 @@ JNIEXPORT void JNICALL Java_pteditor_CSaveImage
 
 
 JNIEXPORT jint JNICALL Java_pteditor_CGetImageWidth
-  (JNIEnv *env, jobject obj){
+  (JNIEnv *env PT_UNUSED, jobject obj PT_UNUSED){
 	if(pano != NULL)
 		return pano->width;
 	else
@@ -85,7 +85,7 @@ JNIEXPORT jint JNICALL Java_pteditor_CGetImageWidth
 }
 
 JNIEXPORT jint JNICALL Java_pteditor_CGetImageHeight
-  (JNIEnv *env, jobject obj){
+  (JNIEnv *env PT_UNUSED, jobject obj PT_UNUSED){
 	if(pano != NULL)
 		return pano->height;
 	else
@@ -93,7 +93,7 @@ JNIEXPORT jint JNICALL Java_pteditor_CGetImageHeight
 }
 
 JNIEXPORT void JNICALL Java_pteditor_CGetImageRow
-  (JNIEnv *env, jobject obj, jintArray jdata, jint nrow){
+  (JNIEnv *env, jobject obj PT_UNUSED, jintArray jdata, jint nrow){
 	if(pano == NULL) return;
   	if(pano->data != NULL){
 		jint *pix = (jint*)malloc(pano->width * sizeof(jint));
@@ -126,7 +126,7 @@ JNIEXPORT void JNICALL Java_pteditor_CGetImageRow
  
  
 JNIEXPORT void JNICALL Java_pteditor_CExtract
-  (JNIEnv *env, jobject obj, jstring path, jdouble yaw, jdouble pitch, jdouble hfov, jdouble aspect, jint format, jdouble phfov ){
+  (JNIEnv *env, jobject obj PT_UNUSED, jstring path, jdouble yaw, jdouble pitch, jdouble hfov, jdouble aspect, jint format, jdouble phfov ){
 	aPrefs				ap;
 	TrformStr  			Tr;
 	Image				dest;
@@ -199,7 +199,7 @@ JNIEXPORT void JNICALL Java_pteditor_CExtract
 }
 
 JNIEXPORT void JNICALL Java_pteditor_CInsert
-  (JNIEnv *env, jobject obj, jstring path, jdouble yaw, jdouble pitch, jdouble rot, jdouble hfov, jint format){
+  (JNIEnv *env, jobject obj PT_UNUSED, jstring path, jdouble yaw, jdouble pitch, jdouble rot, jdouble hfov, jint format){
 	aPrefs				ap;
 	TrformStr  			Tr;
 	struct size_Prefs 	spref;
@@ -287,7 +287,7 @@ JNIEXPORT void JNICALL Java_pteditor_CInsert
 
 
 JNIEXPORT void JNICALL Java_pteditor_CSetImageWidth
-  (JNIEnv *env, jobject obj, jint width){
+  (JNIEnv *env PT_UNUSED, jobject obj PT_UNUSED, jint width){
 	if( pano != NULL ){
 		if( pano->data != NULL ){
 			myfree((void**)pano->data);
@@ -301,7 +301,7 @@ JNIEXPORT void JNICALL Java_pteditor_CSetImageWidth
 }
 
 JNIEXPORT void JNICALL Java_pteditor_CSetImageHeight
-  (JNIEnv *env, jobject obj, jint height){
+  (JNIEnv *env PT_UNUSED, jobject obj PT_UNUSED, jint height){
 	if( pano != NULL ){
 		if( pano->data != NULL ){
 			myfree((void**)pano->data);
@@ -316,7 +316,7 @@ JNIEXPORT void JNICALL Java_pteditor_CSetImageHeight
 }
 
 JNIEXPORT void JNICALL Java_pteditor_CSetImageRow
-  (JNIEnv *env, jobject obj, jintArray jdata, jint nrow){
+  (JNIEnv *env, jobject obj PT_UNUSED, jintArray jdata, jint nrow){
 	if( pano == NULL ) return;
 	if( pano->width == 0 || pano->height == 0 ) return;
 	

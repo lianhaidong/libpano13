@@ -18,6 +18,7 @@
 /*------------------------------------------------------------*/
 
 #include "sys_ansi.h"
+#include "panotypes.h"
 #include <signal.h>
 
 
@@ -82,7 +83,7 @@ int Progress( int command, char* argument )
 
 volatile sig_atomic_t sigFlag;
 
-void sigHandler(int sig){
+void sigHandler(int sig PT_UNUSED){
 	signal( SIGINT, sigHandler );
 	sigFlag = 1;
 }
@@ -324,7 +325,7 @@ int 	FindFile( fullPath *fname ){
 		return -1;
 }
 
-int 	SaveFileAs			( fullPath *fname, char *prompt, char *name ){
+int 	SaveFileAs			( fullPath *fname, char *prompt PT_UNUSED, char *name PT_UNUSED){
 	printf("\n");
 	printf("Save File As:\n");
 	scanf("%s", fname->name); 

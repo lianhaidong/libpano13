@@ -11,6 +11,7 @@
  */
 #include "filter.h"
 #include <float.h>
+
 extern lmfunc fcn;
 
 #if _MSC_VER > 1000
@@ -919,8 +920,8 @@ return 0;
 
 #define BUG 0
 
-int qrfac(int m, int n, double a[], int lda, int pivot,
-		  int ipvt[], int lipvt, double rdiag[], 
+int qrfac(int m, int n, double a[], int lda PT_UNUSED, int pivot,
+		  int ipvt[], int lipvt PT_UNUSED, double rdiag[], 
 		  double acnorm[], double wa[])
 {
 /*
@@ -1501,7 +1502,7 @@ return(ans);
 #define BUG 0
 
 int fdjac2(int m, int n, double x[], double fvec[], double fjac[],
-		   int ldfjac, int *iflag, double epsfcn, double wa[])
+		   int ldfjac PT_UNUSED, int *iflag, double epsfcn, double wa[])
 {
 /*
 *     **********
@@ -1634,7 +1635,7 @@ else
 	return(b);
 }
 
-static int pmat( int m, int n, double y[] )
+static int PT_UNUSED pmat( int m, int n, double y[] PT_UNUSED)
 {
 int i, j, k;
 
