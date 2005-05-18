@@ -1,3 +1,11 @@
+Newsworthy changes in 2.7.0.10
+------------------------------
+
+Many fixes to allow building on 64bit platforms.
+Fix for bug that caused problems using or creating png files.
+Option to allow configure --without-java
+
+
 Newsworthy changes in 2.7.0.8
 -----------------------------
 
