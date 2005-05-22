@@ -64,25 +64,35 @@ void dispatch (TrformStr *TrPtr, sPrefs *spref)
 	TrPtr->dest->bitsPerPixel = TrPtr->src->bitsPerPixel;
 
 	// Check version of preferences file
-
+	// only if we are not using _usedata
 	
-	if( readPrefs( version, _version ) != 0 || strcmp( version, VERSION ) != 0 )
+	if ((TrPtr->mode & 7) != _usedata)
 	{
-		writePrefs( VERSION, _version );
-		SetSizeDefaults( spref);
-		writePrefs( (char*)spref, _sizep );
+		if (spref == NULL)
+		{
+			PrintError("spref cannot be NULL");
+		}
+		else
+		{
+			if( readPrefs( version, _version ) != 0 || strcmp( version, VERSION ) != 0 )
+			{
+				writePrefs( VERSION, _version );
+				SetSizeDefaults( spref);
+				writePrefs( (char*)spref, _sizep );
 		
-		SetPrefDefaults( &prefs, _perspective );
-		writePrefs( (char*)&prefs.pP, _perspective );
-		SetPrefDefaults( &prefs, _correct );
-		writePrefs( (char*)&prefs.cP, _correct );
-		SetPrefDefaults( &prefs, _remap );
-		writePrefs( (char*)&prefs.rP, _remap );
-		SetPrefDefaults( &prefs, _adjust );
-		writePrefs( (char*)&prefs.aP, _adjust );
-		SetPrefDefaults( &prefs, _panleft );
-		writePrefs( (char*)&prefs.pc, _panleft );
+				SetPrefDefaults( &prefs, _perspective );
+				writePrefs( (char*)&prefs.pP, _perspective );
+				SetPrefDefaults( &prefs, _correct );
+				writePrefs( (char*)&prefs.cP, _correct );
+				SetPrefDefaults( &prefs, _remap );
+				writePrefs( (char*)&prefs.rP, _remap );
+				SetPrefDefaults( &prefs, _adjust );
+				writePrefs( (char*)&prefs.aP, _adjust );
+				SetPrefDefaults( &prefs, _panleft );
+				writePrefs( (char*)&prefs.pc, _panleft );
 		
+			}
+		}
 	}
 
 	// Read and/or set preferences; Do Xform

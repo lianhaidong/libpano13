@@ -50,12 +50,13 @@ TStringFeature stringFeatures[]={
   {"LensMask2","C"},
   {"LensMask3","R"},
   {"LensMask4","R"},
+  // Patches that have been applied
+  {"Patch200505", "Douglas Wilkins, Correct behaviour when mode = _usedata"},
 #ifdef HasJava
   {"Patch200504a", "Douglas Wilkins, Java support enabled"},
 #else
   {"Patch200504a", "Douglas Wilkins, Java support disabled"},
 #endif
-  // Patches that have been applied
   {"Patch200502a", "Joost Nieuwenhuijse, Crop outside of image, http://www.ptgui.com"},
   {"Patch200410a", "Jim Watters, JPEG optimization, http://photocreations.ca/panotools"},
   {"FastTransform01", "Fulvio Senore, Fast transform, http://www.fsoft.it/panorama/pano12.htm"},
