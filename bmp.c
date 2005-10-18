@@ -160,6 +160,7 @@ static int readBMP( Image *im, fullPath *sfile )
 	int y;
 	int scanLength;
 	long count;
+	int reverse = 0;
 	
 	// Bitmap file open
 	if( myopen( sfile, read_bin, input )	)
@@ -175,6 +176,11 @@ static int readBMP( Image *im, fullPath *sfile )
 	{
 		PrintError("readBMP, error reading bitmap file header");
 		return -1;
+	}
+	if(0 > im->height) //JMW  BMP has rows from bottom to top
+	{
+		im->height = -im->height;
+		reverse = 1;
 	}
 
 	scanLength = (im->width * 3 + 1)/2;
@@ -195,7 +201,12 @@ static int readBMP( Image *im, fullPath *sfile )
 		return -1;
 	}
 	
-	data = *(im->data) + ((im->height-1) * im->bytesPerLine);
+
+	if( 0 == reverse)
+		data = *(im->data) + ((im->height-1) * im->bytesPerLine);
+	else // 1 == reverse
+		data = *(im->data);
+
 	for(y=0; y<im->height; y++)
 	{
 		count = scanLength;
@@ -218,7 +229,10 @@ static int readBMP( Image *im, fullPath *sfile )
 				c1+=3;
 			}
 		}
-		data -= im->bytesPerLine;
+		if( 0 == reverse)
+			data -= im->bytesPerLine;
+		else //1 == reverse
+			data += im->bytesPerLine;
 	}
 	
 	myclose(input);
@@ -287,7 +301,8 @@ static int readBMPFileHeader(Image *im, file_spec input)
 	
 	im->bitsPerPixel = 32;
 	im->bytesPerLine = im->width * 4;
-	im->dataSize = im->bytesPerLine * im->height;
+	// JMW Negative height BMP have rows bottom to top
+	im->dataSize = im->bytesPerLine * abs(im->height);
 	
 	// Advance file pointer to start of image data
 	fseek( input, header.ImageDataOffset, SEEK_SET );
