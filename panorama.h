@@ -274,7 +274,7 @@ typedef struct TrformStr TrformStr;
 											
 											
 
-void filter_main();
+//void filter_main();
 
 
 #endif // PANORAMA_H
