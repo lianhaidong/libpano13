@@ -59,5 +59,5 @@
 #define PTVERSION_NAME_COMMENT "Comments"
 #endif
 #ifndef PTVERSION_COMMENT
-#define PTVERSION_COMMENT "Fastest\0"
+#define PTVERSION_COMMENT "Antialiasing\0"
 #endif
