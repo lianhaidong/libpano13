@@ -213,10 +213,36 @@ int writeTIFF(Image *im, fullPath *sfile){
 
 	TIFFSetField(tif, TIFFTAG_IMAGEWIDTH, im->width);
   	TIFFSetField(tif, TIFFTAG_IMAGELENGTH, im->height);
-   	TIFFSetField(tif, TIFFTAG_BITSPERSAMPLE, im->bitsPerPixel < 48 ? 8 : 16 );
 	TIFFSetField(tif, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB);
 	TIFFSetField(tif, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
-	TIFFSetField(tif, TIFFTAG_SAMPLESPERPIXEL, im->bitsPerPixel == 24 || im->bitsPerPixel == 48 ? 3 : 4);
+
+    // Thomas Rauscher, Add for 32 bit (float) support
+    //  
+	// 	TIFFSetField(tif, TIFFTAG_BITSPERSAMPLE, im->bitsPerPixel < 48 ? 8 : 16 );
+    //	TIFFSetField(tif, TIFFTAG_SAMPLESPERPIXEL, im->bitsPerPixel == 24 || im->bitsPerPixel == 48 ? 3 : 4);
+
+	switch (im->bitsPerPixel) {
+		case 24:TIFFSetField(tif, TIFFTAG_BITSPERSAMPLE, 8);
+			    TIFFSetField(tif, TIFFTAG_SAMPLESPERPIXEL, 3);
+				break;
+		case 32:TIFFSetField(tif, TIFFTAG_BITSPERSAMPLE, 8);
+			    TIFFSetField(tif, TIFFTAG_SAMPLESPERPIXEL, 4);
+				break;
+		case 48:TIFFSetField(tif, TIFFTAG_BITSPERSAMPLE, 16);
+			    TIFFSetField(tif, TIFFTAG_SAMPLESPERPIXEL, 3);
+				break;
+		case 64:TIFFSetField(tif, TIFFTAG_BITSPERSAMPLE, 16);
+			    TIFFSetField(tif, TIFFTAG_SAMPLESPERPIXEL, 4);
+				break;
+		case 96:TIFFSetField(tif, TIFFTAG_BITSPERSAMPLE, 32);
+			    TIFFSetField(tif, TIFFTAG_SAMPLESPERPIXEL, 3);
+			    TIFFSetField(tif, TIFFTAG_SAMPLEFORMAT, SAMPLEFORMAT_IEEEFP);
+				break;
+		case 128:TIFFSetField(tif, TIFFTAG_BITSPERSAMPLE, 32);
+			    TIFFSetField(tif, TIFFTAG_SAMPLESPERPIXEL, 4);
+			    TIFFSetField(tif, TIFFTAG_SAMPLEFORMAT, SAMPLEFORMAT_IEEEFP);
+				break;
+	}
 	TIFFSetField(tif, TIFFTAG_COMPRESSION, COMPRESSION_PACKBITS );	
 	TIFFSetField(tif, TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT );
 	TIFFSetField(tif, TIFFTAG_ROWSPERSTRIP, im->height );
@@ -268,6 +294,17 @@ void RGBAtoARGB(UCHAR* buf, int width, int bitsPerPixel){
 				}
 			}
 			break;
+		case 128: {
+				float *bufs=(float*)buf, pix;
+				for(x=0; x<width; x++,bufs+=4){
+					pix = bufs[3];
+					bufs[3] = bufs[2];
+					bufs[2] = bufs[1];
+					bufs[1] = bufs[0];
+					bufs[0] = pix;
+				}
+			}
+			break;
 	}
 }
 
@@ -287,6 +324,17 @@ void ARGBtoRGBA(UCHAR* buf, int width, int bitsPerPixel){
 			break;
 		case 64:{
 				USHORT *bufs = (USHORT*)buf, pix;
+				for(x=0; x<width; x++, bufs+=4){
+					pix = bufs[0];
+					bufs[0] = bufs[1];
+					bufs[1] = bufs[2];
+					bufs[2] = bufs[3];
+					bufs[3] = pix;
+				}
+			}
+			break;
+		case 128:{
+				float *bufs = (float*)buf, pix;
 				for(x=0; x<width; x++, bufs+=4){
 					pix = bufs[0];
 					bufs[0] = bufs[1];

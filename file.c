@@ -1570,7 +1570,7 @@ static void orAlpha( unsigned char* alpha, unsigned char *buf, Image *im, PTRect
 	
 	GetBitsPerChannel( im, BitsPerChannel );
 
-	if( im->bitsPerPixel != 32 && im->bitsPerPixel != 64) return;
+	if( im->bitsPerPixel != 32 && im->bitsPerPixel != 64 && im->bitsPerPixel != 128) return;
 	
 	w = (theRect->right - theRect->left);
 	
@@ -1589,7 +1589,7 @@ static void orAlpha( unsigned char* alpha, unsigned char *buf, Image *im, PTRect
 			}
 		}
 	}
-	else // 16
+	if( BitsPerChannel == 16 )
 	{
 		for(y=theRect->top; y<theRect->bottom; y++)
 		{
@@ -1600,6 +1600,21 @@ static void orAlpha( unsigned char* alpha, unsigned char *buf, Image *im, PTRect
 				{
 					if( *((USHORT*)(buf+ by + 2*(x - theRect->left))) )
 						*((USHORT*)(alpha + ay + 2*x) ) = 65535U;
+				}
+			}
+		}
+	}
+	if( BitsPerChannel == 32 )
+	{
+		for(y=theRect->top; y<theRect->bottom; y++)
+		{
+			ay = y * im->width * 2;
+			by = (y - theRect->top) * w * 2;
+			{
+				for(x=theRect->left; x<theRect->right; x++)
+				{
+					if( *((float*)(buf+ by + 2*(x - theRect->left))) )
+						*((float*)(alpha + ay + 2*x) ) = 1.0;
 				}
 			}
 		}

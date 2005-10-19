@@ -53,9 +53,10 @@ void dispatch (TrformStr *TrPtr, sPrefs *spref)
 	
 
 	if( TrPtr->src->bitsPerPixel != 32 && TrPtr->src->bitsPerPixel != 24 &&
-		TrPtr->src->bitsPerPixel != 64 && TrPtr->src->bitsPerPixel != 48) 	// Only support 3/4 byte/short pixels
+		TrPtr->src->bitsPerPixel != 64 && TrPtr->src->bitsPerPixel != 48 &&
+		TrPtr->src->bitsPerPixel != 128 && TrPtr->src->bitsPerPixel != 96) 	// Only support 3/4 byte/short pixels
 	{
-		PrintError( "Please convert image to 24/32/48/64 bit pixelsize.");
+		PrintError( "Please convert image to 24/32/48/64/96/128 bit pixelsize.");
 		PrintError( "Pixelsize is now  %d", (int)TrPtr->src->bitsPerPixel );		
 		TrPtr->success = 0;
 		return;
@@ -314,6 +315,8 @@ void filter( TrformStr *TrPtr, flfn func, flfn16 func16, void* params, int color
 	int					BytesPerSample = 0;
 	
 	switch( TrPtr->src->bitsPerPixel ){
+		case 128:	FirstColorByte = 4; BytesPerPixel = 16; SamplesPerPixel = 4; BytesPerSample = 4; break;
+		case 96:	FirstColorByte = 0; BytesPerPixel = 12; SamplesPerPixel = 3; BytesPerSample = 4; break;
 		case 64:	FirstColorByte = 2; BytesPerPixel = 8; SamplesPerPixel = 4; BytesPerSample = 2; break;
 		case 48:	FirstColorByte = 0; BytesPerPixel = 6; SamplesPerPixel = 3; BytesPerSample = 2; break;
 		case 32:	FirstColorByte = 1; BytesPerPixel = 4; SamplesPerPixel = 4; BytesPerSample = 1; break;
@@ -639,7 +642,7 @@ void CopyImageData( Image *dest, Image *src )
 void ThreeToFourBPP( Image *im ){
 	register int x,y,c1,c2;
 
-	if( im->bitsPerPixel == 32 || im->bitsPerPixel == 64) // Nothing to do
+	if( im->bitsPerPixel == 32 || im->bitsPerPixel == 64 || im->bitsPerPixel == 128) // Nothing to do
 		return;
 
 	if( im->bitsPerPixel == 24 ){	// Convert to 4byte / pixel
@@ -669,6 +672,20 @@ void ThreeToFourBPP( Image *im ){
 		im->bitsPerPixel = 64;
 		im->bytesPerLine = im->width * 8;
 	}
+	else if( im->bitsPerPixel == 96 ){ // Convert to 16byte / pixel
+		for( y = im->height-1; y>=0; y--){
+			for( x= im->width-1; x>=0; x--){
+				c1 = (y * im->width + x) * 4;
+				c2 = y * im->bytesPerLine/4 + x * 3;
+				((float*)(*(im->data)))[c1++] = 1.0;
+				((float*)(*(im->data)))[c1++] = ((float*)(*(im->data)))[c2++];
+				((float*)(*(im->data)))[c1++] = ((float*)(*(im->data)))[c2++];
+				((float*)(*(im->data)))[c1++] = ((float*)(*(im->data)))[c2++];
+			}
+		}
+		im->bitsPerPixel = 128;
+		im->bytesPerLine = im->width * 16;
+	}
 	im->dataSize = im->height * im->bytesPerLine;
 }
 
@@ -678,7 +695,7 @@ void 	FourToThreeBPP		( Image *im )
 {
 	register int x,y,c1,c2;
 	
-	if( im->bitsPerPixel == 24 || im->bitsPerPixel == 48 ) // Nothing to do
+	if( im->bitsPerPixel == 24 || im->bitsPerPixel == 48 || im->bitsPerPixel == 96) // Nothing to do
 		return;
 
 	
@@ -717,6 +734,24 @@ void 	FourToThreeBPP		( Image *im )
 		}
 		im->bitsPerPixel = 48;
 		im->bytesPerLine = im->width * 6;
+	}
+	else if( im->bitsPerPixel == 128 )// Convert to 12byte / pixel
+	{
+		register float *data = (float*)*(im->data);
+		for( y = 0; y < im->height; y++)
+		{
+			for( x=0; x < im->width; x++)
+			{
+				c1 =  y * im->bytesPerLine/4 + x * 4;
+				c2 = (y * im->width + x) * 3;
+				c1++;
+				data [c2++] = data [c1++];
+				data [c2++] = data [c1++];
+				data [c2++] = data [c1++];
+			}
+		}
+		im->bitsPerPixel = 96;
+		im->bytesPerLine = im->width * 12;
 	}
 	
 	im->dataSize = im->height * im->bytesPerLine;
