@@ -442,7 +442,7 @@ typedef struct MultiLayerImage MultiLayerImage;
 
 
 	
-	
+void filter_main( TrformStr *TrPtr, sPrefs *spref);	
 
 
 // Transformation function type (we have only one...)
@@ -478,9 +478,9 @@ typedef		void (*intFunc)( unsigned char *dst, 	unsigned char **rgb,
 							register double Dy,
 							int color, int SamplesPerPixel);
 
+// Filter function type for anti aliasing Filter
 
-
-
+typedef double  (*aaFilter)(const double,const double);
 
 // Gamma Correction
 
@@ -648,6 +648,7 @@ int		ReadMorphPoints( char *script, AlignInfo *gl, int nIm );
 
 void 	addAlpha			( Image *im ); 
 void 	transForm			( TrformStr *TrPtr, fDesc *fD, int color);
+void 	transFormEx			( TrformStr *TrPtr, fDesc *fD,fDesc *finvD, int color);
 void    filter				( TrformStr *TrPtr, flfn func, flfn16 func16, void* params, int color);		
 void 	CopyImageData		( Image *dest, Image *src );
 void 	laplace				( Image *im );

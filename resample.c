@@ -52,6 +52,7 @@ void MyTransForm( TrformStr *TrPtr, fDesc *fD, int color, int imageNum);
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <assert.h>
 
 #if _MSC_VER > 1000
 #pragma warning(disable: 4100) // disable unreferenced formal parameter warning
@@ -113,7 +114,7 @@ static void spline16( unsigned char *dst, unsigned char **rgb,
 		
 static void spline36( unsigned char *dst, unsigned char **rgb,  
 		register double Dx, register double Dy,	int color, int SamplesPerPixel);
-		
+
 static void spline64( unsigned char *dst, unsigned char **rgb,  
 		register double Dx, register double Dy,	int color, int SamplesPerPixel);
 
@@ -445,7 +446,6 @@ static void bil( unsigned char *dst, unsigned char **rgb,
 static void poly3( unsigned char *dst, unsigned char **rgb,  
 		register double Dx, register double Dy,	int color, int SamplesPerPixel)
 		{	RESAMPLE_N( CUBIC, 4, char) 	}
-
 
 // Spline using 16 pixels; smoother and less artefacts than poly3, softer; same speed
 
@@ -1157,6 +1157,928 @@ Trform_exit:
 		fclose( fp );
 	}
 	// FS-
+
+	return;
+}
+
+void transForm_aa( TrformStr *TrPtr, fDesc *fD,fDesc *finvD, int color);
+
+
+void transFormEx( TrformStr *TrPtr, fDesc *fD,fDesc *finvD, int color) {
+
+	if (TrPtr->interpolator<_aabox) {
+		 transForm(TrPtr,fD,color);
+	} else {
+		 transForm_aa(TrPtr,fD,finvD,color);
+	}
+}
+
+
+// The following Filter functions for anti aliasing filters are inspired by the 
+// Graphick Magick resize function. http://www.graphicsmagick.org
+
+static double J1(double x)
+{
+  double
+    p,
+    q;
+
+  register long
+    i;
+
+  static const double
+    Pone[] =
+    {
+       0.581199354001606143928050809e+21,
+      -0.6672106568924916298020941484e+20,
+       0.2316433580634002297931815435e+19,
+      -0.3588817569910106050743641413e+17,
+       0.2908795263834775409737601689e+15,
+      -0.1322983480332126453125473247e+13,
+       0.3413234182301700539091292655e+10,
+      -0.4695753530642995859767162166e+7,
+       0.270112271089232341485679099e+4
+    },
+    Qone[] =
+    {
+      0.11623987080032122878585294e+22,
+      0.1185770712190320999837113348e+20,
+      0.6092061398917521746105196863e+17,
+      0.2081661221307607351240184229e+15,
+      0.5243710262167649715406728642e+12,
+      0.1013863514358673989967045588e+10,
+      0.1501793594998585505921097578e+7,
+      0.1606931573481487801970916749e+4,
+      0.1e+1
+    };
+
+  p=Pone[8];
+  q=Qone[8];
+  for (i=7; i >= 0; i--)
+  {
+    p=p*x*x+Pone[i];
+    q=q*x*x+Qone[i];
+  }
+  return(p/q);
+}
+
+static double P1(double x)
+{
+  double
+    p,
+    q;
+
+  register long
+    i;
+
+  static const double
+    Pone[] =
+    {
+      0.352246649133679798341724373e+5,
+      0.62758845247161281269005675e+5,
+      0.313539631109159574238669888e+5,
+      0.49854832060594338434500455e+4,
+      0.2111529182853962382105718e+3,
+      0.12571716929145341558495e+1
+    },
+    Qone[] =
+    {
+      0.352246649133679798068390431e+5,
+      0.626943469593560511888833731e+5,
+      0.312404063819041039923015703e+5,
+      0.4930396490181088979386097e+4,
+      0.2030775189134759322293574e+3,
+      0.1e+1
+    };
+
+  p=Pone[5];
+  q=Qone[5];
+  for (i=4; i >= 0; i--)
+  {
+    p=p*(8.0/x)*(8.0/x)+Pone[i];
+    q=q*(8.0/x)*(8.0/x)+Qone[i];
+  }
+  return(p/q);
+}
+
+static double Q1(double x)
+{
+  double
+    p,
+    q;
+
+  register long
+    i;
+
+  static const double
+    Pone[] =
+    {
+      0.3511751914303552822533318e+3,
+      0.7210391804904475039280863e+3,
+      0.4259873011654442389886993e+3,
+      0.831898957673850827325226e+2,
+      0.45681716295512267064405e+1,
+      0.3532840052740123642735e-1
+    },
+    Qone[] =
+    {
+      0.74917374171809127714519505e+4,
+      0.154141773392650970499848051e+5,
+      0.91522317015169922705904727e+4,
+      0.18111867005523513506724158e+4,
+      0.1038187585462133728776636e+3,
+      0.1e+1
+    };
+
+  p=Pone[5];
+  q=Qone[5];
+  for (i=4; i >= 0; i--)
+  {
+    p=p*(8.0/x)*(8.0/x)+Pone[i];
+    q=q*(8.0/x)*(8.0/x)+Qone[i];
+  }
+  return(p/q);
+}
+
+static double BesselOrderOne(double x)
+{
+  double
+    p,
+    q;
+
+  if (x == 0.0)
+    return(0.0);
+  p=x;
+  if (x < 0.0)
+    x=(-x);
+  if (x < 8.0)
+    return(p*J1(x));
+  q=sqrt(2.0/(PI*x))*(P1(x)*(1.0/sqrt(2.0)*(sin(x)-cos(x)))-8.0/x*Q1(x)*
+    (-1.0/sqrt(2.0)*(sin(x)+cos(x))));
+  if (p < 0.0)
+    q=(-q);
+  return(q);
+}
+
+static double Bessel(const double x,const double support)
+{
+  if (x == 0.0)
+    return(PI/4.0);
+  return(BesselOrderOne(PI*x)/(2.0*x));
+}
+
+static double Sinc(const double x,const double support)
+{
+  if (x == 0.0)
+    return(1.0);
+  return(sin(PI*x)/(PI*x));
+}
+
+static double Blackman(const double x,const double support)
+{
+  if (x < -1.0) return(0.0);
+  if (x > 1.0) return(0.0);
+  return(0.42+0.5*cos(PI*x)+0.08*cos(2*PI*x));
+}
+
+static double BlackmanBessel(const double x,const double support)
+{
+  return(Blackman(x/support,support)*Bessel(x,support));
+}
+
+static double BlackmanSinc(const double x,const double support)
+{
+  return(Blackman(x/support,support)*Sinc(x,support));
+}
+
+static double Box(const double x,const double support)
+{
+  if (x < -0.5)
+    return(0.0);
+  if (x < 0.5)
+    return(1.0);
+  return(0.0);
+}
+
+static double Catrom(const double x,const double support)
+{
+  if (x < -2.0)
+    return(0.0);
+  if (x < -1.0)
+    return(0.5*(4.0+x*(8.0+x*(5.0+x))));
+  if (x < 0.0)
+    return(0.5*(2.0+x*x*(-5.0-3.0*x)));
+  if (x < 1.0)
+    return(0.5*(2.0+x*x*(-5.0+3.0*x)));
+  if (x < 2.0)
+    return(0.5*(4.0+x*(-8.0+x*(5.0-x))));
+  return(0.0);
+}
+
+static double Cubic(const double x,const double support)
+{
+  if (x < -2.0)
+    return(0.0);
+  if (x < -1.0)
+    return((2.0+x)*(2.0+x)*(2.0+x)/6.0);
+  if (x < 0.0)
+    return((4.0+x*x*(-6.0-3.0*x))/6.0);
+  if (x < 1.0)
+    return((4.0+x*x*(-6.0+3.0*x))/6.0);
+  if (x < 2.0)
+    return((2.0-x)*(2.0-x)*(2.0-x)/6.0);
+  return(0.0);
+}
+
+static double Gaussian(const double x,const double support)
+{
+  // Gaussian 1/sqrt(2)
+  return(sqrt(2.0/PI) * exp(-2.0*x*x));
+}
+
+static double Gaussian_2(const double x,const double support)
+{
+  // Gaussian 1/2
+//  double d=0.5;
+//  return ( 1.0/(2.0*d*sqrt(2.0*PI)) * exp(-2.0*x*x/(2*d*d)) );
+  return ( 1.0/sqrt(2.0*PI) * exp(-4.0*x*x) );
+}
+
+static double Hanning(const double x,const double support)
+{
+  if (fabs(x) > 1.0) return 0;
+  return(0.5+0.5*cos(PI*x));
+}
+
+static double Hamming(const double x,const double support)
+{
+  if (fabs(x) > 1.0) return 0;
+  return(0.54+0.46*cos(PI*x));
+}
+
+static double Hermite(const double x,const double support)
+{
+  if (x < -1.0)
+    return(0.0);
+  if (x < 0.0)
+    return((2.0*(-x)-3.0)*(-x)*(-x)+1.0);
+  if (x < 1.0)
+    return((2.0*x-3.0)*x*x+1.0);
+  return(0.0);
+}
+
+static double Lanczos(const double x,const double support)
+{
+  if (x < -3.0)
+    return(0.0);
+  if (x < 0.0)
+    return(Sinc(-x,support)*Sinc(-x/3.0,support));
+  if (x < 3.0)
+    return(Sinc(x,support)*Sinc(x/3.0,support));
+  return(0.0);
+}
+
+static double Mitchell(const double x,const double support)
+{
+#define B   (1.0/3.0)
+#define C   (1.0/3.0)
+#define P0  ((  6.0- 2.0*B       )/6.0)
+#define P2  ((-18.0+12.0*B+ 6.0*C)/6.0)
+#define P3  (( 12.0- 9.0*B- 6.0*C)/6.0)
+#define Q0  ((       8.0*B+24.0*C)/6.0)
+#define Q1  ((     -12.0*B-48.0*C)/6.0)
+#define Q2  ((       6.0*B+30.0*C)/6.0)
+#define Q3  ((     - 1.0*B- 6.0*C)/6.0)
+
+  if (x < -2.0)
+    return(0.0);
+  if (x < -1.0)
+    return(Q0-x*(Q1-x*(Q2-x*Q3)));
+  if (x < 0.0)
+    return(P0+x*x*(P2-x*P3));
+  if (x < 1.0)
+    return(P0+x*x*(P2+x*P3));
+  if (x < 2.0)
+    return(Q0+x*(Q1+x*(Q2+x*Q3)));
+  return(0.0);
+}
+
+static double Quadratic(const double x,const double support)
+{
+  if (x < -1.5)
+    return(0.0);
+  if (x < -0.5)
+    return(0.5*(x+1.5)*(x+1.5));
+  if (x < 0.5)
+    return(0.75-x*x);
+  if (x < 1.5)
+    return(0.5*(x-1.5)*(x-1.5));
+  return(0.0);
+}
+
+static double Triangle(const double x,const double support)
+{
+  if (x < -1.0)
+    return(0.0);
+  if (x < 0.0)
+    return(1.0+x);
+  if (x < 1.0)
+    return(1.0-x);
+  return(0.0);
+}
+
+double Lanczos2(double x,double support) {
+	if (fabs(x)>=2) return 0;
+	return sinc(x) * sinc(x/2);
+}
+
+double Lanczos3(double x,double support) {
+	if (fabs(x)>=3) return 0;
+	return sinc(x) * sinc(x/3);
+}
+
+
+// Cache for the Invers transformation
+
+struct invCacheItem {
+		short dstX,dstY;
+		double srcX,srcY;
+	};
+typedef struct invCacheItem invCacheItem;
+
+// 2 Random selected Prime numbers for the Hashmap 
+#define INV_CACHE_SIZE 299993
+#define INV_CACHE_FY	25793
+#define FF_STACK_SIZE	100000
+
+//
+struct ffQueueItem {
+		int x,y; 
+	};
+
+typedef struct ffQueueItem ffQueueItem;
+
+#define ffStackAdd( c_x , c_y) {						\
+	int nx=c_x,ny=c_y;										\
+	unsigned int bp;										\
+	if (warpover) nx=(nx + srcWidth) % srcWidth;				\
+	if ((nx>=0) && (nx<srcWidth) && (ny>=0) && (ny<srcHeight)) {	\
+		int pp,p=(int)nx+ny*srcWidth;								\
+		pp=p / 32;													\
+		bp=1 << (p % 32);											\
+		if ((ffIsInQueue[pp] & bp)==0) {							\
+			ffStack[ffStackTop].x=nx;								\
+			ffStack[ffStackTop].y=ny;								\
+			ffStackTop++;											\
+			assert(ffStackTop<FF_STACK_SIZE);						\
+			if (ptmod_last<pp) ptmod_last=pp;						\
+			if (ptmod_first>pp) ptmod_first=pp;						\
+			ffIsInQueue[pp]|=bp;									\
+		}															\
+	}																\
+}		
+
+/**************************************************************************
+Thomas Rauscher, Okt 2005
+
+New Transformation mehthode with antialiasing filters. The new function needs the
+invers function of the transformation, so it can't be used as a direct replacement
+
+Rik Littelfield descriped the function as followed:
+
+To compute the value of an output pixel: 
+1. Let the integer coordinates of the output pixel be called COC (central output coordinates). 
+2. Transform COC into floating point coordinates within the input image.  Call the latter CIC (central input coordinates). 
+3. For all input pixels that "close" to CIC: 
+3a. Transform the input pixel's coordinates (IC) to output coordinates (OC). 
+3b. Determine the output distance OD = OC - COC 
+3c. Use OD and the filter function to determine weight w. 
+3d. Accumulate w and w * (input pixel value) 
+4. Store output pixel value = (weighted sum of input pixels) / (sum of weights) 
+
+"Close" in step 3 is defined as being any pixel that will have non-zero weight.  
+To find those the function uses a flood-fill algorithm based on steps 3a-3c. 
+
+The function caches the transformed coordinates OC to speed things up. 
+
+*/
+
+
+void transForm_aa( TrformStr *TrPtr, fDesc *fD,fDesc *finvD, int color){
+	register pt_int32 		x, y;		// Loop through destination image
+	int 			skip = 0;	// Update progress counter
+	unsigned char 		*dest,*src;// Source and destination image data
+										// Message to be displayed by progress reporter
+	char*			progressMessage = "Something is wrong here";
+	char                	percent[8];	// Number displayed by Progress reporter
+	int			valid;		// Is this pixel valid? (i.e. inside source image)
+	long			coeff;		// pixel coefficient in destination image
+	long			cy;		// rownum in destimage
+	int			xc,yc;
+
+	double 			x_d, y_d;	// Cartesian Coordinates of point ("target") in Destination image
+	double 		  	Dx, Dy;		// Coordinates of target in Source image
+	double 		  	orgDx, orgDy;		// Coordinates of target in Source image
+
+	double			max_x = (double) TrPtr->src->width; // Maximum x values in source image
+	double			max_y = (double) TrPtr->src->height; // Maximum y values in source image
+	double			min_x =  -1.0;//0.0; // Minimum x values in source image
+	double			min_y =  -1.0;//0.0; // Minimum y values in source image
+
+	int			mix	  = TrPtr->src->width - 1; // maximum x-index src
+	
+	int			mix2;
+	int			miy	  = TrPtr->src->height - 1;// maximum y-index src
+	int			miy2;
+
+	// Variables used to convert screen coordinates to cartesian coordinates
+
+	double 			w2 	= (double) TrPtr->dest->width  / 2.0 - 0.5;  // Steve's L
+	double 			h2 	= (double) TrPtr->dest->height / 2.0 - 0.5;
+	double 			sw2 = (double) TrPtr->src->width   / 2.0 - 0.5;
+	double 			sh2 = (double) TrPtr->src->height  / 2.0 - 0.5;
+	
+	int			BytesPerLine	= TrPtr->src->bytesPerLine;
+	int			FirstColorByte, SamplesPerPixel;
+	unsigned int	BytesPerPixel, BytesPerSample;
+
+	int			n, n2;		// How many pixels should be used for interpolation	
+	// int 			lu = 0;		// Use lookup table?
+	int			wrap_x = FALSE;
+	double			theGamma;	// gamma handed to SetUpGamma()
+	
+	// Some things for the floodfill algorithm
+	
+	invCacheItem *invCache;
+
+	ffQueueItem ffItem;
+
+	int ptmod_last=0,ptmod_first=0;
+	int ffStackTop=0,ffIsInQueueSize;
+	ffQueueItem *ffStack;
+	int			srcWidth; 
+	int			srcHeight; 
+	unsigned int *ffIsInQueue;
+
+	int ccx,ccy;
+	double d,sd,ox,oy;
+	long cp;
+
+	// Variables for antialiasing filter
+	aaFilter aafilter;
+	double aaSupport=0;
+
+	//////////////////////////////////////////////////////////////////////////
+
+	// Selection rectangle
+	PTRect			destRect;
+	if( TrPtr->dest->selection.bottom == 0 && TrPtr->dest->selection.right == 0 ){
+		destRect.left 	= 0;
+		destRect.right	= TrPtr->dest->width;
+		destRect.top	= 0;
+		destRect.bottom = TrPtr->dest->height;
+	}else{
+		memcpy( &destRect, &TrPtr->dest->selection, sizeof(PTRect) );
+	}
+
+	srcWidth  = TrPtr->src->width; 
+	srcHeight  = TrPtr->src->height; 
+
+	switch( TrPtr->src->bitsPerPixel ){
+		case 128:	FirstColorByte = 4; BytesPerPixel = 16; SamplesPerPixel = 4; BytesPerSample = 4; break;
+		case  96:	FirstColorByte = 0; BytesPerPixel = 12; SamplesPerPixel = 3; BytesPerSample = 4; break;
+		case  64:	FirstColorByte = 2; BytesPerPixel = 8; SamplesPerPixel = 4; BytesPerSample = 2; break;
+		case  48:	FirstColorByte = 0; BytesPerPixel = 6; SamplesPerPixel = 3; BytesPerSample = 2; break;
+		case  32:	FirstColorByte = 1; BytesPerPixel = 4; SamplesPerPixel = 4; BytesPerSample = 1; break;
+		case  24:	FirstColorByte = 0; BytesPerPixel = 3; SamplesPerPixel = 3; BytesPerSample = 1; break;
+		case   8:	FirstColorByte = 0; BytesPerPixel = 1; SamplesPerPixel = 1; BytesPerSample = 1; break;
+		default :	PrintError("Unsupported Pixel Size: %d", TrPtr->src->bitsPerPixel);
+					TrPtr->success = 0;
+					return;
+	}
+	
+	// Set interpolator etc:
+	n=1;
+	switch( TrPtr->interpolator ){
+		case _aabox:
+			aaSupport = 0.5;
+			aafilter=Box;
+			break;
+		case _aatriangle:
+			aaSupport = 1;
+			aafilter=Triangle;
+			break;
+		case _aahermite:
+			aaSupport = 1;
+			aafilter=Hermite;
+			break;
+		case _aahanning:
+			aaSupport = 1;
+			aafilter=Hanning;
+			break;
+		case _aahamming:
+			aaSupport = 1;
+			aafilter=Hamming;
+			break;
+		case _aablackman:
+			aaSupport = 1;
+			aafilter=Blackman;
+			break;
+		case _aagaussian:
+			aaSupport = 1.25;
+			aafilter=Gaussian;
+			break;
+		case _aagaussian2:
+			aaSupport = 1.0;
+			aafilter=Gaussian_2;
+			break;
+		case _aaquadratic:
+			aaSupport = 1.5;
+			aafilter=Quadratic;
+			break;
+		case _aacubic:
+			aaSupport = 2;
+			aafilter=Cubic;
+			break;
+		case _aacatrom:
+			aaSupport = 2;
+			aafilter=Catrom;
+			break;
+		case _aamitchell:
+			aaSupport = 2;
+			aafilter=Mitchell;
+			break;
+		case _aalanczos2: // antialias lanczos2
+			aaSupport = 2;
+			aafilter=Lanczos2;
+			break;
+		case _aalanczos3: // antialias lanczos3
+			aaSupport = 3;
+			aafilter=Lanczos3;
+			break;
+		case _aablackmanbessel:
+			aaSupport = 3.2383;
+			aafilter=BlackmanBessel;
+			break;
+		case _aablackmansinc:
+			aaSupport = 4;
+			aafilter=BlackmanSinc;
+			break;
+		default: 
+			PrintError( "Invalid Antialiased Interpolator selected" );
+			TrPtr->success = 0;
+			return;
+	}
+
+	n2 = n/2 ;
+	mix2 = mix +1 - n;
+	miy2 = miy +1 - n;
+
+	dest = *TrPtr->dest->data;
+	src  = *TrPtr->src->data; // is locked
+
+	if(TrPtr->mode & _show_progress){
+		switch(color){
+			case 0: progressMessage = "Image Conversion"; 	break;
+			case 1:	switch( TrPtr->src->dataformat){
+						case _RGB: 	progressMessage = "Red Channel"  ; break;
+						case _Lab:	progressMessage = "Lightness" 	 ; break;
+					} break;
+			case 2:	switch( TrPtr->src->dataformat){
+						case _RGB: 	progressMessage = "Green Channel"; break;
+						case _Lab:	progressMessage = "Color A" 	 ; break;
+					} break; 
+			case 3:	switch( TrPtr->src->dataformat){
+						case _RGB: 	progressMessage = "Blue Channel"; break;
+						case _Lab:	progressMessage = "Color B" 	; break;
+					} break; 
+//			default: progressMessage = "Something is wrong here";
+		}
+		Progress( _initProgress, progressMessage );
+	}
+
+	if(TrPtr->mode & _wrapX)
+		wrap_x = TRUE;
+
+	if( TrPtr->src->dataformat == _RGB )	// Gamma correct only RGB-images
+		theGamma = TrPtr->gamma;
+	else
+		theGamma = 1.0;
+	
+	if (BytesPerSample<=2) {
+		if( SetUpGamma( theGamma, BytesPerSample) != 0 ){
+			PrintError( "Could not set up lookup table for Gamma Correction" );
+			TrPtr->success = 0;
+			goto Trform_exit;
+		}
+	}
+
+	// Allocate the memory for the Stack, Floodfill markers and Cache
+	invCache=(invCacheItem *) calloc(INV_CACHE_SIZE * sizeof(invCacheItem),1);
+	ffStack=(ffQueueItem *) calloc(FF_STACK_SIZE * sizeof(ffQueueItem),1);
+	ffIsInQueueSize=(((srcWidth*srcHeight) / 32) + 1);
+	ffIsInQueue=(pt_uint32 *)  calloc(ffIsInQueueSize * sizeof(pt_uint32),1);
+
+	for(y=destRect.top; y<destRect.bottom; y++){
+		// Update Progress report and check for cancel every 2%.
+		skip++;
+		if( skip == (int)ceil(TrPtr->dest->height/50.0) ){
+			if(TrPtr->mode & _show_progress){	
+				sprintf( percent, "%d", (int) ((y * 100)/ TrPtr->dest->height));
+				if( ! Progress( _setProgress, percent ) ){
+					TrPtr->success = 0;
+					goto Trform_exit;
+				}
+			}else{
+				if( ! Progress( _idleProgress, 0) ){
+					TrPtr->success = 0;
+					goto Trform_exit;
+				}
+			}
+			skip = 0;
+		}
+		
+		// y-coordinate in dest image relative to center		
+		y_d = (double) y - h2 ;
+		cy  = (y-destRect.top) * TrPtr->dest->bytesPerLine;	
+		
+		for(x=destRect.left; x<destRect.right; x++){
+			// Calculate pixel coefficient in dest image just once
+
+			coeff = cy  + BytesPerPixel * (x-destRect.left);		
+
+			// FS+
+			{
+				// Convert destination screen coordinates to cartesian coordinates.			
+				x_d = (double) x - w2 ;
+				
+				// Get source cartesian coordinates 
+				fD->func( x_d, y_d , &Dx, &Dy, fD->param);
+
+				orgDx=Dx;
+				orgDy=Dy;
+
+				Dx += sw2;
+				Dy += sh2;
+				
+				// Is the pixel valid, i.e. from within source image?
+				if( (Dx >= max_x)   || (Dy >= max_y) || (Dx < min_x) || (Dy < min_y)  )
+					valid = FALSE;
+				else
+					valid = TRUE;
+			}
+
+			// Convert only valid pixels
+			if( valid ){
+
+
+				// Extract integer and fractions of source screen coordinates
+				xc 	  =  (int)floor( Dx ) ; Dx -= (double)xc;
+				yc 	  =  (int)floor( Dy ) ; Dy -= (double)yc;
+				
+				// if alpha channel marks valid portions, set valid 
+				if(TrPtr->mode & _honor_valid)
+				switch( FirstColorByte ){
+					case 1:{
+						int xn = xc, yn = yc;
+						if( xn < 0 ) xn = 0; //  -1  crashes Windows
+						if( yn < 0 ) yn = 0; //  -1  crashes Windows
+						if( src[ yn * BytesPerLine + BytesPerPixel * xn] == 0 )
+							valid = FALSE;
+						}
+						break;
+					case 2:{
+						int xn = xc, yn = yc;
+						if( xn < 0 ) xn = 0; //  -1  crashes Windows
+						if( yn < 0 ) yn = 0; //  -1  crashes Windows
+						if( *((USHORT*)(src + yn * BytesPerLine + BytesPerPixel * xn)) == 0 )
+							valid = FALSE;
+						}
+						break;
+					case 4:{
+						int xn = xc, yn = yc;
+						if( xn < 0 ) xn = 0; //  -1  crashes Windows
+						if( yn < 0 ) yn = 0; //  -1  crashes Windows
+						if( *((float*)(src + yn * BytesPerLine + BytesPerPixel * xn)) == 0 )
+							valid = FALSE;
+						}
+						break;
+					default: break;
+				}
+			}
+			
+			if( valid ){	
+
+				int warpover=(TrPtr->src->format==_equirectangular);
+
+				int bx,by,ex,ey;											
+				double SrcX,SrcY,aaSrcX,aaSrcY;
+				double weight,w,rd,gd,bd;
+				pt_uint32 *ptui;
+
+				bx=floor(orgDx + sw2);
+				ex=ceil(orgDx + sw2);
+				by=floor(orgDy + sh2);  
+				ey=ceil(orgDy + sh2);
+				
+				// Clear only the modified floodfill markers
+				ptui=&ffIsInQueue[ptmod_first];
+				if (ptmod_last>=ptmod_first) memset(ptui,0,(ptmod_last-ptmod_first+1)*sizeof(ptui[0]));
+				ptmod_first=ffIsInQueueSize;
+				ptmod_last=0;
+
+				// Add the 4 surrounding pixels as seeds for the floodfile algorithm
+				ffStackAdd(bx,by);
+				ffStackAdd(ex,by);
+				ffStackAdd(bx,ey);
+				ffStackAdd(ex,ey);
+
+				weight=0;
+				rd=0;
+				gd=0;
+				bd=0;
+				while (ffStackTop) {
+					// Get the next position from the Stack
+					ffItem=ffStack[--ffStackTop];
+					ccx=ffItem.x;
+					ccy=ffItem.y;
+					
+					// Calculate the hash, +1 to avoid the 0,0 problem
+					cp=(1 + ccx + ccy*INV_CACHE_FY) % INV_CACHE_SIZE; 
+					if ((invCache[cp].dstX==ccx) && (invCache[cp].dstY==ccy)) { 
+						// Cachehit
+						SrcX=invCache[cp].srcX;
+						SrcY=invCache[cp].srcY;
+					} else {
+						// Calculate the invers function to get the exact position in the source image
+						finvD->func((ccx-sw2), (ccy-sh2) , &SrcX, &SrcY, finvD->param);
+						invCache[cp].dstX=ccx;
+						invCache[cp].dstY=ccy;
+						invCache[cp].srcX=SrcX;
+						invCache[cp].srcY=SrcY;
+					}
+ 					
+					// distance from the exact position in the source
+					aaSrcX=x_d-SrcX;
+					aaSrcY=y_d-SrcY;
+
+					// distance from the exact position in the destination
+					ox=(ccx-sw2) - orgDx;
+					oy=(ccy-sh2) - orgDy;
+					
+					if (warpover) {
+						if (ox > max_x/2.0) ox-=max_x;
+						if (ox < -max_x/2.0) ox+=max_x;
+						if (aaSrcX > max_x/2.0) aaSrcX-=max_x;
+						if (aaSrcX < -max_x/2.0) aaSrcX+=max_x;
+					}
+
+					sd=sqrt(aaSrcX*aaSrcX + aaSrcY*aaSrcY);
+					d=sqrt(ox*ox + oy*oy);
+
+					if (sd>d) { // we are upscaling!
+						aaSrcX*=d/sd;
+						aaSrcY*=d/sd;
+					}
+
+					// Calculate the weight for the current pixel of the source image
+					if ((fabs(aaSrcX)<aaSupport) && (fabs(aaSrcY)<aaSupport)) {
+						w=aafilter(aaSrcX,aaSupport) * aafilter(aaSrcY,aaSupport);
+					} else {
+						w=0;
+					}
+					if (w!=0) {
+						// Sum the total weight
+						weight +=w;			
+						// Add the weighted color values
+						switch(BytesPerSample) {
+							case 1:	{	
+										register unsigned char *ric=src + FirstColorByte + ccx*BytesPerPixel + ccy*BytesPerLine; // Pointer for 1 byte per pixel
+										rd += glu.DeGamma[(int)*ric] * w;
+										ric++;
+										gd += glu.DeGamma[(int)*ric] * w;					
+										ric++;
+										bd += glu.DeGamma[(int)*ric] * w;	
+									}
+									break;
+							case 2:	{
+										register unsigned short *ris=(unsigned short *)((char *)src + FirstColorByte + ccx*BytesPerPixel + ccy*BytesPerLine); 
+										rd += glu.DeGamma[(int)*ris] * w;
+										ris++;
+										gd += glu.DeGamma[(int)*ris] * w;					
+										ris++; 
+										bd += glu.DeGamma[(int)*ris] * w;	
+									}
+									break;
+							case 4:{
+										register float *rif=(float *)((char *)src + FirstColorByte + ccx*BytesPerPixel + ccy*BytesPerLine); 
+										rd += *rif * w;
+										rif++;
+										gd += *rif * w;					
+										rif++;
+										bd += *rif * w;	
+									}
+									break;
+						}
+						// Add the surround pixels as seeds to the stack
+						ffStackAdd(ccx-1,ccy-1);
+						ffStackAdd(ccx-1,ccy  );
+						ffStackAdd(ccx-1,ccy+1);
+
+						ffStackAdd(ccx+1,ccy-1);
+						ffStackAdd(ccx+1,ccy  );
+						ffStackAdd(ccx+1,ccy+1);
+						
+						ffStackAdd(ccx,ccy-1);
+						ffStackAdd(ccx,ccy+1);
+					}
+				}
+
+				if (weight==0) weight=1; // Just in case....
+				switch(BytesPerSample) {
+					case 1:	{
+								register unsigned char *aadst=&(dest[ coeff ]);
+								if (FirstColorByte) {
+									*aadst++=UCHAR_MAX;		 // Set alpha channel
+								}
+								if ((color==0) || (color==1)) {
+									*aadst  =   gamma_correct( rd/weight );
+								}
+								aadst++;
+								if ((color==0) || (color==2)) {
+									*aadst  =   gamma_correct( gd/weight );
+								}
+								aadst++;
+								if ((color==0) || (color==3)) {
+									*aadst  =   gamma_correct( bd/weight );
+								}
+							}
+							break;
+					case 2:	{
+								register unsigned short *aadst=(void *)&(dest[ coeff ]);
+								if (FirstColorByte) {
+									*aadst++=USHRT_MAX;		 // Set alpha channel
+								}
+								if ((color==0) || (color==1)) {
+									*aadst  =   gamma_correct( rd/weight );
+								}
+								aadst++;
+								if ((color==0) || (color==2)) {
+									*aadst  =   gamma_correct( gd/weight );
+								}
+								aadst++;
+								if ((color==0) || (color==3)) {
+									*aadst  =   gamma_correct( bd/weight );
+								}
+							}
+							break;
+					case 4:	{
+								float *aadst=((float*)(dest + coeff));
+								if (FirstColorByte) {
+									*aadst++=1.0; // Set alpha channel
+								}
+								if ((color==0) || (color==1)) {
+									*aadst  = rd/weight;
+								}
+								aadst++;
+								if ((color==0) || (color==2)) {
+									*aadst  = gd/weight;
+								}
+								aadst++;
+								if ((color==0) || (color==3)) {
+									*aadst  = bd/weight;
+								}
+							}
+							break;
+				}
+			}else{  // not valid
+				//Fix: Correct would use incorrect correction values if different factors were set for each color channel
+				//Kekus.Begin: March.2004
+				//was:
+				//memset( &(dest[ coeff ]), 0 ,BytesPerPixel );
+				//now:
+				if(color)
+				{
+					unsigned char*   ptr = &(dest[ coeff ]);
+					ptr += FirstColorByte + (color - 1)*BytesPerSample;
+					memset( ptr, 0 , (size_t)BytesPerSample ); //Kekus_test
+				}	
+				else
+					memset( &(dest[ coeff ]), 0 ,(size_t)BytesPerPixel ); //Kekus_test
+				//Kekus.End: March.2004
+			}
+		}
+	}
+	TrPtr->success = 1;
+
+
+Trform_exit:
+	if( glu.DeGamma )	free( glu.DeGamma ); 	glu.DeGamma 	= NULL;
+	if( glu.Gamma )		free( glu.Gamma );	glu.Gamma 	= NULL;
+
+	if(invCache != NULL) free(invCache);
+	if(ffStack != NULL) free(ffStack);
+	if(ffIsInQueue != NULL) free(ffIsInQueue);
 
 	return;
 }

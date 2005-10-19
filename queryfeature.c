@@ -23,8 +23,11 @@ typedef struct {char* name; char* value;}  TStringFeature;
 TIntFeature intFeatures[] ={
   {"CPErrorIsDistSphere",1},       // optimizer reports angular control point errors
   {"NumLensTypes",5},              // source lens types 0..4
+  {"NumPanoTypes",4},              // pano lens types 0..3
   {"CanCropOutside",1},
-  {"CanHaveNegativeCP",1} 
+  {"CanHaveNegativeCP",1},
+  {"AntiAliasingFilter",1},
+  {"NumFilter",24}
 };
 
 TDoubleFeature doubleFeatures[] ={
@@ -50,7 +53,67 @@ TStringFeature stringFeatures[]={
   {"LensMask2","C"},
   {"LensMask3","R"},
   {"LensMask4","R"},
+  // Pano lens type names 
+  // If a lens type is unavailable, set its name to ""
+  {"PanoType0","Normal (rectilinear)"},
+  {"PanoType1","Cylindrical"},
+  {"PanoType2","Equirectangular"},
+  {"PanoType3","Full Frame"},
+  // Filter Types
+  //   fix: Fixed Windowsize
+  //   aa: Antialiasing filter with adaptive filter size
+  // Filter Names 
+  {"FilterType0","fix"},
+  {"FilterName0","Poly3"},
+  {"FilterType1","fix"},
+  {"FilterName1","Spline16"},
+  {"FilterType2","fix"},
+  {"FilterName2","Spline36"},
+  {"FilterType2","fix"},
+  {"FilterName3","Sinc256"},
+  {"FilterType4","fix"},
+  {"FilterName4","Spline64"},
+  {"FilterType5","fix"},
+  {"FilterName5","Bilinear"},
+  {"FilterType6","fix"},
+  {"FilterName6","Nearest neighbor"},
+  {"FilterType7","fix"},
+  {"FilterName7","Sinc1024"},
+  {"FilterType8","aa"},
+  {"FilterName8","Box"},
+  {"FilterType9","aa"},
+  {"FilterName9","Bartlett/Triangle"},
+  {"FilterType10","aa"},
+  {"FilterName10","Hermite"},
+  {"FilterType11","aa"},
+  {"FilterName11","Hanning"},
+  {"FilterType12","aa"},
+  {"FilterName12","Hamming"},
+  {"FilterType13","aa"},
+  {"FilterName13","Blackmann"},
+  {"FilterType14","aa"},
+  {"FilterName14","Gaussian 1/sqrt(2)"},
+  {"FilterType15","aa"},
+  {"FilterName15","Gaussian 1/2"},
+  {"FilterType16","aa"},
+  {"FilterName16","Quadardic"},
+  {"FilterType17","aa"},
+  {"FilterName17","Cubic"},
+  {"FilterType18","aa"},
+  {"FilterName18","Catmull-Rom"},
+  {"FilterType19","aa"},
+  {"FilterName19","Mitchell"},
+  {"FilterType20","aa"},
+  {"FilterName20","Lanczos2"},
+  {"FilterType21","aa"},
+  {"FilterName21","Lanczos3"},
+  {"FilterType22","aa"},
+  {"FilterName22","Blackman/Bessel"},	
+  {"FilterType23","aa"},
+  {"FilterName23","Blackman/sinc"},
   // Patches that have been applied
+  {"Tiff32", "Thomas Rauscher, Load- and Save TIFF 32-bit with IEEE floats"},
+  {"AntiAliasing", "Thomas Rauscher, New antialiasing filter for adjust, http://www.pano2qtvr.com/dll_patch/"},
   {"Patch200505", "Douglas Wilkins, Correct behaviour when mode = _usedata"},
 #ifdef HasJava
   {"Patch200504a", "Douglas Wilkins, Java support enabled"},

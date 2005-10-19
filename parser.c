@@ -1360,7 +1360,7 @@ static int ReadModeDescription( sPrefs *sP, char *line )
 							return -1;
 						break;
 			case 'i':	READ_VAR( "%d", &theSprefs.interpolator );
-						if( theSprefs.interpolator < 0 ||  theSprefs.interpolator > 7 )
+						if( theSprefs.interpolator < 0 ||  theSprefs.interpolator > 23)
 							theSprefs.interpolator = 0;
 						break;
 			case 'p':	READ_VAR( "%d", &theSprefs.optCreatePano );

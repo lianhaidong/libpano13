@@ -139,7 +139,25 @@ enum{							// Interpolators
 		_spline64,				// Cubic Spline fitting 64 nearest pixels
 		_bilinear,				// Bilinear interpolation
 		_nn	,					// Nearest neighbor
-		_sinc1024
+		_sinc1024,
+		// Thomas Rauscher: New antialiasing filter. 
+		// Plots of the functions are available at http://www.pano2qtvr.com/dll_patch/
+		_aabox,					// Antialiasing: Box
+		_aatriangle,			// Antialiasing: Bartlett/Triangle Filter
+		_aahermite,				// Antialiasing: Hermite Filter
+		_aahanning,				// Antialiasing: Hanning Filter
+		_aahamming,				// Antialiasing: Hamming Filter
+		_aablackman,			// Antialiasing: Blackmann Filter
+		_aagaussian,			// Antialiasing: Gaussian 1/sqrt(2) Filter (blury)
+		_aagaussian2,			// Antialiasing: Gaussian 1/2 Filter (sharper)
+   		_aaquadratic,			// Antialiasing: Quadardic Filter
+   		_aacubic,				// Antialiasing: Cubic Filter
+   		_aacatrom,				// Antialiasing: Catmull-Rom Filter
+   		_aamitchell,			// Antialiasing: Mitchell Filter
+		_aalanczos2,			// Antialiasing: Lanczos2 Filter
+		_aalanczos3,			// Antialiasing: Lanczos3 Filter
+		_aablackmanbessel,		// Antialiasing: Blackman/Bessel Filter
+   		_aablackmansinc			// Antialiasing: Blackman/sinc Filter
 	};
 
 // Corrections
