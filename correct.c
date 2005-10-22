@@ -15,20 +15,34 @@
    along with this program; if not, write to the Free Software
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.  */
 
-/*------------------------------------------------------------*/
+/*------------------------------------------------------------
+MODIFICATIONS:
+    26-July-2004 Rob Platt - Add functions to test if 2 colors have the same displacement paras
+                             Define 3 new 'composite' colors (R+G, R+B, G+B). See resample.c
+    27-July-2004 ..        - Add functions to test if a colors displacement paras do something
+                             (ie, radial a,b,c,d = 0,0,0,1 results in no change)
+                             Restructured the for(k=kstart...) look into a while loop statemachine
+                             Test to try to displace 2 colors at the same time (R/G, R/B, or G/B)
+    28-July-2004 R.Platt   - Test for the possible combinations of displacements, 
+                             and only displace color layers that have changed
+
+------------------------------------------------------------
+*/
    
 
 #include "filter.h"
 
 static void 	ShiftImage(TrformStr *TrPtr, int xoff, int yoff);
 static int 		getFrame( Image *im, int *xoff, int *yoff, int width, int height, int showprogress );
+static int      haveSameColorParas( cPrefs *cp, int color1, int color2 );
+static int      hasUsefulColorParas( cPrefs *cp, int color );
 
 
 
 void 	correct	(TrformStr *TrPtr, cPrefs *prefs) 
 {
 
-	int 	i=0,j,k, kstart, kend, color;
+	int 	i=0,j,k, kstart, kend, kdone, color;
 
 	double 	scale_params[2];			// scaling factors for resize;
 	double 	shear_params[2];			// shear values
@@ -278,21 +292,174 @@ void 	correct	(TrformStr *TrPtr, cPrefs *prefs)
 
 		
 		
-		if( isColorSpecific( prefs ) )  // Color dependent
+		// Check to see if the colors have the same or different displacement paras
+        if( isColorSpecific( prefs ) )  // Color dependent
 		{
-			kstart 	= 1;
-			kend	= 4;
-		}
+			
+            if( haveSameColorParas( prefs,0,1)) // R==G??
+            {
+                fprintf(stderr, "PT correct "PROGRESS_VERSION" R==G\n" );
+                if( ! hasUsefulColorParas(prefs,0))
+                {
+                    fprintf(stderr, "Red/Green do NOTHING! Copying image data...\n" );
+                    CopyImageData( TrPtr->dest, TrPtr->src );
+                    fprintf(stderr, "Displacing just the Blue...\n" );
+                    kstart=3;
+                    kend  =3;
+                }
+                else
+                if( ! hasUsefulColorParas(prefs,2))
+                {
+                    fprintf(stderr, "Blue does NOTHING! Copying image data...\n" );
+                    CopyImageData( TrPtr->dest, TrPtr->src );
+                    fprintf(stderr, "Displacing the Red/Green simultaneously...\n" );
+                    kstart=4;
+                    kend  =4;
+                }
+                else
+                {
+                    kstart=4;
+                    kend  =3;
+                }
+                
+                
+            }
+            else if( haveSameColorParas( prefs,1,2)) // G==B??
+            {
+                fprintf(stderr, "PT correct "PROGRESS_VERSION" G==B\n" );
+                if( ! hasUsefulColorParas(prefs,1))
+                {
+                    fprintf(stderr, "Green/Blue do NOTHING! Copying image data...\n" );
+                    CopyImageData( TrPtr->dest, TrPtr->src );
+                    fprintf(stderr, "Displacing just the Red...\n" );
+                    kstart=1;
+                    kend  =1;
+                }
+                else
+                if( ! hasUsefulColorParas(prefs,0))
+                {
+                    fprintf(stderr, "Red does NOTHING! Copying image data...\n" );
+                    CopyImageData( TrPtr->dest, TrPtr->src );
+                    fprintf(stderr, "Displacing the Green/Blue simultaneously...\n" );
+                    kstart=6;
+                    kend  =6;
+                }
+                else
+                {
+                    kstart=6;
+                    kend  =1;
+                }
+                
+                
+               
+            }
+            else if( haveSameColorParas( prefs,2,0)) // R==B??
+            {
+                fprintf(stderr, "PT correct "PROGRESS_VERSION" R==B\n" );
+                if( ! hasUsefulColorParas(prefs,0))
+                {
+                    fprintf(stderr, "Red/Blue do NOTHING! Copying image data...\n" );
+                    CopyImageData( TrPtr->dest, TrPtr->src );
+                    fprintf(stderr, "Displacing just the Green...\n" );
+                    kstart=2;
+                    kend  =2;
+                }
+                else
+                if( ! hasUsefulColorParas(prefs,1))
+                {
+                    fprintf(stderr, "Green does NOTHING! Copying image data...\n" );
+                    CopyImageData( TrPtr->dest, TrPtr->src );
+                    fprintf(stderr, "Displacing the Red/Blue simultaneously...\n" );
+                    kstart=5;
+                    kend  =5;
+                }
+                else
+                {
+                    kstart=5;
+                    kend  =2;
+                }
+                
+                
+            }
+            else
+            {               
+                fprintf(stderr, "PT correct "PROGRESS_VERSION" R!=G!=B\n" );
+                if( ! hasUsefulColorParas(prefs,0))
+                {
+                    fprintf(stderr, "Red does NOTHING! Copying image data...\n" );
+                    CopyImageData( TrPtr->dest, TrPtr->src );
+                    fprintf(stderr, "Displacing the Green then Blue separately...\n" );
+                    kstart=2;
+                    kend  =3;
+                }
+                else
+                if( ! hasUsefulColorParas(prefs,1))
+                {
+                    fprintf(stderr, "Green does NOTHING! Copying image data...\n" );
+                    CopyImageData( TrPtr->dest, TrPtr->src );
+                    fprintf(stderr, "Displacing the Blue then Red separately...\n" );
+                    kstart=3;
+                    kend  =1;
+                }
+                else
+                if( ! hasUsefulColorParas(prefs,2))
+                {
+                    fprintf(stderr, "Blue does NOTHING! Copying image data...\n" );
+                    CopyImageData( TrPtr->dest, TrPtr->src );
+                    fprintf(stderr, "Displacing the Red then Green separately...\n" );
+                    kstart=1;
+                    kend  =2;
+                }
+                else
+                {
+                    kstart 	= 1;
+                    kend	= 3;               
+                }
+                
+            }
+        }
 		else // Color independent
 		{
-			kstart	= 0;
-			kend	= 1;
+            fprintf(stderr, "PT correct "PROGRESS_VERSION" R==G==B\n" );
+            if( ! hasUsefulColorParas(prefs,0))
+            {
+                fprintf(stderr, "Red,Green,Blue do NOTHING! But you asked for it...\n" );
+            }
+            kstart	= 0;
+            kend	= 0;
 		}
 
-		for(k=kstart;k<kend;k++)
+        // Do the necessary displacements, either per color, 2-colors, or on all 3 colors.
+		kdone=0;
+        k=kstart;
+        while(!kdone)
 		{
-			color = k-1;
-			if( color<0 ) color = 0;
+			switch(k) // choose which color's paras to use
+            {
+                case 0: // RGB
+                    color = 0;// Use the Red paras
+                    break;
+                    
+                case 1: // [0] = R
+                case 2: // [1] = G
+                case 3: // [2] = B
+                    color = k-1;
+                    break;
+                    
+                case 4:// RG
+                    color=0;
+                    break;
+                case 5:// RB
+                    color=0;
+                    break;
+                case 6:// GB
+                    color=1;
+                    break;
+                default:
+                    color=0;
+                    break;
+            }
+                    
 			i = 0;
 
 			if( prefs->resize )
@@ -393,8 +560,50 @@ void 	correct	(TrformStr *TrPtr, cPrefs *prefs)
 				fD.func = execute_stack; fD.param = stack;
 				transForm( TrPtr,  &fD, k);
 			}
+            
+            
+            
+            switch(k) // We use k as control var for a little statemachine:
+            {
+                case 0:// RGB
+                    kdone=1;
+                    break;
+                    
+                case 1:// R
+                case 2:// G
+                case 3:// B
+                    if(k==kend)
+                    {
+                        kdone=1;
+                    }
+                    else
+                    {
+                        k++;
+                        
+                        if(k==4)
+                            k=1;
+                    }
+                    break;
+                        
+                case 4:// RG                   
+                case 5:// RB
+                case 6:// GB
+                    if(k==kend)
+                    {
+                        kdone=1;
+                    }
+                    else
+                    {                           
+                        k=kend;                        
+                    }
+                    break;
+               
+                default:
+                    kdone=1;
+                    break;
+            }
 
-		}
+		}// END:while(!kdone)
 	}
 	
 
@@ -728,6 +937,115 @@ int isColorSpecific( cPrefs *cp )
 	
 	return result;
 }
+
+// -------------------------------------------------------------
+// Check if 2 colors have same correction requested
+//
+// PARAMETERS:
+//   *cp    = Same as for isColorSpecific()
+//   color1 = 0,1,2 for red,green,blue
+//   color2 = 0,1,2 for red,green,blue
+//
+// color1 and color2 are limited to the range 0,1,2. Other values will cause unpredictable results.
+// If color1==color2, then FALSE is returned
+//
+//  RETURN VALUE:
+//      FALSE = The two colors have different corrections requested
+//      TRUE  = Same radial, vertical, horizontal corrections to be applied
+
+static int haveSameColorParas( cPrefs *cp, int color1, int color2 )
+{
+	int result = TRUE;
+	int i;
+    
+	if( cp->radial )
+	{
+		for( i=0; i<4; i++ )
+		{
+			if( cp->radial_params[color1][i] != cp->radial_params[color2][i] )
+				result = FALSE;
+		}
+	}
+    
+	if( cp->vertical )
+	{
+		if(  cp->vertical_params[color1] != cp->vertical_params[color2])
+            result = FALSE;
+	}
+    
+	if( cp->horizontal )
+	{
+		if(  cp->horizontal_params[color1] != cp->horizontal_params[color2])
+            result = FALSE;
+	}
+	
+	return result;
+}
+
+// -------------------------------------------------------------
+// Check if a color's paras does something productive
+//
+// PARAMETERS:
+//   *cp    = Same as for isColorSpecific()
+//   color  = 0,1,2 for red,green,blue
+//
+//
+//  RETURN VALUE:
+//      TRUE  = The  color's paras make a displacement
+//      FALSE = No displacement to be made
+
+static int hasUsefulColorParas( cPrefs *cp, int color )
+{
+	int result = FALSE;
+    int i;
+
+    // If a resize, shear, curframe is requested, always return TRUE:
+    if(	cp->resize 		||
+        cp->shear		||
+        cp->cutFrame)		
+    {
+        result = TRUE;                
+    }
+    else
+    {
+        if( cp->radial )
+        {
+            // a,b,c,d == 0,0,0,1 does nothing (They are stored d,c,b,a in the array)
+            
+            if( cp->radial_params[color][0] != 1.0 ) // 'd' para
+            {
+                result = TRUE;                
+            }
+            else
+            {
+                for( i=1; i<4; i++ ) // 'c', 'b', 'a' paras
+                {
+                    if( cp->radial_params[color][i] != 0.0 )
+                        result = TRUE;
+                }
+            }
+        }
+        
+        if( cp->vertical )
+        {
+            if(  cp->vertical_params[color] != 0.0 )
+                result = TRUE;
+            else
+                fprintf(stderr, "vertical_params[%d] does nothing.\n", color);
+        }
+        
+        if( cp->horizontal )
+        {
+            if(  cp->horizontal_params[color] != 0.0 )
+                result = TRUE;
+            else
+                fprintf(stderr, "horizontal_params[%d] does nothing.\n", color);
+        }
+    }
+
+    return result;
+}    
+
 
 // Set all color dependent values to color 0
 

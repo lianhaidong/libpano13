@@ -112,7 +112,9 @@ TStringFeature stringFeatures[]={
   {"FilterType23","aa"},
   {"FilterName23","Blackman/sinc"},
   // Patches that have been applied
-  {"Tiff32", "Thomas Rauscher, Load- and Save TIFF 32-bit with IEEE floats"},
+  {"Patch200510a", "Rob Platt, Do not process unchanged color channels for CA correction"},
+  {"BMPrev", "Jim Watters, correctly open BMP files created with rows in reverse order"},
+  {"Tiff32", "Thomas Rauscher, Load and save TIFF 32-bit with IEEE floats, http://www.pano2qtvr.com/dll_patch/"},
   {"AntiAliasing", "Thomas Rauscher, New antialiasing filter for adjust, http://www.pano2qtvr.com/dll_patch/"},
   {"Patch200505", "Douglas Wilkins, Correct behaviour when mode = _usedata"},
 #ifdef HasJava
@@ -124,8 +126,8 @@ TStringFeature stringFeatures[]={
   {"Patch200410a", "Jim Watters, JPEG optimization, http://photocreations.ca/panotools"},
   {"FastTransform01", "Fulvio Senore, Fast transform, http://www.fsoft.it/panorama/pano12.htm"},
   {"Patch200407a", "Rik Littlefield, Kevin Kratzke, & Jim Watters, Fix multiple bugs - PSD, 16bit"},
-  {"MaskFromFocus_001", "Rik Littlefield, added mask-from-focus, http://www.janrik.ptools"},
-  {"Patch200405a", "Rik Littlefield, Improved optimizer, http://www.janrik.ptools"},
+  {"MaskFromFocus_001", "Rik Littlefield, added mask-from-focus, http://www.janrik.net/ptools/"},
+  {"Patch200405a", "Rik Littlefield, Improved optimizer, http://www.janrik.net/ptools/"},
   {"Patch200403a", "Kevin Kratzke, Radial Shift fix, http://www.kekus.com"},
   {"Patch200312a", "Jim Watters, Updated PSD format, http://photocreations.ca/panotools"},
   {"Patch200309a", "Jim Watters, Allowed linking of y, p, & r values, http://photocreations.ca/panotools"},

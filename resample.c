@@ -35,10 +35,25 @@
 // // FS-
 //
 // comments
+/*------------------------------------------------------------
+ JMW - merged in Rob Platt changes Oct 18, 2005
+
+      26-July-2004 Rob Platt - Get version from the version.h rather than always updating it here...
+                   ..        - 1st step: Add Handling of 2-color resampling (Use same method as 
+				               3-color, just display a different progress indicator)
+                               Define 3 new 'composite' colors (R+G, R+B, G+B). See correct.c
+      27-July-2004           - K.K. sent me the bugfix if different factors were set for each 
+	                           color channel, merged with my mods.
+      28-July-2004 ..        - Clean handling of 2-color resampling: The third color is left untouched.
+      10-Sep-2005 R.Platt - Testing for alphamasked pixels so we can interpolate
+                            right up to the edge of an alphamasked region
+                            without introducing contributions of non-existent pixels
+                            at the edge of the interpolated input
+------------------------------------------------------------*/
 
 
 // Program specific includes
-
+#include "version.h"
 #include "filter.h" 			
 
 /* Defined in resample.c*/
@@ -314,77 +329,177 @@ unsigned short gamma_correct( double pix )
 
 /////////// N x N Sampler /////////////////////////////////////////////
 
-#define RESAMPLE_N( intpol, ndim, psize)								\
-	double yr[ndim], yg[ndim], yb[ndim], w[ndim];						\
-	register double rd, gd, bd, weight ;								\
-	register int k,i;													\
-	register unsigned psize *r, *ri;									\
-																		\
-	intpol( Dx, w, ndim )												\
-	if( color == 0 )													\
-	{																	\
-		for(k=0; k<ndim; k++)											\
-		{																\
-			r = ((unsigned psize**)rgb)[k]  + SamplesPerPixel - 3;		\
-			rd = gd = bd = 0.0;											\
-																		\
-			for(i=0; i<ndim; i++)										\
-			{															\
-				weight = w[ i ];										\
-				ri	   = r + i * SamplesPerPixel;						\
-				rd += glu.DeGamma[(int)*ri++] * weight;					\
-				gd += glu.DeGamma[(int)*ri++] * weight;					\
-				bd += glu.DeGamma[(int)*ri]   * weight;					\
-			}															\
-			yr[k] = rd; yg[k] = gd; yb[k] = bd;							\
-		}																\
-																		\
-		intpol( Dy, w, ndim )											\
-		rd = gd = bd = 0.0;												\
-																		\
-		for(i=0; i<ndim; i++)											\
-		{																\
-			weight = w[ i ];											\
-			rd += yr[i] * weight;										\
-			gd += yg[i] * weight;										\
-			bd += yb[i] * weight;										\
-		}																\
-		{																\
-		register unsigned psize *tdst;									\
-		tdst = (unsigned psize *)dst;									\
-        *tdst++   =   gamma_correct( rd );   	    				    \
-		*tdst++   =   gamma_correct( gd );      	      				\
-		*tdst     =   gamma_correct( bd );      	      				\
-		dst = (unsigned char *)tdst;									\
-		}																\
-	}																	\
-	else																\
-	{																	\
-		color-=1;														\
-		for(k=0; k<ndim; k++)											\
-		{																\
-			r = ((unsigned psize**)rgb)[k] + SamplesPerPixel - 3 + color;\
-			yr[k] =  0.0;												\
-																		\
-			for(i=0; i<ndim; i++)										\
-			{															\
-				yr[k] += glu.DeGamma[(int)r[i*SamplesPerPixel]] * w[i];\
-			}															\
-		}																\
-																		\
-		intpol( Dy, w, ndim )											\
-		rd = 0.0;														\
-																		\
-		for(i=0; i<ndim; i++)											\
-		{																\
-			rd += yr[i] * w[ i ];										\
-		}																\
-		{																\
-		register unsigned psize *tdst;									\
-		tdst = (unsigned psize *)dst;									\
-		*(tdst+color)  = 	gamma_correct( rd );						\
-		}																\
-	}																	\
+#define RESAMPLE_N( intpol, ndim, psize )                               \
+    double ya[ndim];                                                    \
+    double yr[ndim], yg[ndim], yb[ndim], w[ndim];                       \
+    register double ad;                                                 \
+    register double rd, gd, bd, weight ;                                \
+    register int k,i;                                                   \
+    register unsigned psize *r, *ri;                                    \
+    register unsigned psize *tdst;                                      \
+    int alpha_ok = TRUE;                                                \
+    const unsigned psize maxalpha = (unsigned psize)-1;                 \
+                                                                        \
+    intpol( Dx, w, ndim )                                               \
+    if( color == 0)                                                     \
+    {                                                                   \
+        for(k=0; k<ndim; k++)                                           \
+        {                                                               \
+            r = ((unsigned psize**)rgb)[k];                             \
+            ad = 0.0;                                                   \
+            rd = gd = bd = 0.0;                                         \
+                                                                        \
+            for(i=0; i<ndim; i++)                                       \
+            {                                                           \
+                weight = w[ i ];                                        \
+                ri     = r + i * SamplesPerPixel;                       \
+                if(SamplesPerPixel==4)                                  \
+                {                                                       \
+                    if( ((int)*ri++) != maxalpha)                       \
+                        alpha_ok = FALSE;                               \
+                    else                                                \
+                    {                                                   \
+                        ad += weight;                                   \
+                        rd += glu.DeGamma[(int)*ri++] * weight;         \
+                        gd += glu.DeGamma[(int)*ri++] * weight;         \
+                        bd += glu.DeGamma[(int)*ri]   * weight;         \
+                    }                                                   \
+                }                                                       \
+                else                                                    \
+                {                                                       \
+                    rd += glu.DeGamma[(int)*ri++] * weight;             \
+                    gd += glu.DeGamma[(int)*ri++] * weight;             \
+                    bd += glu.DeGamma[(int)*ri]   * weight;             \
+                }                                                       \
+            }                                                           \
+            ya[k] = ad;                                                 \
+            yr[k] = rd; yg[k] = gd; yb[k] = bd;                         \
+        }                                                               \
+                                                                        \
+        intpol( Dy, w, ndim )                                           \
+        ad = 0.0;                                                       \
+        rd = gd = bd = 0.0;                                             \
+                                                                        \
+        for(i=0; i<ndim; i++)                                           \
+        {                                                               \
+            weight = w[ i ];                                            \
+            ad += ya[i] * weight;                                       \
+            rd += yr[i] * weight;                                       \
+            gd += yg[i] * weight;                                       \
+            bd += yb[i] * weight;                                       \
+        }                                                               \
+                                                                        \
+        if(!alpha_ok)                                                   \
+        {                                                               \
+            if(ad>0.5)                                                  \
+            {   /* Renormalize */                                       \
+                weight = 1.0/ad;                                        \
+                rd *= weight;                                           \
+                gd *= weight;                                           \
+                bd *= weight;                                           \
+                alpha_ok = TRUE;                                        \
+            }                                                           \
+            else                                                        \
+            {                                                           \
+                rd=gd=bd=0.0;                                           \
+            }                                                           \
+        }                                                               \
+                                                                        \
+        tdst = (unsigned psize *)dst;                                   \
+        if(SamplesPerPixel==4)                                          \
+        {                                                               \
+            if(alpha_ok)                                                \
+                *tdst++  =  maxalpha;                                   \
+            else                                                        \
+                *tdst++  =  0;                                          \
+        }                                                               \
+        *tdst++   =   gamma_correct( rd );                              \
+        *tdst++   =   gamma_correct( gd );                              \
+        *tdst     =   gamma_correct( bd );                              \
+        dst = (unsigned char *)tdst;                                    \
+    }                                                                   \
+    else if (color < 4)                                                 \
+    {                                                                   \
+        color-=1;                                                       \
+        for(k=0; k<ndim; k++)                                           \
+        {                                                               \
+            r = ((unsigned psize**)rgb)[k] + SamplesPerPixel - 3 + color; \
+            yr[k] =  0.0;                                               \
+                                                                        \
+            for(i=0; i<ndim; i++)                                       \
+            {                                                           \
+                yr[k] += glu.DeGamma[(int)r[i*SamplesPerPixel]] * w[i]; \
+            }                                                           \
+        }                                                               \
+                                                                        \
+        intpol( Dy, w, ndim )                                           \
+        rd = 0.0;                                                       \
+                                                                        \
+        for(i=0; i<ndim; i++)                                           \
+        {                                                               \
+            rd += yr[i] * w[ i ];                                       \
+        }                                                               \
+        tdst = (unsigned psize *)dst;                                   \
+        if(SamplesPerPixel==4)                                          \
+            *tdst++  =  maxalpha;                                       \
+                                                                        \
+        *(tdst+color)  =    gamma_correct( rd );                        \
+    }                                                                   \
+    else                                                                \
+    {                                                                   \
+        for(k=0; k<ndim; k++)                                           \
+        {                                                               \
+            r = ((unsigned psize**)rgb)[k]  + SamplesPerPixel - 3;      \
+            rd = gd = bd = 0.0;                                         \
+                                                                        \
+            for(i=0; i<ndim; i++)                                       \
+            {                                                           \
+                weight = w[ i ];                                        \
+                ri     = r + i * SamplesPerPixel;                       \
+                rd += glu.DeGamma[(int)*ri++] * weight;                 \
+                gd += glu.DeGamma[(int)*ri++] * weight;                 \
+                bd += glu.DeGamma[(int)*ri]   * weight;                 \
+            }                                                           \
+            yr[k] = rd; yg[k] = gd; yb[k] = bd;                         \
+        }                                                               \
+                                                                        \
+        intpol( Dy, w, ndim )                                           \
+        rd = gd = bd = 0.0;                                             \
+                                                                        \
+        for(i=0; i<ndim; i++)                                           \
+        {                                                               \
+            weight = w[ i ];                                            \
+            rd += yr[i] * weight;                                       \
+            gd += yg[i] * weight;                                       \
+            bd += yb[i] * weight;                                       \
+        }                                                               \
+                                                                        \
+        tdst = (unsigned psize *)dst;                                   \
+        if(SamplesPerPixel==4)                                          \
+            *tdst++  =  maxalpha;                                       \
+                                                                        \
+        if (color==4) /* Red+Grn */                                     \
+        {                                                               \
+            *tdst++   =   gamma_correct( rd );                          \
+            *tdst     =   gamma_correct( gd );                          \
+            /*                              blue untouched */           \
+        }                                                               \
+        else                                                            \
+        if (color==5) /* Red+Blue */                                    \
+        {                                                               \
+            *tdst++   =   gamma_correct( rd );                          \
+             tdst++;  /* green untouched */                             \
+            *tdst     =   gamma_correct( bd );                          \
+        }                                                               \
+        else /* (color=6) Green+Blue */                                 \
+        {                                                               \
+             tdst++;  /* red untouched */                               \
+            *tdst++   =   gamma_correct( gd );                          \
+            *tdst     =   gamma_correct( bd );                          \
+        }                                                               \
+                                                                        \
+    }                                                                   \
+;
 
 
 

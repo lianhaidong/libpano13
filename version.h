@@ -48,6 +48,10 @@
 #define PTVERSION_FILEVERSION "2.7.0.11\0"
 #endif
 
+#ifndef PROGRESS_VERSION
+#define PROGRESS_VERSION "2.7.0.11\0"
+#endif
+
 #ifndef PTVERSION_NAME_LEGALCOPYRIGHT 
 #define PTVERSION_NAME_LEGALCOPYRIGHT "LegalCopyright"
 #endif
