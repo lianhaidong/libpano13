@@ -1225,22 +1225,52 @@ void transForm( TrformStr *TrPtr, fDesc *fD, int color){
 						
 				intp( &(dest[ coeff ]), rgb, Dx, Dy, color, SamplesPerPixel ); 
 
-			}else{  // not valid
-				//Fix: Correct would use incorrect correction values if different factors were set for each color channel
-				//Kekus.Begin: March.2004
-				//was:
-				//memset( &(dest[ coeff ]), 0 ,BytesPerPixel );
-				//now:
-				if(color)
-				{
-					unsigned char*   ptr = &(dest[ coeff ]);
-					ptr += FirstColorByte + (color - 1)*BytesPerSample;
-					memset( ptr, 0 , (size_t)BytesPerSample ); //Kekus_test
-				}	
-				else
-					memset( &(dest[ coeff ]), 0 ,(size_t)BytesPerPixel ); //Kekus_test
-				//Kekus.End: March.2004
-			}
+                }// END: if is a valid pixel
+                else
+                {  
+                    // not valid (source pixel x,y not inside source image, etc.)
+                    
+                    //Fix: Correct would use incorrect correction values if different factors were set for each color channel
+                    //PT.Fix.mt.Begin: March.2004
+                    //was:
+                    //memset( &(dest[ coeff ]), 0 ,BytesPerPixel );
+                    //now:
+                    if(color==0) // RGB same time
+                    {
+                        memset( &(dest[ coeff ]), 0 ,BytesPerPixel ); //mt_test
+                                                                      //PT.Dev.mt.End: March.2004( &(dest[ coeff ]), 0 ,BytesPerPixel ); 
+                    }
+                    else
+                    {
+                        char*   ptr = &(dest[ coeff ]);
+                    
+                        if(color < 4) // R or G or B
+                        {
+                        ptr += FirstColorByte + (color - 1)*BytesPerSample;
+                        memset( ptr, 0 , BytesPerSample ); //mt_test
+                    }	
+                    else
+                        if(color==4) // R+G
+                        {
+                            ptr += FirstColorByte;
+                            memset( ptr, 0 , 2*BytesPerSample ); //rjp
+                        }
+                        else
+                        if(color==5) // R+B
+                        {
+                            ptr += FirstColorByte;
+                            memset( ptr, 0 , BytesPerSample ); 
+                            ptr += 2*BytesPerSample;
+                            memset( ptr, 0 , BytesPerSample ); //rjp
+                        }
+                        else // (color==6) G+B
+                        {
+                            ptr += FirstColorByte + BytesPerSample;
+                            memset( ptr, 0 , 2*BytesPerSample ); //rjp
+                        }
+                    }
+                    
+                }// END: else Not a valid pixel
 
 		}
 	}
@@ -2516,22 +2546,52 @@ void MyTransForm( TrformStr *TrPtr, fDesc *fD, int color, int imageNum){
 						
 				intp( &(dest[ coeff ]), rgb, Dx, Dy, color, SamplesPerPixel ); 
 
-			}else{  // not valid
-				//Fix: Correct would use incorrect correction values if different factors were set for each color channel
-				//Kekus.Begin: March.2004
-				//was:
-				//memset( &(dest[ coeff ]), 0 ,BytesPerPixel );
-				//now:
-				if(color)
-				{
-					unsigned char*   ptr = &(dest[ coeff ]);
-					ptr += FirstColorByte + (color - 1)*BytesPerSample;
-					memset( ptr, 0 , (size_t)BytesPerSample ); //Kekus_test
-				}	
-				else
-					memset( &(dest[ coeff ]), 0 ,(size_t)BytesPerPixel ); //Kekus_test
-				//Kekus.End: March.2004
-			}
+                }// END: if is a valid pixel
+                else
+                {  
+                    // not valid (source pixel x,y not inside source image, etc.)
+                    
+                    //Fix: Correct would use incorrect correction values if different factors were set for each color channel
+                    //PT.Fix.mt.Begin: March.2004
+                    //was:
+                    //memset( &(dest[ coeff ]), 0 ,BytesPerPixel );
+                    //now:
+                    if(color==0) // RGB same time
+                    {
+                        memset( &(dest[ coeff ]), 0 ,BytesPerPixel ); //mt_test
+                                                                      //PT.Dev.mt.End: March.2004( &(dest[ coeff ]), 0 ,BytesPerPixel ); 
+                    }
+                    else
+                    {
+                        char*   ptr = &(dest[ coeff ]);
+                    
+                        if(color < 4) // R or G or B
+                        {
+                        ptr += FirstColorByte + (color - 1)*BytesPerSample;
+                        memset( ptr, 0 , BytesPerSample ); //mt_test
+                    }	
+                    else
+                        if(color==4) // R+G
+                        {
+                            ptr += FirstColorByte;
+                            memset( ptr, 0 , 2*BytesPerSample ); //rjp
+                        }
+                        else
+                        if(color==5) // R+B
+                        {
+                            ptr += FirstColorByte;
+                            memset( ptr, 0 , BytesPerSample ); 
+                            ptr += 2*BytesPerSample;
+                            memset( ptr, 0 , BytesPerSample ); //rjp
+                        }
+                        else // (color==6) G+B
+                        {
+                            ptr += FirstColorByte + BytesPerSample;
+                            memset( ptr, 0 , 2*BytesPerSample ); //rjp
+                        }
+                    }
+                    
+                }// END: else Not a valid pixel
 
 		}
 	}
