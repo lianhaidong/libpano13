@@ -416,7 +416,6 @@ unsigned short gamma_correct( double pix )
         *tdst++   =   gamma_correct( rd );                              \
         *tdst++   =   gamma_correct( gd );                              \
         *tdst     =   gamma_correct( bd );                              \
-        dst = (unsigned char *)tdst;                                    \
     }                                                                   \
     else if (color < 4)                                                 \
     {                                                                   \
@@ -1216,13 +1215,13 @@ void transForm( TrformStr *TrPtr, fDesc *fD, int color){
 
 				}
 				
-				switch( FirstColorByte ){
+/*				switch( FirstColorByte ){
 					case 1: dest[ coeff++ ] = UCHAR_MAX;		 // Set alpha channel
 							break;
 					case 2: *((USHORT*)(dest + coeff)) = USHRT_MAX; coeff+=2;
 							break;
 					default: break;
-				}
+				}*/
 						
 				intp( &(dest[ coeff ]), rgb, Dx, Dy, color, SamplesPerPixel ); 
 
@@ -2507,13 +2506,13 @@ void MyTransForm( TrformStr *TrPtr, fDesc *fD, int color, int imageNum){
 
 				}
 				
-				switch( FirstColorByte ){
+/*				switch( FirstColorByte ){
 					case 1: dest[ coeff++ ] = UCHAR_MAX;		 // Set alpha channel
 							break;
 					case 2: *((USHORT*)(dest + coeff)) = USHRT_MAX; coeff+=2;
 							break;
 					default: break;
-				}
+				}*/
 						
 				intp( &(dest[ coeff ]), rgb, Dx, Dy, color, SamplesPerPixel ); 
 
