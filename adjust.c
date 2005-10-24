@@ -40,9 +40,6 @@
 #include "f2c.h"
 #include <float.h>
 
-/*Defined in resample.c*/
-void MyTransForm( TrformStr *TrPtr, fDesc *fD, int color, int imageNum);
-
 #define C_FACTOR	100.0
 
 static  AlignInfo	*g;	// This struct holds all informations for the optimization
@@ -448,6 +445,15 @@ void adjust(TrformStr *TrPtr, aPrefs *prefs)
 
 void MakePano( TrformStr *TrPtr, aPrefs *aP )
 {
+	MyMakePano( TrPtr, aP, 1 );
+}
+
+
+/*This function was added by Kekus Digital on 18/9/2002. 
+This function takes the parameter 'imageNum' which repesents the index 
+of the image that has to be converted.*/
+void MyMakePano( TrformStr *TrPtr, aPrefs *aP, int imageNum )
+{
 	struct 	MakeParams	mp,mpinv;
 	fDesc 	stack[15], fD;		// Parameters for execute 
 	fDesc 	invstack[15], finvD;		// Invers Parameters for execute 
@@ -496,88 +502,16 @@ void MakePano( TrformStr *TrPtr, aPrefs *aP )
 				stack[0].param 		= (void*)morph;
 			}
 		}
-					
-			
-		
+
 		if( TrPtr->success != 0)
 		{
-			
-			/*
-			int i,s=0,e=0;
-
-			while( stack[e].func != NULL && e<14 ) e++;
-			i=6;
-			stack[i].func=NULL;
-			memcpy(&invstack[0],&invstack[e-i],sizeof(invstack[0])*e);
-*/
 			fD.func = execute_stack; fD.param = stack;
 			finvD.func = execute_stack; finvD.param = invstack;
-			
-			transFormEx( TrPtr,  &fD , &finvD , k);
+
+			transFormEx( TrPtr,  &fD , &finvD , k, imageNum );
 		}
 	}
 }
-
-/*This function was added by Kekus Digital on 18/9/2002. This function takes the parameter 'imageNum' which repesents the index of the image that has to be converted.*/
-void MyMakePano( TrformStr *TrPtr, aPrefs *aP, int imageNum )
-{
-	struct 	MakeParams	mp;
-	fDesc 	stack[15], fD;		// Parameters for execute 
-	void	*morph[3];	
-
-	int 	i,k, kstart, kend, color;
-
-	TrPtr->success = 1;
-	
-	if( CheckMakeParams( aP) != 0)
-	{
-		TrPtr->success = 0;
-		return;
-	}
-
-
-	if(  isColorSpecific( &(aP->im.cP) ) )			// Color dependent
-	{
-		kstart 	= 1; kend	= 4;
-	}
-	else 											// Color independent
-	{
-		kstart	= 0; kend	= 1;
-	}
-				
-	for( k = kstart; k < kend; k++ )
-	{
-		color = k-1; if( color < 0 ) color = 0;
-		SetMakeParams( stack, &mp, &(aP->im) , &(aP->pano), color );
-		
-		if( aP->nt > 0 )	// Morphing requested
-		{
-			morph[0] = (void*)aP->td;
-			morph[1] = (void*)aP->ts;
-			morph[2] = (void*)&aP->nt;
-
-			i=0; while( stack[i].func != NULL && i<14 ) i++;
-			if( i!=14 )
-			{
-				for(i=14; i>0; i--)
-				{
-					memcpy( &stack[i], &stack[i-1], sizeof( fDesc ));
-				}
-				stack[0].func 		= tmorph;
-				stack[0].param 		= (void*)morph;
-			}
-		}
-					
-			
-		
-		if( TrPtr->success != 0)
-		{
-			fD.func = execute_stack; fD.param = stack;
-			MyTransForm( TrPtr,  &fD , k, imageNum);
-		}
-	}
-}
-
 
 // Extract image from pano in TrPtr->src 
 // using parameters in prefs (ignore image parameters
@@ -613,14 +547,14 @@ void ExtractStill( TrformStr *TrPtr , aPrefs *aP )
 	for( k = kstart; k < kend; k++ )
 	{
 		color = k-1; if( color < 0 ) color = 0;
-		SetInvMakeParams( stack, &mp,  &(aP->im) , &(aP->pano), color );
-		SetMakeParams( stackinv, &mpinv,  &(aP->im) , &(aP->pano), color );
+		SetInvMakeParams( stack, &mp, &(aP->im), &(aP->pano), color );
+		SetMakeParams( stackinv, &mpinv, &(aP->im), &(aP->pano), color );
 		
 		if( TrPtr->success != 0)
 		{
 			fD.func = execute_stack; fD.param = stack;
 			fDinv.func = execute_stack; fDinv.param = stackinv;
-			transFormEx( TrPtr,  &fD, &fDinv , k);
+			transFormEx( TrPtr, &fD, &fDinv, k, 1 );
 		}
 	}
 }

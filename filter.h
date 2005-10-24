@@ -648,12 +648,13 @@ int		ReadMorphPoints( char *script, AlignInfo *gl, int nIm );
 
 void 	addAlpha			( Image *im ); 
 void 	transForm			( TrformStr *TrPtr, fDesc *fD, int color);
-void 	transFormEx			( TrformStr *TrPtr, fDesc *fD,fDesc *finvD, int color);
+void 	transFormEx			( TrformStr *TrPtr, fDesc *fD, fDesc *finvD, int color, int imageNum);
 void    filter				( TrformStr *TrPtr, flfn func, flfn16 func16, void* params, int color);		
 void 	CopyImageData		( Image *dest, Image *src );
 void 	laplace				( Image *im );
 void 	blurr				( Image *im );
 void 	MakePano			( TrformStr *TrPtr, aPrefs *aP);
+void	MyMakePano			( TrformStr *TrPtr, aPrefs *aP, int imageNum );
 void 	ExtractStill		( TrformStr *TrPtr , aPrefs *p );
 int 	HaveEqualSize		( Image *im1, Image *im2 );
 int 	merge				( Image *dst, Image *src, int feather, int showprogress, int seam );
