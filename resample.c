@@ -69,7 +69,6 @@
 #include "version.h"
 #include "filter.h" 			
 
-
 // Standard C includes
 
 #include <stdio.h>
@@ -857,9 +856,6 @@ void transForm( TrformStr *TrPtr, fDesc *fD, int color)
     int imageNum = 1;
     MyTransForm( TrPtr, fD, color, imageNum );
 }
-
-
-
 
 void transFormEx( TrformStr *TrPtr, fDesc *fD, fDesc *finvD, int color, int imageNum )
 {
@@ -1750,10 +1746,10 @@ typedef struct ffQueueItem ffQueueItem;
 /**************************************************************************
 Thomas Rauscher, Okt 2005
 
-New Transformation mehthode with antialiasing filters. The new function needs the
-invers function of the transformation, so it can't be used as a direct replacement
+New Transformation method with antialiasing filters. The new function needs the
+inverse of the transformation, so it can't be used as a direct replacement
 
-Rik Littelfield descriped the function as followed:
+Rik Littelfield described the function as followed:
 
 To compute the value of an output pixel: 
 1. Let the integer coordinates of the output pixel be called COC (central output coordinates). 
@@ -2101,7 +2097,7 @@ void transForm_aa( TrformStr *TrPtr, fDesc *fD,fDesc *finvD, int color){
 				int warpover=(TrPtr->src->format==_equirectangular);
 
 				int bx,by,ex,ey;											
-				double SrcX,SrcY,aaSrcX,aaSrcY;
+				double DstX,DstY,rDstX,rDstY;
 				double weight,w,rd,gd,bd;
 				pt_uint32 *ptui;
 
@@ -2136,43 +2132,44 @@ void transForm_aa( TrformStr *TrPtr, fDesc *fD,fDesc *finvD, int color){
 					cp=(1 + ccx + ccy*INV_CACHE_FY) % INV_CACHE_SIZE; 
 					if ((invCache[cp].dstX==ccx) && (invCache[cp].dstY==ccy)) { 
 						// Cachehit
-						SrcX=invCache[cp].srcX;
-						SrcY=invCache[cp].srcY;
+						DstX=invCache[cp].srcX;
+						DstY=invCache[cp].srcY;
 					} else {
 						// Calculate the invers function to get the exact position in the source image
-						finvD->func((ccx-sw2), (ccy-sh2) , &SrcX, &SrcY, finvD->param);
+						finvD->func((ccx-sw2), (ccy-sh2) , &DstX, &DstY, finvD->param);
 						invCache[cp].dstX=ccx;
 						invCache[cp].dstY=ccy;
-						invCache[cp].srcX=SrcX;
-						invCache[cp].srcY=SrcY;
+						invCache[cp].srcX=DstX;
+						invCache[cp].srcY=DstY;
 					}
  					
-					// distance from the exact position in the source
-					aaSrcX=x_d-SrcX;
-					aaSrcY=y_d-SrcY;
+					// distance from the exact of the source pixel to the 
+					// position in the destination image
+					rDstX=x_d-DstX;
+					rDstY=y_d-DstY;
 
-					// distance from the exact position in the destination
+					// distance from the exact position in the source image
 					ox=(ccx-sw2) - orgDx;
 					oy=(ccy-sh2) - orgDy;
 					
 					if (warpover) {
 						if (ox > max_x/2.0) ox-=max_x;
 						if (ox < -max_x/2.0) ox+=max_x;
-						if (aaSrcX > max_x/2.0) aaSrcX-=max_x;
-						if (aaSrcX < -max_x/2.0) aaSrcX+=max_x;
+						if (rDstX > max_x/2.0) rDstX-=max_x;
+						if (rDstX < -max_x/2.0) rDstX+=max_x;
 					}
 
-					sd=sqrt(aaSrcX*aaSrcX + aaSrcY*aaSrcY);
+					sd=sqrt(rDstX*rDstX + rDstY*rDstY);
 					d=sqrt(ox*ox + oy*oy);
 
 					if (sd>d) { // we are upscaling!
-						aaSrcX*=d/sd;
-						aaSrcY*=d/sd;
+						rDstX*=d/sd;
+						rDstY*=d/sd;
 					}
 
 					// Calculate the weight for the current pixel of the source image
-					if ((fabs(aaSrcX)<aaSupport) && (fabs(aaSrcY)<aaSupport)) {
-						w=aafilter(aaSrcX,aaSupport) * aafilter(aaSrcY,aaSupport);
+					if ((fabs(rDstX)<aaSupport) && (fabs(rDstY)<aaSupport)) {
+						w=aafilter(rDstX,aaSupport) * aafilter(rDstY,aaSupport);
 					} else {
 						w=0;
 					}
@@ -2230,15 +2227,15 @@ void transForm_aa( TrformStr *TrPtr, fDesc *fD,fDesc *finvD, int color){
 								if (FirstColorByte) {
 									*aadst++=UCHAR_MAX;		 // Set alpha channel
 								}
-								if ((color==0) || (color==1)) {
+								if ((color==0) || (color==1) || (color==4) || (color==5)) {
 									*aadst  =   gamma_correct( rd/weight );
 								}
 								aadst++;
-								if ((color==0) || (color==2)) {
+								if ((color==0) || (color==2) || (color==4) || (color==6)) {
 									*aadst  =   gamma_correct( gd/weight );
 								}
 								aadst++;
-								if ((color==0) || (color==3)) {
+								if ((color==0) || (color==3) || (color==5) || (color==6)) {
 									*aadst  =   gamma_correct( bd/weight );
 								}
 							}
@@ -2248,15 +2245,15 @@ void transForm_aa( TrformStr *TrPtr, fDesc *fD,fDesc *finvD, int color){
 								if (FirstColorByte) {
 									*aadst++=USHRT_MAX;		 // Set alpha channel
 								}
-								if ((color==0) || (color==1)) {
+								if ((color==0) || (color==1) || (color==4) || (color==5)) {
 									*aadst  =   gamma_correct( rd/weight );
 								}
 								aadst++;
-								if ((color==0) || (color==2)) {
+								if ((color==0) || (color==2) || (color==4) || (color==6)) {
 									*aadst  =   gamma_correct( gd/weight );
 								}
 								aadst++;
-								if ((color==0) || (color==3)) {
+								if ((color==0) || (color==3) || (color==5) || (color==6)) {
 									*aadst  =   gamma_correct( bd/weight );
 								}
 							}
@@ -2266,15 +2263,15 @@ void transForm_aa( TrformStr *TrPtr, fDesc *fD,fDesc *finvD, int color){
 								if (FirstColorByte) {
 									*aadst++=1.0; // Set alpha channel
 								}
-								if ((color==0) || (color==1)) {
+								if ((color==0) || (color==1) || (color==4) || (color==5)) {
 									*aadst  = rd/weight;
 								}
 								aadst++;
-								if ((color==0) || (color==2)) {
+								if ((color==0) || (color==2) || (color==4) || (color==6)) {
 									*aadst  = gd/weight;
 								}
 								aadst++;
-								if ((color==0) || (color==3)) {
+								if ((color==0) || (color==3) || (color==5) || (color==6)) {
 									*aadst  = bd/weight;
 								}
 							}
