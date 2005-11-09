@@ -616,10 +616,9 @@ void rect_sphere_tp( double x_dest,double  y_dest, double* x_src, double* y_src,
 	r 		= sqrt( x_dest * x_dest + y_dest * y_dest );
 	theta 	= r / distance;
 	
-	if( theta > PI /2.0   )
-		theta = PI /2.0 ;
-
-	if( theta == 0.0 )
+	if( theta >= PI /2.0   )
+		rho = 1.6e16 ;
+	else if( theta == 0.0 )
 		rho = 1.0;
 	else
 		rho =  tan( theta ) / theta;
