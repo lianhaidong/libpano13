@@ -383,7 +383,6 @@ int ParseScript( char* script, AlignInfo *gl )
 					if( ReadModeDescription( &gl->sP, &(line[1]) ) != 0 )
 					{
 						PrintError( "Syntax error in line %d" , lineNum);
-						free( script );
 						return -1;
 					}
 					break;
@@ -800,8 +799,6 @@ void WriteResults( char* script, fullPath *sfile,  AlignInfo *g, double ds( int 
 	if( WriteScript( res, sfile, launch ) != 0 )
 	{
 		PrintError("Could not write results to scriptfile");
-		free( res );
-		return;
 	}
 	if( hres ) myfree( (void**)hres );
 	return;
@@ -1592,7 +1589,6 @@ int ReadMorphPoints( char *script, AlignInfo *gl, int nIm )
 					if(  ReadControlPoint( &cp, &(line[1]) ) != 0 )
 					{
 						PrintError( "Syntax error in line %d" , lineNum);
-						free( script );
 						return -1;
 					}
 					if( cp.num[0] == nIm )

@@ -260,8 +260,8 @@ int writeTIFF(Image *im, fullPath *sfile){
 		ARGBtoRGBA( buf, im->width, im->bitsPerPixel);
 		TIFFWriteScanline(tif, buf, y, 1);		
 	}
-	free( buf );
 	TIFFClose( tif );
+	free( buf );
 	return 0;
 
 }	
