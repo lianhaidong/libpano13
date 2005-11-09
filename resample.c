@@ -89,7 +89,7 @@ PROTOTYPES:
 //static OSStatus MyTransFormBody( MyTransFormCmdPara_s *MyTransFormCmdPara);
 void MyTransForm( TrformStr *TrPtr, fDesc *fD, int color, int imageNum);
 //static void FindYbounds( MyTransFormCmdPara_s *FindYboundsPara);
-void transForm_aa( TrformStr *TrPtr, fDesc *fD,fDesc *finvD, int color);
+void transForm_aa( TrformStr *TrPtr, fDesc *fD,fDesc *finvD, int color, int imageNum);
 
 
 
@@ -862,9 +862,10 @@ void transFormEx( TrformStr *TrPtr, fDesc *fD, fDesc *finvD, int color, int imag
 	if (TrPtr->interpolator<_aabox)
 	{
 		MyTransForm(TrPtr, fD, color, imageNum);
-	} else
+	} 
+	else
 	{
-		 transForm_aa(TrPtr, fD, finvD, color);
+		 transForm_aa(TrPtr, fD, finvD, color, imageNum);
 	}
 }
 
@@ -1769,7 +1770,7 @@ The function caches the transformed coordinates OC to speed things up.
 */
 
 
-void transForm_aa( TrformStr *TrPtr, fDesc *fD,fDesc *finvD, int color){
+void transForm_aa( TrformStr *TrPtr, fDesc *fD,fDesc *finvD, int color, int imageNum){
 	register pt_int32 		x, y;		// Loop through destination image
 	int 			skip = 0;	// Update progress counter
 	unsigned char 		*dest,*src;// Source and destination image data
@@ -1861,7 +1862,15 @@ void transForm_aa( TrformStr *TrPtr, fDesc *fD,fDesc *finvD, int color){
 					TrPtr->success = 0;
 					return;
 	}
-	
+/* Patch for PTStitcher to support 32 bit
+	if ((TrPtr->dest->dataSize==0) && (TrPtr->dest->bitsPerPixel==128)) {
+		TrPtr->dest->bitsPerPixel=TrPtr->src->bitsPerPixel;
+		TrPtr->dest->bytesPerLine =TrPtr->dest->width * (TrPtr->dest->bitsPerPixel / 8) ; 
+		TrPtr->dest->dataSize=TrPtr->dest->height * TrPtr->dest->bytesPerLine;
+		myfree ((unsigned char**)TrPtr->dest->data);
+		TrPtr->dest->data=(unsigned char**) mymalloc ((size_t)TrPtr->dest->dataSize);
+	}
+*/
 	// Set interpolator etc:
 	n=1;
 	switch( TrPtr->interpolator ){
@@ -1944,7 +1953,21 @@ void transForm_aa( TrformStr *TrPtr, fDesc *fD,fDesc *finvD, int color){
 
 	if(TrPtr->mode & _show_progress){
 		switch(color){
-			case 0: progressMessage = "Image Conversion"; 	break;
+			case 0:  { 
+                            char title[30];
+#if BROKEN
+                            int the_Num;
+                            NumToString(imageNum, the_Num);
+                            p2cstr(the_Num);
+                            strcpy(title, "Converting Image #");
+                            strcat(title, (char *)the_Num);
+#else
+                            sprintf(title, "Converting Image #%d", imageNum);
+#endif
+                            strcpy(progressMessage, title);	
+                            //progressMessage = "Image Conversion"; 	
+                        }
+                        break;
 			case 1:	switch( TrPtr->src->dataformat){
 						case _RGB: 	progressMessage = "Red Channel"  ; break;
 						case _Lab:	progressMessage = "Lightness" 	 ; break;

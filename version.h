@@ -34,22 +34,22 @@
 #define PTVERSION_NAME_LONG "LongVersion"
 #endif
 #ifndef LONGVERSION
-#define LONGVERSION "2.7.0.11 , Copyright (c) 1998-2001, H. Dersch, der@fh-furtwangen.de"
+#define LONGVERSION "2.7.0.12 , Copyright (c) 1998-2001, H. Dersch, der@fh-furtwangen.de"
 #endif
 
 #ifndef PTVERSION_FILEVERSIONNUMBER
-#define PTVERSION_FILEVERSIONNUMBER 2,7,0,11
+#define PTVERSION_FILEVERSIONNUMBER 2,7,0,12
 #endif
 
 #ifndef PTVERSION_NAME_FILEVERSION
 #define PTVERSION_NAME_FILEVERSION "FileVersion"
 #endif
 #ifndef PTVERSION_FILEVERSION
-#define PTVERSION_FILEVERSION "2.7.0.11\0"
+#define PTVERSION_FILEVERSION "2.7.0.12\0"
 #endif
 
 #ifndef PROGRESS_VERSION
-#define PROGRESS_VERSION "2.7.0.11\0"
+#define PROGRESS_VERSION "2.7.0.12\0"
 #endif
 
 #ifndef PTVERSION_NAME_LEGALCOPYRIGHT 

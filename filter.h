@@ -75,14 +75,17 @@ enum{
 
 
 
-#define	DBL_TO_UC( c, x )	if(x>255.0) c=255U;								\
-								else if(x<0.0) c=0;							\
-								else c=(unsigned char)floor(x+0.5);
+#define	DBL_TO_UC( c, x )	if((x)>255.0) c=255U;								\
+								else if((x)<0.0) c=0;							\
+								else c=(unsigned char)floor((x)+0.5);
 
-#define	DBL_TO_US( c, x )	if(x>65535.0) c=65535U;							\
-								else if(x<0.0) c=0;							\
-								else c=(unsigned short)floor(x+0.5);
+#define	DBL_TO_US( c, x )	if((x)>65535.0) c=65535U;							\
+								else if((x)<0.0) c=0;							\
+								else c=(unsigned short)floor((x)+0.5);
 
+#define	DBL_TO_FL( c, x )	if((x)>1e+038) c=1e+038;							\
+								else if((x)<0.0) c=0;							\
+								else c=(float)(x);
 
 
 #define MAX_FISHEYE_FOV		160.0
@@ -677,6 +680,9 @@ void 	OneToTwoByte		( Image *im );
 void 	TwoToOneByte		( Image *im );
 void 	SetMakeParams		( struct fDesc *stack, struct MakeParams *mp, Image *im , Image *pn, int color );
 void 	SetInvMakeParams	( struct fDesc *stack, struct MakeParams *mp, Image *im , Image *pn, int color );
+// same as SetInvMakeParams but includes Joosts inverted changes to SetMakeParams
+void 	SetInvMakeParamsCorrect( struct fDesc *stack, struct MakeParams *mp, Image *im , Image *pn, int color );
+
 void 	GetControlPointCoordinates(int i, double *x, double *y, AlignInfo *gl );
 void 	ARGBtoRGBA(UCHAR* buf, int width, int bitsPerPixel);
 void 	RGBAtoARGB(UCHAR* buf, int width, int bitsPerPixel);

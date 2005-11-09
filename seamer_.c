@@ -263,7 +263,7 @@ int _merge (  Image *dst, Image *src,  int feather, int showprogress, int seam )
 		(dst->height       != src->height)       ||
 	    (dst->dataSize     != src->dataSize)     ||
 		(dst->bitsPerPixel != src->bitsPerPixel) ||
-		(dst->bitsPerPixel != 32 && dst->bitsPerPixel != 64) 	||
+		(dst->bitsPerPixel != (BYTES_PER_CHANNEL*32)) 	||
 		(dst->data 		   == NULL)				 ||
 		(src->data         == NULL))
 	{

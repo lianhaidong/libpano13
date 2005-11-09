@@ -483,7 +483,7 @@ void MyMakePano( TrformStr *TrPtr, aPrefs *aP, int imageNum )
 	{
 		color = k-1; if( color < 0 ) color = 0;
 		SetMakeParams( stack, &mp, &(aP->im) , &(aP->pano), color );
-		SetInvMakeParams( invstack, &mpinv, &(aP->im) , &(aP->pano), color );
+		SetInvMakeParamsCorrect( invstack, &mpinv, &(aP->im) , &(aP->pano), color );
 		
 		if( aP->nt > 0 )	// Morphing requested
 		{
@@ -532,7 +532,6 @@ void ExtractStill( TrformStr *TrPtr , aPrefs *aP )
 		TrPtr->success = 0;
 		return;
 	}
-
 		
 
 	if( isColorSpecific( &(aP->im.cP) ) )			// Color dependent
@@ -547,7 +546,7 @@ void ExtractStill( TrformStr *TrPtr , aPrefs *aP )
 	for( k = kstart; k < kend; k++ )
 	{
 		color = k-1; if( color < 0 ) color = 0;
-		SetInvMakeParams( stack, &mp, &(aP->im), &(aP->pano), color );
+		SetInvMakeParamsCorrect( stack, &mp, &(aP->im), &(aP->pano), color );
 		SetMakeParams( stackinv, &mpinv, &(aP->im), &(aP->pano), color );
 		
 		if( TrPtr->success != 0)
@@ -603,10 +602,10 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
         {
           if(im->cP.cutFrame)
           {
-            image_selection_width=im->selection.right-im->selection.left;
-            image_selection_height=im->selection.bottom-im->selection.top;
-            mp->horizontal += (im->selection.right+im->selection.left-im->width)/2.0;
-            mp->vertical += (im->selection.bottom+im->selection.top-im->height)/2.0;
+            image_selection_width  = im->selection.right  - im->selection.left;
+            image_selection_height = im->selection.bottom - im->selection.top;
+            mp->horizontal += (im->selection.right  + im->selection.left - im->width)/2.0;
+            mp->vertical   += (im->selection.bottom + im->selection.top  - im->height)/2.0;
           }
         }
 
@@ -790,42 +789,10 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
 
 void 	SetInvMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Image *pn, int color )
 {
-/* Thomas Rauscher, Sep 2005: Transfered the changes of Joost Nieuwenhuijse for MakeParams
-   to the inverse function.
-*/
+
 	int 		i;
 	double		a,b;							// field of view in rad
 
-    int image_selection_width=im->width;
-    int image_selection_height=im->height;
-
-	if(im->cP.horizontal)
-    {
-        mp->horizontal=im->cP.horizontal_params[color];
-    }
-    else
-    {
-        mp->horizontal=0;
-    }
-    if(im->cP.vertical)
-    {
-        mp->vertical=im->cP.vertical_params[color];
-    }
-    else
-    {
-        mp->vertical=0;
-    }
-
-	if( (im->selection.left != 0) || (im->selection.top != 0) || (im->selection.bottom != 0) || (im->selection.right != 0) )
-    {
-        if(im->cP.cutFrame)
-        {
-        image_selection_width=im->selection.right-im->selection.left;
-        image_selection_height=im->selection.bottom-im->selection.top;
-        mp->horizontal += (im->selection.right+im->selection.left-im->width)/2.0;
-        mp->vertical += (im->selection.bottom+im->selection.top-im->height)/2.0;
-        }
-    }
 
 	a =	 DEG_TO_RAD( im->hfov );	// field of view in rad		
 	b =	 DEG_TO_RAD( pn->hfov );
@@ -844,13 +811,13 @@ void 	SetInvMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , 
 		if(im->format == _rectilinear)										// rectilinear image
 		{
 			mp->scale[0] = ((double)pn->hfov / im->hfov) * 
-						   (a /(2.0 * tan(a/2.0))) * ((double)image_selection_width/(double) pn->width)
+						   (a /(2.0 * tan(a/2.0))) * ((double)im->width/(double) pn->width)
 						   * 2.0 * tan(b/2.0) / b; 
 
 		}
 		else 																//  pamoramic or fisheye image
 		{
-			mp->scale[0] = ((double)pn->hfov / im->hfov) * ((double)image_selection_width/ (double) pn->width)
+			mp->scale[0] = ((double)pn->hfov / im->hfov) * ((double)im->width/ (double) pn->width)
 						   * 2.0 * tan(b/2.0) / b; 
 		}
 	}
@@ -859,34 +826,30 @@ void 	SetInvMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , 
 		mp->distance 	= ((double) pn->width) / b;
 		if(im->format == _rectilinear)										// rectilinear image
 		{
-			mp->scale[0] = ((double)pn->hfov / im->hfov) * (a /(2.0 * tan(a/2.0))) * ((double)image_selection_width)/ ((double) pn->width); 
+			mp->scale[0] = ((double)pn->hfov / im->hfov) * (a /(2.0 * tan(a/2.0))) * ((double)im->width)/ ((double) pn->width); 
 
 		}
 		else 																//  pamoramic or fisheye image
 		{
-			mp->scale[0] = ((double)pn->hfov / im->hfov) * ((double)image_selection_width)/ ((double) pn->width); 
+			mp->scale[0] = ((double)pn->hfov / im->hfov) * ((double)im->width)/ ((double) pn->width); 
 		}
 	}
-	mp->shear[0] 	= -im->cP.shear_x / image_selection_height;
-	mp->shear[1] 	= -im->cP.shear_y / image_selection_width;
+	mp->shear[0] 	= -im->cP.shear_x / im->height;
+	mp->shear[1] 	= -im->cP.shear_y / im->width;
 	
 	mp->scale[0] = 1.0 / mp->scale[0];
 	mp->scale[1] 	= mp->scale[0];
-
-//	mp->horizontal 	= -im->cP.horizontal_params[color];
-//	mp->vertical 	= -im->cP.vertical_params[color];
-	mp->horizontal 	= -mp->horizontal;
-	mp->vertical 	= -mp->vertical;
-
+	mp->horizontal 	= -im->cP.horizontal_params[color];
+	mp->vertical 	= -im->cP.vertical_params[color];
 	for(i=0; i<4; i++)
 		mp->rad[i] 	= im->cP.radial_params[color][i];
 	mp->rad[5] = im->cP.radial_params[color][4];
 	
 	switch( im->cP.correction_mode & 3 )
 	{
-		case correction_mode_radial: mp->rad[4] = ((double)(image_selection_width < image_selection_height ? image_selection_width : image_selection_height) ) / 2.0;break;
+		case correction_mode_radial: mp->rad[4] = ((double)(im->width < im->height ? im->width : im->height) ) / 2.0;break;
 		case correction_mode_vertical: 
-		case correction_mode_deregister: mp->rad[4] = ((double) image_selection_height) / 2.0;break;
+		case correction_mode_deregister: mp->rad[4] = ((double) im->height) / 2.0;break;
 	}
 
 	mp->rot[0]		= mp->distance * PI;								// 180¡ in screenpoints
@@ -958,6 +921,51 @@ void 	SetInvMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , 
 	}
 	
 	stack[i].func = (trfn)NULL;
+}
+
+void 	SetInvMakeParamsCorrect( struct fDesc *stack, struct MakeParams *mp, Image *im , Image *pn, int color )
+{
+/* Thomas Rauscher, Sep 2005: Transfered the changes of Joost Nieuwenhuijse for MakeParams
+   to the inverse function. This has broken the optimizer, now there are two functions.
+*/
+
+	Image imSel;	/* create a tempory copy of the image to manipulate */
+	memcpy( &imSel, im, sizeof(Image));
+
+	if(im->cP.horizontal)
+    {
+        mp->horizontal = im->cP.horizontal_params[color];
+    }
+    else
+    {
+        mp->horizontal = 0;
+    }
+
+	if(im->cP.vertical)
+    {
+        mp->vertical = im->cP.vertical_params[color];
+    }
+    else
+    {
+        mp->vertical = 0;
+    }
+
+	if( (im->selection.left != 0) || (im->selection.top != 0) || (im->selection.bottom != 0) || (im->selection.right != 0) )
+    {
+        if(im->cP.cutFrame)
+        {
+			imSel.width = im->selection.right  - im->selection.left;
+			imSel.width = im->selection.bottom - im->selection.top;
+
+			mp->horizontal += (im->selection.right  + im->selection.left - im->width)/2.0;
+			mp->vertical   += (im->selection.bottom + im->selection.top  - im->height)/2.0;
+
+			imSel.cP.horizontal_params[color] = mp->horizontal;
+			imSel.cP.vertical_params[color]   = mp->vertical;
+        }
+    }
+
+	SetInvMakeParams( stack, mp, &imSel, pn, color );
 }
 	
 
