@@ -1,770 +1,338 @@
-2005-05-04 11:33  dwilkins42
+P configure.ac
+
+2005-11-16 12:30:49  brunopostle  (brunopostle)
+
+	* configure.ac: updated to 2.7.0.13 release
+
+2005-11-16 06:47:08  jim0watters  (jim0watters)
+
+	* version.h: update to ver .13
+
+	* libpano.vcproj: do not use MSVCP71.DLL
+
+	* ZComb.c: Fix "Bounds error"
+
+2005-11-09 12:31:51  brunopostle  (brunopostle)
+
+	* configure.ac: updated configure.ac to version 2.7.0.12
+
+2005-11-09 05:42:16  jim0watters  (jim0watters)
+
+	* adjust.c, filter.h, resample.c, seamer_.c, version.h: Fix
+	inverse transform Add number to aa_transform Increase ver to .12
+
+	* math.c: fix 64bit process slow down
+
+	* parser.c, tiff.c: fix possible memory leak / double free
+
+2005-11-03 11:54:31  brunopostle  (brunopostle)
+
+	* Makefile.am: Add Xcode project files to dist archive target
+
+2005-10-27 03:13:37  jim0watters  (jim0watters)
+
+	* doc/Optimize.txt, doc/stitch.txt: Added Antialiasing filter
+	numbers
+
+	* libpano.vcproj: Updated Windows project
+
+2005-10-26 00:19:27  jim0watters  (jim0watters)
+
+	* resample.c: Added the dual-color modes to the transform_aa
+	and cleaned the code, rename 4 variables...
+
+2005-10-24 03:27:23  jim0watters  (jim0watters)
+
+	* PanoTools.pbproj.tgz: A project file for Apple's "XCode" IDE,
+	for developers who like to use Apple's tool.
+
+	* adjust.c, filter.h, resample.c: combine makePano with MyMakePano
+	and transform with MyTransform to remove duplicate code and
+	prepair to make MyTransform multiprocessor aware
+
+2005-10-23 05:20:25  jim0watters  (jim0watters)
+
+	* resample.c, resample.c, NEWS: alpha mask threshold bug fix
+
+2005-10-22 03:58:52  jim0watters  (jim0watters)
+
+	* NEWS, AUTHORS, correct.c, queryfeature.c, resample.c, version.h:
+	Do not process unchanged color channels for CA correction
+
+2005-10-19 03:06:32  jim0watters  (jim0watters)
+
+	* AUTHORS, NEWS, version.h: update changes
+
+	* adjust.c, filter.h, panorama.h, parser.c, queryfeature.c,
+	resample.c: ByThomas Rauscher, Added antialiasing filters
+
+	* file.c, filter.c, tiff.c: ByThomas Rauscher, Added support
+	32bit float files
+
+2005-10-18 23:33:24  jim0watters  (jim0watters)
+
+	* bmp.c: allow to read both top to bottom or bottom to top
+	BMP files
+
+	* panorama.h: remove incorrect filer_main()
+
+2005-05-22 12:44:04  dwilkins42  (dwilkins42)
+
+	* version.h: Update all versions
+
+	* configure.ac, filter.c, queryfeature.c, version.h: Correct
+	behaviour for mode=_usedata
+
+2005-05-18 13:40:39  brunopostle  (brunopostle)
+
+	* NEWS, configure.ac, version.h: Changed version to 2.7.0.10
+	for release
+
+2005-05-12 02:24:07  jim0watters  (jim0watters)
+
+	* libpano.vcproj: update for VC .Net
+
+2005-05-07 15:17:07  dwilkins42  (dwilkins42)
+
+	* lmdif.c, multilayer.c, panotypes.h, pteditor.c, ptpicker.c,
+	resample.c, sys_ansi.c: Explicitly mark unused variables and
+	remove GCC warning
+
+2005-05-05 05:06:51  dwilkins42  (dwilkins42)
+
+	* queryfeature.c: Modify sense of Java test
+
+2005-05-04 15:08:57  dwilkins42  (dwilkins42)
+
+	* ChangeLog: Update ChangeLog
 
 	* filter.c: Use 64 bit clean data types. Use 64 bit safe casts.
 
-2005-05-04 11:32  dwilkins42
-
 	* file.c: Use decimal instead of hex constants
-
-2005-05-04 11:29  dwilkins42
 
 	* pan.c: Use 64 bit safe casts.
 
-2005-05-04 11:16  dwilkins42
-
 	* PTDialogs.c: Correct typo
-
-2005-05-04 11:02  dwilkins42
 
 	* perspect.c: Use 64 bit clean data types.
 
-2005-05-04 10:59  dwilkins42
+	* morpher.c, jpeg.c, fourier.c: Use 64 bit clean data types. Use
+	64 bit safe casts.
 
-	* fourier.c, jpeg.c, morpher.c: Use 64 bit clean data types. Use 64
-	  bit safe casts.
-
-2005-05-04 10:57  dwilkins42
-
-	* file.c: Use 64 bit clean data types. Use 64 bit safe casts.
-	  Rename READLONG and WRITELONG to READINT32 and WRITEINT32 to
-	  accurately reflect their purpose.
-
-2005-05-04 10:51  dwilkins42
+	* file.c: Use 64 bit clean data types. Use 64 bit safe
+	casts. Rename READLONG and WRITELONG to READINT32 and WRITEINT32
+	to accurately reflect their purpose.
 
 	* correct.c: Use 64 bit safe casts.
 
-2005-05-04 10:50  dwilkins42
-
 	* sys_ansi.c, sys_win.c: Use 64 bit clean parameter declarations.
 
-2005-05-04 10:49  dwilkins42
-
 	* tiff.c: Use 64 bit clean data types and types defined in tiff.h
-	  where appropriate
-
-2005-05-04 10:47  dwilkins42
+	where appropriate
 
 	* resample.c: Use 64 bit clean data types.
 
-2005-05-04 10:45  dwilkins42
-
 	* queryfeature.c: Use 64 bit clean data types. Use 64 bit safe
-	  const instead of define
+	const instead of define
 
-2005-05-04 10:44  dwilkins42
-
-	* ppm.c: Use 64 bit clean data types. Use correct format specifiers
-	  for 32/64 bit
-
-2005-05-04 10:42  dwilkins42
+	* ppm.c: Use 64 bit clean data types. Use correct format
+	specifiers for 32/64 bit
 
 	* parser.c: Use correct format specifiers for 32/64 bit
 
-2005-05-04 10:38  dwilkins42
+	* panorama.h, filter.h: use 64 bit clean types
 
-	* filter.h, panorama.h: use 64 bit clean types
-
-2005-05-04 10:26  dwilkins42
-
-	* fftn.c, fftn.h: Correct data widths for 32/64 bit use
-
-2005-05-04 10:23  dwilkins42
+	* fftn.h, fftn.c: Correct data widths for 32/64 bit use
 
 	* Triangulate.c: Use floating point version of abs() to avoid
-	  conversion errors
-
-2005-05-04 10:21  dwilkins42
+	conversion errors
 
 	* tools/panoinfo_unix.c: gcc 2.95 on ppc barfs if local variables
-	  defined late
+	defined late
 
-2005-05-04 10:17  dwilkins42
+	* Makefile.am, panotypes.h: Add panotypes.h header for 32/64
+	bit support
 
-	* Makefile.am, panotypes.h: Add panotypes.h header for 32/64 bit
-	  support
+	* m4/ax_check_graphics.m4, configure.ac: Small fixes for darwin
+	platform
 
-2005-05-04 10:15  dwilkins42
+2005-05-01 14:41:18  dwilkins42  (dwilkins42)
 
-	* configure.ac, m4/ax_check_graphics.m4: Small fixes for darwin
-	  platform
-
-2005-05-01 17:41  dwilkins42
-
-	* PTDialogs.c, multilayer.c, pteditor.c, resample.c: Supress unused
-	  parameter warning on msvc.
-
-2005-05-01 17:36  dwilkins42
+	* PTDialogs.c, multilayer.c, pteditor.c, resample.c: Supress
+	unused parameter warning on msvc.
 
 	* sys_win.h: Correct function declarations.
 
-2005-05-01 17:35  dwilkins42
-
 	* sys_win.c: Correct function declarations. remove unused local
-	  variables. Supress unused parameter warning on msvc.
+	variables. Supress unused parameter warning on msvc.
 
-2005-05-01 17:33  dwilkins42
-
-	* ptpicker.c: Update function declaration. Supress unused parameter
-	  warning on msvc
-
-2005-05-01 17:32  dwilkins42
+	* ptpicker.c: Update function declaration. Supress unused
+	parameter warning on msvc
 
 	* optimize.c: Remove redundant function declaration
 
-2005-05-01 17:31  dwilkins42
-
 	* lmdif.c: Update function declarations. Remove redundant function
-	  declarations. Supress unused parameter warnings on msvc
-
-2005-05-01 17:27  dwilkins42
+	declarations. Supress unused parameter warnings on msvc
 
 	* file.c: Replace (char)255 with 0xFF so that msvc won't complain
 
-2005-05-01 17:24  dwilkins42
-
 	* correct.c: Initialise a few more variables.
-
-2005-05-01 17:23  dwilkins42
 
 	* adjust.h: Add one more function declaration
 
-2005-05-01 17:23  dwilkins42
-
 	* adjust.c: Initialise variables. Correct typing error. Update
-	  function declaration
+	function declaration
 
-2005-04-30 21:55  dwilkins42
+2005-04-30 18:55:27  dwilkins42  (dwilkins42)
 
-	* queryfeature.c: Add note in queryfeature if java support is
-	  disabled
-
-2005-04-30 20:40  dwilkins42
+	* queryfeature.c: Add note in queryfeature if java support
+	is disabled
 
 	* Makefile.am: Add msvc files to autotools
 
-2005-04-30 19:44  dwilkins42
-
-	* libpano.vcproj, pano12vc.def, pano12vcd.def: Add project file for
-	  msvc and support files
-
-2005-04-30 13:19  dwilkins42
+	* libpano.vcproj, pano12vc.def, pano12vcd.def: Add project file
+	for msvc and support files
 
 	* resample.c: Fix cast-as-lvalue warning. Add function
-	  declarations. Ensure all variables initialised. Remove unused
-	  variables. Fix cast scope. Fix fprintf format string
-
-2005-04-30 13:15  dwilkins42
+	declarations. Ensure all variables initialised. Remove unused
+	variables. Fix cast scope. Fix fprintf format string
 
 	* ptpicker.c: Correct sprintf format strings
 
-2005-04-30 13:13  dwilkins42
-
-	* lmdif.c: Correct function declarations. Remove unused variables.
-	  Remove redundant functions
-
-2005-04-30 13:10  dwilkins42
+	* lmdif.c: Correct function declarations. Remove unused
+	variables. Remove redundant functions
 
 	* fourier.c: Remove unused variables. Comment out unused code
 
-2005-04-30 13:07  dwilkins42
-
 	* filter.c: Ensure variables initialised. Fix cast scope
 
-2005-04-30 13:06  dwilkins42
-
 	* file.c: Fix multi-character char const warning. Remove unused
-	  variables. Fix signed/unigned comparison warnings
-
-2005-04-30 13:01  dwilkins42
+	variables. Fix signed/unigned comparison warnings
 
 	* adjust.c: Add function declarations. Ensure variables
-	  initialised. Comment out unused code. Correct sprintf format
-	  string
-
-2005-04-30 12:55  dwilkins42
+	initialised. Comment out unused code. Correct sprintf format
+	string
 
 	* adjust.h: Add new header
 
-2005-04-30 12:50  dwilkins42
-
 	* fftn.c: Fix signed/unsigned warnings
 
-2005-04-30 12:48  dwilkins42
-
 	* correct.c: Fix cast-as-lvalue error. Ensure all variables
-	  initialised
-
-2005-04-30 12:37  dwilkins42
+	initialised
 
 	* Makefile.am: Add new files to automake system
 
-2005-04-30 12:35  dwilkins42
-
 	* optimize.c: Remove unused variables. Add function declarations
-
-2005-04-30 12:22  dwilkins42
 
 	* ptpicker.c: Remove unused variable
 
-2005-04-30 12:11  dwilkins42
-
-	* parser.c: Add function declarations. Correct printf/scanf format
-	  definitions. Add default case to switch statement
-
-2005-04-30 12:02  dwilkins42
+	* parser.c: Add function declarations. Correct printf/scanf
+	format definitions. Add default case to switch statement
 
 	* ZComb.c, ZComb.h, tiff.c: Move Z combining code to it's own
-	  files. Fix parameter declaration in tiff.c
+	files. Fix parameter declaration in tiff.c
 
-2005-04-30 11:54  dwilkins42
-
-	* adjust.c, lmdif.c, pteditor.c, ptpicker.c, resample.c: Remove
-	  #pragma unused (not used by gcc or msvc)
-
-2005-04-30 11:03  dwilkins42
+	* pteditor.c, ptpicker.c, resample.c, adjust.c, lmdif.c: Remove
+	#pragma unused (not used by gcc or msvc)
 
 	* tools/PTOptimizer.c: Remove unused variables. Add explicit
-	  function declaration
-
-2005-04-30 11:02  dwilkins42
+	function declaration
 
 	* sys_win.h: Correct parameter declaration
 
-2005-04-30 11:01  dwilkins42
-
 	* sys_ansi.c: Remove unused variable
-
-2005-04-30 10:59  dwilkins42
 
 	* remap.c: Add explicit variable initialisation
 
-2005-04-30 10:57  dwilkins42
-
 	* pteditor.c: Add explicit function declaration
-
-2005-04-30 10:55  dwilkins42
 
 	* png.c: Fix data type. Fix Optimise bug
 
-2005-04-30 10:52  dwilkins42
-
 	* Triangulate.c: Remove unused variable
 
-2005-04-22 18:30  dwilkins42
+2005-04-22 15:30:14  dwilkins42  (dwilkins42)
 
 	* javastub.c: Required for --without-java support
 
-2005-04-22 18:29  dwilkins42
-
 	* pano12.rc: Correct rc language version (messages are in english
-	  not german)
-
-2005-04-22 18:26  dwilkins42
+	not german)
 
 	* Makefile.am, configure.ac: Add --without-java support
 
-2005-02-26 10:14  dwilkins42
+2005-02-26 08:14:10  dwilkins42  (dwilkins42)
 
 	* panorama.h: __INTEL__ cannot be used as a test for windows
 
-2005-02-17 16:37  dwilkins42
+2005-02-17 14:37:46  dwilkins42  (dwilkins42)
 
 	* configure.ac: Update version number
 
-2005-02-04 10:38  jim0watters
+2005-02-04 08:38:21  jim0watters  (jim0watters)
 
 	* adjust.c, parser.c, queryfeature.c, version.h: Fix bug when
-	  cropping outside of image  - Joost Nieuwenhuijse
+	cropping outside of image  - Joost Nieuwenhuijse
 
-2005-01-12 10:03  dwilkins42
+2005-01-12 08:03:39  dwilkins42  (dwilkins42)
 
-	* configure.ac, m4/ax_check_graphics.m4: Add initial support in
-	  autotools for the 64 bit linux platform. Remove default search
-	  paths
+	* m4/ax_check_graphics.m4, configure.ac: Add initial support
+	in autotools for the 64 bit linux platform. Remove default
+	search paths
 
-2005-01-07 11:26  dwilkins42
+2005-01-07 09:26:30  dwilkins42  (dwilkins42)
 
-	* Makefile.am, bootstrap, configure.ac, build/Makefile.am,
-	  build/win32/Makefile.am, doc/Makefile.am, m4/Makefile.am,
-	  tools/.cvsignore, tools/Makefile.am: Ensure maintainer-clean and
-	  distcheck targets work. Disable maintainer-mode in dist tarball.
-
-2005-01-07 08:41  dwilkins42
+	* tools/.cvsignore, tools/Makefile.am, build/win32/Makefile.am,
+	doc/Makefile.am, m4/Makefile.am, build/Makefile.am, Makefile.am,
+	bootstrap, configure.ac: Ensure maintainer-clean and distcheck
+	targets work. Disable maintainer-mode in dist tarball.
 
 	* m4/ax_check_java.m4: Put only _really_ required includes in
-	  JAVA_FLAGS. Should fix problem on Debian with gcj.
+	JAVA_FLAGS. Should fix problem on Debian with gcj.
 
-2004-12-01 03:44  specu
+2004-12-01 01:44:33  specu  (specu)
 
 	* sys_win.c: add title to the PrintError messagebox
 
-2004-12-01 03:32  specu
-
 	* sys_win.c: fix typo
-
-2004-12-01 02:48  specu
 
 	* version.h: replace non ASCII char with (c) - fix for bug 1076139
 
-2004-11-23 21:43  dwilkins42
+2004-11-23 19:43:16  dwilkins42  (dwilkins42)
 
-	* Makefile.am, configure.ac, doc/.cvsignore,
-	  m4/ax_check_graphics.m4, m4/ax_check_java.m4: Fixes for build
-	  (cygwin now compiles, but need to add README.cygwin to explain
-	  how). Also add .cvsignore to doc subdir.
-
-2004-11-23 14:22  dwilkins42
+	* doc/.cvsignore, m4/ax_check_graphics.m4, m4/ax_check_java.m4,
+	Makefile.am, configure.ac: Fixes for build (cygwin now compiles,
+	but need to add README.cygwin to explain how). Also add .cvsignore
+	to doc subdir.
 
 	* libpano12.def: Add libpano12.def used to create the import
-	  library on windows. This is the same as pano12.def, but does not
-	  re-export the TIFFxxxx symbols from the tiff library (which can
-	  cause some hard-to-track errors)
+	library on windows. This is the same as pano12.def, but does not
+	re-export the TIFFxxxx symbols from the tiff library (which can
+	cause some hard-to-track errors)
 
-2004-11-22 21:24  dwilkins42
+2004-11-22 19:24:54  dwilkins42  (dwilkins42)
 
-	* Makefile.am, configure.ac, build/.cvsignore, build/Makefile.am,
-	  build/README, build/win32/.cvsignore, build/win32/Makefile.am,
-	  build/win32/compile-resource, build/win32/lt-compile-resource,
-	  m4/ax_check_java.m4, tools/Makefile.am: Fixes for mingw and
-	  cygwin build. Note that cygwin build still has a few problems.
+	* tools/Makefile.am, build/Makefile.am, build/README,
+	build/win32/.cvsignore, build/win32/Makefile.am,
+	build/win32/compile-resource, build/win32/lt-compile-resource,
+	m4/ax_check_java.m4, build/.cvsignore, Makefile.am, configure.ac:
+	Fixes for mingw and cygwin build. Note that cygwin build still
+	has a few problems.
 
-2004-11-22 20:58  dwilkins42
+	* m4/.cvsignore, tools/.cvsignore, .cvsignore: Add cvs ignore
+	files
 
-	* .cvsignore, m4/.cvsignore, tools/.cvsignore: Add cvs ignore files
+2004-11-16 09:08:51  brunopostle  (brunopostle)
 
-2004-11-16 11:08  brunopostle
+	* ChangeLog: *** empty log message ***
 
-	* ChangeLog: [no log message]
-
-2004-11-16 11:03  brunopostle
-
-	* Makefile.am, configure.ac, doc/Makefile.am, doc/Optimize.txt,
-	  doc/stitch.txt: Added updated documentation for PTStitcher and
-	  PTOptimizer.
-
-2004-11-16 10:31  brunopostle
+	* doc/stitch.txt, Makefile.am, configure.ac, doc/Makefile.am,
+	doc/Optimize.txt: Added updated documentation for PTStitcher
+	and PTOptimizer.
 
 	* NEWS, configure.ac: Updated for 2.7.0.8 release
 
-2004-11-16 08:08  jim0watters
+2004-11-16 06:08:41  jim0watters  (jim0watters)
 
 	* version.h: Official release, Updated to version 2.7.0.8
 
-2004-11-16 07:58  jim0watters
-
 	* optimize.c: Fix small memory leak, as reported by Pablo d'Angelo
-
-2004-11-10 11:46  dwilkins42
-
-	* Makefile.am, m4/ax_check_graphics.m4: Update mac support in the
-	  build files
-
-2004-11-10 10:32  brunopostle
-
-	* configure.ac: Stop configure when it can't find libjpeg, zlib,
-	  libtiff, libpng or java (Douglas Wilkins)
-
-2004-11-10 10:29  brunopostle
-
-	* tools/Makefile.am: Allow out of tree builds.	Remove an
-	  unnecessary osx hack.
-
-2004-11-10 10:26  brunopostle
-
-	* m4/ax_check_java.m4: Add a path to find java on osx 10.1 (Douglas
-	  Wilkins)
-
-2004-11-09 20:04  brunopostle
-
-	* m4/ax_check_java.m4: small changes to allow for the sun java
-	  packaged by www.jpackage.org (Douglas Wilkins)
-
-2004-11-09 18:49  brunopostle
-
-	* panorama.h, tools/Makefile.am: Fixes to build on osx, though not
-	  ideal.
-
-2004-11-09 16:27  brunopostle
-
-	* m4/ax_check_java.m4: fixes to detect java libraries
-
-2004-11-09 16:10  brunopostle
-
-	* tools/Makefile.am: Add AM_LDFLAGS=-L.. so the tools can link to
-	  the just-built library
-
-2004-11-09 16:02  brunopostle
-
-	* configure.ac: allow older versions of autoconf
-
-2004-11-09 16:01  brunopostle
-
-	* Makefile.am: Add some likely include paths for building on a mac
-
-2004-11-09 11:33  brunopostle
-
-	* AUTHORS, ChangeLog, Makefile.am, NEWS, README, bootstrap,
-	  configure.ac, m4/Makefile.am, m4/ax_check_graphics.m4,
-	  m4/ax_check_java.m4, tools/Makefile.am: Added new libtool,
-	  automake, autoconf build system.  Needs testing on various
-	  platforms.
-
-2004-11-08 21:35  brunopostle
-
-	* Makefile, README.linux, README.windows, makefile.win32,
-	  tools/makefile panoinfo, tools/makefile ptoptimizer,
-	  tools/makefile.panoinfo.win32, tools/makefile.ptoptimizer.win32:
-	  Renamed Makefile as it would be clobbered by upcoming automake
-	  build system.  Renamed files with spaces as they confuse make.
-	  Modified README files as appropriate.
-
-2004-10-15 18:28  jim0watters
-
-	* jpeg.c, queryfeature.c, version.h: Turned on JPEG optimization -
-	  disable in script file
-
-2004-10-07 17:06  jim0watters
-
-	* version.h: Official release, Updated to version 2.7.0.6
-
-2004-09-27 08:32  jim0watters
-
-	* tools/panoinfo_unix.c: Unix version of PanoInfo
-
-2004-09-27 08:26  jim0watters
-
-	* version.h: Updated to new version - rc1
-
-2004-09-27 08:25  jim0watters
-
-	* resample.c: Updated fastTransform - removed bugs
-
-2004-09-27 08:22  jim0watters
-
-	* sys_win.c: disable warnings for unknown tags for TIFF files
-
-2004-09-27 08:20  jim0watters
-
-	* queryfeature.c: Fix asserts with Microsoft compilers
-
-2004-09-22 21:59  jim0watters
-
-	* correct.c, filter.c, resample.c: Reduce the number of times the
-	  status bar gets updated.  From every 5 lines to every 2%.  Speed
-	  increase using plugin from 4:30 down to 1:30 with 5000 pixel high
-	  image
-
-2004-09-22 21:55  jim0watters
-
-	* math.c: Fix PTCorrect vignetting correction.	Use same amount of
-	  correction with 16 and 8 bit files.  16 bit too dark
-
-2004-07-20 06:55  jim0watters
-
-	* file.c: Fix PTAdjust saving 16 bit files loaded from plug-in as
-	  too dark.
-
-2004-07-20 06:54  jim0watters
-
-	* version.h: new version
-
-2004-07-20 06:53  jim0watters
-
-	* seamer_.c: Fix 16 bit PTAdjust blend method paste,  remove black
-	  border  - Jim Watters
-
-2004-07-20 06:52  jim0watters
-
-	* ptpicker.c: Fix PTEditor to open files
-
-2004-07-20 06:50  jim0watters
-
-	* filter.h: Remove many type size warnings
-
-2004-07-20 06:48  jim0watters
-
-	* PTDialogs.c, pano12.rc, sys_win.h: Fix path and file input with
-	  dialog boxes.  Now accept path with spaces.  Updating edit
-	  control is remembered.
-
-2004-07-18 06:20  jim0watters
-
-	* adjust.c: Speed up adding an alpha channel to image - Jim Watters
-
-2004-07-16 02:01  jim0watters
-
-	* tools/panoinfo.c: Remove unused variables
-
-2004-07-16 01:46  jim0watters
-
-	* version.h: Set to Alpha 4
-
-2004-07-16 01:45  jim0watters
-
-	* queryfeature.c: Update with new features - mask for focus,
-	  Faster, PSD & 16bit bug fix
-
-2004-07-16 01:42  jim0watters
-
-	* sys_win.h: Fix propper dialog names for Windows plug-ins - Jim
-	  Watters
-
-2004-07-16 01:41  jim0watters
-
-	* tiff.c: Added Combining images of different focus by Rik
-	  Littlefields
-
-2004-07-16 01:38  jim0watters
-
-	* filter.c, filter.h, morpher.c, parser.c, resample.c: Added Faster
-	  transformations by Fulvio Senore and with morphing by Rik
-	  Littlefields
-
-2004-07-16 01:29  jim0watters
-
-	* file.c: Fix problem with large PSD files with image width > 16384
-	  and heavy file swapping and updated hasFeather.  Rik Littlefield
-	  & Jim Watters
-
-2004-07-16 01:17  jim0watters
-
-	* correct.c, file.c, filter.c, filter.h, math.c: Fix 16bit plug-in
-	  for Radial Shift and PTAdjust - Kevin Kratzke & Jim Watters
-
-2004-07-13 05:51  jim0watters
-
-	* file.c: Dynamically allocate scanline buffer in
-	  writeWhiteBackground, to avoid buffer overflow and crash on large
-	  images.
-
-2004-07-13 05:16  jim0watters
-
-	* queryfeature.c: made to work with microsoft compiler
-
-2004-06-06 06:13  jim0watters
-
-	* version.h: increased version #
-
-2004-06-06 05:35  jim0watters
-
-	* Makefile: add missing bracket
-
-2004-05-30 04:41  jim0watters
-
-	* tools/makefile ptoptimizer: makefile for ptoptimizer
-
-2004-05-30 04:30  jim0watters
-
-	* tools/: makefile panoinfo, panoinfo.c: Small application to test
-	  the query feature functions of pano12 library.
-
-2004-05-30 04:25  jim0watters
-
-	* Makefile, makefile.linux, makefile.mac, makefile.osx, pano12.def,
-	  pano12.rc, version.h, queryfeature.c, queryfeature.h: Functions
-	  to determine properties of this specific pano12 library.
-	  Features are name/value pairs. The name is string and the value
-	  can be either an integer, double or string. Boolean values are
-	  encoded as integers (0=false, 1=true)
-
-2004-05-30 04:18  jim0watters
-
-	* adjust.c, filter.h, filter.r, optimize.c, parser.c: Rik
-	  Littlefield's Improved optimizer. Better.  Faster.  Stronger.
-	  The method used here is a hybrid of two optimization strategies.
-	  In the first strategy, fcnPano is configured to return one
-	  function per control point, that function being total distance
-	  without regard for direction.  In the second strategy, fcnPano is
-	  configured to return two functions per control point, those
-	  functions being distance in two directions, typically longitude
-	  and latitude.
-
-2004-05-03 14:56  brunopostle
-
-	* makefile.osx: Partially working OS X makefile.  This creates a
-	  statically linkable .a archive that can be used to build a
-	  working PTOptimizer like so: make -f makefile.osx && cd tools &&
-	  gcc -o PTOptimizer -I.. -L/sw/lib -L.. -ljpeg -ltiff -lpano12
-	  PTOptimizer.c
-
-2004-03-18 04:06  jim0watters
-
-	* resample.c: Radial Shift, when colors channels have different
-	  values and d is > 1 would give incorrect results around the edge
-	  of the image
-
-2003-12-30 18:41  jim0watters
-
-	* file.c: Fix odd size PSD files and reading multilayer PSD files
-
-2003-12-30 18:17  jim0watters
-
-	* adjust.c, filter.c: Fix return, for compile warning.
-
-2003-12-30 12:37  brunopostle
-
-	* Makefile, pano12.def, resample.c: Files somehow got converted to
-	  DOS format, fixed
-
-2003-12-20 13:51  brunopostle
-
-	* tools/PTOptimizer.c: Initial commit, this is intended to be a
-	  drop-in replacement for the binary-only PTOptimizer, seems to
-	  work.
-
-2003-12-20 02:04  bret_mckee
-
-	* Makefile, pano12.def, resample.c: Changes to get ptools to
-	  compile under windows: - Makefile modified to build the supporing
-	  libraries if they are present - pano12.def - removed comments
-	  which were causing syntax errors - resample.c - change a
-	  reference to an undefined (and dangerous looking) function to
-	  sprintf
-
-2003-12-16 23:56  brunopostle
-
-	* jpeg.c, png.c, tiff.c: Mac specific changes related to file paths
-	  (Kekus Digital)
-
-2003-12-16 23:16  brunopostle
-
-	* adjust.c, pano12.def, resample.c: Two new functions: MyMakePano
-	  and MyTransForm are PTMac specific (Kekus Digital)
-
-2003-12-14 20:32  brunopostle
-
-	* README.linux, README.mac, README.windows: These instructions are
-	  out-of-date (Helmut Dersch)
-
-2003-12-14 20:21  brunopostle
-
-	* gpl.txt: The content of Copying.html from the original sources
-	  converted to text is identical (apart from formatting) to
-	  http://www.fsf.org/licenses/gpl.txt.
-
-2003-12-13 14:03  brunopostle
-
-	* ptpicker.c: changed 'picker' to 'gpicker' (a namespace conflict?)
-	  (Kekus Digital)
-
-2003-12-13 13:57  brunopostle
-
-	* PTDialogs.c: minor dialog text change (Kekus Digital)
-
-2003-12-13 13:25  brunopostle
-
-	* filter.h, panorama.h: mac specific changes to build using carbon
-	  (Kekus Digital)
-
-2003-12-13 12:58  brunopostle
-
-	* PixMap.c, PixMap.h, filter.r, pict.c, sys_mac.c, sys_mac.h: Mac
-	  specific changes, mostly porting gui to carbon (Kekus Digital)
-
-2003-12-12 19:32  brunopostle
-
-	* PixMap.c, PixMap.h, filter.r, makefile.mac, pict.c, shell_mac.c,
-	  sys_mac.c, sys_mac.h: Extra files required for mac compilation as
-	  distributed by Helmut Dersch.
-
-2003-12-12 19:27  brunopostle
-
-	* sys_X11.c, sys_X11.h: Found two files in the macintosh sources
-	  that appear to be gtk+ dialog boxes for a linux front-end, the
-	  more the merrier.
-
-2003-12-02 00:19  brunopostle
-
-	* Makefile: Makefile modifications to build with mingw2.0 (Max
-	  Lyons)
-
-2003-12-02 00:05  brunopostle
-
-	* filter.h: Reduce random luminance effect for photoshop plugin
-	  (Jim Watters)
-
-2003-12-02 00:03  brunopostle
-
-	* file.c: Fix to export psd files in a better way (Jim Watters)
-
-2003-12-02 00:01  brunopostle
-
-	* adjust.c: Feature to allow linking of roll, pitch and yaw
-	  parameters when optimising (Jim Watters)
-
-2003-12-01 23:58  brunopostle
-
-	* morpher.c: Fix for morph-to-fit that was causing intermittent
-	  crashes (Max Lyons)
-
-2003-12-01 23:56  brunopostle
-
-	* correct.c, filter.h, math.c: Feature to randomise brightness
-	  correction in photoshop plugin (Jim Watters).  Anchor brightness
-	  correction to narrowest dimension of the source image rather than
-	  width for photoshop plugin (Jim Watters).
-
-2003-12-01 23:50  brunopostle
-
-	* file.c, filter.h, panorama.h, png.c, pteditor.c, ptpicker.c: Fix
-	  for BIGENDIAN namespace confict when compiling on Windows (Max
-	  Lyons).  Additional error messages when writing psd files (Max
-	  Lyons).
-
-2003-12-01 23:46  brunopostle
-
-	* sys_win.c: Feature to add 'are you sure' dialog on Windows when
-	  hitting cancel button (Max Lyons)
-
-2003-12-01 23:43  brunopostle
-
-	* pano12.rc, sys_win.c: Fix for memory problems on win95/98/me (Max
-	  Lyons).  Feature to show memory usage in Windows dialog box (Max
-	  Lyons).
-
-2003-12-01 23:40  brunopostle
-
-	* bmp.c: Fix to bmp file output, bmp file dimensions need to be
-	  multiples of 4 (Max Lyons)
-
-2003-12-01 23:38  brunopostle
-
-	* adjust.c, filter.h, parser.c: Straight-line control points
-	  feature added (Helmut Dersch).  g and t shear correction feature
-	  added (Helmut Dersch).  256 byte limit on script-file line length
-	  extended (Max Lyons).
-
-2003-12-01 23:29  brunopostle
-
-	* makefile.linux: Modified CFLAGS to suit real location of linux
-	  java header files
-
-2003-12-01 23:18  brunopostle
-
-	* makefile.linux, sys_ansi.h: Added two files needed to build on
-	  linux.  sys_ansi.h was originally missing from both the Windows
-	  and Linux sources, makefile.linux is the Makefile copied from the
-	  Linux source tarball.
-
-2003-12-01 23:10  brunopostle
-
-	* panorama.h, f2c.h, fftn.h, filter.h, pteditor.h, ptutils.h,
-	  sys_win.h, version.h, filter.c, parser.c, correct.c, sys_win.c,
-	  perspect.c, adjust.c, remap.c, lmdif.c, file.c, math.c, pan.c,
-	  PTDialogs.c, fftn.c, fourier.c, Triangulate.c, morpher.c,
-	  optimize.c, resample.c, seamer.c, pteditor.c, ptpicker.c, bmp.c,
-	  jpeg.c, seamer_.c, tiff.c, Makefile, multilayer.c, pano12.def,
-	  pano12.rc, png.c, ppm.c, sys_ansi.c: Initial import of Windows
-	  Version 2.6b1 of Panorama Tools library Sources as distributed by
-	  Helmut Dersch December 2001.
-
-2003-12-01 23:10  brunopostle
-
-	* panorama.h, f2c.h, fftn.h, filter.h, pteditor.h, ptutils.h,
-	  sys_win.h, version.h, filter.c, parser.c, correct.c, sys_win.c,
-	  perspect.c, adjust.c, remap.c, lmdif.c, file.c, math.c, pan.c,
-	  PTDialogs.c, fftn.c, fourier.c, Triangulate.c, morpher.c,
-	  optimize.c, resample.c, seamer.c, pteditor.c, ptpicker.c, bmp.c,
-	  jpeg.c, seamer_.c, tiff.c, Makefile, multilayer.c, pano12.def,
-	  pano12.rc, png.c, ppm.c, sys_ansi.c: Initial revision
 
