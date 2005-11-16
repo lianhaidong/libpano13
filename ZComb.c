@@ -142,7 +142,7 @@ float ZCombGetSmoothedLevel(int row, int col) {
 	for (kr = row-khw; kr <= row+khw; kr++) {
 		for (kc = col-khw; kc <= col+khw; kc++) {
 			if (kr < 0 || kr >= height || kc < 0 || kc >= width) {
-				PrintError("Bounds error");  /* Out of bounds */
+				continue;  /* Out of bounds */
 			} else {
 				sumLevels += ZComb.bestLevel[kr*width+kc];
 				n++;
@@ -189,7 +189,7 @@ void ZCombEstimateFocus(Image *im) {
 			for (kr = row-khw; kr <= row+khw; kr+=KERNELSPARSENESS) {
 				for (kc = col-khw; kc <= col+khw; kc+=KERNELSPARSENESS) {
 					if (kr < 0 || kr >= height || kc < 0 || kc >= width) {
-						PrintError("Bounds error");  /* Out of bounds */
+						continue;  /* Out of bounds */
 					} else {
 						pg = *(im->data) + kr*(im->bytesPerLine) + kc*4 + 1;  /* ARGB */
 						g = *pg;    /* pixel value */
