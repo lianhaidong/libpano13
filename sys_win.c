@@ -46,6 +46,11 @@ caused annoying warnings about unknown tags while loading each tiff source image
 
 */
 
+// Usefull MSVS tool to track down memory bugs when used with _CrtSetDbgFlag
+// Gives increased information in output window
+//#define CRTDBG_MAP_ALLOC
+//#include <stdlib.h>
+//#include <crtdbg.h>
 
 // FS+
 // needed for TIFFSetWarningHandler()
@@ -861,6 +866,7 @@ int FullPathtoString (fullPath *path, char *filename)
 
 int IsTextFile( char* fname )
 {
+//	_CrtSetDbgFlag ( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
 
 	if( strrchr( fname, '.' ) != NULL && 
 			(strcmp( strrchr( fname, '.' ), ".txt") == 0 ||
