@@ -70,6 +70,7 @@ BOOL WINAPI WinFunc(HWND hDlg, UINT wMsg, WPARAM wParam, LPARAM lParam)		\
 			static 		VarType localPrefs, *thePrefs;						\
 			char		numString[256];										\
 																			\
+			(numString);													\
 			SetWindowOwner( hDlg );											\
 			switch  (wMsg)													\
 			{																\
