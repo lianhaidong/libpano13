@@ -167,8 +167,8 @@ void adjust(TrformStr *TrPtr, aPrefs *prefs)
 							}
 						}
 						if(ainf.numPts > 0) free(ainf.cpt);
+						free( script );
 					}
-					free( script );
 				}
 #endif
 			}else{

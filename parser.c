@@ -1477,7 +1477,6 @@ int readPositions( char* script, transformCoord *tP )
 					if( ReadCoordinates( &tP->p[np++], &(line[1]) ) != 0 )
 					{
 						PrintError( "Syntax error in line %d" , lineNum);
-						free( script );
 						return -1;
 					}
 					break;
@@ -1485,7 +1484,6 @@ int readPositions( char* script, transformCoord *tP )
 					if( ReadCoordinates( &tP->r[nr++], &(line[1]) ) != 0 )
 					{
 						PrintError( "Syntax error in line %d" , lineNum);
-						free( script );
 						return -1;
 					}
 					break;
