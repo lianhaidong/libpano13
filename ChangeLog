@@ -1,6 +1,21 @@
-P configure.ac
 
-2005-11-16 12:30:49  brunopostle  (brunopostle)
+2005-11-24 10:52:06  brunopostle  (brunopostle)
+
+	* configure.ac: updated to 2.7.0.14 release
+
+2005-11-23 04:46:13  jim0watters  (jim0watters)
+
+	* version.h: update to ver .14
+
+	* sys_win.c: MSVS memory tracking tools
+
+	* sys_win.h: remove build warning
+
+	* adjust.c, parser.c: fix possible double delete or delete of null
+
+2005-11-16 12:40:52  brunopostle  (brunopostle)
+
+	* ChangeLog: updated from cvs commit messages
 
 	* configure.ac: updated to 2.7.0.13 release
 
@@ -295,44 +310,4 @@ P configure.ac
 	* sys_win.c: fix typo
 
 	* version.h: replace non ASCII char with (c) - fix for bug 1076139
-
-2004-11-23 19:43:16  dwilkins42  (dwilkins42)
-
-	* doc/.cvsignore, m4/ax_check_graphics.m4, m4/ax_check_java.m4,
-	Makefile.am, configure.ac: Fixes for build (cygwin now compiles,
-	but need to add README.cygwin to explain how). Also add .cvsignore
-	to doc subdir.
-
-	* libpano12.def: Add libpano12.def used to create the import
-	library on windows. This is the same as pano12.def, but does not
-	re-export the TIFFxxxx symbols from the tiff library (which can
-	cause some hard-to-track errors)
-
-2004-11-22 19:24:54  dwilkins42  (dwilkins42)
-
-	* tools/Makefile.am, build/Makefile.am, build/README,
-	build/win32/.cvsignore, build/win32/Makefile.am,
-	build/win32/compile-resource, build/win32/lt-compile-resource,
-	m4/ax_check_java.m4, build/.cvsignore, Makefile.am, configure.ac:
-	Fixes for mingw and cygwin build. Note that cygwin build still
-	has a few problems.
-
-	* m4/.cvsignore, tools/.cvsignore, .cvsignore: Add cvs ignore
-	files
-
-2004-11-16 09:08:51  brunopostle  (brunopostle)
-
-	* ChangeLog: *** empty log message ***
-
-	* doc/stitch.txt, Makefile.am, configure.ac, doc/Makefile.am,
-	doc/Optimize.txt: Added updated documentation for PTStitcher
-	and PTOptimizer.
-
-	* NEWS, configure.ac: Updated for 2.7.0.8 release
-
-2004-11-16 06:08:41  jim0watters  (jim0watters)
-
-	* version.h: Official release, Updated to version 2.7.0.8
-
-	* optimize.c: Fix small memory leak, as reported by Pablo d'Angelo
 
