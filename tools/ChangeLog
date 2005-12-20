@@ -1,0 +1,13 @@
+2005-12-20  dmg  <dmgerman@uvic.ca>
+
+	* README.PTmender: Added this file.
+
+	* PTmender.c, PTmender.h: I created these two files. Created the
+	functions ReplaceExt, InsertFileName, and CreatePanorama. It has
+	also all the skeletons to all the functions that need to be
+	rewritten.
+
+	* Modified Makefile.am to add PTStitcher. The program currently
+	compiles, but does nothing. 
+
+	* Created the ChangeLog.

@@ -33,7 +33,10 @@ endif
 AM_CPPFLAGS = $(JAVA_FLAGS) $(LIN_DEFS) $(DAR_DEFS)
 AM_LDFLAGS  = -L${top_builddir}
 
-bin_PROGRAMS = panoinfo PTOptimizer
+bin_PROGRAMS = panoinfo PTOptimizer PTmender
+
+PTmender_SOURCES = PTmender.c ptmender.h
+PTmender_LDADD   = -lpano12 -ljpeg
 
 PTOptimizer_SOURCES = PTOptimizer.c
 PTOptimizer_LDADD   = -lpano12

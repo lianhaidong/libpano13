@@ -1,0 +1,60 @@
+PTmender
+--------
+
+This is a rewrite of PTStitcher. It currently does nothing, but the
+goal is to create a replacement of the original PTStitcher for which
+the source code was never released.
+
+Currently the program is useless, but work is moving on. The first
+goal is to implement TIFF panoramas.
+
+----------------------------------------------------------------------
+HOW TO HELP.
+
+* Code reviewers.
+ 
+  if you are familiar with libpano, it will help to check that the
+  source code is "sound" (which means that it "looks" good). Until we
+  implement the minimum necessary to run it, we can't test it. We will
+  rely in code reviews.
+
+* Create test cases.  We need to create some test cases that we can
+   use to verify if PTmender works _exactly_ as PTStitcher. This will
+   require some panorama scripts and the images, and some scripts to
+   verify the results.
+
+* Blackbox analysis. Jim has created a DLL that tracks the function
+  calls from a program to libpano. It will be interesting to script
+  the test cases and make sure that the function calls are identical
+  (and the parameters passed too!). This will be very useful during
+  the recreation of the program.
+
+* If you know 0x86 assembly (or want to learn) contact me at dmgerman
+  at uvic ca.
+
+
+
+----------------------------------------------------------------------
+
+TODO:
+
+   * Create_Panorama has some floating point operations that I still need to be
+   decoded
+
+   * Recreate the following functions:
+
+    int main(int argc,char *argv[])
+    int  CreatePSD(  fullPath *fullPathImages, int numberImages, fullPath* fullPathImage)
+    int CreateStitchingMasks(fullPath *fullPathImages, int numberImages)
+    int Create_LP_ivr(Image *image, fullPath* fullPathImage)
+    int FlattenTIFF(  fullPath *fullPathImages, int numberImages)
+    int Unknown01(Image *image, fullPath* fullPathImage)
+    int Unknown02(Image *image, fullPath* fullPathImage)
+    int Unknown03(Image *image, fullPath* fullPathImage)
+    int Unknown04(Image *image, fullPath* fullPathImage)
+    int Unknown05(Image *image, fullPath* fullPathImage)
+    int Unknown07(Image *image, fullPath* fullPathImage)
+    void Unknown08(Image *resultPanorama)
+    void Unknown09(Image *currentImagePtr)
+    void Unknown28(  fullPath *fullPathImages, int p1, int p2, int p3)
+
