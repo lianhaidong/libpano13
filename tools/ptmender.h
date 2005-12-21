@@ -43,6 +43,7 @@ extern int jpegProgressive;
 
 void ReplaceExt(char *, char*);
 char* Filename(fullPath* path);
+int CreatePanorama(fullPath *ptrImageFileNames[], int counterImageFiles, fullPath *panoFileName, fullPath *scriptFileName);
 
 
 /* These functions need to be implemented */

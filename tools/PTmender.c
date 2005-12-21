@@ -26,9 +26,18 @@
  * 
  */
 
+
+// TODO
+//    Create_Panorama requires some floating point assembly to be interpreted
+
+
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/types.h>
+#include <dirent.h>
+#include <unistd.h>
+
 
 #include <tiffio.h>
 #include <filter.h>
@@ -50,12 +59,318 @@ int jpegProgressive;
 
 
 
+int sorting_function(const void *, const void *);
+
 int main(int argc,char *argv[])
 {
   // It does nothing yet
 
-  fprintf(stderr, "This program is work in progress. I does nothing yet\n");
-  exit(1);
+  int ebx;
+  int var48;
+  int var44;
+  char *script;
+  char *currentParm;
+  DIR *directory;
+  int sort=0;
+  int counter;
+  fullPath **ptrImageFileNames;
+  AlignInfo alignInfo;
+  char var36[512];
+  fullPath scriptFileName;
+  fullPath panoFileName;
+
+  int iloopCounter;
+  char opt;
+
+  ptrImageFileNames = NULL;
+  counter = 0;
+  panoFileName.name[0] = 0;
+  scriptFileName.name[0] = 0;
+  
+
+  while ((opt = getopt(argc, argv, "o:f:hsq")) != -1) {
+
+// o and f -> set output file
+// h       -> help?
+// q       -> quiet?
+// s       -> sort
+    
+    switch(opt) {  // fhoqs        f: 102 h:104  111 113 115  o:f:hsq
+      
+      //        This is 'o' option of switch!
+      // 
+    case 'o':
+      if (StringtoFullPath(&panoFileName, optarg) != 0) { 
+	PrintError("Syntax error: Not a valid pathname");
+	return(-1);
+      }
+      break;
+
+    case 'f':
+      
+      if (StringtoFullPath(&scriptFileName,optarg) != 0) { 
+	PrintError("Syntax error: Not a valid pathname");
+	return(-1);
+      }
+      break;
+    case 's':
+      sort = 1;
+      break;
+
+    case 'q':
+      
+      quietFlag = 1;
+      break;
+      
+    case 'h':
+      PrintError("Usage: PTStitcher [options] file1 file2 ...");
+      exit(0);
+      
+    default:
+      break;
+    }
+  }
+
+  iloopCounter = 0;
+  while (iloopCounter < argc  ) {
+    char *currentParam;
+
+
+    currentParm = argv[iloopCounter];
+    iloopCounter++;
+    // Test if it is a directory?
+    if ((directory =  opendir(currentParm)) != NULL) {
+      char *edx;
+      struct dirent *dirEntry;
+    
+    ///* This is what readdir returns a pointer to
+    //     struct dirent
+    //              {
+    //                  long d_ino;                 /* inode number */                  0
+    //                  off_t d_off;                /* offset to this dirent */         08(
+    //                  unsigned short d_reclen;    /* length of this d_name */         0c(
+    //                  char d_name [NAME_MAX+1];   /* file name (null-terminated) */   0e(
+    //              }
+    //*/
+
+      //     readdir(DIR *dirp);
+      while ((dirEntry =  readdir(directory)) != NULL) {
+	edx = dirEntry->d_name;
+	if (strcmp(dirEntry->d_name, ".") != 0 ||
+	    strcmp(dirEntry->d_name, "..") != 0) {
+    
+	  strcpy(var36, currentParm);
+    
+	  if (var36[strlen(var36)] == '/') {
+	    // if the name has a trailing /, remove it
+	    var36[strlen(var36)] = 0;
+	  }
+    
+	  sprintf(var36+ strlen(var36), "%c%s", '/', dirEntry->d_name);
+    
+	  if (IsTextFile(var36)) {
+	    if (StringtoFullPath(&scriptFileName,var36) != 0) {
+	      PrintError("Syntax error: Not a valid pathname");
+	      return(-1);
+	    } 
+
+	  } else {
+    
+	    /* if it not a text file then assume it is an image */
+
+	    /* Allocate one more slot */
+
+	    if ((ptrImageFileNames = realloc(ptrImageFileNames, ++counter * 512)) == NULL) {
+      	      exit(0);
+	    }
+	    
+	    sort = 1;
+	    /* move the new filename */
+	    if (StringtoFullPath(ptrImageFileNames[counter], var36) != 0) {
+	      PrintError("Syntax error: Not a valid pathname");
+	      return(-1);
+	    }
+	  }
+	}
+    
+      }
+     //    if ((directory =  opendir(currentParm)) != NULL) 
+    } else if (IsTextFile(currentParm) == 0) { // checks if the file does not have .txt extension
+      // it is a assumed to be an image
+      counter++;
+      if(realloc(ptrImageFileNames, counter * 512) == NULL) {
+	exit(0);
+      } 
+      if (StringtoFullPath(ptrImageFileNames[counter], currentParm) != 0) {
+	PrintError("Syntax error: Not a valid pathname");
+	return(-1);
+      }
+    } else { //It has to be textfile
+      if (StringtoFullPath(&scriptFileName, currentParm) !=0) { // success
+	PrintError("Syntax error: Not a valid pathname");
+	return(-1);
+      }
+    }
+  } // end of while loop  while (iloopCounter < argc  ) {
+  
+  //;;;;;;;; While loop ends here
+  
+  // This code sets scriptFileName to "./Script.txt" if no other name was given
+  
+  if (scriptFileName.name[0] != 0) {
+    char *temp;
+    
+    // set scriptFilename to default path './'
+
+    makePathToHost(&scriptFileName);
+
+    /* Then append/replace the filename */
+    
+    if ((temp = strrchr(scriptFileName.name, '/')) != NULL) {
+      temp++;
+    }
+
+    strcpy(temp, "Script.txt");
+
+  }  // end of if (scriptFileName[0] != 0) {
+
+  /* Code to set the panorama filename if none given in the command line */
+  
+  if (strlen(panoFileName.name) == 0) {
+
+    // This is what todo if at this point we dont have a panorama filename
+    
+    if (SaveFileAs(&panoFileName, "Save Panorama as... ", "pano") != 0) {
+      exit(0);
+    }
+    /* SO at this point we have script and panorama filenames */
+    if (counter != 0) {
+      sort = 1;
+    }
+  }
+  
+  if (counter != 0) {
+    
+    if (sort != 0) {
+      qsort(ptrImageFileNames, counter, 512, sorting_function);
+    }
+  } else {
+    // We don't have any images yet. We read the 
+    // Script and load them from it.
+    script = LoadScript(&scriptFileName);
+    
+    if (script == NULL) {
+      PrintError("Could not load script.");
+      exit(0);
+    }
+    
+    if (ParseScript(script, &alignInfo) == 0) {
+
+      counter = alignInfo.numIm;
+      if (counter != 0) {
+	if ((ptrImageFileNames = malloc(512 * counter)) == NULL) {
+	  PrintError("Not enough memory");
+	  exit(0);
+	}
+	// For loop
+	
+	for (ebx = 0; ebx < counter; ebx ++) {
+	  strcpy(ptrImageFileNames[counter]->name, scriptFileName.name);
+	  InsertFileName(ptrImageFileNames[counter], alignInfo.im[ebx].name);
+	} // for (ebx = 0; ebx < counter; ebx ++) {
+      }//  if (counter != 0) 
+      
+      DisposeAlignInfo(&alignInfo);
+    }  // if (ParseScript(script, &alignInfo) == 0)
+    
+    if (counter == 0) {
+      
+      //  Still no files ...
+
+      // In the original program alignInfo is used as a fullPath
+      // I don't understand why, and instead I created a local variable
+      // to do it.
+
+
+      fullPath scriptPathName;
+      FILE* scriptFD;
+      int temp;
+
+      counter = numLines(script, 0x6f);
+      
+      if (counter == 0) {
+	PrintError("No Input Images");
+	exit(0);
+      }
+      
+      strcpy(scriptPathName.name, scriptFileName.name);
+      
+      if (makeTempPath(&scriptPathName) != 0) {
+	
+	PrintError("Could not make Tempfile");
+	exit(0);
+	
+      }
+      
+      if ((scriptFD = fopen(scriptPathName.name, "w")) == NULL) {
+	PrintError("Could not open temporary Scriptfile");
+	exit(0);
+	
+      }
+      
+      temp = fwrite(script, 1, strlen(script), scriptFD); 
+      
+      if (strlen(script) == temp) {
+	PrintError("Could not write temporary Scriptfile");
+	exit(0);
+      }
+      
+      fclose(scriptFD);
+      
+      if ((ptrImageFileNames = malloc(counter * 512)) == NULL) {
+	
+	PrintError("Not enough memory\n");
+	exit(0);
+      }
+      
+      for (var44 = 0; var44 < counter; var44++) {
+	aPrefs* preferences;
+	
+	if ( (preferences = readAdjustLine(&scriptPathName)) == NULL) {
+	  
+	  PrintError("Could not read ScriptFile");
+	  exit(0);
+	  
+	}
+	
+	strcpy(ptrImageFileNames[var44]->name, scriptFileName.name);
+	InsertFileName(ptrImageFileNames[var44], preferences->im.name);
+	
+	if (preferences->td != NULL) {
+	  free(preferences->td);
+	}
+	
+	if (preferences->ts != NULL) {
+	  free(preferences->ts);
+	}
+	free(preferences);
+	
+      } // end of for (var44 = 0; var44 < counter; var44++) {
+      
+      remove(scriptPathName.name);
+      
+      if (counter == 0) {
+	PrintError("No Input Images");
+	exit(0);
+      }
+      
+    } //    if (counter == 0) {
+    free(script); 
+    
+  }
+  CreatePanorama(ptrImageFileNames, counter, &panoFileName, &scriptFileName);
+  return (0);
+
 }
 
 
@@ -172,6 +487,8 @@ int CreatePanorama(fullPath *ptrImageFileNames[], int counterImageFiles, fullPat
     var72 = prefs->sBuf.colcorrect; // 1, 2, or 3 //
 
     if (prefs->pano.cP.radial != 0) {
+
+	assert(0); // This needs to be decoded
 
 // correct_Prefs
 //...
@@ -301,6 +618,8 @@ int CreatePanorama(fullPath *ptrImageFileNames[], int counterImageFiles, fullPat
 // All the following happens only in the first pass
 
       if (prefs->pano.width == 0) {
+
+	assert(0); // This needs to be decoded
 
 	/*
 
@@ -893,3 +1212,10 @@ void Unknown28(  fullPath *fullPathImages, int p1, int p2, int p3)
   fprintf(stderr,"this function is not implemented yet\n");
   exit(1);
 }
+
+
+int sorting_function(const void *p1, const void *p2)
+{
+  return strcmp(p1, p2);
+}
+
