@@ -38,7 +38,6 @@
 #include <dirent.h>
 #include <unistd.h>
 
-
 #include <tiffio.h>
 #include <filter.h>
 #include "panorama.h"
@@ -66,7 +65,6 @@ int main(int argc,char *argv[])
   // It does nothing yet
 
   int ebx;
-  int var48;
   int var44;
   char *script;
   char *currentParm;
@@ -133,8 +131,6 @@ int main(int argc,char *argv[])
 
   iloopCounter = 0;
   while (iloopCounter < argc  ) {
-    char *currentParam;
-
 
     currentParm = argv[iloopCounter];
     iloopCounter++;
@@ -737,9 +733,8 @@ label804a30f:
       resultPanorama.selection.right = resultPanorama.width;
 
       var60 = 500,000 / resultPanorama.bytesPerLine;
-
  
-      if (var60 == 0) { 
+      if (0 == var60) { 
 	var60 = 1;
       } 
 
@@ -790,11 +785,14 @@ label804a30f:
       goto mainError;
     }
     
-    Unknown08(&resultPanorama);
+    ARGtoRGBAImage(&resultPanorama);
     
     for (ebx = 0; ebx< resultPanorama.selection.bottom - resultPanorama.selection.top ; ebx++) {
-      TIFFWriteScanline(tiffFile, resultPanorama.data + (resultPanorama.bytesPerLine * ebx), resultPanorama.selection.top + ebx  , 1);
+      
+      // Be careful here. resultPanorama.data is a char **, this arithmetic might be plain wrong. I suspect
+      // it will segfault. We'll see
 
+      TIFFWriteScanline(tiffFile, *resultPanorama.data + (resultPanorama.bytesPerLine * ebx), resultPanorama.selection.top + ebx  , 1);
 
       ++ebx;
       
@@ -1202,11 +1200,45 @@ int Unknown07(Image *image, fullPath* fullPathImage)
   exit(1);
 }
 
-void Unknown08(Image *resultPanorama)
+void ARGtoRGBAImage(Image *im)
 {
-  // NEEDED
-  fprintf(stderr,"this function is not implemented yet\n");
-  exit(1);
+  int right;    
+  int left;
+  int bottom;
+  int top;
+  int width;
+  int i;
+
+  if ( im->selection.bottom == 0  &&
+       im->selection.right == 0 ) {
+
+    top = 0;
+    left = 0;
+    bottom = im->height;
+    right = im->width;
+
+
+  }  else {
+
+    top = im->selection.top;
+    bottom = im->selection.bottom;
+    bottom = im->selection.bottom;
+    right = im->selection.right;
+  }
+
+  assert(right >= left);
+  width = right - left;
+
+
+  assert(bottom> top);
+
+
+  for (i = 0;  i < bottom - top ; i ++) {
+
+    ARGBtoRGBA(*(im->data) + i * im->bytesPerLine, width, im->bitsPerPixel);
+
+  } // for (...
+
 }
 
 void Unknown09(Image *currentImagePtr)

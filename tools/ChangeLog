@@ -1,5 +1,13 @@
 2005-12-21  dmg  <dmgerman@uvic.ca>
 
+	* PTmender.h (InsertFileName): added prototype.
+
+	* Makefile.am (PTmender_LDADD): We now require the tiff library too.
+	(AM_CFLAGS): Added -Wall. I need to catch _any_ potential error.
+
+	* PTmender.c, PTmender.h (ARGtoRGBAImage): Renamed Unknown08 to
+	ARGtoRGBAImage and implemented it.
+
 	* I forgot that OS X is case insensitive (even though it is case
 	preserving). I have renamed ptmender.h to PTmender.h. Updated
 	Makefile.am and PTmender.c (thanks to Bruno Postle for noticing

@@ -49,8 +49,8 @@ int CreatePanorama(fullPath *ptrImageFileNames[], int counterImageFiles, fullPat
 /* These functions need to be implemented */
 
 void Unknown09(Image *currentImagePtr);
-void Unknown08(Image *resultPanorama);
-void Unknown28(  fullPath *fullPathImages, int, int, int);
+void ARGtoRGBAImage(Image *im);
+void Colour_Brightness(  fullPath *fullPathImages, int p1, int p2, int p3);
 int CreateStitchingMasks(  fullPath *fullPathImages, int);
 int FlattenTIFF(  fullPath *fullPathImages, int);
 
@@ -64,3 +64,6 @@ int Unknown07(Image *, fullPath*);
 int Create_LP_ivr(Image *, fullPath*);
 
 
+
+/*  defined in ptpicker.c, but never exported */
+void InsertFileName( fullPath *fp, char *fname );
