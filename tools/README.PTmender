@@ -58,3 +58,38 @@ TODO:
     void Unknown09(Image *currentImagePtr)
     void Unknown28(  fullPath *fullPathImages, int p1, int p2, int p3)
 
+----------------------------------------------------------------------
+
+COMMAND LINE OPTIONS
+
+
+-s     Sort image files. I assume that the processing of the files
+       (by default) is in the command line order. This overrides it.
+
+-q     Quiet execution. Do not display progress messages during
+       execution.
+
+-o     Specify the name of the result panorama file.
+
+-f     Specify the name of the script file.
+
+The program assumes that the last file specified in the command line
+with a .txt extension is the script (even if the -f option is
+specified). This means that if the script has no .txt extension it is
+treated as an image (in that case use -f option).
+
+If a command line argument is a directory, any files in it are
+processed (non-recursively) as if they were all specified in the
+command line.
+
+Any other command line argument that is a file is treated as an image.
+
+
+If the command line does not have any image in it, then the script is
+processed and any references to images in it are processed.
+
+If the command line does not have a script file, then the user is
+asked for it.
+
+----------------------------------------------------------------------
+

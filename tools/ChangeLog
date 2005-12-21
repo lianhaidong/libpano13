@@ -1,5 +1,7 @@
 2005-12-21  dmg  <dmgerman@uvic.ca>
 
+	* README.PTmender: Added an explanation of its command line options.
+
 	* PTmender.c (main): Completed main.
 	(sorting_function): Added it to sort files if -s
 
