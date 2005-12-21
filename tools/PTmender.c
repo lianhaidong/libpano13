@@ -43,7 +43,7 @@
 #include <filter.h>
 #include "panorama.h"
 
-#include "ptmender.h"
+#include "PTmender.h"
 
 // Global variables for the program
 
@@ -864,16 +864,22 @@ label804a30f:
     myfree((void**)image1.data);
   }
   
-  if (var00 == 0) {
-    Unknown28(fullPathImages,counterImageFiles, var00 -1, 1);
+  // I have the feeling these functions are to correct brigthness
+  // And they are related to the assembly above.
+  // I have the feeling they are not required for panoramas 
+  // that do not need any brightness adjustments
+
+  if (var00 != 0) {
+    Colour_Brightness(fullPathImages,counterImageFiles, var00 -1, 1);
   }
   
-  if (var01 == 0) { // goto label804a84f;
-    Unknown28(fullPathImages, counterImageFiles, var01 - 1, 2);
+  if (var01 != 0) { //
+    Colour_Brightness(fullPathImages, counterImageFiles, var01 - 1, 2);
   } // 
 
-  Unknown28(fullPathImages,counterImageFiles, (var72 / 4) - 1, 0);
-
+  if (var72 != 0) {
+    Colour_Brightness(fullPathImages,counterImageFiles, (var72 / 4) - 1, 0);
+  }
   SetVRPanoOptionsDefaults(&defaultVRPanoOptions);
 
 /* All the folloging is strange. Look into what panoName is */
@@ -921,6 +927,7 @@ label804a30f:
     free(fullPathImages);
     return(0);
   }
+
 
   if (strcmp(word, "PSD_nomask") == 0 || strcmp(word, "PSD_m")) { // 
     ReplaceExt(panoFileName->name, ".psd");
@@ -1097,7 +1104,7 @@ char* Filename(fullPath* path)
 #ifdef THIS_IS_ALSO_IN_LIBPANO
 
 This function is already implemented in libpano! I wonder why it was reimplemented here and
-if there are other functions that are repeated.
+if there are other functions that are repeated. It is nice to see we got it right
  
 //////////////////////////////////////////////////////////////////////
 /*
@@ -1197,17 +1204,19 @@ int Unknown07(Image *image, fullPath* fullPathImage)
 
 void Unknown08(Image *resultPanorama)
 {
+  // NEEDED
   fprintf(stderr,"this function is not implemented yet\n");
   exit(1);
 }
 
 void Unknown09(Image *currentImagePtr)
 {
+  // NEEDED
   fprintf(stderr,"this function is not implemented yet\n");
   exit(1);
 }
 
-void Unknown28(  fullPath *fullPathImages, int p1, int p2, int p3)
+void Colour_Brightness(  fullPath *fullPathImages, int p1, int p2, int p3)
 {
   fprintf(stderr,"this function is not implemented yet\n");
   exit(1);

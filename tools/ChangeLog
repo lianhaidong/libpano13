@@ -1,5 +1,14 @@
 2005-12-21  dmg  <dmgerman@uvic.ca>
 
+	* I forgot that OS X is case insensitive (even though it is case
+	preserving). I have renamed ptmender.h to PTmender.h. Updated
+	Makefile.am and PTmender.c (thanks to Bruno Postle for noticing
+	this).
+	
+	* PTmender.c (CreatePanorama): Fixed some bugs during code review
+	of CreatePanorama
+	(CreatePanorama): Changed name of Unknown28 to Colour_Brightness
+
 	* README.PTmender: Added an explanation of its command line options.
 
 	* PTmender.c (main): Completed main.
