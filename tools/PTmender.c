@@ -22,7 +22,7 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  *
- *
+ *  Author: Daniel M German dmgerman at uvic doooot ca
  * 
  */
 
@@ -84,7 +84,6 @@ int main(int argc,char *argv[])
   counter = 0;
   panoFileName.name[0] = 0;
   scriptFileName.name[0] = 0;
-  
 
   while ((opt = getopt(argc, argv, "o:f:hsq")) != -1) {
 
@@ -365,6 +364,7 @@ int main(int argc,char *argv[])
     
   }
   CreatePanorama(ptrImageFileNames, counter, &panoFileName, &scriptFileName);
+
   return (0);
 
 }
@@ -377,10 +377,10 @@ int CreatePanorama(fullPath *ptrImageFileNames[], int counterImageFiles, fullPat
   aPrefs *prefs;
   int var01;
   int var00;
-  int var72;
+  int colourCorrection;
   int panoProjection;
 
-  int var60;
+  int lines;
   fullPath *fullPathImages;
   int  loopCounter;
   char var48[8];
@@ -410,13 +410,9 @@ int CreatePanorama(fullPath *ptrImageFileNames[], int counterImageFiles, fullPat
   int ebx;
 
   /* Variables */
-
-
-  var72 = 0;
+  colourCorrection = 0; // can have values of 1 2 or 3
   var00 = 0;
   var01 = 0;
-
-
 
   memcpy(&tempScriptFile , scriptFileName, sizeof(fullPath));
   
@@ -480,7 +476,12 @@ int CreatePanorama(fullPath *ptrImageFileNames[], int counterImageFiles, fullPat
       goto mainError;
     }
 
-    var72 = prefs->sBuf.colcorrect; // 1, 2, or 3 //
+    colourCorrection = prefs->sBuf.colcorrect; // 1, 2, or 3 //
+
+    assert(colourCorrection == 1 ||
+	   colourCorrection == 2 ||
+	   colourCorrection == 3 ||
+	   colourCorrection == 0);
 
     if (prefs->pano.cP.radial != 0) {
 
@@ -577,7 +578,7 @@ int CreatePanorama(fullPath *ptrImageFileNames[], int counterImageFiles, fullPat
       
     }
  
-    //int readImage( Image *im, fullPath *sfile ) should return 0
+    // int readImage( Image *im, fullPath *sfile ) should return 0
     // currentImagePtr points to image1
  
     if (readImage(currentImagePtr, ptrImageFileNames[loopCounter]) != 0) {
@@ -732,17 +733,17 @@ label804a30f:
 
       resultPanorama.selection.right = resultPanorama.width;
 
-      var60 = 500,000 / resultPanorama.bytesPerLine;
+      lines = 500000 / resultPanorama.bytesPerLine;
  
-      if (0 == var60) { 
-	var60 = 1;
+      if (0 == lines) { 
+	lines = 1;
       } 
 
-      if (resultPanorama.height < var60) {  
-	var60 = resultPanorama.height;
+      if (resultPanorama.height < lines) {  
+	lines = resultPanorama.height;
       } 
       if ((
-	   resultPanorama.data  = (unsigned char**)mymalloc(var60 * resultPanorama.bytesPerLine )
+	   resultPanorama.data  = (unsigned char**)mymalloc(lines * resultPanorama.bytesPerLine )
 	   ) == NULL) {
 	PrintError("Not enough memory");
 	exit(0);
@@ -756,7 +757,7 @@ label804a30f:
 
     resultPanorama.selection.top = 0;
  
-    var60  = resultPanorama.selection.bottom;
+    lines  = resultPanorama.selection.bottom;
 
     CopyPosition(currentImagePtr, &(prefs->im));
 
@@ -770,7 +771,7 @@ label804a30f:
 
     CopyPosition(&resultPanorama, &(prefs->pano));
 
-    Unknown09(currentImagePtr);
+    Clear_Area_Outside_Selected_Region(currentImagePtr);
 
     prefs->pano.width = resultPanorama.width;
 
@@ -816,7 +817,7 @@ label804a30f:
     
     resultPanorama.selection.top = resultPanorama.selection.bottom;
     
-    resultPanorama.selection.bottom = resultPanorama.selection.top + var60;
+    resultPanorama.selection.bottom = resultPanorama.selection.top + lines;
 
     if (resultPanorama.selection.top >= resultPanorama.height ) { //
       goto closeTIFF;
@@ -875,8 +876,8 @@ label804a30f:
     Colour_Brightness(fullPathImages, counterImageFiles, var01 - 1, 2);
   } // 
 
-  if (var72 != 0) {
-    Colour_Brightness(fullPathImages,counterImageFiles, (var72 / 4) - 1, 0);
+  if (colourCorrection != 0) {
+    Colour_Brightness(fullPathImages,counterImageFiles, (colourCorrection / 4) - 1, 0);
   }
   SetVRPanoOptionsDefaults(&defaultVRPanoOptions);
 
@@ -1006,11 +1007,9 @@ label804a30f:
     return(0);
   }
 
-
   if (strcmp(word, "TIF") == 0) { 
     return(0);
   }
-
 
   if (readImage(&resultPanorama, panoFileName) == 0) {
     PrintError("Could not read result image");
@@ -1237,9 +1236,249 @@ void ARGtoRGBAImage(Image *im)
 
     ARGBtoRGBA(*(im->data) + i * im->bytesPerLine, width, im->bitsPerPixel);
 
-  } // for (...
+  } // for 
 
 }
+
+void Clear_Area_Outside_Selected_Region(Image *image)
+{
+  /* This function seems to 'clear' the area outside left,top; right,bottom
+     in the picture with zeros */
+
+  int right;    
+  int left;
+  int bottom;
+  int top;
+  //  int width;
+  //  int var24;
+  int bytesPerPixel;  // 32
+  void *dataPtr;
+  void *pixelPtr;
+
+  int currentRow;
+  int currentColumn;
+
+  /* it seems to work only for these types of images*/
+  assert(image->bitsPerPixel == 0x20 ||
+         image->bitsPerPixel == 0x40);
+  
+  top = image->selection.top;
+  bottom = image->selection.bottom;
+  left = image->selection.left;
+  right = image->selection.right;
+  
+  if ( bottom == 0 ) {
+    bottom = image->height;
+  }
+  
+  if ( right == 0 ) {
+    right = image->width;
+  }
+  
+
+
+  if ( image -> format == _fisheye_circ) {
+    PrintError("Not implemented yet");
+    exit(1);
+  }
+
+  if ( image->bitsPerPixel == 32 ) {
+    bytesPerPixel  = 4;
+  } else if (image->bitsPerPixel == 64) {
+    bytesPerPixel  = 8;    
+  } else {
+    assert(0); // it should not reach here 
+    exit(0);
+  }
+    
+  /* Clear the area at above the image */
+
+  dataPtr = *(image->data);
+
+  for (currentRow =0; currentRow < top; currentRow++ ) {
+	
+    pixelPtr = dataPtr;
+        
+    for (currentColumn = 0;  currentColumn < image->width ;   currentColumn++) {
+      assert(sizeof(int) == bytesPerPixel);
+
+      memset(pixelPtr, 0, bytesPerPixel);
+
+      pixelPtr+=bytesPerPixel;
+    }
+    
+    dataPtr += image->bytesPerLine;
+  }
+      
+  /* Clear area below the picture */
+  
+  dataPtr = bottom * image->bytesPerLine + *(image->data);
+  
+  for (currentRow=bottom    ;  currentRow < image->height ; currentRow++) {
+        
+    pixelPtr = dataPtr;
+    for (currentColumn = 0; currentColumn < image->width ; currentColumn++) {
+      memset(pixelPtr, 0, bytesPerPixel);
+      pixelPtr += bytesPerPixel;
+    }
+    
+    dataPtr += image->bytesPerLine;
+    
+  } //  for (    ;  %currentColumn < image->width ; currentColumn++,pixelPtr += bytesPerPixel) {
+  
+  
+  /* Clear the area to the left of the picture */
+  
+  dataPtr = *(image->data);
+  for (   currentRow = 0 ; currentRow < image->height;   currentRow++) {
+    
+    pixelPtr = dataPtr;      
+    for (currentColumn = 0 ; currentColumn < left ; currentColumn++) {
+      memset(pixelPtr, 0, bytesPerPixel);
+      pixelPtr += bytesPerPixel;
+    }
+    
+    dataPtr += image->bytesPerLine;
+  }
+  
+  /* Clear the area to the right of the picture */
+  
+  dataPtr = *(image->data);
+  
+  for (currentRow = 0; currentRow < image->height; currentRow++ ) {
+    
+    pixelPtr = dataPtr + bytesPerPixel * right;
+    
+    for (currentColumn=right ;currentColumn < image->width; currentColumn++) {
+      
+      memset(pixelPtr, 0, bytesPerPixel);
+      
+      pixelPtr += bytesPerPixel;
+      
+    }
+    
+    dataPtr += image->bytesPerLine;
+    
+  }
+  
+  return;
+      
+
+#ifdef not_implemented_yet
+  
+
+  THIS IS the code for fisheye_circular 24 bits
+
+
+    pixelPtr = right;
+    currentColumn = left;
+
+    eax = left + right;
+
+
+    var20 = (left + right)/2;
+    var24 = (top + bottom) /2;
+    assert(left >= right);
+    temp = (left - right ) /2;
+    var28 = temp * temp;
+    
+
+    dataPtr =  *(image->data);
+    
+    for (currentRow = 0 ; currentRow < image->height ; currentRow++) {
+      
+      currentColumn = 0;
+      pixelPtr = dataPtr;
+      
+      if ( currentColumn < image->width ) {
+        
+        
+        temp = currentRow - var24;
+
+        var36 = temp * temp;
+        
+        do { 
+          
+          temp = currentColumn - var20;
+          temp = temp * temp + var36;
+          
+          if ( %eax > var28 ) {
+            
+            *pixelPtr = 0; //moves only 1 byte
+          }
+          
+          currentColumn++;
+          pixelPtr += bytesPerPixel;
+          
+        } while ( currentColumn < image->width );
+        
+      } //    if ( currentColumn < image->width ) {
+      
+      
+      dataPtr += image-> bytesPerLine;
+      
+      
+    } //for ( ; currentRow < image->height ; ) {
+    
+    return;
+  } //if ( image->bitsPerPixel == $0x20 ) {
+#endif
+    
+
+
+#ifdef not_implemented_yet
+
+  THIS IS the code for fisheye_circular 64 bits
+
+    
+    var20 = (left + right) /2;
+    
+    var24 = (top + bottom)/2;
+    
+    currentColumn = (left - right )/2;
+    
+    var28 = currentColumn * currentColumn;
+    
+    dataPtr = *(image->data);
+    
+    for (  currentRow = 0; ; currentRow < image->height ; ++currentRow) {
+      //if ( currentRow >= image->height )
+      //              return;
+      
+      currentColumn = 0;
+      pixelPtr = dataPtr;
+      
+      if ( currentColumn < image->width ) {
+        
+        var40 = (currentRow * var24) * (currentRow * var24);
+        
+        do {
+          
+          eax = currentColumn * currentColumn + var40;
+          
+          if ( %eax > var28 ) {
+            *pixelPtr = 0; // Again CAREFUL, moves 8 bytes
+          }
+          
+          currentColumn ++;
+          pixelPtr = bytesPerPixel;
+          
+        } while (currentColumn < image->width );
+        //if ( currentColumn < image->width )
+        //       
+        
+      } //if ( currentColumn < image->width ) {
+      
+      dataPtr +=image->bytesPerLine;
+      
+    } //for ( ; %currentRow < image->height ; ) 
+#endif
+
+    return;
+
+  
+}
+
 
 void Unknown09(Image *currentImagePtr)
 {

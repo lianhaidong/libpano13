@@ -28,6 +28,11 @@
 
 /* Global variables */
 
+#ifndef __PTmender_h__
+
+#define __PTmender_h__
+
+
 extern stBuf global5640;
 extern int   quietFlag;
 
@@ -44,16 +49,15 @@ extern int jpegProgressive;
 void ReplaceExt(char *, char*);
 char* Filename(fullPath* path);
 int CreatePanorama(fullPath *ptrImageFileNames[], int counterImageFiles, fullPath *panoFileName, fullPath *scriptFileName);
+void ARGtoRGBAImage(Image *im);
 
 
 /* These functions need to be implemented */
 
-void Unknown09(Image *currentImagePtr);
-void ARGtoRGBAImage(Image *im);
+void Clear_Area_Outside_Selected_Region(Image *currentImagePtr);
 void Colour_Brightness(  fullPath *fullPathImages, int p1, int p2, int p3);
 int CreateStitchingMasks(  fullPath *fullPathImages, int);
 int FlattenTIFF(  fullPath *fullPathImages, int);
-
 int  CreatePSD(  fullPath *fullPathImages, int, fullPath*);
 int Unknown01(Image *, fullPath*);
 int Unknown02(Image *, fullPath*);
@@ -67,3 +71,7 @@ int Create_LP_ivr(Image *, fullPath*);
 
 /*  defined in ptpicker.c, but never exported */
 void InsertFileName( fullPath *fp, char *fname );
+
+
+#endif
+

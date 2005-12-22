@@ -1,3 +1,12 @@
+2005-12-22  dmg  <dmgerman@uvic.ca>
+
+	* PTmender.h: Renamed Unknown09 to
+	Clear_Area_Outside_Selected_Region
+
+	* PTmender.c (Clear_Area_Outside_Selected_Region): Created
+	function. This completes all the functions needed for
+	TIFF_m. 
+
 2005-12-21  dmg  <dmgerman@uvic.ca>
 
 	* PTmender.h (InsertFileName): added prototype.
