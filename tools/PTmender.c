@@ -30,6 +30,7 @@
 // TODO
 //    Create_Panorama requires some floating point assembly to be interpreted
 
+#define __DEBUG__
 
 #include <assert.h>
 #include <stdio.h>
@@ -485,7 +486,7 @@ int CreatePanorama(fullPath *ptrImageFileNames[], int counterImageFiles, fullPat
 
     if (prefs->pano.cP.radial != 0) {
 
-	assert(0); // This needs to be decoded
+      assert(0); // I really don't want to execute this code yet
 
 // correct_Prefs
 //...
@@ -499,16 +500,13 @@ int CreatePanorama(fullPath *ptrImageFileNames[], int counterImageFiles, fullPat
 // radial_params 
 //  3 * 5 * 8 = 120
 
-#ifdef adfasdf
-
-?? radial_params[0][4] // correction radious
-
+	var00 = prefs->pano.cP.radial_params[0][2]; // what is this for, I have NO idea.
+	var00++;
+#ifdef asdfasdf
+I AM NOT TOTALLY SURE ABOUT THIS
  804a01d:	dd 82 d4 06 00 00    	fldl   0x6d4(%edx)            // loads address into FL
-// stores control word in var98?
  804a023:	d9 bd b2 eb ff ff    	fnstcw 0xffffebb2(%ebp)           ;;;;;;;;;;;>>> -5198
-// now it 
  804a029:	66 8b 8d b2 eb ff ff 	mov    0xffffebb2(%ebp),%cx           ;;;;;;;;;;;>>> -5198
-//3072?
  804a030:	66 81 c9 00 0c       	or     $0xc00,%cx
  804a035:	66 89 8d b0 eb ff ff 	mov    %cx,0xffffebb0(%ebp)           ;;;;;;;;;;;>>> -5200
  804a03c:	d9 ad b0 eb ff ff    	fldcw  0xffffebb0(%ebp)           ;;;;;;;;;;;>>> -5200
@@ -522,7 +520,11 @@ int CreatePanorama(fullPath *ptrImageFileNames[], int counterImageFiles, fullPat
 
 
     if (prefs->pano.cP.horizontal != 0) {
-      prefs->pano.cP.horizontal_params[0] ;// 0x75c //[3] 3 colours x horizontal shift value
+      assert(0); // I really don't want to see this code executed yet
+      
+      var01 = prefs->pano.cP.horizontal_params[0] ;// 0x75c //[3] 3 colours x horizontal shift value
+      var01++;
+
 #ifdef adsfasdf 
 ??
  804a063:	dd 80 5c 07 00 00    	fldl   0x75c(%eax)               // loads address into FL
@@ -564,11 +566,6 @@ int CreatePanorama(fullPath *ptrImageFileNames[], int counterImageFiles, fullPat
 
     transform.gamma = prefs->gamma;
 
-    // 804a178:	dd 82 0c 11 00 00    	fldl   0x110c(%edx) // loads address into FL
-    // 804a17e:	dd 5d f8             	fstpl  0xfffffff8(%ebp)           ;;;;;;;;;;;>>> -8
-    //
-    // 804a181:	83 c4 fc             	add    $0xfffffffc,%esp           ;;;;;;;;;;;>>> -4
-											   
     sprintf(var5196, "Converting Image %d", loopCounter);
 
  
@@ -590,10 +587,10 @@ int CreatePanorama(fullPath *ptrImageFileNames[], int counterImageFiles, fullPat
     if (prefs->im.cP.cutFrame == 0) { // remove frame? 0 - no; 1 - yes
       
       if (CropImage(currentImagePtr, &(prefs->im.selection)) == 0) {
-	prefs->im.selection.left  = 0;  //0x674
-	prefs->im.selection.right = 0; //0x678
-	prefs->im.selection.bottom=0; // 0x670
-	prefs->im.selection.top   = 0;   // 0x66c
+	prefs->im.selection.left  = 0;  
+	prefs->im.selection.right = 0; 
+	prefs->im.selection.bottom=0; 
+	prefs->im.selection.top   = 0; 
       }
     }
     
@@ -612,61 +609,17 @@ int CreatePanorama(fullPath *ptrImageFileNames[], int counterImageFiles, fullPat
     
     if (loopCounter == 0) {
 
-// All the following happens only in the first pass
-
       if (prefs->pano.width == 0) {
 
-	assert(0); // This needs to be decoded
+	// if the pano did not set the width, then try to set it
 
-	/*
+	if (prefs->im.hfov != 0.0) {
 
-prefs->im.hfov //0x28
- 804a299:	dd 41 28             	fldl   0x28(%ecx)  // loads address into FL
- 804a29c:	d9 ee                	fldz   
- 804a29e:	da e9                	fucompp 
- 804a2a0:	df e0                	fnstsw %ax
- 804a2a2:	80 e4 45             	and    $0x45,%ah
- 804a2a5:	80 fc 40             	cmp    $0x40,%ah
- 804a2a8:	74 65                	je     label804a30f <strcpy@plt+0xd8b>
-
-// This code looks like this, from another program
-//gl->pano.width = gl->im[n].width * gl->pano.hfov / gl->im[n].hfov;
-
-// The result is moved to the pano.width
-
-prefs->im.width //0x8
- 804a2aa:	db 41 08             	fildl  0x8(%ecx)
-prefs->pano.hfov //0x69c
- 804a2ad:	dc 89 9c 06 00 00    	fmull  0x69c(%ecx)
-prefs->im.hfov //0x28
- 804a2b3:	dc 71 28             	fdivl  0x28(%ecx)
- 804a2b6:	d9 bd b2 eb ff ff    	fnstcw 0xffffebb2(%ebp)           ;;;;;;;;;;;>>> -5198
- 804a2bc:	66 8b 95 b2 eb ff ff 	mov    0xffffebb2(%ebp),%dx           ;;;;;;;;;;;>>> -5198
- 804a2c3:	66 81 ca 00 0c       	or     $0xc00,%dx
- 804a2c8:	66 89 95 b0 eb ff ff 	mov    %dx,0xffffebb0(%ebp)           ;;;;;;;;;;;>>> -5200
- 804a2cf:	d9 ad b0 eb ff ff    	fldcw  0xffffebb0(%ebp)           ;;;;;;;;;;;>>> -5200
- 804a2d5:	db 9d ac eb ff ff    	fistpl 0xffffebac(%ebp)           ;;;;;;;;;;;>>> -5204
- 804a2db:	8b 8d ac eb ff ff    	mov    0xffffebac(%ebp),%ecx           ;;;;;;;;;;;>>> -5204
- 804a2e1:	d9 ad b2 eb ff ff    	fldcw  0xffffebb2(%ebp)           ;;;;;;;;;;;>>> -5198
- 804a2e7:	bb 67 66 66 66       	mov    $0x66666667,%ebx
- 804a2ec:	89 d8                	mov    %ebx,%eax
- 804a2ee:	f7 e9                	imul   %ecx
- 804a2f0:	89 d3                	mov    %edx,%ebx
- 804a2f2:	89 d8                	mov    %ebx,%eax
- 804a2f4:	c1 f8 02             	sar    $0x2,%eax
- 804a2f7:	89 ca                	mov    %ecx,%edx
- 804a2f9:	c1 fa 1f             	sar    $0x1f,%edx
- 804a2fc:	29 d0                	sub    %edx,%eax
- 804a2fe:	8d 04 80             	lea    (%eax,%eax,4),%eax
- 804a301:	01 c0                	add    %eax,%eax
-
-prefs->pano.width = %eax 
-
- 804a303:	8b 8d 74 e7 ff ff    	mov    prefs,%ecx           ;;;;;;;;;;;>>> -6284
- 804a309:	89 81 7c 06 00 00    	mov    %eax,0x67c(%ecx)
-
-label804a30f:
-*/
+	  prefs->pano.width = prefs->im.width * prefs->pano.hfov /prefs->im.hfov;
+	  prefs->pano.width /=10; // Round to multiple of 10
+	  prefs->pano.width *=10;
+	  
+	}
       }
 
       if (prefs->pano.height == 0) { // 
@@ -1367,8 +1320,7 @@ void Clear_Area_Outside_Selected_Region(Image *image)
 #ifdef not_implemented_yet
   
 
-  THIS IS the code for fisheye_circular 24 bits
-
+  //  THIS IS the code for fisheye_circular 24 bits, but I don't understand it yet.
 
     pixelPtr = right;
     currentColumn = left;

@@ -1,3 +1,9 @@
+2005-12-23  dmg  <dmgerman@uvic.ca>
+
+	* PTmender.c (CreatePanorama): It appears now to be complete. We
+	have all the code for TIFF_m without brightness adjustement. Time
+	to start planning the testing phase.
+
 2005-12-22  dmg  <dmgerman@uvic.ca>
 
 	* PTmender.h: Renamed Unknown09 to
