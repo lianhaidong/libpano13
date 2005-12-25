@@ -192,10 +192,10 @@ int main(int argc,char *argv[])
     } else if (IsTextFile(currentParm) == 0) { // checks if the file does not have .txt extension
       // it is a assumed to be an image
       counter++;
-      if(realloc(ptrImageFileNames, counter * 512) == NULL) {
+      if((ptrImageFileNames = realloc(ptrImageFileNames, counter * 512)) == NULL) {
 	exit(0);
       } 
-      if (StringtoFullPath(&ptrImageFileNames[counter], currentParm) != 0) {
+      if (StringtoFullPath(&ptrImageFileNames[counter-1], currentParm) != 0) {
 	PrintError("Syntax error: Not a valid pathname");
 	return(-1);
       }
@@ -314,7 +314,7 @@ int main(int argc,char *argv[])
       
       temp = fwrite(script, 1, strlen(script), scriptFD); 
       
-      if (strlen(script) == temp) {
+      if (strlen(script) != temp) {
 	PrintError("Could not write temporary Scriptfile");
 	exit(0);
       }
@@ -562,6 +562,7 @@ I AM NOT TOTALLY SURE ABOUT THIS
 
     memcpy(&global5640, &prefs->sBuf, sizeof(stBuf));
 
+    transform.interpolator = prefs->interpolator;
     transform.gamma = prefs->gamma;
 
     sprintf(var5196, "Converting Image %d", loopCounter);
@@ -708,7 +709,7 @@ I AM NOT TOTALLY SURE ABOUT THIS
 
     resultPanorama.selection.top = 0;
  
-    lines  = resultPanorama.selection.bottom;
+    resultPanorama.selection.bottom = lines ;
 
     CopyPosition(currentImagePtr, &(prefs->im));
 
@@ -746,8 +747,6 @@ I AM NOT TOTALLY SURE ABOUT THIS
 
       TIFFWriteScanline(tiffFile, *resultPanorama.data + (resultPanorama.bytesPerLine * ebx), resultPanorama.selection.top + ebx  , 1);
 
-      ++ebx;
-      
       assert(resultPanorama.selection.bottom >= resultPanorama.selection.top);
 
     } // end of inner for loop

@@ -1,3 +1,8 @@
+2005-12-25  dmg  <dmgerman@uvic.ca>
+
+	* PTmender.c (main,CreatePanorama): Fixed 5 more bugs. I am able
+	to stitch the first one photo panorama! 
+
 2005-12-24  dmg  <dmgerman@uvic.ca>
 
 	* Makefile.am: Removed -Wall from make process

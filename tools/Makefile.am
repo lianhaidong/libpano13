@@ -34,6 +34,7 @@ endif
 
 AM_CPPFLAGS = $(JAVA_FLAGS) $(LIN_DEFS) $(DAR_DEFS)
 AM_LDFLAGS  = -L${top_builddir}
+AM_CFLAGS  = -Wall -g
 
 bin_PROGRAMS = panoinfo PTOptimizer PTmender
 
