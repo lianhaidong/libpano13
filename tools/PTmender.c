@@ -72,13 +72,12 @@ int main(int argc,char *argv[])
   DIR *directory;
   int sort=0;
   int counter;
-  fullPath **ptrImageFileNames;
+  fullPath *ptrImageFileNames;
   AlignInfo alignInfo;
   char var36[512];
   fullPath scriptFileName;
   fullPath panoFileName;
 
-  int iloopCounter;
   char opt;
 
   ptrImageFileNames = NULL;
@@ -129,11 +128,10 @@ int main(int argc,char *argv[])
     }
   }
 
-  iloopCounter = 0;
-  while (iloopCounter < argc  ) {
+  while (optind < argc  ) {
 
-    currentParm = argv[iloopCounter];
-    iloopCounter++;
+    currentParm = argv[optind];
+    optind++;
     // Test if it is a directory?
     if ((directory =  opendir(currentParm)) != NULL) {
       char *edx;
@@ -182,7 +180,7 @@ int main(int argc,char *argv[])
 	    
 	    sort = 1;
 	    /* move the new filename */
-	    if (StringtoFullPath(ptrImageFileNames[counter], var36) != 0) {
+	    if (StringtoFullPath(&ptrImageFileNames[counter], var36) != 0) {
 	      PrintError("Syntax error: Not a valid pathname");
 	      return(-1);
 	    }
@@ -197,7 +195,7 @@ int main(int argc,char *argv[])
       if(realloc(ptrImageFileNames, counter * 512) == NULL) {
 	exit(0);
       } 
-      if (StringtoFullPath(ptrImageFileNames[counter], currentParm) != 0) {
+      if (StringtoFullPath(&ptrImageFileNames[counter], currentParm) != 0) {
 	PrintError("Syntax error: Not a valid pathname");
 	return(-1);
       }
@@ -207,13 +205,13 @@ int main(int argc,char *argv[])
 	return(-1);
       }
     }
-  } // end of while loop  while (iloopCounter < argc  ) {
+  } // end of while loop  while (optind < argc  ) {
   
   //;;;;;;;; While loop ends here
   
   // This code sets scriptFileName to "./Script.txt" if no other name was given
   
-  if (scriptFileName.name[0] != 0) {
+  if (scriptFileName.name[0] == 0) {
     char *temp;
     
     // set scriptFilename to default path './'
@@ -271,8 +269,8 @@ int main(int argc,char *argv[])
 	// For loop
 	
 	for (ebx = 0; ebx < counter; ebx ++) {
-	  strcpy(ptrImageFileNames[counter]->name, scriptFileName.name);
-	  InsertFileName(ptrImageFileNames[counter], alignInfo.im[ebx].name);
+	  strcpy(ptrImageFileNames[counter].name, scriptFileName.name);
+	  InsertFileName(&ptrImageFileNames[counter], alignInfo.im[ebx].name);
 	} // for (ebx = 0; ebx < counter; ebx ++) {
       }//  if (counter != 0) 
       
@@ -339,8 +337,8 @@ int main(int argc,char *argv[])
 	  
 	}
 	
-	strcpy(ptrImageFileNames[var44]->name, scriptFileName.name);
-	InsertFileName(ptrImageFileNames[var44], preferences->im.name);
+	strcpy(ptrImageFileNames[var44].name, scriptFileName.name);
+	InsertFileName(&ptrImageFileNames[var44], preferences->im.name);
 	
 	if (preferences->td != NULL) {
 	  free(preferences->td);
@@ -371,7 +369,7 @@ int main(int argc,char *argv[])
 }
 
 
-int CreatePanorama(fullPath *ptrImageFileNames[], int counterImageFiles, fullPath *panoFileName, fullPath *scriptFileName)
+int CreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles, fullPath *panoFileName, fullPath *scriptFileName)
 {
 
   Image *currentImagePtr;
@@ -472,7 +470,7 @@ int CreatePanorama(fullPath *ptrImageFileNames[], int counterImageFiles, fullPat
 
     //aPrefs* readAdjustLine( fullPath *theScript )
 
-    if (readAdjustLine(&tempScriptFile) != 0) {
+    if ((prefs = readAdjustLine(&tempScriptFile)) == 0) {
       PrintError("Could not read Scriptfile");
       goto mainError;
     }
@@ -540,9 +538,9 @@ I AM NOT TOTALLY SURE ABOUT THIS
     }
 
 // seems to copy the current file name to the var6256
-    memcpy(&panoFileName, &fullPathImages[loopCounter], sizeof(fullPath));
+    memcpy( &fullPathImages[loopCounter], &panoFileName, sizeof(fullPath));
 
-    if (makeTempPath(&fullPathImages[loopCounter]) == 0) {
+    if (makeTempPath(&fullPathImages[loopCounter]) != 0) {
 
       PrintError("Could not make Tempfile");
       goto mainError;
@@ -578,7 +576,7 @@ I AM NOT TOTALLY SURE ABOUT THIS
     // int readImage( Image *im, fullPath *sfile ) should return 0
     // currentImagePtr points to image1
  
-    if (readImage(currentImagePtr, ptrImageFileNames[loopCounter]) != 0) {
+    if (readImage(currentImagePtr, &ptrImageFileNames[loopCounter]) != 0) {
       PrintError("could not read image");
       goto mainError;
     }

@@ -1,8 +1,18 @@
+2005-12-24  dmg  <dmgerman@uvic.ca>
+
+	* Makefile.am: Removed -Wall from make process
+
+	* PTmender.c (main): Fixed 3 bugs.
+	(CreatePanorama): Fixed 2 bugs
+
 2005-12-23  dmg  <dmgerman@uvic.ca>
 
 	* PTmender.c (CreatePanorama): It appears now to be complete. We
 	have all the code for TIFF_m without brightness adjustment. Time
 	to start planning the testing phase.
+	
+	* PTmender.c (main): First bug: getopt should be used instead of
+	iloopCounter
 
 2005-12-22  dmg  <dmgerman@uvic.ca>
 
