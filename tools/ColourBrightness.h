@@ -81,9 +81,10 @@ void              CorrectImageColourBrigthness(Image *image, magnolia_struct *ma
 void              FreeHistograms(histograms_struct *ptrHistograms, int count);
 void              Unknown37(int *histogram, double *array, magnolia_struct *magnolia, int channel);
 void              Unknown41(double *sourceHistogram, double *targetHistogram, double *magnoliaArray) ;
-char              Unknown47(char parm0, char parm1, char parm2);
-char              Unknown48(char parm0, char parm1, char parm2) ;
-char              Unknown49(char parm0, char parm1, char parm2) ;
+unsigned char Unknown47(unsigned char parm0, unsigned char parm1, unsigned char parm2);
+unsigned char Unknown48(unsigned char parm0, unsigned char parm1, unsigned char parm2);
+unsigned char Unknown49(unsigned char parm0, unsigned char parm1, unsigned char parm2);
+
 double            Unknown33(double p[], double x, int n);
 int               Unknown40(int value, double mapTable[]) ;
 

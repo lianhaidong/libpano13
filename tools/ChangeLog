@@ -1,5 +1,17 @@
 2006-01-09  dmg  <dmgerman@uvic.ca>
 
+	* PTmender.c (CreatePanorama): Fixed a bug that affected cropped
+	images. I think TIFF_m is ready for the masses. The tests I have
+	performed are promising.
+	(main): Added a Version message for its official release. Initial
+	release: 0.1
+
+	* ColorBrightness.c, ColorBrightness.h: First bug: I got burned by
+	the fact that chars are by default signed. I changed any use of
+	char to unsigned.
+	
+2006-01-09  dmg  <dmgerman@uvic.ca>
+
 	* Makefile.am (PTmender_SOURCES): Added colourBrightness.* to PTmender
 
 	* PTmender.c: Renamed CreatePanorama, removed old function stub

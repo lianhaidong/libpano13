@@ -47,6 +47,8 @@ FILE *debugFile;
 
 magnolia_struct *InitializeMagnolia(int numberImages, int size, calla_function parm2)
 {
+
+
   //Unknown29
   assert(sizeof(magnolia_struct) == 32);
 
@@ -80,11 +82,9 @@ magnolia_struct *InitializeMagnolia(int numberImages, int size, calla_function p
 
     magnolia[i].function = parm2;
 
-    var24 = magnolia[i].fieldx04;
-
     for (j=0; j<6; j++) { 
 
-      if (( var24[j] = malloc(size * sizeof(double))) == 0) {
+      if (( magnolia[i].fieldx04[j] = malloc(size * sizeof(double))) == 0) {
 	return 0;
       }
 
@@ -98,9 +98,10 @@ magnolia_struct *InitializeMagnolia(int numberImages, int size, calla_function p
 
     } //    for (j=0; j<6; j++) { 
 
+    fprintf(stderr, "finishing magnolia %d\n", i);
+
 
   } // end   for (i=0; i < numberImages; i++) {
-
 
   return magnolia;
 
@@ -112,8 +113,8 @@ magnolia_struct *InitializeMagnolia(int numberImages, int size, calla_function p
 void ColourBrightness(  fullPath *fullPathImages, int counterImages, int indexReferenceImage, int parm3)
 {
 
-  int **    ptrOtherHistograms;
-  int **    ptrBaseHistograms;
+  histogram_type *    ptrOtherHistograms;
+  histogram_type *    ptrBaseHistograms;
   histograms_struct * ptrHistograms;
   histograms_struct * ptrHistograms2;
   int numberHistograms;
@@ -159,16 +160,16 @@ void ColourBrightness(  fullPath *fullPathImages, int counterImages, int indexRe
 	      ptrHistograms[index].otherImageNumber,
 	      ptrHistograms[index].overlappingPixels);
       
-      ptrBaseHistograms = ptrHistograms[index].ptrBaseHistograms; 
-      ptrOtherHistograms = ptrHistograms[index].ptrOtherHistograms;
+      ptrBaseHistograms = &(ptrHistograms[index].ptrBaseHistograms); 
+      ptrOtherHistograms = &(ptrHistograms[index].ptrOtherHistograms);
       
       for (currentColour = 0; currentColour < 3; currentColour++) {
 	
 	sum = 0;
 	
-	var192 = ptrBaseHistograms[currentColour];
+	var192 = (*ptrBaseHistograms)[currentColour];
 	
-	var200 = ptrOtherHistograms[currentColour];
+	var200 = (*ptrOtherHistograms)[currentColour];
 	
 	for (i =0; i < 0x100; i++) {
 	  
@@ -291,17 +292,17 @@ void ColourBrightness(  fullPath *fullPathImages, int counterImages, int indexRe
 	      ptrHistograms2[index].otherImageNumber,
 	      ptrHistograms2[index].overlappingPixels);
       
-      ptrBaseHistograms = ptrHistograms2[index].ptrBaseHistograms; 
+      ptrBaseHistograms = &(ptrHistograms2[index].ptrBaseHistograms); 
       
-      ptrOtherHistograms = ptrHistograms2[index].ptrOtherHistograms;
+      ptrOtherHistograms = &(ptrHistograms2[index].ptrOtherHistograms);
       
       for (currentColour = 0; currentColour < 3; currentColour++) {
 	
 	sum = 0;
 	
-	var192 = ptrBaseHistograms[currentColour];
+	var192 = (*ptrBaseHistograms)[currentColour];
 	
-	var200 = ptrOtherHistograms[currentColour];
+	var200 = (*ptrOtherHistograms)[currentColour];
 	
 	for (i =0; i < 0x100; i++) {
 	  
@@ -709,12 +710,12 @@ histograms_struct *ReadHistograms (fullPath *fullPathImages, int numberImages)
 
   int value;
 
-  char *ptrCurrentLineBuffer;
-  char *ptrCurrentPixelLineBuffer;
+  unsigned char *ptrCurrentLineBuffer;
+  unsigned char *ptrCurrentPixelLineBuffer;
   histograms_struct *ptrHistograms; //     << arrays of n * (n-1)/2 daisies
   int bytesPerLine;
   int  bitsPerPixel;
-  char *imagesDataBuffer; // numberOfImages * bytesPerLine
+  unsigned char *imagesDataBuffer; // numberOfImages * bytesPerLine
   int bytesPerPixel;
   int  currentPixel;
   int currentRow;
@@ -733,6 +734,9 @@ histograms_struct *ReadHistograms (fullPath *fullPathImages, int numberImages)
   int temp;
 
   int i;
+
+  int totalPixels = 0, totalPixels2 = 0;
+
   //  esi = fullPathImages;
 
   // (n * n-1)/2
@@ -871,11 +875,10 @@ histograms_struct *ReadHistograms (fullPath *fullPathImages, int numberImages)
     
     //for each pixel in the current line...
 
-
     for (currentPixel = 0;  currentPixel < imageWidth; currentPixel++, ptrCurrentPixelLineBuffer+= bytesPerPixel ) {
 
-      char *ptrPixel;
-      char *ptrOtherPixel;
+      unsigned char *ptrPixel;
+      unsigned char *ptrOtherPixel;
       int ecx;
 
       // We process each currentHistogram
@@ -899,29 +902,36 @@ histograms_struct *ReadHistograms (fullPath *fullPathImages, int numberImages)
 
 	for (otherImage = currentImage + 1;  otherImage < numberImages; otherImage++, ptrOtherPixel += bytesPerLine) {
 
+	  assert(ptrOtherPixel < imagesDataBuffer + numberImages * bytesPerLine);
+
+	  assert(ptrPixel < ptrOtherPixel);
+	  assert(((int)(ptrOtherPixel - ptrPixel)) % bytesPerLine == 0);
+
 	  /* Only process if the alpha channel is not zero in both pixels*/
 
 	  if (0 != ptrPixel[0]  &&  0 != ptrOtherPixel[0] ) {
 
+	    totalPixels ++;
 	    currentHistogram->overlappingPixels++;
 	      
 	    // esi == ptrPixel
 	    // ebx == ptrOtherPixel
-	    
-#ifdef adfasdf
+
 
 	    // This seems to record the frequency of every pixels of every channel one of 3 channels of every image
 	    for (i = 0;  i < 3; i++) {
 	      
 	      // First byte is alpha channel
 
-	      value  = ptrPixel[i+1];
+	      value  = (unsigned char)ptrPixel[i+1];
+	      assert(value >= 0 && value <= 0xff);
 
 	      ptrInt = currentHistogram->ptrBaseHistograms[i];
 		
 	      ptrInt[value] ++;
 	      
-	      value = ptrOtherPixel[i + 1];
+	      value = (unsigned char)ptrOtherPixel[i + 1];
+	      assert(value >= 0 && value <= 0xff);
 
 	      ptrInt = currentHistogram->ptrOtherHistograms[i] ; // eax = ptrInt
 	      
@@ -929,56 +939,68 @@ histograms_struct *ReadHistograms (fullPath *fullPathImages, int numberImages)
 	      
 	    } 
 
+#ifdef asdfasdf
 
 	    // compute the other 6 histograms	      
 	    temp = Cherry(ptrPixel[1], ptrPixel[2], ptrPixel[3]);
+	    assert(temp >= 0 && temp <= 0xff);
 	    ptrInt = currentHistogram->ptrBaseHistograms[3];
 	    ptrInt[temp] ++;
 
 	    temp = Cherry(ptrOtherPixel[1], ptrOtherPixel[2], ptrOtherPixel[3]);
+	    assert(temp >= 0 && temp <= 0xff);
 	    ptrInt = currentHistogram->ptrOtherHistograms[3];
 	    ptrInt[temp] ++;
 
 	    temp = Apple(ptrPixel[1], ptrPixel[2], ptrPixel[3]);
+	    assert(temp >= 0 && temp <= 0xff);
 	    ptrInt = currentHistogram->ptrBaseHistograms[4];
 	    ptrInt[temp] ++;
 
 	    temp = Apple(ptrOtherPixel[1], ptrOtherPixel[2], ptrOtherPixel[3]);
+	    assert(temp >= 0 && temp <= 0xff);
 	    ptrInt = currentHistogram->ptrOtherHistograms[4];
 	    ptrInt[temp] ++;
 
 	    temp = Peach(ptrPixel[1], ptrPixel[2], ptrPixel[3]);
+	    assert(temp >= 0 && temp <= 0xff);
 	    ptrInt = currentHistogram->ptrBaseHistograms[5];
 	    ptrInt[temp] ++;
 
 	    temp = Peach(ptrOtherPixel[1], ptrOtherPixel[2], ptrOtherPixel[3]);
+	    assert(temp >= 0 && temp <= 0xff);
 	    ptrInt = currentHistogram->ptrOtherHistograms[5];
 	    ptrInt[temp] ++;
 #endif
 
+
 	  } // if ( 0 != *ptrPixel  and  0 != *ptrOtherPixel ) {
+
 
 	  currentHistogram++;  //edi = edi + 0x44; //68 ?? again, this should be edi ++;
 	  
 	}  //	for (otherImage = currentImage + 1;  otherImage < numberImages; otherImage++ ) {
-	
+
       }//      for (currentImage = 0; currentImage >=numberImages ;... 
       
     } //    for (currentPixel = 0;  currentPixel < imageWidth; currentPixel++... ) {
     
   } //for (currentRow = 0; currentRow < imageLength; currentRow ++) {
 
+  
+  for (i = 0; i< numberImages * (numberImages-1)/2; i++) {
+    fprintf(stderr, "Histogram %d Images %d %d, %d Pixels\n", i , 
+	    ptrHistograms[i].baseImageNumber, 
+	    ptrHistograms[i].otherImageNumber,
+	    ptrHistograms[i].overlappingPixels);
+    totalPixels2 += ptrHistograms[i].overlappingPixels;
+  }
+
+  assert(totalPixels2 == totalPixels);
+
   for (currentImage=0;  currentImage < numberImages; currentImage++) {
 
     TIFFClose(ptrTIFFs[currentImage]);
-
-
-    fprintf(stderr, "Histogram %d Images %d %d, %d Pixels\n", currentImage , 
-	      ptrHistograms[currentImage].baseImageNumber, 
-	      ptrHistograms[currentImage].otherImageNumber,
-	      ptrHistograms[currentImage].overlappingPixels);
-
-
 
   }
 
@@ -1218,11 +1240,11 @@ void CorrectImageColourBrigthness(Image *image, magnolia_struct *magnolia, int p
   double var48;
   int currentRow;
   int currentPixel;
-  char *pixel;
+  unsigned char *pixel;
   int edi;
   double * (var24[6]);
   int edx;
-  char *ptrPixel;
+  unsigned char *ptrPixel;
 
 
   for (edi = 0; edi < 6; edi++ ) {
@@ -1383,21 +1405,21 @@ void CorrectImageColourBrigthness(Image *image, magnolia_struct *magnolia, int p
 
 	  int ebx, var49, var56, esi;
 
-	  ebx = (char) Cherry(ptrPixel[1], ptrPixel[2], ptrPixel[3]);	  
+	  ebx =  Cherry(ptrPixel[1], ptrPixel[2], ptrPixel[3]);	  
 	  
-	  var49 = (char) Unknown40( Apple(ptrPixel[1], ptrPixel[2], ptrPixel[3]), 
+	  var49 = Unknown40( Apple(ptrPixel[1], ptrPixel[2], ptrPixel[3]), 
 				    var24[5]); //var08
 	  
-	  var56 = (char) Unknown40(Peach(ptrPixel[1], ptrPixel[2], ptrPixel[3]), 
+	  var56 = Unknown40(Peach(ptrPixel[1], ptrPixel[2], ptrPixel[3]), 
 				   var24[6]); // var04
 	  
 	  esi = var49;
 
-	  ptrPixel[1] = (char) Unknown47(ebx, var49, var56);
+	  ptrPixel[1] = Unknown47(ebx, var49, var56);
 	  
-	  ptrPixel[2] = (char) Unknown48(ebx, var49, var56);
+	  ptrPixel[2] = Unknown48(ebx, var49, var56);
 	  
-	  ptrPixel[3] = (char)Unknown49(ebx, var49, var56);
+	  ptrPixel[3] = Unknown49(ebx, var49, var56);
 
 	} //	if (ptrPixel[0] != 0) {
 
@@ -1628,7 +1650,7 @@ int Unknown40(int value, double mapTable[])
 }
 
 
-char Unknown47(char parm0, char parm1, char parm2)
+unsigned char Unknown47(unsigned char parm0, unsigned char parm1, unsigned char parm2)
 {
 
   int eax = parm1;
@@ -1654,7 +1676,7 @@ char Unknown47(char parm0, char parm1, char parm2)
 
 
 
-char Unknown48(char parm0, char parm1, char parm2) 
+unsigned char Unknown48(unsigned char parm0, unsigned char parm1, unsigned char parm2) 
 {
   int   eax = parm1;
   int edx = parm2;
@@ -1684,7 +1706,7 @@ char Unknown48(char parm0, char parm1, char parm2)
 
 
 
-char Unknown49(char parm0, char parm1, char parm2) 
+unsigned char Unknown49(unsigned char parm0, unsigned char parm1, unsigned char parm2)
 {
   return Unknown49(parm0, parm1, parm2) ;
 }

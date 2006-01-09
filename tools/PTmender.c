@@ -59,7 +59,7 @@ int jpegProgressive;
 
 //
 
-
+#define PT_MENDER_VERSION  "PTmender Version 0.1, originally written by Helmut Dersch, rewritten by Daniel German\n"
 
 int sorting_function(const void *, const void *);
 
@@ -86,6 +86,8 @@ int main(int argc,char *argv[])
   counter = 0;
   panoFileName.name[0] = 0;
   scriptFileName.name[0] = 0;
+
+  printf(PT_MENDER_VERSION);
 
   while ((opt = getopt(argc, argv, "o:f:hsq")) != -1) {
 
@@ -585,7 +587,7 @@ I AM NOT TOTALLY SURE ABOUT THIS
     }
 
     
-    if (prefs->im.cP.cutFrame == 0) { // remove frame? 0 - no; 1 - yes
+    if (prefs->im.cP.cutFrame != 0) { // remove frame? 0 - no; 1 - yes
       
       if (CropImage(currentImagePtr, &(prefs->im.selection)) == 0) {
 	prefs->im.selection.left  = 0;  
@@ -687,7 +689,7 @@ I AM NOT TOTALLY SURE ABOUT THIS
 
       resultPanorama.selection.right = resultPanorama.width;
 
-      lines = 500000 / resultPanorama.bytesPerLine;
+      lines = 5000000 / resultPanorama.bytesPerLine;
  
       if (0 == lines) { 
 	lines = 1;

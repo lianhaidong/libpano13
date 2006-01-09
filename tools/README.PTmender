@@ -1,12 +1,12 @@
 PTmender
 --------
 
-This is a rewrite of PTStitcher. It currently does nothing, but the
-goal is to create a replacement of the original PTStitcher for which
-the source code was never released.
+This is a rewrite of PTStitcher. It currently only stitching TIFF_m
+panoramas, but the goal is to create a replacement of the
+original PTStitcher for which the source code was never released.
 
-Currently the program is useless, but work is moving on. The first
-goal is to implement TIFF panoramas.
+I am currently in the implementation of colour brightness adjustment.
+
 
 ----------------------------------------------------------------------
 HOW TO HELP.
@@ -38,13 +38,9 @@ HOW TO HELP.
 
 TODO:
 
-   * Create_Panorama has some floating point operations that I still need to be
-   decoded
-
    * Recreate the following functions:
 
-    int main(int argc,char *argv[])
-    int  CreatePSD(  fullPath *fullPathImages, int numberImages, fullPath* fullPathImage)
+    int CreatePSD(  fullPath *fullPathImages, int numberImages, fullPath* fullPathImage)
     int CreateStitchingMasks(fullPath *fullPathImages, int numberImages)
     int Create_LP_ivr(Image *image, fullPath* fullPathImage)
     int FlattenTIFF(  fullPath *fullPathImages, int numberImages)
@@ -61,7 +57,6 @@ TODO:
 ----------------------------------------------------------------------
 
 COMMAND LINE OPTIONS
-
 
 -s     Sort image files. I assume that the processing of the files
        (by default) is in the command line order. This overrides it.
