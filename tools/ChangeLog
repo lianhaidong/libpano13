@@ -1,3 +1,22 @@
+2006-01-09  dmg  <dmgerman@uvic.ca>
+
+	* Makefile.am (PTmender_SOURCES): Added colourBrightness.* to PTmender
+
+	* PTmender.c: Renamed CreatePanorama, removed old function stub
+
+	* ColorBrightness.c, ColorBrightness.h: added files. All the
+	functions for colourBrightness have been created, but they do not
+	work.
+
+2006-01-04  dmg  <dmgerman@uvic.ca>
+
+	* PTmender.c (main): Fixed another bug, in the case that no files
+	were specified in the command line.
+	(ARGtoRGBAImage): Fixed another bug (a line I duplicated, but that
+	I did not update).
+	(CreatePanorama): Replaced assertion on colourCorreection. I had
+	misinterpreted what the value was.
+
 2005-12-25  dmg  <dmgerman@uvic.ca>
 
 	* PTmender.c (main,CreatePanorama): Fixed 5 more bugs. I am able

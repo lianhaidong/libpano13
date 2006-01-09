@@ -44,6 +44,8 @@
 #include "panorama.h"
 
 #include "PTmender.h"
+#include "ColourBrightness.h"
+
 
 // Global variables for the program
 
@@ -269,8 +271,8 @@ int main(int argc,char *argv[])
 	// For loop
 	
 	for (ebx = 0; ebx < counter; ebx ++) {
-	  strcpy(ptrImageFileNames[counter].name, scriptFileName.name);
-	  InsertFileName(&ptrImageFileNames[counter], alignInfo.im[ebx].name);
+	  strcpy(ptrImageFileNames[ebx].name, scriptFileName.name);
+	  InsertFileName(&ptrImageFileNames[ebx], alignInfo.im[ebx].name);
 	} // for (ebx = 0; ebx < counter; ebx ++) {
       }//  if (counter != 0) 
       
@@ -475,12 +477,12 @@ int CreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles, fullPath
       goto mainError;
     }
 
-    colourCorrection = prefs->sBuf.colcorrect; // 1, 2, or 3 //
+    colourCorrection = prefs->sBuf.colcorrect; 
+    // This is a strange value:
+    // colourCorrection == (i & 3) + (i+1)*4;
+    // where i is the number of the reference image
 
-    assert(colourCorrection == 1 ||
-	   colourCorrection == 2 ||
-	   colourCorrection == 3 ||
-	   colourCorrection == 0);
+    assert(colourCorrection >=0 && colourCorrection < (counterImageFiles+1) *4 );
 
     if (prefs->pano.cP.radial != 0) {
 
@@ -819,15 +821,15 @@ I AM NOT TOTALLY SURE ABOUT THIS
   // that do not need any brightness adjustments
 
   if (var00 != 0) {
-    Colour_Brightness(fullPathImages,counterImageFiles, var00 -1, 1);
+    ColourBrightness(fullPathImages,counterImageFiles, var00 -1, 1);
   }
   
   if (var01 != 0) { //
-    Colour_Brightness(fullPathImages, counterImageFiles, var01 - 1, 2);
+    ColourBrightness(fullPathImages, counterImageFiles, var01 - 1, 2);
   } // 
 
   if (colourCorrection != 0) {
-    Colour_Brightness(fullPathImages,counterImageFiles, (colourCorrection / 4) - 1, 0);
+    ColourBrightness(fullPathImages,counterImageFiles, (colourCorrection / 4) - 1, 0);
   }
   SetVRPanoOptionsDefaults(&defaultVRPanoOptions);
 
@@ -1091,61 +1093,61 @@ void ReplaceExt(char* filename, char *extension)
 
 int  CreatePSD(  fullPath *fullPathImages, int numberImages, fullPath* fullPathImage)
 {
-  fprintf(stderr,"this function is not implemented yet\n");
+  fprintf(stderr,"CreatePSD this function is not implemented yet\n");
   exit(1);
 }
 
 int CreateStitchingMasks(fullPath *fullPathImages, int numberImages)
 {
-  fprintf(stderr,"this function is not implemented yet\n");
+  fprintf(stderr,"CreateStitchingMasks this function is not implemented yet\n");
   exit(1);
 }
 
 int Create_LP_ivr(Image *image, fullPath* fullPathImage)
 {
-  fprintf(stderr,"this function is not implemented yet\n");
+  fprintf(stderr,"Create_LP_ivr this function is not implemented yet\n");
   exit(1);
 }
 
 int FlattenTIFF(  fullPath *fullPathImages, int numberImages)
 {
-  fprintf(stderr,"this function is not implemented yet\n");
+  fprintf(stderr,"FlattenTIFF this function is not implemented yet\n");
   exit(1);
 }
 
 int Unknown01(Image *image, fullPath* fullPathImage)
 {
-  fprintf(stderr,"this function is not implemented yet\n");
+  fprintf(stderr,"Unknown01 this function is not implemented yet\n");
   exit(1);
 }
 
 int Unknown02(Image *image, fullPath* fullPathImage)
 {
-  fprintf(stderr,"this function is not implemented yet\n");
+  fprintf(stderr,"Unknown02 this function is not implemented yet\n");
   exit(1);
 }
 
 int Unknown03(Image *image, fullPath* fullPathImage)
 {
-  fprintf(stderr,"this function is not implemented yet\n");
+  fprintf(stderr,"Unknown03 this function is not implemented yet\n");
   exit(1);
 }
 
 int Unknown04(Image *image, fullPath* fullPathImage)
 {
-  fprintf(stderr,"this function is not implemented yet\n");
+  fprintf(stderr,"Unknown04 this function is not implemented yet\n");
   exit(1);
 }
 
 int Unknown05(Image *image, fullPath* fullPathImage)
 {
-  fprintf(stderr,"this function is not implemented yet\n");
+  fprintf(stderr,"Unknown05 this function is not implemented yet\n");
   exit(1);
 }
 
 int Unknown07(Image *image, fullPath* fullPathImage)
 {
-  fprintf(stderr,"this function is not implemented yet\n");
+  fprintf(stderr,"Unknown07 this function is not implemented yet\n");
   exit(1);
 }
 
@@ -1157,6 +1159,7 @@ void ARGtoRGBAImage(Image *im)
   int top;
   int width;
   int i;
+
 
   if ( im->selection.bottom == 0  &&
        im->selection.right == 0 ) {
@@ -1171,16 +1174,16 @@ void ARGtoRGBAImage(Image *im)
 
     top = im->selection.top;
     bottom = im->selection.bottom;
-    bottom = im->selection.bottom;
+    left = im->selection.left;
     right = im->selection.right;
   }
 
-  assert(right >= left);
   width = right - left;
 
+  //fprintf(stderr, "\nWidth %10d Top: %10d bottom %10d Right %10d Left %10d-------", width, top, bottom, right, left);
 
-  assert(bottom> top);
-
+  assert(width >= 0);
+  assert(bottom >= top);
 
   for (i = 0;  i < bottom - top ; i ++) {
 
@@ -1432,13 +1435,7 @@ void Clear_Area_Outside_Selected_Region(Image *image)
 void Unknown09(Image *currentImagePtr)
 {
   // NEEDED
-  fprintf(stderr,"this function is not implemented yet\n");
-  exit(1);
-}
-
-void Colour_Brightness(  fullPath *fullPathImages, int p1, int p2, int p3)
-{
-  fprintf(stderr,"this function is not implemented yet\n");
+  fprintf(stderr,"Unknown09 this function is not implemented yet\n");
   exit(1);
 }
 

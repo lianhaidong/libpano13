@@ -37,7 +37,7 @@ AM_LDFLAGS  = -L${top_builddir}
 
 bin_PROGRAMS = panoinfo PTOptimizer PTmender
 
-PTmender_SOURCES = PTmender.c PTmender.h 
+PTmender_SOURCES = PTmender.c PTmender.h ColourBrightness.h ColourBrightness.c
 PTmender_LDADD   = -lpano12 -ljpeg -ltiff
 
 PTOptimizer_SOURCES = PTOptimizer.c
