@@ -1,3 +1,26 @@
+2006-01-10  dmg  <dmgerman@uvic.ca>
+
+	* ColourBrightness.c: I changed all mallocs to callocs. I also
+	added and removed some debug messages, and added optional use of
+	the dmalloc library.
+	(InitializeMagnolia): fixed a bug. I had allocated sizeof(pointer)
+	rather than sizeof(thing pointed by pointer). What an amateur!
+	(ColourBrightness): Another bug, I was freeing an incorrect number
+	of histograms.
+	(Unknown33): Fixed another bug. I referenced last element as
+	array[n] instead of the correct way array[n-1].
+	(Unknown37): Another bug 2 bugs. I had missed a set of parenthesis
+	in an expression. The next line had a couple of errors too.
+	(FreeHistograms): Another bug. One free  was in the wrong place.
+
+	* README.PTmender: Updated it.
+
+	* PTmender.c (CreatePanorama): Disabled code for colour correction.
+
+	* Makefile.am (AM_CPPFLAGS): Added flags for TIFF and JPEG to the
+	compilation of the programs.
+
+
 2006-01-09  dmg  <dmgerman@uvic.ca>
 
 	* PTmender.c (CreatePanorama): Fixed a bug that affected cropped

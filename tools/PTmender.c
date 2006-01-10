@@ -822,6 +822,7 @@ I AM NOT TOTALLY SURE ABOUT THIS
   // I have the feeling they are not required for panoramas 
   // that do not need any brightness adjustments
 
+#ifdef ENABLE_COLOUR_CORRECTION
   if (var00 != 0) {
     ColourBrightness(fullPathImages,counterImageFiles, var00 -1, 1);
   }
@@ -833,6 +834,12 @@ I AM NOT TOTALLY SURE ABOUT THIS
   if (colourCorrection != 0) {
     ColourBrightness(fullPathImages,counterImageFiles, (colourCorrection / 4) - 1, 0);
   }
+#else
+  if (colourCorrection != 0) {
+    fprintf(stderr, "Colour correction not implemented yet. Skipping\n");
+  }
+  
+#endif
   SetVRPanoOptionsDefaults(&defaultVRPanoOptions);
 
 /* All the folloging is strange. Look into what panoName is */

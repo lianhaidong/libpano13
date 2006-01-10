@@ -1,11 +1,12 @@
 PTmender
 --------
 
-This is a rewrite of PTStitcher. It currently only stitching TIFF_m
-panoramas, but the goal is to create a replacement of the
-original PTStitcher for which the source code was never released.
+This is a rewrite of PTStitcher. It is currently only stitching TIFF_m
+panoramas, but the goal is to create a replacement of the original
+PTStitcher for which the source code was never released.
 
-I am currently in the implementation of colour brightness adjustment.
+I am currently working on the the implementation of colour brightness
+adjustment.
 
 
 ----------------------------------------------------------------------
@@ -37,6 +38,8 @@ HOW TO HELP.
 ----------------------------------------------------------------------
 
 TODO:
+
+   * Debug Colour Correction code. This part is work in progress.
 
    * Recreate the following functions:
 

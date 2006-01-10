@@ -32,7 +32,7 @@ DAR_SRC =
 DAR_DEFS = 
 endif
 
-AM_CPPFLAGS = $(JAVA_FLAGS) $(LIN_DEFS) $(DAR_DEFS)
+AM_CPPFLAGS = $(JAVA_FLAGS) $(LIN_DEFS) $(DAR_DEFS) $(TIFF_FLAGS) $(JPEG_FLAGS)
 AM_LDFLAGS  = -L${top_builddir}
 
 bin_PROGRAMS = panoinfo PTOptimizer PTmender

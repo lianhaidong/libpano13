@@ -45,24 +45,23 @@
 FILE *debugFile;
 
 
+#ifdef __TESTING__
+#include <dmalloc.h>
+#endif
+
+
+
 magnolia_struct *InitializeMagnolia(int numberImages, int size, calla_function parm2)
 {
-
-
-  //Unknown29
-  assert(sizeof(magnolia_struct) == 32);
-
-
   int j;
-  int i; //int var08;
-  magnolia_struct *magnolia;
-  magnolia_array *var24;
+  int i; 
+  magnolia_struct *magnolia = NULL;
   double *ptrDouble;
   int var04;
   double var16;
   int ecx;
 
-  if ((magnolia = malloc(numberImages * sizeof(magnolia) )) == 0) {
+  if ((magnolia = malloc(numberImages * sizeof(magnolia_struct) )) == 0) {
     
     return 0;
     
@@ -74,7 +73,7 @@ magnolia_struct *InitializeMagnolia(int numberImages, int size, calla_function p
     '00000000 00e06f40' 
   */
   
-  var16 = var04 / 255.0; /// shouldn't this be a 256?
+  var16 = (size -1 ) / 255.0; /// shouldn't this be a 256?
   
   for (i=0; i < numberImages; i++) {
 
@@ -82,24 +81,23 @@ magnolia_struct *InitializeMagnolia(int numberImages, int size, calla_function p
 
     magnolia[i].function = parm2;
 
-    for (j=0; j<6; j++) { 
+    for (j=0; j<6 ; j++) { 
 
-      if (( magnolia[i].fieldx04[j] = malloc(size * sizeof(double))) == 0) {
-	return 0;
+      if ((ptrDouble = calloc(size, sizeof(double))) == NULL) {
+	return NULL;
       }
 
-      for (ecx = 0;  ecx < magnolia[i].components; ecx ++) {
+      assert( magnolia[i].components == size);
 
-	ptrDouble = magnolia[i].fieldx04[j];
-
+      for (ecx = 0;  ecx < size; ecx ++) {
+	
 	ptrDouble[ecx] = ecx * var16;
+	
+      } // if 
 
-      } //if 
-
+      magnolia[i].fieldx04[j] = ptrDouble;
+      
     } //    for (j=0; j<6; j++) { 
-
-    fprintf(stderr, "finishing magnolia %d\n", i);
-
 
   } // end   for (i=0; i < numberImages; i++) {
 
@@ -324,8 +322,8 @@ void ColourBrightness(  fullPath *fullPathImages, int counterImages, int indexRe
   
     ////////////////////////////////////
   
-  FreeHistograms(calla.ptrHistograms, counterImages);
-  FreeHistograms(ptrHistograms2, counterImages);
+  FreeHistograms(calla.ptrHistograms, numberHistograms);
+  FreeHistograms(ptrHistograms2, numberHistograms);
   
   for (i = 0; i <counterImages; i++ ) {
     
@@ -341,15 +339,16 @@ void FreeHistograms(histograms_struct *ptrHistograms, int count)
 {
   int i;
   int index;
+  histograms_struct *savedPtrHistograms = ptrHistograms;
 
   for (i = 0; i < count; i++ ) {
     for (index = 0; index < 6; index ++) {
       free(ptrHistograms->ptrBaseHistograms[index]);
       free(ptrHistograms->ptrOtherHistograms[index]);
     }
-    free(ptrHistograms);
     ptrHistograms++;
   } //     for (i = 0; i < numberHistograms; i++ ) {
+  free(savedPtrHistograms);
 }
 
 
@@ -522,14 +521,13 @@ int ComputeColourBrightnessCorrection(calla_struct *calla)
   int numberIntersections;
   histograms_struct *currentHistogram;
   int ecx;
-
+  int j;
 
   int **ptrHistogram;
   int *array;
   int i;
 
   numberIntersections = (calla->numberImages - 1) * calla->numberImages;
-
 
   processedImages = calloc(calla->numberImages, sizeof(int));
 
@@ -599,6 +597,12 @@ int ComputeColourBrightnessCorrection(calla_struct *calla)
 		      remappedHistogramDoubleArray,  
 		      &(calla->magnolia[currentHistogram->otherImageNumber]), channel);
 
+	    fprintf(stderr, "Remapped histogram :\n");
+
+	    for (j = 0; j<0x100; j++) {
+	      fprintf(stderr, " %d:%g", j, remappedHistogramDoubleArray[j]);
+	    }
+	    
 	    for (ecx = 0; ( ecx <= 0xff ); ecx ++) {
   
 	      edi[ecx] += remappedHistogramDoubleArray[ecx];
@@ -631,10 +635,23 @@ int ComputeColourBrightnessCorrection(calla_struct *calla)
 	    if (currentHistogram->otherImageNumber == currentImageNumber ) { 
 	      if ( processedImages[currentHistogram->baseImageNumber] != 0 ) {
 
+		fprintf(stderr, "Original histogram :\n");
+		
+		for (j = 0; j<0x100; j++) {
+		  fprintf(stderr, " %d:%d", j, currentHistogram->ptrBaseHistograms[channel][j]);
+		}
+
 		Unknown37(currentHistogram->ptrBaseHistograms[channel],
 			  remappedHistogramDoubleArray,
 			  &(calla->magnolia[currentHistogram->baseImageNumber]), 
 			  channel);
+
+		fprintf(stderr, "Remapped histogram :\n");
+		
+		for (j = 0; j<0x100; j++) {
+		  fprintf(stderr, " %d:%g", j, remappedHistogramDoubleArray[j]);
+		}
+
 
 		for (ecx = 0; ecx <= 0xff; ecx ++) {
 
@@ -730,6 +747,7 @@ histograms_struct *ReadHistograms (fullPath *fullPathImages, int numberImages)
   int *ptrInt;
 
   histograms_struct * currentHistogram;
+  histograms_struct * saveReturnValue;
 
   int temp;
 
@@ -750,12 +768,12 @@ histograms_struct *ReadHistograms (fullPath *fullPathImages, int numberImages)
     
   }
 
-  ptrHistograms = malloc(numberImages * (numberImages-1)/2 * sizeof(histograms_struct)); // Allocates one per every intersection n * (n-1) /2
+  saveReturnValue = ptrHistograms = calloc(numberImages * (numberImages-1)/2, sizeof(histograms_struct)); // Allocates one per every intersection n * (n-1) /2
 
   if ( ptrHistograms == NULL )
     return 0;
   
-  ptrTIFFs = malloc(numberImages * sizeof(TIFF*));
+  ptrTIFFs = calloc(numberImages , sizeof(TIFF*));
   
   if ( ptrTIFFs == NULL )
     return 0;
@@ -789,7 +807,7 @@ histograms_struct *ReadHistograms (fullPath *fullPathImages, int numberImages)
 
   bytesPerPixel = (bitsPerPixel + 7 ) / 8;
 
-  imagesDataBuffer = malloc(numberImages * bytesPerLine);
+  imagesDataBuffer = calloc(numberImages, bytesPerLine);
 
   if ( imagesDataBuffer == 0 ) {
     return NULL;
@@ -829,11 +847,9 @@ histograms_struct *ReadHistograms (fullPath *fullPathImages, int numberImages)
     
   } // for (currentImage = 0; currentImage < numberImages; currentImage++) {
   
-  fprintf(stderr,"Width %d Length %d BytesPerPixel %d per line%d\n", imageWidth, imageLength, bytesPerPixel, bytesPerLine);
+  //  fprintf(stderr,"Width %d Length %d BytesPerPixel %d per line%d\n", imageWidth, imageLength, bytesPerPixel, bytesPerLine);
 
   for (currentRow = 0; currentRow < imageLength; currentRow ++) {
-
-    fprintf(stderr, "Row %d\n", currentRow);
 
     if (currentRow * 2 == (int)(currentRow / 5.0) * 10) {
 
@@ -939,8 +955,6 @@ histograms_struct *ReadHistograms (fullPath *fullPathImages, int numberImages)
 	      
 	    } 
 
-#ifdef asdfasdf
-
 	    // compute the other 6 histograms	      
 	    temp = Cherry(ptrPixel[1], ptrPixel[2], ptrPixel[3]);
 	    assert(temp >= 0 && temp <= 0xff);
@@ -971,8 +985,6 @@ histograms_struct *ReadHistograms (fullPath *fullPathImages, int numberImages)
 	    assert(temp >= 0 && temp <= 0xff);
 	    ptrInt = currentHistogram->ptrOtherHistograms[5];
 	    ptrInt[temp] ++;
-#endif
-
 
 	  } // if ( 0 != *ptrPixel  and  0 != *ptrOtherPixel ) {
 
@@ -1007,8 +1019,7 @@ histograms_struct *ReadHistograms (fullPath *fullPathImages, int numberImages)
   free(ptrTIFFs);
   free(imagesDataBuffer);
 
-  return(ptrHistograms);
-
+  return(saveReturnValue);
 }
 
 unsigned char Cherry (unsigned char parm0, unsigned char parm1, unsigned char parm2)
@@ -1476,7 +1487,6 @@ double Unknown33(double parm[], double x, int n)
 
   x_1 = (x * 255.0) / ( n - 1 );
 
-
   e = floor(x_1);
   
   if ( e < 0 ) {
@@ -1494,7 +1504,7 @@ double Unknown33(double parm[], double x, int n)
 
     } else {
 
-      return parm[n];
+      return parm[n-1];
   
     }
   }
@@ -1730,12 +1740,13 @@ void Unknown37(int *histogram, double *array, magnolia_struct *magnolia, int cha
   double nextValue;
 
 
+  //  fprintf(stderr, "Doubles array: \n");
   for (index = 0; index < 0x100 ; index++) {
     
       doublesArray[index] = (*magnolia->function)(magnolia->fieldx04[channel], (double)index, magnolia->components);
-    
+      //      fprintf(stderr, " %d:%g:%g", index, magnolia->fieldx04[channel][index], doublesArray[index]);
   } //   for (index = 0; index < 0x100; index++) {
-
+  //  fprintf(stderr, "\n");
 
   for (index = 0; index < 0x100; index ++) {
 
@@ -1793,6 +1804,7 @@ void Unknown37(int *histogram, double *array, magnolia_struct *magnolia, int cha
 
       }
       
+      //      fprintf(stderr, "PTdouble[%d] = %g\n", index, ptrDouble[index]);
       assert(ptrDouble[index] >= 0 && ptrDouble[index] < 0xff);
       
       
@@ -1804,6 +1816,8 @@ void Unknown37(int *histogram, double *array, magnolia_struct *magnolia, int cha
 
       //////////////////////////////////////////////////////////
       double st_0;
+
+      assert(0); // disable this code for the time being.
 
       ecx = (int)nextValue;
       
@@ -1910,10 +1924,10 @@ void Unknown37(int *histogram, double *array, magnolia_struct *magnolia, int cha
 
       //  8051a40:      89 85 fc f7 ff ff       mov    %eax,var2052           ;;;;;;;;;;;>>> -2052
 
-    array[var2052] = (1 - ptrDouble[index] - var2052) *histogram[index] +  array[var2052];
+    array[var2052] = (1 - (ptrDouble[index] - var2052)) *histogram[index] +  array[var2052];
 
 
-    array[2052+1] = (ptrDouble[index] - var2052) * ptrDouble[index] + array[2052+1];
+    array[var2052+1] = (ptrDouble[index] - var2052) * histogram[index] + array[var2052+1];
     
     /////////////////// THIS SEEMS TO BE THE END OF THE FOR LOOP
 
@@ -2043,8 +2057,6 @@ void Unknown41(double *sourceHistogram, double *targetHistogram, double *magnoli
     magnoliaArray[i] = contribution;
 
   } // for (i = 0;  i <= 0xff; i ++ ) {
-
-
 
   for (edx = 1; edx <= 0xfe; edx ++) {
     int ecx;
