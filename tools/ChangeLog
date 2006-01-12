@@ -1,5 +1,15 @@
 2006-01-12  dmg  <dmgerman@uvic.ca>
 
+	* ColourBrightness.c: Remove fprintfs
+
+	* PTmender.c: Enabled colour correction. Ready for
+	testing. Upgraded version to 0.2: "the Enlightment"
+
+	* ColourBrightness.c (Unknown40): Fixed another bug. This time it
+	was the data type of a variable. It was double, not integer!
+
+2006-01-12  dmg  <dmgerman@uvic.ca>
+
 	* PTmender.c (CreatePanorama): Reduced the size of the cache to
 	500kbytes
 

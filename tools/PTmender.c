@@ -57,27 +57,29 @@ VRPanoOptions defaultVRPanoOptions;
 int jpegQuality;
 int jpegProgressive;
 
-#ifdef ENABLE_COLOUR_CORRECTION
+#ifdef TEST_ENABLE_COLOUR_CORRECTION
 
-int main(void)
+int main(int argc, char *argv[])
 {
-  fullPath files[2];
+  int i;
+  fullPath files[20];
 
-  strcpy(files[0].name, "rip0000.tif");
-  strcpy(files[1].name, "rip0001.tif");
-  strcpy(files[2].name, "rip0002.tif");
-  strcpy(files[3].name, "rip0003.tif");
-  strcpy(files[4].name, "rip0004.tif");
-  strcpy(files[5].name, "rip0005.tif");
-  strcpy(files[6].name, "rip0006.tif");
-
-  ColourBrightness(&files, 7, 0, 0);
+  fprintf(stderr, "Argc %d, arg %s\n", argc, argv[0]);
+  if (argc > 20) {
+    fprintf(stderr, "Too many files\n");
+  }
+  for (i = 0; i<argc-1; i++) { 
+    fprintf(stderr, "Argc %d, arg %s\n", i, argv[i+1]);
+    strcpy(files[i]. name, argv[i+1]);
+    
+  }
+  ColourBrightness(&files, argc-1, 0, 0);
   return 0;
 }
 
 #else
 
-#define PT_MENDER_VERSION  "PTmender Version 0.1, originally written by Helmut Dersch, rewritten by Daniel German\n"
+#define PT_MENDER_VERSION  "PTmender Version 0.2, originally written by Helmut Dersch, rewritten by Daniel German\n"
 
 int sorting_function(const void *, const void *);
 
@@ -841,7 +843,6 @@ I AM NOT TOTALLY SURE ABOUT THIS
   // I have the feeling they are not required for panoramas 
   // that do not need any brightness adjustments
 
-#ifdef ENABLE_COLOUR_CORRECTION
   if (var00 != 0) {
     ColourBrightness(fullPathImages,counterImageFiles, var00 -1, 1);
   }
@@ -853,12 +854,7 @@ I AM NOT TOTALLY SURE ABOUT THIS
   if (colourCorrection != 0) {
     ColourBrightness(fullPathImages,counterImageFiles, (colourCorrection / 4) - 1, 0);
   }
-#else
-  if (colourCorrection != 0) {
-    fprintf(stderr, "Colour correction not implemented yet. Skipping\n");
-  }
-  
-#endif
+
   SetVRPanoOptionsDefaults(&defaultVRPanoOptions);
 
 /* All the folloging is strange. Look into what panoName is */

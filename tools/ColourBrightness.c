@@ -176,8 +176,8 @@ void ColourBrightness(  fullPath *fullPathImages, int counterImages, int indexRe
 
   numberHistograms = ((counterImages-1) * counterImages)/2;
 
-  //  debugFile = fopen("Debug.txt", "w");
-  debugFile = stderr;
+  debugFile = fopen("Debug.txt", "w");
+  //  debugFile = stderr;
 
   fprintf(debugFile, "Entering function \"Colour_Brightness\" with %d images, nfix =%d\n", counterImages, indexReferenceImage);
 
@@ -188,7 +188,7 @@ void ColourBrightness(  fullPath *fullPathImages, int counterImages, int indexRe
 
   ptrHistograms = calla.ptrHistograms;
 
-  fprintf(debugFile, "\nQuality before optimization:");
+  fprintf(debugFile, "\nQuality before optimization:\n");
 
   index = 0;
 
@@ -569,11 +569,11 @@ int ComputeColourBrightnessCorrection(calla_struct *calla)
 	    
 	    // REMAP histogram according to current mapping function
 
-	    fprintf(stderr, "Original histogram Channel %d [%d,Base %d]: \n", channel, currentImageNumber, currentHistogram->otherImageNumber);
-	    for (j = 0; j<0x100; j++) {
-	      fprintf(stderr, " %d:%d", j, currentHistogram->ptrOtherHistograms[channel][j]);
-	    }
-	    fprintf(stderr, "\n");
+	    //	    fprintf(stderr, "Original histogram Channel %d [%d,Base %d]: \n", channel, currentImageNumber, currentHistogram->otherImageNumber);
+	    //	    for (j = 0; j<0x100; j++) {
+	    //	      fprintf(stderr, " %d:%d", j, currentHistogram->ptrOtherHistograms[channel][j]);
+	    //	    }
+	    //	    fprintf(stderr, "\n");
 
 
 
@@ -583,14 +583,14 @@ int ComputeColourBrightnessCorrection(calla_struct *calla)
 			   remappedSourceHistogram,  
 			   &(calla->magnolia[currentHistogram->otherImageNumber]), channel);
 
-	    fprintf(stderr, "\n");
+	    //	    fprintf(stderr, "\n");
 
-	    fprintf(stderr, "Remapped histogram :\n");
+	    //	    fprintf(stderr, "Remapped histogram :\n");
 
-	    for (j = 0; j<0x100; j++) {
-	      fprintf(stderr, " %d:%g", j, remappedSourceHistogram[j]);
-	    }
-	    fprintf(stderr, "\n");
+	    //for (j = 0; j<0x100; j++) {
+	    //fprintf(stderr, " %d:%g", j, remappedSourceHistogram[j]);
+	    //}
+	    //fprintf(stderr, "\n");
 
 	    // Add source Histogram to the Accumulated
 
@@ -628,12 +628,12 @@ int ComputeColourBrightnessCorrection(calla_struct *calla)
 	      // In this case baseImageNumber is done
 	      // and otherImageNumber is to be done
 
-	      fprintf(stderr, "Original histogram Channel %d [Base %d,%d]: \n", channel, currentImageNumber, currentHistogram->baseImageNumber);
+	      //fprintf(stderr, "Original histogram Channel %d [Base %d,%d]: \n", channel, currentImageNumber, currentHistogram->baseImageNumber);
 	      
-	      for (j = 0; j<0x100; j++) {
-		fprintf(stderr, " %d:%d", j, currentHistogram->ptrBaseHistograms[channel][j]);
-	      }
-	      fprintf(stderr, "\n");
+	      //for (j = 0; j<0x100; j++) {
+	      //fprintf(stderr, " %d:%d", j, currentHistogram->ptrBaseHistograms[channel][j]);
+	      //}
+	      //fprintf(stderr, "\n");
 	      
 	      // Remap source histogram
 	      RemapHistogram(currentHistogram->ptrBaseHistograms[channel],
@@ -641,12 +641,12 @@ int ComputeColourBrightnessCorrection(calla_struct *calla)
 			     &(calla->magnolia[currentHistogram->baseImageNumber]), 
 			     channel);
 	      
-	      fprintf(stderr, "Remapped histogram: \n");
+	      //fprintf(stderr, "Remapped histogram: \n");
 	      
-	      for (j = 0; j<0x100; j++) {
-		fprintf(stderr, " %d:%g", j, remappedSourceHistogram[j]);
-	      }
-	      fprintf(stderr, "\n");
+	      //for (j = 0; j<0x100; j++) {
+	      //	fprintf(stderr, " %d:%g", j, remappedSourceHistogram[j]);
+	      //}
+	      //fprintf(stderr, "\n");
 	      
 	      // Add it to the accumulated
 	      for (j = 0; j <= 0xff; j ++) {
@@ -989,15 +989,15 @@ histograms_struct *ReadHistograms (fullPath *fullPathImages, int numberImages)
   } //for (currentRow = 0; currentRow < imageLength; currentRow ++) {
 
   
-  for (i = 0; i< numberImages * (numberImages-1)/2; i++) {
-    fprintf(stderr, "Histogram %d Images %d %d, %d Pixels\n", i , 
-	    ptrHistograms[i].baseImageNumber, 
-	    ptrHistograms[i].otherImageNumber,
-	    ptrHistograms[i].overlappingPixels);
-    totalPixels2 += ptrHistograms[i].overlappingPixels;
-  }
+  //  for (i = 0; i< numberImages * (numberImages-1)/2; i++) {
+  //    fprintf(stderr, "Histogram %d Images %d %d, %d Pixels\n", i , 
+  //	    ptrHistograms[i].baseImageNumber, 
+  //	    ptrHistograms[i].otherImageNumber,
+  //	    ptrHistograms[i].overlappingPixels);
+  //    totalPixels2 += ptrHistograms[i].overlappingPixels;
+  //  }
 
-  assert(totalPixels2 == totalPixels);
+  //  assert(totalPixels2 == totalPixels);
 
   for (currentImage=0;  currentImage < numberImages; currentImage++) {
 
@@ -1262,7 +1262,7 @@ void CorrectImageColourBrigthness(Image *image, magnolia_struct *magnolia, int p
     for (channel = 0; channel< 6; channel ++ ) {
       double *ptr;
       // takes an array of 0x100 doubles, a double between 0 and 0x100, and  number of doubles
-      // Remaps the correction functions, not clear why
+      // Remaps the correction functions
 
       ptr = mappingCurves[channel];
 
@@ -1278,6 +1278,8 @@ void CorrectImageColourBrigthness(Image *image, magnolia_struct *magnolia, int p
 
   case 1:
     
+    assert(0);
+
     currentRow = 0;
     
     edx = currentRow;
@@ -1370,6 +1372,8 @@ void CorrectImageColourBrigthness(Image *image, magnolia_struct *magnolia, int p
     
   case 2: // case of switch parm3
     
+    assert(0);
+
     currentRow = 0;
     
     for (currentRow = 0; currentRow < image->height; currentRow++) {
@@ -1471,6 +1475,7 @@ double MapFunction(double parm[], double x, int n)
     result = parm[n-1];
   }
 
+
   if (result >= 0x100) {
     // THIS CODE IS JUST FOR DEBUGGING PURPOSES
 
@@ -1503,7 +1508,7 @@ int Unknown40(int value, double mapTable[])
   double deltaPrev;
   double deltaNext;
 
-  int var48;
+  double var48;
   int var44;
 
   double tablePrevValue;
@@ -1523,7 +1528,7 @@ int Unknown40(int value, double mapTable[])
 
   if ( value == 0 ) {
 
-    tablePrevValue = 2* mapTable[0]  - mapTable[1];
+    tablePrevValue = 2* mapTable[0]  - mapTable[1]; // XXXXXXXXXXXXXXXXX This just looks backwards!
 
   } else {
     
@@ -1542,7 +1547,7 @@ int Unknown40(int value, double mapTable[])
     
   }
 
-  if (abs(tableNextValue - tablePrevValue) < 2.0) {
+  if (abs(tableNextValue - tablePrevValue) <= 2.0) {
     // if the difference |f(value - 1)  -f(value+1) is too small
 
     tempInt =  (int)mapTable[value];
@@ -1604,7 +1609,7 @@ int Unknown40(int value, double mapTable[])
   //  if ( %edx > %nextValueInt ) /// [(int)tablePrevValue] > [(int)tableNextValue] 
   while ( edx <= nextValueInt ) { /// [(int)tablePrevValue] > [(int)tableNextValue] 
 
-    if (edx >= mapTable[value]) {
+    if (edx < mapTable[value]) {
       var48 += (edx - tablePrevValue)/deltaPrev;
     } else {
       var48 += (tableNextValue - edx)/deltaNext;
@@ -1620,10 +1625,10 @@ int Unknown40(int value, double mapTable[])
 
   while ( edx <= nextValueInt ) {
 
-    if (edx >= mapTable[value]) {
+    if (edx < mapTable[value]) {
       var48 -= (edx - tablePrevValue) / deltaPrev;
     } else { //    if ( %ah == 0x1 ) {
-      var48 -= (tableNextValue - (int)mapTable[value]) / deltaNext;
+      var48 -= (tableNextValue - edx) / deltaNext;
     }  //   if ( %ah == 0x1 ) 
 
     if ( var48 < 0 ) {
@@ -1806,8 +1811,6 @@ void RemapHistogram(int *histogram, double *remappedHistogram, magnolia_struct *
       //////////////////////////////////////////////////////////
       double st_0;
 
-      assert(0); // disable this code for the time being.
-
       ecx = (int)nextValue;
       
       if ((int)nextValue > 0xff ) {
@@ -1940,7 +1943,7 @@ void ComputeAdjustmentCurve(double *sourceHistogram, double *referenceHistogram,
 
   double sum2 = 0.0;
   double sum = 0.0;
-  double total = 0;
+  //  double total = 0;
 
   // FIRST, make sure we parameters are sound
 
@@ -1955,9 +1958,9 @@ void ComputeAdjustmentCurve(double *sourceHistogram, double *referenceHistogram,
     total2 += referenceHistogram[i];
     
   }
-  if (total1 != total2) {
-    fprintf(stderr, "%g %g difference %g\n", total1, total2, total1 - total2);
-  }
+  //  if (total1 != total2) {
+  //       fprintf(stderr, "%g %g difference %g\n", total1, total2, total1 - total2);
+  //  }
 
   //  assert(total1 == total2);
   
@@ -1971,23 +1974,23 @@ void ComputeAdjustmentCurve(double *sourceHistogram, double *referenceHistogram,
 
   //// Debugging messages
 
-  fprintf(stderr, "41->Histogram source: ");
-  for (i=0; i<0x100;i++) {
-    fprintf(stderr, " %d:%g ", i, copySourceHist[i]);
-    assert(copySourceHist[i] == sourceHistogram[i]);
-    total += copySourceHist[i];
-  }
-  fprintf(stderr, "\nTotal: %g\n", total);
-
-  total = 0;
-  fprintf(stderr, "41->Histogram Reference : ");
-  for (i=0; i<0x100;i++) {
-    fprintf(stderr, " %d:%g ", i, copyReferenceHistogram[i]);
-    assert(copyReferenceHistogram[i] == referenceHistogram[i]);
-    total += copyReferenceHistogram[i];
-  }
-  fprintf(stderr, "\nTotal: %g\n", total);
-
+//  fprintf(stderr, "41->Histogram source: ");
+//  for (i=0; i<0x100;i++) {
+//    fprintf(stderr, " %d:%g ", i, copySourceHist[i]);
+//    assert(copySourceHist[i] == sourceHistogram[i]);
+//    total += copySourceHist[i];
+//  }
+//  fprintf(stderr, "\nTotal: %g\n", total);
+//
+//  total = 0;
+//  fprintf(stderr, "41->Histogram Reference : ");
+//  for (i=0; i<0x100;i++) {
+//    fprintf(stderr, " %d:%g ", i, copyReferenceHistogram[i]);
+//    assert(copyReferenceHistogram[i] == referenceHistogram[i]);
+//    total += copyReferenceHistogram[i];
+//  }
+//  fprintf(stderr, "\nTotal: %g\n", total);
+//
 
   for (i = 0;  i <= 0xff; i ++ ) {
     
@@ -2078,13 +2081,13 @@ void ComputeAdjustmentCurve(double *sourceHistogram, double *referenceHistogram,
     assert(curve[i] < 0x100);
   }
 
-  fprintf(stderr, "41->Magnolia: ");
-  for (i=0; i<0x100;i++) {
-    fprintf(stderr, " %d:%g ", i, curve[i]);
-  }
-  fprintf(stderr, "\n");
-
-  // Check if the curve got any negative values.
+//  fprintf(stderr, "41->Magnolia: ");
+//  for (i=0; i<0x100;i++) {
+//    fprintf(stderr, " %d:%g ", i, curve[i]);
+//  }
+//  fprintf(stderr, "\n");
+//
+//  // Check if the curve got any negative values.
 
   for (i = 1; i <= 0xfe; i ++) {
 
@@ -2123,12 +2126,12 @@ void ComputeAdjustmentCurve(double *sourceHistogram, double *referenceHistogram,
   }
 
 
-  fprintf(stderr, "41->Magnolia: ");
-  for (i=0; i<0x100;i++) {
-    fprintf(stderr, " %d:%g ", i, curve[i]);
-  }
-  fprintf(stderr, "\n");
-
+//  fprintf(stderr, "41->Magnolia: ");
+//  for (i=0; i<0x100;i++) {
+//    fprintf(stderr, " %d:%g ", i, curve[i]);
+//  }
+//  fprintf(stderr, "\n");
+//
   //  exit(0);
 
 
