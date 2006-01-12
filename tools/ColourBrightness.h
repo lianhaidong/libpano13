@@ -71,7 +71,6 @@ typedef struct {
 
 histograms_struct*ReadHistograms (fullPath *fullPathImages, int counterImages);
 int               ComputeColourBrightnessCorrection(calla_struct *calla);
-int               ComputeColourBrightnessCorrection(calla_struct *calla);
 int               CorrectFileColourBrightness(fullPath *path, magnolia_struct *magnolia, int parm3);
 int               FindNextCandidate(int candidates[], calla_struct *calla);
 
@@ -79,13 +78,13 @@ magnolia_struct   *InitializeMagnolia(int numberImages, int size, calla_function
 void              ColourBrightness(  fullPath *fullPathImages, int counterImages, int indexReferenceImage, int parm3);
 void              CorrectImageColourBrigthness(Image *image, magnolia_struct *magnolia, int parm3);
 void              FreeHistograms(histograms_struct *ptrHistograms, int count);
-void              Unknown37(int *histogram, double *array, magnolia_struct *magnolia, int channel);
-void              Unknown41(double *sourceHistogram, double *targetHistogram, double *magnoliaArray) ;
+void              RemapHistogram(int *histogram, double *array, magnolia_struct *magnolia, int channel);
+void              ComputeAdjustmentCurve(double *sourceHistogram, double *targetHistogram, double *curve) ;
 unsigned char Unknown47(unsigned char parm0, unsigned char parm1, unsigned char parm2);
 unsigned char Unknown48(unsigned char parm0, unsigned char parm1, unsigned char parm2);
 unsigned char Unknown49(unsigned char parm0, unsigned char parm1, unsigned char parm2);
 
-double            Unknown33(double p[], double x, int n);
+double            MapFunction(double p[], double x, int n);
 int               Unknown40(int value, double mapTable[]) ;
 
 unsigned char Peach (unsigned char parm0, unsigned char parm1, unsigned char parm2);

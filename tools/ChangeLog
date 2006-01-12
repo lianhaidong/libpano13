@@ -1,3 +1,38 @@
+2006-01-12  dmg  <dmgerman@uvic.ca>
+
+	* PTmender.c (CreatePanorama): Reduced the size of the cache to
+	500kbytes
+
+	* ColourBrightness.c: Improved readibility of many functions.
+	(RemapHistogram): Another bug. Divided a/b
+	instead of b/a.
+
+2006-01-11  dmg  <dmgerman@uvic.ca>
+
+	* ColourBrightness.c: (ComputeColourBrightnessCorrection) Found
+	another bug (limit of for loop was < 0xff not <= 0xff).
+	(ComputeColourBrightnessCorrection): Cleaned up the function,
+	renamed variables to make them meaninful. Killed another
+	bug. Again, a/b instead of b/a
+	(CorrectFileColourBrightness): Another bug. Missundertood return
+	value from readTIFF: it is zero when success, -1 when it is not.
+	(CorrectImageColourBrigthness): Another bug. im->data is a pointer
+	to the pointer to the actual data, not a pointer to the data!
+	Took advante of the editing and cleaned up the code and renamed
+	some veriables.
+	(DisplayHistogramsError): Refactored this function from
+	ColourBrightness.
+
+	* ColourBrightness.h, ColourBrightness.c: Renamed Unknown41 to
+	ComputeAdjustmentCurve. Renamed Unknown37 to RemapHistogram. I
+	have added assertions and debug code everywhere. Renamed Unknown33
+	to MapFunction. Updated callers accordingly.
+	
+2006-01-10  dmg  <dmgerman@uvic.ca>
+
+	* ColourBrightness.c: (ComputeColourBrightnessCorrection): Another
+	bug: incorrect number of daisies.
+	
 2006-01-10  dmg  <dmgerman@uvic.ca>
 
 	* ColourBrightness.c: I changed all mallocs to callocs. I also

@@ -57,7 +57,25 @@ VRPanoOptions defaultVRPanoOptions;
 int jpegQuality;
 int jpegProgressive;
 
-//
+#ifdef ENABLE_COLOUR_CORRECTION
+
+int main(void)
+{
+  fullPath files[2];
+
+  strcpy(files[0].name, "rip0000.tif");
+  strcpy(files[1].name, "rip0001.tif");
+  strcpy(files[2].name, "rip0002.tif");
+  strcpy(files[3].name, "rip0003.tif");
+  strcpy(files[4].name, "rip0004.tif");
+  strcpy(files[5].name, "rip0005.tif");
+  strcpy(files[6].name, "rip0006.tif");
+
+  ColourBrightness(&files, 7, 0, 0);
+  return 0;
+}
+
+#else
 
 #define PT_MENDER_VERSION  "PTmender Version 0.1, originally written by Helmut Dersch, rewritten by Daniel German\n"
 
@@ -372,6 +390,7 @@ int main(int argc,char *argv[])
 
 }
 
+#endif
 
 int CreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles, fullPath *panoFileName, fullPath *scriptFileName)
 {
@@ -689,7 +708,7 @@ I AM NOT TOTALLY SURE ABOUT THIS
 
       resultPanorama.selection.right = resultPanorama.width;
 
-      lines = 5000000 / resultPanorama.bytesPerLine;
+      lines = 500000 / resultPanorama.bytesPerLine;
  
       if (0 == lines) { 
 	lines = 1;
@@ -1214,8 +1233,8 @@ void Clear_Area_Outside_Selected_Region(Image *image)
   //  int width;
   //  int var24;
   int bytesPerPixel;  // 32
-  void *dataPtr;
-  void *pixelPtr;
+  unsigned char *dataPtr;
+  unsigned char *pixelPtr;
 
   int currentRow;
   int currentColumn;
