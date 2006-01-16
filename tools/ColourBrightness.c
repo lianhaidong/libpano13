@@ -71,10 +71,6 @@ magnolia_struct *InitializeMagnolia(int numberImages, int size, calla_function p
   
   var04 = size - 1;
   
-  /*
-    '00000000 00e06f40' 
-  */
-  
   var16 = (size -1 ) / 255.0; /// shouldn't this be a 256?
   
   for (i=0; i < numberImages; i++) {
@@ -476,13 +472,6 @@ int FindNextCandidate(int candidates[], calla_struct *calla)
 int ComputeColourBrightnessCorrection(calla_struct *calla)
 {
 
-  // var32  0xffffffe0(%ebp) var32
-  // var28  0xffffffe4(%ebp) double *remappedSourceHistogram
-  // var24  0xffffffe8(%ebp) var24
-  // var20  0xffffffec(%ebp) int *processedImages
-  // var16  0xfffffff0(%ebp) currentImageNumber
-  // var12  0xfffffff4(%ebp) channel
-  // var08  0xfffffff8(%ebp) int numberIntersections
 
   double *remappedSourceHistogram;
   double *accumToCorrectHistogram;
@@ -1344,7 +1333,7 @@ void CorrectImageColourBrigthness(Image *image, magnolia_struct *magnolia, int p
       
     } //while ( currentRowx < image->height) {
     break;
-    // 8051ce2:	e9 a3 01 00 00       	jmp    8051e8a <InsertFileName+0x22b6>
+
     
   case 0: //case of switch
       
@@ -1518,11 +1507,6 @@ int Unknown40(int value, double mapTable[])
   int prevValueInt;
 
   int edx;
-
-  // var56 0xffffffc8(%ebp) delta;
-  // var24 0xffffffe8(%ebp) tablePrevValue;
-  // var16 0xfffffff0(%ebp) tableNextValue;
-  // var08 0xfffffff8(%ebp) tempInt;
 
   // Find previous and next. Extrapolate if necessary
 
@@ -1706,11 +1690,6 @@ unsigned char Unknown49(unsigned char parm0, unsigned char parm1, unsigned char 
 
 
 
-//          Unknown37(currentHistogram->ptrOtherHistograms[channel],
-//                    var28,  
-//                    calla->magnolia[currentHistogram->otherImageNumber], channel);
-
-
 void RemapHistogram(int *histogram, double *remappedHistogram, magnolia_struct *magnolia, int channel)
 {
 
@@ -1779,11 +1758,6 @@ void RemapHistogram(int *histogram, double *remappedHistogram, magnolia_struct *
 
     } //    if ( %index == $0xff ) {
 
-    //  label805183a:   // ; 805182b jmp 
-
-    // st(1) = prevValue;
-    // st(0) = nextValue;
-
     //    ***************************************************
 
     if (abs(nextValue - prevValue) <=  2.0) { // remember to negate as part of the if jump less
@@ -1792,7 +1766,7 @@ void RemapHistogram(int *histogram, double *remappedHistogram, magnolia_struct *
       // remove 2 values from the stack
       
       if ( (int)mappingFunction[index] == 0xff ) {
-        // REPATED FROM AAAAAAA
+        // REPEATED FROM AAAAAAA
         remappedHistogram[255] = histogram[index] + remappedHistogram[255];
         continue;
 
@@ -1820,7 +1794,7 @@ void RemapHistogram(int *histogram, double *remappedHistogram, magnolia_struct *
       edx = (int)prevValue;//TOP
 
 
-      if (edx < prevValue) { //if (st(0) < st(1) ) {
+      if (edx < prevValue) { 
         edx ++;
       } //if 
       assert(edx == ceil(prevValue));
@@ -1870,7 +1844,7 @@ void RemapHistogram(int *histogram, double *remappedHistogram, magnolia_struct *
 
 	      remappedHistogram[var2072] += (((var2072 - prevValue) / (mappingFunction[index] - prevValue)) * histogram[index])/st_0;
 	  
-	    } //    if ( st(0) != st(3) ) {
+	    } //    
 	    continue;
 	
 	  } else {
@@ -1908,9 +1882,6 @@ void RemapHistogram(int *histogram, double *remappedHistogram, magnolia_struct *
     value = (int) mappingFunction[index];
 
     delta = mappingFunction[index] - (int) mappingFunction[index];
-    //    var2052 = eax;
-
-      //  8051a40:      89 85 fc f7 ff ff       mov    %eax,var2052           ;;;;;;;;;;;>>> -2052
 
     // delta determines the rounding error. 1-delta*histogram gets
     // added to the current value and
@@ -1921,10 +1892,6 @@ void RemapHistogram(int *histogram, double *remappedHistogram, magnolia_struct *
 
     remappedHistogram[value+1] = delta * histogram[index] + remappedHistogram[value+1];
     
-    /////////////////// THIS SEEMS TO BE THE END OF THE FOR LOOP
-
-    //  8051b21:        43                      inc    %index
-    //  8051b22:        81 fb ff 00 00 00       cmp    $0xff,%index
 
   } //  for (index = 0; index < 0x100; index++) {
 
@@ -2038,7 +2005,6 @@ void ComputeAdjustmentCurve(double *sourceHistogram, double *referenceHistogram,
 
         curve[0] = 0;
 
-        //goto label80522bf; 
 	continue;
 
       } else { 
@@ -2047,7 +2013,6 @@ void ComputeAdjustmentCurve(double *sourceHistogram, double *referenceHistogram,
 
           curve[0xff] = 255.0;
 
-          //goto label80522bf; 
 	  continue;
 
         }
@@ -2105,7 +2070,7 @@ void ComputeAdjustmentCurve(double *sourceHistogram, double *referenceHistogram,
 	while ( curve[j] == -1.0  ) {
 	  ++j;
 	  if (j > 0xff) {
-	    break; // goto label8052328;
+	    break; // 
 	  }
 	}
       }   //    if ( %j <= $0xff )
@@ -2205,18 +2170,9 @@ void Unknown41(double *sourceHistogram, double *targetHistogram, double *magnoli
 
     }//  if ( %edx <= $0xff )
 
-
-    //    sum ? 0 . if C3 and xor 40 => result is zero
-
     if ( sum == 0.0 ) {
-      //    goto label8052290;
-      //  8052256:	75 38                	jne    8052290 <InsertFileName+0x26bc>
-      // 
-      
+
       contribution = 0.0;
-      
-      //  8052258:	dd d8                	fstp   %st(0)
-      //  805225a:	85 f6                	test   %i,%i
       
       if ( i == 0 ) {
 	
@@ -2225,8 +2181,6 @@ void Unknown41(double *sourceHistogram, double *targetHistogram, double *magnoli
 	continue; 
 	
       } else { 
-	
-	//  8052270:	81 fe ff 00 00 00    	cmp    $0xff,%i
 	
 	if (i == 0xff ) {
 	  magnoliaArray[0x7f8/8] = 255.0;
@@ -2260,10 +2214,6 @@ void Unknown41(double *sourceHistogram, double *targetHistogram, double *magnoli
     int ecx;
 
     if ( magnoliaArray[edx] == -1.0 ) {
-      //      goto label805234b;
-      //  80522ed:	75 5c                	jne    805234b <InsertFileName+0x2777>
-      //  80522ef:	8d 4a 01             	lea    0x1(%edx),%ecx
-      //  80522f2:	81 f9 ff 00 00 00    	cmp    $0xff,%ecx
       
       ecx = edx +1;
       
@@ -2274,12 +2224,12 @@ void Unknown41(double *sourceHistogram, double *targetHistogram, double *magnoli
 	    break;
 	  }
 	}
-      }   //    if ( %ecx <= $0xff )
+      }   //    
 
       magnoliaArray[edx] = magnoliaArray[edx-1] + (ecx - edx -1)/(magnoliaArray[ecx] - magnoliaArray[edx-1]);
 
 
-    }//  label805234b:   // ; 80522ed jne 
+    }//  
 
   } //  for (edx = 1; edx <= $0xfe; edx ++) {
 
