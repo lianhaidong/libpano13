@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
 
 #else
 
-#define PT_MENDER_VERSION  "PTmender Version 0.2, originally written by Helmut Dersch, rewritten by Daniel German\n"
+#define PT_MENDER_VERSION  "PTmender Version 0.3, originally written by Helmut Dersch, rewritten by Daniel German\n"
 
 int sorting_function(const void *, const void *);
 
@@ -903,8 +903,7 @@ I AM NOT TOTALLY SURE ABOUT THIS
     return(0);
   }
 
-
-  if (strcmp(word, "PSD_nomask") == 0 || strcmp(word, "PSD_m")) { // 
+  if (strcmp(word, "PSD_nomask") == 0 || strcmp(word, "PSD_m")==0) { // 
     ReplaceExt(panoFileName->name, ".psd");
     
     if (CreatePSD(fullPathImages,counterImageFiles, panoFileName) != 0) {
@@ -1115,17 +1114,911 @@ void ReplaceExt(char* filename, char *extension)
 
 // These are dummy functions to stop the linker from complaining. THEY need to be implemented at some time
 
-int  CreatePSD(  fullPath *fullPathImages, int numberImages, fullPath* fullPathImage)
+int  CreatePSD(  fullPath *fullPathImages, int numberImages, fullPath* outputFileName)
 {
-  fprintf(stderr,"CreatePSD this function is not implemented yet\n");
+
+  Image *ptrImage;
+  char *var24;
+  int i;
+  stBuf stitchInfo; // length 524
+  fullPath var92;
+  char tempString[128];
+  Image image;
+  
+
+  if ( numberImages == 0 ) {
+    return 0;
+  }
+  
+  if ( quietFlag == 0 ) {
+    
+    Progress(_initProgress, "Converting TIFF to PSD");
+  }
+
+  sprintf(tempString, "%d", 0x64/numberImages);
+
+  if ( quietFlag == 0 ) {
+
+    Progress(_setProgress, tempString);
+
+  }
+  
+
+  SetImageDefaults(&image);
+
+  if (  readTIFF(&image, &fullPathImages[0]) != 0 ) {
+
+
+    PrintError("Could not read TIFF image No 0");
+    
+    
+    if ( quietFlag == 0 ) {
+      Progress(_disposeProgress, tempString);
+    }
+
+    return -1;
+
+  }
+
+  TwoToOneByte(&image);
+
+  if (writePSDwithLayer(&image, outputFileName) != 0) {
+    
+
+    PrintError("Could not write PSD-file");
+
+    if ( quietFlag != 0 ) 
+      Progress(_disposeProgress, tempString);
+    return -1;
+  }
+
+  myfree((void**)image.data);
+
+ 
+  i = 1;
+
+   var24 = tempString;
+
+   ptrImage = &image;
+
+   for (i = 1; i < numberImages; i++) {
+
+     sprintf(var24, "%d", i * 100/numberImages);
+
+
+     if ( quietFlag == 0 ) {
+     
+       if ( Progress(_setProgress,var24) == 0 ) {
+	 remove(outputFileName->name);
+	 return -1;
+       }
+     
+     }
+
+     if (readTIFF(ptrImage, &fullPathImages[i]) != 0) {
+     
+       PrintError("Could not read TIFF image No &d", i);
+     
+     
+       if ( quietFlag == 0 ) {
+       
+	 Progress(_disposeProgress, var24);
+
+       }
+       return -1;
+     
+     }
+
+     TwoToOneByte(ptrImage);
+
+     stitchInfo.seam = 1;
+     stitchInfo.feather = 0;
+
+     strcpy(var92.name, outputFileName->name);
+
+
+     if (makeTempPath(&var92) != 0) {
+       PrintError("Could not make Tempfile");
+       return -1;
+
+     }
+
+     if (addLayerToFile(ptrImage, outputFileName, &var92, &stitchInfo) != 0) {
+       //       remove(outputFileName->name);
+       PrintError("Could not write Panorama File");
+       return -1;
+     }
+
+     remove(outputFileName->name);
+   
+     rename(var92.name, outputFileName->name);
+   
+     myfree((void**)image.data);
+   }   
+   return 0;
+}
+
+
+void ComputeStitchingMask8bits(Image *image)
+{
+
+  int column;
+  int row;
+  unsigned char *ptr;
+  unsigned char *pixel;
+  uint16  *ptrCounter;
+  uint16 count;
+
+
+  //  fprintf(stderr, "St1\n");
+
+  for (column = 0; column < image->width; column ++) {
+
+    count = 0;
+
+    // Point to the given column in row 0
+
+    ptr = *image->data + column * 4;
+
+    //    fprintf(stderr, "St1.1 Column[%d]\n", column);
+
+
+
+    for (row = 0; row < image->height; row ++) {
+
+      //      fprintf(stderr, "St1.2 Column[%d] Row[%d]\n", column, row);
+
+      pixel = row * image->bytesPerLine + ptr;
+
+      if (*pixel == 0) {
+	
+	count = 0;
+	
+      } else {
+
+	count ++;
+	
+      }
+      // Use the GB pixel area to keep a count of how many pixels we have seen in 
+      // the mask area.
+
+      ptrCounter = (uint16*)(pixel +2);
+      *ptrCounter = count;
+
+    } //     for (row = 0; row < image->heght; row ++) {
+
+
+    //    fprintf(stderr, "St1.3 Column[%d]\n", column);
+
+    count = 0;
+    row = image->height;
+
+    while (--row  >= 0) {
+
+      //      fprintf(stderr, "St1.4 Column[%d] Row[%d]\n", column, row);
+
+      pixel = ptr + row + image->bytesPerLine;
+
+      if ( *pixel == 0 ) {
+
+	count = 0;
+
+      } else {
+
+	count ++;
+
+      }
+
+      ptrCounter = (uint16*)(pixel +2);
+
+      if ( *ptrCounter < count) {
+      
+	count = *ptrCounter;
+      
+      
+      } else {
+      
+	*ptrCounter  = count;
+      
+      }
+    
+    
+    } //while
+    
+    //    fprintf(stderr, "St1.5 Column[%d]\n", column);
+
+    
+  } //
+
+  ///////////// row by row
+
+  //  fprintf(stderr, "St2\n");
+
+
+
+  for (row = 0; row < image->height; row ++) {
+
+    count = image->width;
+    
+    ptr = row * image->bytesPerLine + *(image->data);
+    
+    
+    for (column = 0; column < image->width; column ++ ) {
+      
+      
+      pixel = ptr + 4 * column;
+      
+      if ( *pixel == 0 ) {
+	
+	count = 0;
+	
+      } else {
+	
+	count ++;
+	
+      }
+      
+      ptrCounter = (uint16*)(pixel +2);
+      
+      if (*ptrCounter < count) {
+	
+	count = *ptrCounter;
+	
+      } else {
+	
+	*ptrCounter = count;
+	
+      } //
+
+    } // for column
+
+    //-----------------------------;;
+
+
+    for (column = 0; column < image->width; column ++ ) {
+
+
+      pixel = ptr + column * 4;
+
+      if ( *pixel == 0 ) {
+	count = 0;
+      } else {
+	count ++;
+      }
+
+      ptrCounter =  (uint16*)(pixel +2);
+
+      if (*ptrCounter < count) {
+	count = *ptrCounter;
+      } else {
+	*ptrCounter = count;
+      }
+    } // for
+
+    //---------------------------------------;
+
+    //  fprintf(stderr, "St3\n");
+
+    count = image->width;
+    column = image->width;
+
+    while (--column >= 0) {
+
+      pixel = ptr + column * 4;
+
+      if (0 == *pixel ) {
+	count = 0;
+      } else {
+	count ++;
+      }
+
+      ptrCounter =  (uint16*)(pixel +2);
+
+      if (*ptrCounter < count) {
+	count = *ptrCounter;
+      } else {
+	*ptrCounter = count;
+      }
+    } //    while (--column >= 0) {
+
+    //--------------------------------;
+    column = image->width;
+
+    //  fprintf(stderr, "St4\n");
+
+    while (--column >= 0) {
+
+      pixel = ptr + 4 * column;
+
+      if ( *pixel == 0 ) {
+	count = 0;
+      } else {
+	count ++;
+      }
+
+      ptrCounter =  (uint16*)(pixel +2);
+
+      if (*ptrCounter < count) {
+	
+	count = *ptrCounter ;
+      
+      } else {
+	*ptrCounter = count;
+      }
+    } // end of while
+    
+  } // end of for row
+
+
+}
+
+void ComputeStitchingMask16bits(Image *image)
+{
+  fprintf(stderr, "Masking not supported for this image type (%d bitsPerPixel)\n", (int)image->bitsPerPixel);
   exit(1);
 }
 
-int CreateStitchingMasks(fullPath *fullPathImages, int numberImages)
+
+void ComputeStitchingMask(Image *image)
 {
-  fprintf(stderr,"CreateStitchingMasks this function is not implemented yet\n");
+  if ( image->bitsPerPixel == 32 ) {
+    ComputeStitchingMask8bits(image);
+    return;
+  } else  if ( image->bitsPerPixel == 64 ) {
+    ComputeStitchingMask16bits(image);
+    return;
+  }
+  fprintf(stderr, "Masking not supported for this image type (%d bitsPerPixel)\n", (int)image->bitsPerPixel);
   exit(1);
 }
+
+void SetBestAlphaChannel16bits(unsigned char *imagesBuffer, int numberImages, uint32 imageWidth, int bytesPerLine)
+{
+  assert(0); // it should not be here... yet
+}
+void SetBestAlphaChannel8bits(unsigned char *imagesBuffer, int numberImages, uint32 imageWidth, int bytesPerLine)
+{
+
+  unsigned char *pixel;
+  uint16 *ptrCount;
+  uint16 best;
+  uint16 maskValue;
+  int column;
+  int j;
+
+  
+
+  for  (column=0, pixel = imagesBuffer;  column < imageWidth; column++, pixel +=4) {
+
+    best = 0;
+
+    ptrCount = (uint16*)(pixel + 2);
+
+    maskValue = *ptrCount;
+
+    best = 1;
+
+    // find the image with the highest value
+
+    for (j = 1; j < numberImages; j ++) {
+
+      ptrCount = (uint16*)(pixel + bytesPerLine * j  + 2);
+
+      if (*ptrCount > maskValue) {
+
+	best = j;
+	maskValue = *ptrCount;
+      
+      }
+    } // for j
+
+    if ( maskValue != 0 ) {
+
+      // set the mask of the ones above, but not below... interesting...
+
+      for (j = best+1;  j < numberImages; j ++ ) {
+	unsigned char *pixel2;
+  
+	pixel2 = pixel +  bytesPerLine * j;
+
+	if (0 != *pixel2) {
+	  *pixel2 = 1;
+	} 
+      }
+    }
+  } // for i
+
+}
+
+
+
+void CalculateAlphaChannel(unsigned char *imagesBuffer, int numberImages, uint32 imageWidth, int bytesPerLine, int bitsPerPixel)
+{
+
+  if (bitsPerPixel == 32) {
+    SetBestAlphaChannel8bits(imagesBuffer, numberImages, imageWidth, bytesPerLine);
+  } else if (bitsPerPixel == 64) {
+    SetBestAlphaChannel16bits(imagesBuffer, numberImages, imageWidth, bytesPerLine);
+  } else {
+    fprintf(stderr, "CalculateAlphaChannel not supported for this image type (%d bitsPerPixel)\n", bitsPerPixel);
+    exit(1);
+  }
+}
+
+void ApplyFeather8bits(Image *image, int featherSize)
+{
+
+  fprintf(stderr, "\nFeathering 8 bits not implemented yet\n");
+  
+}
+
+void ApplyFeather16bits(Image *image, int featherSize)
+{
+
+  fprintf(stderr, "\nFeathering 16 bits not implemented yet\n");
+  
+}
+
+
+void ApplyFeather(Image *image, int featherSize)
+{
+
+  //  fprintf(stderr, "To apply feather %d\n", featherSize);
+  if (image->bitsPerPixel == 32) {
+    ApplyFeather8bits(image, featherSize);
+  } else if (image->bitsPerPixel == 64) {
+    ApplyFeather16bits(image, featherSize);
+  } else {
+    fprintf(stderr, "Apply feather not supported for this image type (%d bitsPerPixel)\n", (int)image->bitsPerPixel);
+    exit(1);
+  }
+
+
+}
+
+void TiffSetImageParameters(TIFF *tiffFile, uint32 imageLength, uint32 imageWidth, uint16 bitsPerSample,  uint16 samplesPerPixel, uint32 rowsPerStrip)
+{
+  assert(tiffFile != NULL);
+
+  assert(PHOTOMETRIC_RGB == 2);
+  assert(TIFFTAG_PHOTOMETRIC == 0x106);
+  assert(TIFFTAG_PLANARCONFIG == 0x11c);
+  assert(PLANARCONFIG_CONTIG == 1);
+  assert(0x8005 == COMPRESSION_PACKBITS);
+  assert(TIFFTAG_ORIENTATION == 0x112);
+  assert(TIFFTAG_ROWSPERSTRIP == 0x116);
+  
+  
+  TIFFSetField(tiffFile, TIFFTAG_IMAGEWIDTH, imageWidth);
+  TIFFSetField(tiffFile, TIFFTAG_IMAGELENGTH, imageLength);
+  TIFFSetField(tiffFile, TIFFTAG_BITSPERSAMPLE, bitsPerSample);
+  TIFFSetField(tiffFile, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB);
+  TIFFSetField(tiffFile,  TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
+  TIFFSetField(tiffFile, TIFFTAG_SAMPLESPERPIXEL, samplesPerPixel);
+  TIFFSetField(tiffFile, TIFFTAG_COMPRESSION, COMPRESSION_PACKBITS);
+  TIFFSetField(tiffFile, TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT);
+  TIFFSetField(tiffFile,  TIFFTAG_ROWSPERSTRIP, imageLength);
+
+}
+
+
+
+
+
+int CreateStitchingMasks(  fullPath *fullPathImages, int numberImages)
+{
+  
+  unsigned char *ptrOtherImageData;
+  unsigned char *ptrBuffer;
+  unsigned char *imagesBuffer;
+  fullPath *var08;
+  fullPath *var04;
+  int index;
+  int bytesPerLine;  
+  int bitsPerPixel;
+  //  int bytesPerPixel;
+
+  TIFF **tiffOutputImages;
+  TIFF **tiffImages;
+  TIFF* tiffFile;
+  TIFF *outputTIFFFile;
+  uint16 samplesPerPixel;
+
+  uint16 bitsPerSample;
+  uint32 imageLength;
+  uint32 imageWidth;
+  Image image ;
+  char tempString[512];
+  int j;
+  int i;
+  int row;
+
+
+  if ( numberImages == 0 ) {
+    return 0;
+  }
+
+  SetImageDefaults(&image);
+
+  var04 = calloc(numberImages, sizeof(fullPath));
+
+  if ( var04 == NULL ) {
+    PrintError("Not enough memory");
+    return -1;
+  } 
+
+  if ( quietFlag == 0 ) Progress(0, "Preparing Stitching Masks");
+
+  // for each image, create merging mask and save to temporal file
+  for (index = 0; index < numberImages; index ++ ) {
+    
+    sprintf(tempString, "%d", index * 100/numberImages);
+    
+    if ( quietFlag == 0 ) {
+      if (Progress(_setProgress, tempString) ==0 ) {
+	for (j = 0; j < index; j++) {
+	  remove(var04[j].name);
+	} //for 
+	return -1;
+      }
+    }
+    
+    if (readTIFF(&image, &fullPathImages[index]) != 0) {
+      PrintError("Could not read TIFF-file");
+      return -1;
+    }
+
+    ComputeStitchingMask(&image);
+
+    strcpy(var04[index].name, fullPathImages[0].name); // is this really zero????
+
+    if (makeTempPath(&var04[index]) != 0) {
+      PrintError("Could not make Tempfile");
+      return -1;
+    }
+
+    writeTIFF(&image, &var04[index]);
+    
+    //    fprintf(stderr, "Written to file %s\n", var04[index].name);
+    
+    myfree((void**)image.data);
+
+  } // for (index...
+
+  fprintf(stderr, "Masks have been computed\n");
+  // Get TIFF information
+  
+  if (GetFullPath(&fullPathImages[0], tempString) != 0) {
+    PrintError("Could not get filename");
+    return -1;
+  }
+  //  fprintf(stderr, "Getting image defaults from %s\n", tempString);
+  
+  // Process first TIFF to find common values for images
+
+  if ((tiffFile = TIFFOpen(tempString, "r")) == 0) {
+    PrintError("Could not open TIFF-file");
+    return -1;
+  }
+  
+  TIFFGetField(tiffFile, TIFFTAG_IMAGEWIDTH, &imageWidth);
+  TIFFGetField(tiffFile, TIFFTAG_IMAGELENGTH, &imageLength);
+  TIFFGetField(tiffFile, TIFFTAG_BITSPERSAMPLE, &bitsPerSample);
+  TIFFGetField(tiffFile, TIFFTAG_SAMPLESPERPIXEL, &samplesPerPixel);
+  
+  bitsPerPixel = samplesPerPixel * bitsPerSample;
+  
+  bytesPerLine = TIFFScanlineSize(tiffFile);
+  
+  TIFFClose(tiffFile);
+  
+  // Allocate arrays of TIFF* for the input and output
+  // images. process is one row at a time, with all images
+  // processed at the same time
+  tiffImages = (TIFF**)calloc(numberImages, sizeof(TIFF*));
+  tiffOutputImages = (TIFF**)calloc(numberImages, sizeof(TIFF*));
+  
+  // Allocate space for just another set of temp filenames
+  assert(sizeof(fullPath) == 512);
+  var08 = calloc(numberImages, sizeof(fullPath));
+  
+  if (var08 == NULL ) {
+    PrintError("Not enough memory");
+    return -1;
+  }
+  
+  imagesBuffer = calloc(numberImages, bytesPerLine);
+  
+  if (imagesBuffer == NULL) {
+    PrintError("Not enough memory");
+    return(-1);
+  }
+
+  /// Alpha Channel calculation
+
+  fprintf(stderr, "Start alpha channel calculation\n");
+ 
+  if ( quietFlag == 0 ) {
+    Progress(_initProgress, "Calculating Alpha Channel");
+  }
+    
+  for (index = 0; index < numberImages; index++) {
+
+    uint32 imageWidth;
+      
+    if (GetFullPath(&var04[index], tempString) != 0) {
+      PrintError("Could not get filename");
+      return -1;
+    }
+
+    if ((tiffImages[index] = TIFFOpen(tempString, "r")) == 0) {
+      PrintError("Could not open TIFF-file");
+      return -1;
+    }
+    /// DEBUG
+    TIFFGetField(tiffImages[index], TIFFTAG_IMAGEWIDTH, &imageWidth);
+
+    strcpy(var08[index].name, fullPathImages[0].name);
+
+    if (makeTempPath(&var08[index]) != 0) {
+      PrintError("Could not make Tempfile");
+      return -1;
+    }
+
+    if (GetFullPath(&var08[index], tempString) != 0) {
+      PrintError("Could not get filename");
+      return -1;
+    }
+
+    tiffOutputImages[index] = TIFFOpen(tempString, "w");
+
+   
+    if ( tiffOutputImages[index] == NULL ) {
+      PrintError("Could not create TIFF-file");
+      return -1;
+    }
+
+    TiffSetImageParameters(tiffOutputImages[index], imageLength, imageWidth, bitsPerSample, samplesPerPixel, imageLength);
+
+  }// for index...
+
+
+  fprintf(stderr, "Files have been created, process each row\n");
+ 
+  for (i = 0; i < imageLength; i++) {
+
+    if ( i == (i / 20) * 20 ) {
+
+      sprintf(tempString, "%lu", i * 100/imageLength);
+
+      if ( quietFlag == 0 ) {
+
+	if (Progress(_setProgress, tempString) == 0) {
+
+	  for (index = 0 ; index < numberImages; index ++) {
+
+	    TIFFClose(tiffImages[index]);
+
+	    TIFFClose(tiffOutputImages[index]);
+
+	    remove(var04[index].name);
+
+	    remove(var08[index].name);
+	  }
+	  return -1;
+	}
+      } // if (imagelength...
+    }
+
+    //    fprintf(stderr, "To process row [%d] bytesperline %d\n", i, bytesPerLine);
+
+    for (ptrBuffer = imagesBuffer, index = 0; index < numberImages; index ++, ptrBuffer += bytesPerLine) {
+
+      TIFFReadScanline(tiffImages[index], ptrBuffer, i, 0);
+
+      RGBAtoARGB(ptrBuffer, imageWidth, bitsPerPixel);
+     
+    }
+
+    CalculateAlphaChannel(imagesBuffer, numberImages, imageWidth, bytesPerLine, bitsPerPixel);
+
+    for (index = 0 , ptrBuffer = imagesBuffer; index < numberImages; index ++, ptrBuffer+= bytesPerLine) {
+
+      ARGBtoRGBA(ptrBuffer, imageWidth, bitsPerPixel);
+
+      TIFFWriteScanline(tiffOutputImages[index], ptrBuffer, i, 0);
+     
+    } //for
+   
+  } //for i
+
+  free(imagesBuffer);
+
+  for (index = 0; index < numberImages; index ++) {
+    TIFFClose(tiffImages[index]);
+    TIFFClose(tiffOutputImages[index]);
+    remove(var04[index].name);
+  } // for index.
+
+  // At this point we have 2 files per original image: one with the
+  // pano file, and the other one
+  // with the mask
+
+
+  if ( quietFlag == 0 ) {
+    Progress(_setProgress, "Applying Feather Tool");
+  }
+
+  fprintf(stderr, "Feathering\n");
+
+  for (index = 0; index < numberImages; index ++) {
+
+    sprintf(tempString, "%d", 100 * index/ numberImages);
+
+    if ( quietFlag == 0 ) {
+
+      if (Progress(_setProgress, tempString) == 0) {
+
+	for (j = index; j <= numberImages; j ++) {
+	  remove(var08[j].name);
+	} // for 
+
+	for (j = 0; j < index; j ++) {
+	  remove(var04[j].name);
+	} // for 
+	return -1;
+      }
+
+    }
+
+    if (readTIFF(&image, &var08[index]) != 0) {
+      PrintError("Could not open TIFF-file");
+      return -1;
+    }
+
+    // Apply feather
+
+    ApplyFeather(&image, global5640.feather);
+
+    writeTIFF(&image, &var04[index]);
+
+    myfree((void**)image.data);
+
+    remove(var08[index].name);
+
+  } //for index
+
+  // AT this point the feather has been applied to the mask
+  // We still have 2 files per image
+
+  imagesBuffer = calloc(bytesPerLine * 2, 1);
+ 
+  if (imagesBuffer == NULL) {
+    PrintError("Not enough memory");
+    return -1;
+  }
+
+  //  fprintf(stderr, "Inserting alpha channel\n");
+
+  if ( quietFlag == 0 ) {
+    Progress(_initProgress, "Inserting Alpha Channel");
+  }
+
+  for (index = 0; index < numberImages; index ++) { //
+
+    sprintf(tempString, "%d", index * 100/ numberImages);
+    if ( quietFlag == 0 ) {
+      if (Progress(_setProgress, tempString) == 0) {
+	return -1;
+      }
+    }
+
+    if (GetFullPath(&var08[index], tempString) != 0) {
+      PrintError("Could not get filename");
+    }
+  
+    outputTIFFFile = TIFFOpen(tempString, "w");
+
+    if ( outputTIFFFile == 0 ) {
+      PrintError("Could not create TIFF-file");
+      return -1;
+    }
+
+    if (GetFullPath(&fullPathImages[index], tempString) != 0) {
+      PrintError("Could not get filename");
+      return -1;
+    }
+
+    tiffFile = TIFFOpen(tempString, "r");
+
+    if ( tiffFile == NULL ) {
+      PrintError("Could not open TIFF-file");
+      return -1;
+    }
+
+    if (GetFullPath(&var04[index], tempString) != 0) {
+
+      PrintError("Could not make Tempfile");
+      return -1;
+    }
+
+    tiffImages[index] = TIFFOpen(tempString, "r");
+
+    if (tiffImages[index] == NULL ) {
+      PrintError("Could not open TIFF-file");
+      return -1;
+    }
+
+    TiffSetImageParameters(outputTIFFFile, imageLength, imageWidth, bitsPerSample, samplesPerPixel, imageLength);
+
+    ptrOtherImageData = imagesBuffer + bytesPerLine;
+
+    for (row = 0; row < imageLength; row ++) {
+
+      unsigned char *source;
+      unsigned char *destination;
+
+
+      TIFFReadScanline(tiffFile, imagesBuffer, row, 0);
+
+      TIFFReadScanline(tiffImages[index], ptrOtherImageData, row, 0);
+
+      if ( bitsPerPixel == 32 ) {
+
+	//	imagesBuffer + 3;
+
+	destination = imagesBuffer + 3;
+	source = ptrOtherImageData + 3;
+
+	for (j = 0; j < imageWidth; j ++ ) {
+	  *destination = *source;
+	  destination +=4;
+	  source +=4;
+	} 
+
+      } else {
+
+	destination = imagesBuffer + 6;
+	source = imagesBuffer + bytesPerLine + 6;
+
+	for (j = 0; j < imageWidth ; j ++ ) {
+	  *destination = *source;
+
+	  source += 8;
+	  destination += 8;
+
+	} // for j
+       
+      } // end of if
+
+      TIFFWriteScanline(outputTIFFFile, imagesBuffer, row, 0);
+     
+    } // for 
+
+
+    TIFFClose(tiffImages[index]);
+    remove(var04[index].name);
+
+   
+    TIFFClose(tiffFile);
+    remove(fullPathImages[index].name);
+
+    TIFFClose(outputTIFFFile);
+    rename(var08[index].name, fullPathImages[index].name);
+
+  } // for index
+
+  free(imagesBuffer);
+  free(var04);
+  free(var08);
+  free(tiffImages);
+  free(tiffOutputImages);
+
+  return 0;
+
+}
+
+
 
 int Create_LP_ivr(Image *image, fullPath* fullPathImage)
 {

@@ -1,3 +1,24 @@
+2006-01-15  dmg  <dmgerman@uvic.ca>
+
+	* PTmender.c (CreatePanorama): Found a bug. strcmp did not
+	include ==0.
+	(ComputeStitchingMask8bits): Implemented function.
+	(CalculateAlphaChannel): Implemented function.
+	(SetBestAlphaChannel8bits): Implemented function.
+	(CreateStitchingMasks): Found an error: Progress returns zero
+	when not error, not !=0. Also, I forgot return -1
+	(ApplyFeather): Implemented function.
+	(SetBestAlphaChannel8bits): Fixed a bug in the function. Wrong
+	condition in loop.
+	(PT_MENDER_VERSION):  Bumped version to 0.3. Released.
+
+2006-01-14  dmg  <dmgerman@uvic.ca>
+
+	* PTmender.c (CreatePSD): Implemented function.
+	(TiffSetImageParameters): Added function.
+	(CreateStitchingMasks): Implemented function.
+	(ComputeStitchingMask): Implemented function.
+
 2006-01-12  dmg  <dmgerman@uvic.ca>
 
 	* ColourBrightness.c: Remove fprintfs
