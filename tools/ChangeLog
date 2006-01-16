@@ -1,5 +1,8 @@
 2006-01-15  dmg  <dmgerman@uvic.ca>
 
+	* ColourBrightness.c (Unknown49): Fixed a bug. Unknown49 is
+	identical to Unknown48, not itself!
+
 	* PTmender.c (CreatePanorama): Found a bug. A strcmp did not
 	include ==0.
 	(ComputeStitchingMask8bits): Implemented function.

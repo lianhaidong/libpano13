@@ -742,7 +742,7 @@ histograms_struct *ReadHistograms (fullPath *fullPathImages, int numberImages)
 
   int i;
 
-  int totalPixels = 0, totalPixels2 = 0;
+  int totalPixels = 0;
 
   //  esi = fullPathImages;
 
@@ -1701,7 +1701,7 @@ unsigned char Unknown48(unsigned char parm0, unsigned char parm1, unsigned char 
 
 unsigned char Unknown49(unsigned char parm0, unsigned char parm1, unsigned char parm2)
 {
-  return Unknown49(parm0, parm1, parm2) ;
+  return Unknown48(parm0, parm1, parm2) ;
 }
 
 
