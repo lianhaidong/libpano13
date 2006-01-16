@@ -1,6 +1,6 @@
 2006-01-15  dmg  <dmgerman@uvic.ca>
 
-	* PTmender.c (CreatePanorama): Found a bug. strcmp did not
+	* PTmender.c (CreatePanorama): Found a bug. A strcmp did not
 	include ==0.
 	(ComputeStitchingMask8bits): Implemented function.
 	(CalculateAlphaChannel): Implemented function.
@@ -10,7 +10,7 @@
 	(ApplyFeather): Implemented function.
 	(SetBestAlphaChannel8bits): Fixed a bug in the function. Wrong
 	condition in loop.
-	(PT_MENDER_VERSION):  Bumped version to 0.3. Released.
+	(PT_MENDER_VERSION):  Bumped version to 0.3 "The Mask". Released.
 
 2006-01-14  dmg  <dmgerman@uvic.ca>
 
