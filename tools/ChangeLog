@@ -1,5 +1,8 @@
 2006-01-19  dmg  <dmgerman@uvic.ca>
 
+	* PTblender.c (main): If no files were specified in the command
+	line, then print usage.
+
 	* PTmender.c (main): Used PATH_SEP instead of '/' to get it to
 	work under Windogs. 
 	(CreateStitchingMasks): Removed unnecessary assert.

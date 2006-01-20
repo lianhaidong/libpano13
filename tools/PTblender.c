@@ -132,15 +132,16 @@ int main(int argc,char *argv[])
     }
   }
 
+  if (filesCount <= 0) {
+    PrintError("No files specified in the command line");
+    fprintf(stderr, PT_BLENDER_USAGE);
+    return -1;
+  }
+
   if (referenceImage <0 || referenceImage >= filesCount) {
     sprintf(tempString, "Illegal reference image number %d. It should be between 0 and %d\n", 
 	    referenceImage, filesCount-1);
     PrintError(tempString);
-    return -1;
-  }
-
-  if (filesCount <= 0) {
-    PrintError("No files specified in the command line");
     return -1;
   }
 
