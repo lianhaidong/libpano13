@@ -71,11 +71,11 @@ typedef struct {
 
 histograms_struct*ReadHistograms (fullPath *fullPathImages, int counterImages);
 int               ComputeColourBrightnessCorrection(calla_struct *calla);
-int               CorrectFileColourBrightness(fullPath *path, magnolia_struct *magnolia, int parm3);
+int               CorrectFileColourBrightness(fullPath *inPath, fullPath *outPath, magnolia_struct *magnolia, int parm3);
 int               FindNextCandidate(int candidates[], calla_struct *calla);
 
 magnolia_struct   *InitializeMagnolia(int numberImages, int size, calla_function parm2);
-void              ColourBrightness(  fullPath *fullPathImages, int counterImages, int indexReferenceImage, int parm3);
+void              ColourBrightness(  fullPath *fullPathImages, fullPath *outFullPathImages, int counterImages, int indexReferenceImage, int parm3);
 void              CorrectImageColourBrigthness(Image *image, magnolia_struct *magnolia, int parm3);
 void              FreeHistograms(histograms_struct *ptrHistograms, int count);
 void              RemapHistogram(int *histogram, double *array, magnolia_struct *magnolia, int channel);

@@ -35,7 +35,10 @@ endif
 AM_CPPFLAGS = $(JAVA_FLAGS) $(LIN_DEFS) $(DAR_DEFS) $(TIFF_FLAGS) $(JPEG_FLAGS)
 AM_LDFLAGS  = -L${top_builddir}
 
-bin_PROGRAMS = panoinfo PTOptimizer PTmender
+bin_PROGRAMS = panoinfo PTOptimizer PTmender PTblender
+
+PTblender_SOURCES = PTblender.c ColourBrightness.h ColourBrightness.c
+PTblender_LDADD = -lpano12 -ltiff
 
 PTmender_SOURCES = PTmender.c PTmender.h ColourBrightness.h ColourBrightness.c
 PTmender_LDADD   = -lpano12 -ljpeg -ltiff

@@ -157,7 +157,8 @@ void DisplayHistogramsError(int numberHistograms,   histograms_struct * ptrHisto
 
 
 
-void ColourBrightness(  fullPath *fullPathImages, int counterImages, int indexReferenceImage, int parm3)
+void ColourBrightness(  fullPath *fullPathImages,  fullPath *outputFullPathImages, 
+			 int counterImages, int indexReferenceImage, int parm3)
 {
 
   histograms_struct * ptrHistograms;
@@ -168,7 +169,6 @@ void ColourBrightness(  fullPath *fullPathImages, int counterImages, int indexRe
   char string[128];
   int i;
   extern FILE *debugFile;  // 0x8054600
-
 
   numberHistograms = ((counterImages-1) * counterImages)/2;
 
@@ -268,9 +268,15 @@ void ColourBrightness(  fullPath *fullPathImages, int counterImages, int indexRe
     } //if ( quietFlag == $0x0 )
     
     
-    if ( index != indexReferenceImage ) {
+    if (strcmp(fullPathImages[index].name,
+	       outputFullPathImages[index].name) != 0  ||
+	index != indexReferenceImage ) {
+
+      // Do the correction if the input and output filename are different
+      // or if it is not the reference image
       
-      if (CorrectFileColourBrightness(&fullPathImages[index], &calla.magnolia[index], parm3) != 0)
+      if (CorrectFileColourBrightness(&fullPathImages[index], &outputFullPathImages[index],
+				      &calla.magnolia[index], parm3) != 0)
 	return;
     }  
   } //  for (index = 0;  index <counterImages; index++ ) {
@@ -316,18 +322,19 @@ void FreeHistograms(histograms_struct *ptrHistograms, int count)
 
 
 
-int CorrectFileColourBrightness(fullPath *path, magnolia_struct *magnolia, int parm3)
+int CorrectFileColourBrightness(fullPath *inPath, fullPath *outPath, magnolia_struct *magnolia, int parm3)
 {
   Image image;
- 
-  if (readTIFF (&image, path) != 0) {
-    PrintError("Could not read TIFF file");
+  char tempString[512];
+  if (readTIFF (&image, inPath) != 0) {
+    sprintf(tempString, "Could not read TIFF file %s", inPath->name);
+    PrintError(tempString);
     return -1;
   }   
   
   CorrectImageColourBrigthness(&image, magnolia, parm3);
   
-  writeTIFF(&image, path);
+  writeTIFF(&image, outPath);
 
   myfree((void**)image.data);
   return(0);
@@ -722,6 +729,7 @@ histograms_struct *ReadHistograms (fullPath *fullPathImages, int numberImages)
   uint32 imageLength;
   uint32 imageWidth;
   char  tempString[512];
+  char  tempString2[512];
   int *ptrInt;
 
   histograms_struct * currentHistogram;
@@ -767,7 +775,8 @@ histograms_struct *ReadHistograms (fullPath *fullPathImages, int numberImages)
     }
     
     if ((ptrTIFFs[currentImage] = TIFFOpen(tempString, "r")) == NULL) {
-      PrintError("Could not open TIFF-file");
+      sprintf(tempString2, "Coult not open TIFF file [%s]", tempString);
+      PrintError(tempString2);
       return NULL;
     }
     
@@ -2235,3 +2244,22 @@ void Unknown41(double *sourceHistogram, double *targetHistogram, double *magnoli
 
 }
 #endif
+
+
+/*
+ * replace the extension in filename with
+   extension
+*/
+void ReplaceExt(char* filename, char *extension)
+{
+  char *temp;
+  temp = strrchr(filename, '.');
+  if (temp != NULL) {
+    strcpy(temp, extension);
+  } else {
+    strcat(filename, extension);
+  }
+  return;
+}
+
+	

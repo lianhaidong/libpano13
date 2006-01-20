@@ -1,3 +1,25 @@
+2006-01-19  dmg  <dmgerman@uvic.ca>
+
+	* PTmender.c (main): Used PATH_SEP instead of '/' to get it to
+	work under Windogs. 
+	(CreateStitchingMasks): Removed unnecessary assert.
+
+	* PTblender.c: Added program.
+
+	* PTmender.c (CreatePanorama): Changed call to
+	ColourBrightness to match new prototype. See below.  Moved
+	ReplaceExt from to ColourBrightness.
+
+	* ColourBrightness.h: Changed prototypes (see below).
+
+	* ColourBrightness.c (CorrectFileColourBrightness): Add an extra
+	parameter to handle different input and output file names.
+	(ColourBrightness): Added an extra parameter to handle different
+	input and output filename. If the input filename is different from
+	output, then process file. 
+	(ReplaceExt): Moved it here from
+	PTmender.c
+
 2006-01-15  dmg  <dmgerman@uvic.ca>
 
 	* ColourBrightness.c: Removed useless comments.

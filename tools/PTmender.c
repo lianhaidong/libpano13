@@ -244,7 +244,7 @@ int main(int argc,char *argv[])
 
     /* Then append/replace the filename */
     
-    if ((temp = strrchr(scriptFileName.name, '/')) != NULL) {
+    if ((temp = strrchr(scriptFileName.name, PATH_SEP)) != NULL) {
       temp++;
     }
 
@@ -844,15 +844,15 @@ I AM NOT TOTALLY SURE ABOUT THIS
   // that do not need any brightness adjustments
 
   if (var00 != 0) {
-    ColourBrightness(fullPathImages,counterImageFiles, var00 -1, 1);
+    ColourBrightness(fullPathImages,fullPathImages, counterImageFiles, var00 -1, 1);
   }
   
   if (var01 != 0) { //
-    ColourBrightness(fullPathImages, counterImageFiles, var01 - 1, 2);
+    ColourBrightness(fullPathImages, fullPathImages, counterImageFiles, var01 - 1, 2);
   } // 
 
   if (colourCorrection != 0) {
-    ColourBrightness(fullPathImages,counterImageFiles, (colourCorrection / 4) - 1, 0);
+    ColourBrightness(fullPathImages, fullPathImages, counterImageFiles, (colourCorrection / 4) - 1, 0);
   }
 
   SetVRPanoOptionsDefaults(&defaultVRPanoOptions);
@@ -1094,22 +1094,6 @@ void InsertFileName(char *fullPathName, char* newBaseFileName)
   strcpy(temp, newBaseFileName);
 }
 #endif
-
-/*
- * replace the extension in filename with
-   extension
-*/
-void ReplaceExt(char* filename, char *extension)
-{
-  char *temp;
-  temp = strrchr(filename, '.');
-  if (temp != NULL) {
-    strcpy(temp, extension);
-  } else {
-    strcat(filename, extension);
-  }
-  return;
-}
 
 
 // These are dummy functions to stop the linker from complaining. THEY need to be implemented at some time
@@ -1719,7 +1703,6 @@ int CreateStitchingMasks(  fullPath *fullPathImages, int numberImages)
   tiffOutputImages = (TIFF**)calloc(numberImages, sizeof(TIFF*));
   
   // Allocate space for just another set of temp filenames
-  assert(sizeof(fullPath) == 512);
   var08 = calloc(numberImages, sizeof(fullPath));
   
   if (var08 == NULL ) {
