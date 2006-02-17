@@ -39,9 +39,8 @@
 #include <filter.h>
 #include "panorama.h"
 
-
-
 #include "PTmender.h"
+#include "PTcommon.h"
 #include "ColourBrightness.h"
 
 FILE *debugFile;
@@ -50,7 +49,6 @@ FILE *debugFile;
 #ifdef __TESTING__
 #include <dmalloc.h>
 #endif
-
 
 
 magnolia_struct *InitializeMagnolia(int numberImages, int size, calla_function parm2)
@@ -731,7 +729,6 @@ histograms_struct *ReadHistograms (fullPath *fullPathImages, int numberImages)
   char  tempString[512];
   char  tempString2[512];
   int *ptrInt;
-
   histograms_struct * currentHistogram;
   histograms_struct * saveReturnValue;
 
@@ -797,6 +794,7 @@ histograms_struct *ReadHistograms (fullPath *fullPathImages, int numberImages)
   imagesDataBuffer = calloc(numberImages, bytesPerLine);
 
   if ( imagesDataBuffer == 0 ) {
+    PrintError("Not enough memory");
     return NULL;
   }
 
@@ -1646,9 +1644,7 @@ unsigned char Unknown47(unsigned char parm0, unsigned char parm1, unsigned char 
 
   ecx = ecx * 3;
   ecx = ecx + 2 * eax - 256;
-  ecx = ecx + 2 * edx - 256;
-
-  ecx /= 3;
+  ecx = (ecx + 2 * edx - 256) * 2 /3;
 
   if (ecx >= 0) {
     if (ecx > 0xff) 
@@ -1664,21 +1660,19 @@ unsigned char Unknown47(unsigned char parm0, unsigned char parm1, unsigned char 
 
 unsigned char Unknown48(unsigned char parm0, unsigned char parm1, unsigned char parm2) 
 {
-  int   eax = parm1;
-  int edx = parm2;
-  int ecx = parm0;
+  //     (3a - 4b + 512 + 2c - 256) * (2/3)
+  //  => (3a - 4b + 2c + 256) * (2/3)
+  //  if a = b = c
+  // =>  (3a -4a + 2a + 256) * (2/3 => (a +256) * 2/3
 
 
-  ecx = ecx * 3;
+  int ecx;
 
-  eax = eax * 4 - 512;
+  ecx = parm0 * 3 - (parm1 * 4 - 512);
 
-  ecx -= eax * 4 - 512;
-
-  ecx = ecx + 2 * edx  - 256;
-
-  ecx /= 3;
-
+  ecx = (ecx + 2 * parm2  - 256);
+    
+  ecx = (ecx * 2)/3;
 
   if (ecx < 0) {
     return 0;
@@ -2262,4 +2256,3 @@ void ReplaceExt(char* filename, char *extension)
   return;
 }
 
-	

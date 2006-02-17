@@ -1,3 +1,30 @@
+2006-01-23  dmg  <dmgerman@uvic.ca>
+
+	* PTblender.c (main): There was an extra colon in the spec of the
+	command line options (reported by josh at joshdoe com)
+
+	* PTcommon.c (SetBestAlphaChannel8bits): Fixed minor bug.
+
+2006-01-20  dmg  <dmgerman@uvic.ca>
+
+	* Makefile.am (bin_PROGRAMS): Added PTtiff2psd.
+
+	* PTblender.c (main): Freed pointers. Added call to
+	VerifyTiffsAreCompatible.  Added include to PTcommon.h
+	
+	* PTmender.h: Moved quietFlag from this one to PTcommon.h
+
+	* PTmender.c: Added include to PTcommon.h, extracted CreatePSD,
+	and CreateStitchingMasks.
+
+	* PTtiff2psd.c: Created program.
+
+	* PTcommon.h (VerifyTiffsAreCompatible): Created file, added
+	prototypes.
+
+	* PTcommon.c (VerifyTiffsAreCompatible): Created file, and added
+	function. Moved CreatePSD and CreateStitchingMasks from PTmender.c.
+
 2006-01-19  dmg  <dmgerman@uvic.ca>
 
 	* PTblender.c (main): If no files were specified in the command

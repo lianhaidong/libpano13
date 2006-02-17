@@ -40,6 +40,7 @@
 
 #include "filter.h"
 #include "panorama.h"
+#include "PTcommon.h"
 #include "ColourBrightness.h"
 
 int quietFlag = 0;
@@ -80,7 +81,7 @@ int main(int argc,char *argv[])
 
   strcpy(outputPrefix, "corrected%4d");
 
-  while ((opt = getopt(argc, argv, "o::k:hqc")) != -1) {
+  while ((opt = getopt(argc, argv, "o:k:hqc")) != -1) {
 
 // o and f -> set output file
 // h       -> help
@@ -173,7 +174,15 @@ int main(int argc,char *argv[])
 
   }
 
+  if (!VerifyTiffsAreCompatible(ptrInputFiles, filesCount)) {
+    PrintError("TIFFs are not compatible");
+    return -1;
+  }
+
   ColourBrightness(ptrInputFiles, ptrOutputFiles, filesCount, referenceImage, 0);
+
+  free(ptrInputFiles);
+  free(ptrOutputFiles);
 
   return 0;
   
