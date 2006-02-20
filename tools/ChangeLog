@@ -14,7 +14,7 @@
 
 	* PTmender.c: Removed test code for TEST_ENABLE_COLOUR_CORRECTION
 
-	Changes submitted by Max Lyonx:
+	Changes submitted by Max Lyons:
 	
 	* PTcommon.c: Moved InsertFileName to this file from
 	PTmender.c. It should be compiled only under Windows.
