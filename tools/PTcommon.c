@@ -180,7 +180,7 @@ int VerifyTiffsAreCompatible(fullPath *tiffFiles, int numberImages)
       errorMsg = "Image 0 and %d do have the same colour depth\n";
     } else if (firstFileParms.bytesPerLine  != otherFileParms.bytesPerLine) {
       errorMsg = "Image 0 and %d do have the same scan line size\n";
-      } else {
+    } else {
       ;
     }
     if (errorMsg != NULL) {
@@ -840,7 +840,6 @@ static void SetBestAlphaChannel16bits(unsigned char *imagesBuffer, int numberIma
 }
 static void SetBestAlphaChannel8bits(unsigned char *imagesBuffer, int numberImages, pt_tiff_parms *imageParms)
 {
-
   unsigned char *pixel;
   uint16 *ptrCount;
   uint16 best;
@@ -848,14 +847,11 @@ static void SetBestAlphaChannel8bits(unsigned char *imagesBuffer, int numberImag
   int column;
   int j;
 
-  
 
   for  (column=0, pixel = imagesBuffer;  column < imageParms->imageWidth; column++, pixel +=4) {
 
     best = 0;
-
     ptrCount = (uint16*)(pixel + 2);
-
     maskValue = *ptrCount;
 
     // find the image with the highest value
@@ -1103,7 +1099,8 @@ int AddStitchingMasks(fullPath *inputFiles, fullPath *outputFiles, int numberIma
     PrintError("Could not create the stitching masks");
     return -1;
   }
-  exit(1);
+  //  exit(1);
+
   // Get TIFF information
   
   if (!TiffGetImageParametersFromPathName(&inputFiles[0], &imageParameters)) {
@@ -1135,8 +1132,6 @@ int AddStitchingMasks(fullPath *inputFiles, fullPath *outputFiles, int numberIma
 	return -1;
       }
     }
-
-
 
     // We no longer need the mask files
     remove(maskFiles[i].name);
@@ -1174,3 +1169,21 @@ int AddStitchingMasks(fullPath *inputFiles, fullPath *outputFiles, int numberIma
   return 0;
 
 }
+
+#ifdef __Win__
+// For some reason this function is not defined for Windows, but it is
+// defined in libpano for other architectures/OSs
+
+void InsertFileName(char *fullPathName, char* newBaseFileName)
+{
+  char *temp;
+  if ((temp = strrchr(fullPathName, PATH_SEP)) != 0) {
+    temp++;
+   } else {
+    temp = fullPathName;
+  }
+  strcpy(temp, newBaseFileName);
+}
+
+#endif
+

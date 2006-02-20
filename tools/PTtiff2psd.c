@@ -47,7 +47,7 @@ int quietFlag = 0;
 
 #define PT_TIFF2PSD_USAGE "PTtiff2psd [options] <tiffFiles>+\n\n"\
                          "Options:\n"\
-			 "\t-o <filename>\tOutput filename\n"\
+			 "\t-o <filename>\tOutput filename (default merged.psd)\n"\
                          "\t-m\t\tAdd stitching mask"\
                          "\t-q\t\tQuiet run\n"\
                          "\t-r\t\tReverse layers\n"\

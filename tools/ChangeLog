@@ -1,3 +1,26 @@
+2006-02-20  dmg  <dmgerman@uvic.ca>
+
+	* PTcommon.c (AddStitchingMasks): Removed exit that I was using
+	during debugging.
+
+	* PTtiff2psd.c (PT_TIFF2PSD_USAGE): Added name of default output file.
+
+	* PTmender.c (ComputeStitchingMask8bits,
+	ComputeStitchingMask16bits,
+	ComputeStitchingMask,SetBestAlphaChannel16bits,
+	SetBestAlphaChannel8bits, CalculateAlphaChannel,
+	ApplyFeather8bits, ApplyFeather16bits, ApplyFeather): Removed
+	functions, they are  already in PTcommon.c
+
+	* PTmender.c: Removed test code for TEST_ENABLE_COLOUR_CORRECTION
+
+	Changes submitted by Max Lyonx:
+	
+	* PTcommon.c: Moved InsertFileName to this file from
+	PTmender.c. It should be compiled only under Windows.
+
+	* PTmender.c (main): Changed 0x6f for 'o'.
+
 2006-01-23  dmg  <dmgerman@uvic.ca>
 
 	* PTblender.c (main): There was an extra colon in the spec of the
@@ -23,7 +46,8 @@
 	prototypes.
 
 	* PTcommon.c (VerifyTiffsAreCompatible): Created file, and added
-	function. Moved CreatePSD and CreateStitchingMasks from PTmender.c.
+	functions. Moved CreatePSD and CreateStitchingMasks, and the
+	functions they use from PTmender.c.
 
 2006-01-19  dmg  <dmgerman@uvic.ca>
 
