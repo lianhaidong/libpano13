@@ -1171,19 +1171,11 @@ int AddStitchingMasks(fullPath *inputFiles, fullPath *outputFiles, int numberIma
 }
 
 #ifdef __Win__
-// For some reason this function is not defined for Windows, but it is
-// defined in libpano for other architectures/OSs
-
-void InsertFileName(char *fullPathName, char* newBaseFileName)
-{
-  char *temp;
-  if ((temp = strrchr(fullPathName, PATH_SEP)) != 0) {
-    temp++;
-   } else {
-    temp = fullPathName;
-  }
-  strcpy(temp, newBaseFileName);
-}
-
+void InsertFileName( fullPath *fp, char *fname ){
+	char *c = strrchr((char*)(fp->name), PATH_SEP);
+	if(c != NULL) c++;
+	else c = fp->name;
+	strcpy( c, fname );
+}	
 #endif
 

@@ -1,3 +1,8 @@
+2006-02-21  dmg  <dmgerman@uvic.ca>
+
+	* PTcommon.c: Replaced InsertFileName with the one from
+	ptpicker.c (patch submitted by Max Lyons)
+
 2006-02-20  dmg  <dmgerman@uvic.ca>
 
 	* PTcommon.c (AddStitchingMasks): Removed exit that I was using
