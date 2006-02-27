@@ -116,6 +116,7 @@ TStringFeature stringFeatures[]={
   {"BMPrev", "Jim Watters, correctly open BMP files created with rows in reverse order"},
   {"Tiff32", "Thomas Rauscher, Load and save TIFF 32-bit with IEEE floats, http://www.pano2qtvr.com/dll_patch/"},
   {"AntiAliasing", "Thomas Rauscher, New antialiasing filter for adjust, http://www.pano2qtvr.com/dll_patch/"},
+  {"HDRFile", "Thomas Rauscher, Load and save Radiance HDR files, http://www.pano2qtvr.com/dll_patch/"},
   {"Patch200505", "Douglas Wilkins, Correct behaviour when mode = _usedata"},
 #ifdef HasJava
   {"Patch200504a", "Douglas Wilkins, Java support enabled"},

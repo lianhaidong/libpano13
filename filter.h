@@ -642,6 +642,10 @@ int 	LaunchAndSendScript(char* application, char* script);
 aPrefs* readAdjustLine( fullPath *theScript );
 //int	readtif(Image *im, TIFF* tif);
 
+// Read and Write Radiance HDR files
+int 	writeHDR			( Image *im, fullPath *sfile );
+int 	readHDR				( Image *im, fullPath *sfile );
+
 #define FullPathtoString( path, string ) 		GetFullPath( path, string)
 
 

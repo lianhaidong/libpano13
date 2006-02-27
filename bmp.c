@@ -368,7 +368,7 @@ int readImage( Image *im, fullPath *sfile )
 	ext = strrchr( sfile->name, '.' );
 	if( ext == NULL || strlen(ext) != 4 )
 	{
-		PrintError("File must have extension JPG, PNG, TIF or BMP");
+		PrintError("File must have extension JPG, PNG, TIF, BMP or HDR");
 		return -1;
 	}
 	ext++;
@@ -385,9 +385,11 @@ int readImage( Image *im, fullPath *sfile )
 		return readTIFF(im, sfile );
 	else if( strcmp( extension, "png" ) == 0 )
 		return readPNG(im, sfile );
+	else if( strcmp( extension, "hdr" ) == 0 )
+		return readHDR(im, sfile );
 	else
 	{
-		PrintError("Unsupported File Format: Must be JPEG, PNG, TIFF or BMP");
+		PrintError("Unsupported File Format: Must be JPEG, PNG, TIFF, BMP or HDR");
 		return -1;
 	}
 }
@@ -395,7 +397,27 @@ int readImage( Image *im, fullPath *sfile )
 
 int writeImage( Image *im, fullPath *sfile )
 {
+	char *ext,extension[4];
+	int i;
+	
+	ext = strrchr( sfile->name, '.' );
+	ext++;
+	strcpy( extension, ext );
+	for(i=0; i<3; i++)
+		extension[i] = tolower(extension[i]);
+
+	
+	if( strcmp( extension, "jpg" ) == 0 )
+		return writeJPEG(im, sfile, 90, 0 );
+	else if( strcmp( extension, "tif" ) == 0 )
+		return writeTIFF(im, sfile );
+	else if( strcmp( extension, "png" ) == 0 )
+		return writePNG(im, sfile );
+	else if( strcmp( extension, "hdr" ) == 0 )
+		return writeHDR(im, sfile );
+	else {
 	return writeBMP( im, sfile );
+	}
 }
 
 

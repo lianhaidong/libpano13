@@ -4,7 +4,7 @@ STD_SRC = filter.c parser.c queryfeature.c correct.c perspect.c \
 	  adjust.c  remap.c lmdif.c  file.c \
 	  math.c pan.c PTDialogs.c fftn.c fourier.c resample.c \
 	  optimize.c morpher.c Triangulate.c \
-	  seamer.c \
+	  seamer.c hdrfile.c rgbe.c rgbe.h \
 	  tiff.c ZComb.c jpeg.c png.c  multilayer.c 
 
 if HasJava

@@ -345,10 +345,17 @@ unsigned short gamma_correct( double pix )
 	return (glu.Gamma)[ k ] ;
 }
 
+#define gamma_char(pix) gamma_correct(pix)
+#define gamma_short(pix) gamma_correct(pix)
+#define gamma_float(pix) pix
 
+#define degamma_char(pix) glu.DeGamma[pix]
+#define degamma_short(pix) glu.DeGamma[pix]
+#define degamma_float(pix) pix
 
 
 /////////// N x N Sampler /////////////////////////////////////////////
+
 
 #define RESAMPLE_N( intpol, ndim, psize )                               \
     double ya[ndim];                                                    \
@@ -359,8 +366,6 @@ unsigned short gamma_correct( double pix )
     register unsigned psize *r, *ri;                                    \
     register unsigned psize *tdst;                                      \
     int alpha_ok = TRUE;                                                \
-    const unsigned psize maxalpha = (unsigned psize)-1;                 \
-    const unsigned psize threshold = maxalpha - (maxalpha/16);          \
                                                                         \
     intpol( Dx, w, ndim )                                               \
     if( color == 0)                                                     \
@@ -382,16 +387,16 @@ unsigned short gamma_correct( double pix )
                     else                                                \
                     {                                                   \
                         ad += weight;                                   \
-                        rd += glu.DeGamma[(int)*ri++] * weight;         \
-                        gd += glu.DeGamma[(int)*ri++] * weight;         \
-                        bd += glu.DeGamma[(int)*ri]   * weight;         \
+						rd += degamma_##psize((int)*ri++) * weight;         \
+						gd += degamma_##psize((int)*ri++) * weight;         \
+						bd += degamma_##psize((int)*ri)   * weight;         \
                     }                                                   \
                 }                                                       \
                 else                                                    \
                 {                                                       \
-                    rd += glu.DeGamma[(int)*ri++] * weight;             \
-                    gd += glu.DeGamma[(int)*ri++] * weight;             \
-                    bd += glu.DeGamma[(int)*ri]   * weight;             \
+					rd += degamma_##psize((int)*ri++) * weight;             \
+					gd += degamma_##psize((int)*ri++) * weight;             \
+					bd += degamma_##psize((int)*ri)   * weight;             \
                 }                                                       \
             }                                                           \
             ya[k] = ad;                                                 \
@@ -435,9 +440,9 @@ unsigned short gamma_correct( double pix )
             else                                                        \
                 *tdst++  =  0;                                          \
         }                                                               \
-        *tdst++   =   gamma_correct( rd );                              \
-        *tdst++   =   gamma_correct( gd );                              \
-        *tdst     =   gamma_correct( bd );                              \
+		*tdst++   =   gamma_##psize( rd );                              \
+		*tdst++   =   gamma_##psize( gd );                              \
+		*tdst     =   gamma_##psize( bd );                              \
     }                                                                   \
     else if (color < 4)                                                 \
     {                                                                   \
@@ -449,7 +454,7 @@ unsigned short gamma_correct( double pix )
                                                                         \
             for(i=0; i<ndim; i++)                                       \
             {                                                           \
-                yr[k] += glu.DeGamma[(int)r[i*SamplesPerPixel]] * w[i]; \
+                yr[k] += degamma_##psize((int)r[i*SamplesPerPixel]) * w[i]; \
             }                                                           \
         }                                                               \
                                                                         \
@@ -464,7 +469,7 @@ unsigned short gamma_correct( double pix )
         if(SamplesPerPixel==4)                                          \
             *tdst++  =  maxalpha;                                       \
                                                                         \
-        *(tdst+color)  =    gamma_correct( rd );                        \
+        *(tdst+color)  =    gamma_##psize( rd );                        \
     }                                                                   \
     else                                                                \
     {                                                                   \
@@ -477,9 +482,9 @@ unsigned short gamma_correct( double pix )
             {                                                           \
                 weight = w[ i ];                                        \
                 ri     = r + i * SamplesPerPixel;                       \
-                rd += glu.DeGamma[(int)*ri++] * weight;                 \
-                gd += glu.DeGamma[(int)*ri++] * weight;                 \
-                bd += glu.DeGamma[(int)*ri]   * weight;                 \
+                rd += degamma_##psize((int)*ri++) * weight;                 \
+                gd += degamma_##psize((int)*ri++) * weight;                 \
+                bd += degamma_##psize((int)*ri)   * weight;                 \
             }                                                           \
             yr[k] = rd; yg[k] = gd; yb[k] = bd;                         \
         }                                                               \
@@ -501,22 +506,22 @@ unsigned short gamma_correct( double pix )
                                                                         \
         if (color==4) /* Red+Grn */                                     \
         {                                                               \
-            *tdst++   =   gamma_correct( rd );                          \
-            *tdst     =   gamma_correct( gd );                          \
+            *tdst++   =   gamma_##psize( rd );                          \
+            *tdst     =   gamma_##psize( gd );                          \
             /*                              blue untouched */           \
         }                                                               \
         else                                                            \
         if (color==5) /* Red+Blue */                                    \
         {                                                               \
-            *tdst++   =   gamma_correct( rd );                          \
+            *tdst++   =   gamma_##psize( rd );                          \
              tdst++;  /* green untouched */                             \
-            *tdst     =   gamma_correct( bd );                          \
+            *tdst     =   gamma_##psize( bd );                          \
         }                                                               \
         else /* (color=6) Green+Blue */                                 \
         {                                                               \
              tdst++;  /* red untouched */                               \
-            *tdst++   =   gamma_correct( gd );                          \
-            *tdst     =   gamma_correct( bd );                          \
+            *tdst++   =   gamma_##psize( gd );                          \
+            *tdst     =   gamma_##psize( bd );                          \
         }                                                               \
                                                                         \
     }                                                                   \
@@ -560,6 +565,8 @@ static double cubic12( double x )
 
 // ---------- Sampling functions ----------------------------------
 
+#define maxalpha  255
+#define threshold (maxalpha / 16)
 
 // Nearest neighbor sampling, nowhere used (yet)
 
@@ -621,6 +628,9 @@ static void sinc1024( unsigned char *dst, unsigned char **rgb,
 
 //--------------- Same as above, for shorts (16 bit channel size-------------------
 
+#undef maxalpha
+#define maxalpha  65535
+
 // Nearest neighbor sampling, nowhere used (yet)
 
 static void nn_16( unsigned char *dst, unsigned char **rgb, 
@@ -679,6 +689,70 @@ static void sinc1024_16( unsigned char *dst, unsigned char **rgb,
 		register double Dx, register double Dy,	int color, int SamplesPerPixel)
 		{	RESAMPLE_N( SINC, 32, short) 	}
 		
+//--------------- Same as above, for float -------------------
+
+#undef maxalpha
+#define maxalpha  1.0
+
+// Nearest neighbor sampling, nowhere used (yet)
+
+static void nn_32( unsigned char *dst, unsigned char **rgb, 
+		register double Dx PT_UNUSED, register double Dy PT_UNUSED,
+		int color, int SamplesPerPixel)
+		{
+			RESAMPLE_N( NNEIGHBOR, 1, float)	}
+
+// Bilinear sampling, nowhere used (yet).
+
+static void bil_32( unsigned char *dst, unsigned char **rgb,  
+		register double Dx, register double Dy,	int color, int SamplesPerPixel)
+		{	RESAMPLE_N( BILINEAR, 2, float) 	}
+
+
+// Lowest quality sampler in distribution; since version 1.8b1 changed to closely
+// resemble Photoshop's bicubic interpolation
+
+static void poly3_32( unsigned char *dst, unsigned char **rgb,  
+		register double Dx, register double Dy,	int color, int SamplesPerPixel)
+		{	RESAMPLE_N( CUBIC, 4, float) 	}
+
+
+// Spline using 16 pixels; smoother and less artefacts than poly3, softer; same speed
+
+static void spline16_32( unsigned char *dst, unsigned char **rgb,  
+		register double Dx, register double Dy,	int color, int SamplesPerPixel)
+		{	RESAMPLE_N( SPLINE16, 4, float) 	}
+
+// Spline using 36 pixels; significantly sharper than both poly3 and spline16,
+// almost no artefacts
+
+static void spline36_32( unsigned char *dst, unsigned char **rgb,  
+		register double Dx, register double Dy,	int color, int SamplesPerPixel)
+		{	RESAMPLE_N( SPLINE36, 6, float) 	}
+
+// Not used anymore
+
+static void spline64_32( unsigned char *dst, unsigned char **rgb,  
+		register double Dx, register double Dy,	int color, int SamplesPerPixel)
+		{	RESAMPLE_N( SPLINE64, 8, float) 	}
+
+
+// Highest quality sampler since version 1.8b1
+// Extremely slow, but defintely worth every second.
+
+static void sinc256_32( unsigned char *dst, unsigned char **rgb,  
+		register double Dx, register double Dy,	int color, int SamplesPerPixel)
+		{	RESAMPLE_N( SINC, 16, float) 	}
+		
+
+// Highest quality sampler since version 1.8b1
+// Extremely slow, but defintely worth every second.
+
+static void sinc1024_32( unsigned char *dst, unsigned char **rgb,  
+		register double Dx, register double Dy,	int color, int SamplesPerPixel)
+		{	RESAMPLE_N( SINC, 32, float) 	}
+		
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // FS+ start of functions used to compute the pixel tranform from dest to source using linear interpolation
@@ -952,6 +1026,8 @@ void MyTransForm( TrformStr *TrPtr, fDesc *fD, int color, int imageNum)
 	// FS-
 
 	switch( TrPtr->src->bitsPerPixel ){
+		case 128:	FirstColorByte = 4; BytesPerPixel = 16; SamplesPerPixel = 4; BytesPerSample = 4; break;
+		case  96:	FirstColorByte = 0; BytesPerPixel = 12; SamplesPerPixel = 3; BytesPerSample = 4; break;
 		case 64:	FirstColorByte = 2; BytesPerPixel = 8; SamplesPerPixel = 4; BytesPerSample = 2; break;
 		case 48:	FirstColorByte = 0; BytesPerPixel = 6; SamplesPerPixel = 3; BytesPerSample = 2; break;
 		case 32:	FirstColorByte = 1; BytesPerPixel = 4; SamplesPerPixel = 4; BytesPerSample = 1; break;
@@ -965,35 +1041,51 @@ void MyTransForm( TrformStr *TrPtr, fDesc *fD, int color, int imageNum)
 	// Set interpolator etc:
 	switch( TrPtr->interpolator ){
 		case _poly3:// Third order polynomial fitting 16 nearest pixels
-			if( BytesPerSample == 1 ) intp = poly3; else intp = poly3_16;		
+			if( BytesPerSample == 1 ) intp = poly3; 
+			if( BytesPerSample == 2 ) intp = poly3_16;		
+			if( BytesPerSample == 4 ) intp = poly3_32;		
 			n = 4;
 			break;
 		case _spline16:// Cubic Spline fitting 16 nearest pixels
-			if( BytesPerSample == 1 ) intp = spline16; else intp = spline16_16;		
+			if( BytesPerSample == 1 ) intp = spline16;
+			if( BytesPerSample == 2 ) intp = spline16_16;
+			if( BytesPerSample == 4 ) intp = spline16_32;
 			n = 4;
 			break;
 		case _spline36:	// Cubic Spline fitting 36 nearest pixels
-			if( BytesPerSample == 1 ) intp = spline36; else intp = spline36_16;		
+			if( BytesPerSample == 1 ) intp = spline36;
+			if( BytesPerSample == 2 ) intp = spline36_16;
+			if( BytesPerSample == 4 ) intp = spline36_32;
 			n = 6;
 			break;
 		case _spline64:	// Cubic Spline fitting 64 nearest pixels
-			if( BytesPerSample == 1 ) intp = spline64; else intp = spline64_16;	
+			if( BytesPerSample == 1 ) intp = spline64;
+			if( BytesPerSample == 2 ) intp = spline64_16;
+			if( BytesPerSample == 4 ) intp = spline64_32;
 			n = 8;
 			break;
 		case _sinc256:	// sinc windowed to 256 (2*8)^2 pixels
-			if( BytesPerSample == 1 ) intp = sinc256; else intp = sinc256_16;	
+			if( BytesPerSample == 1 ) intp = sinc256;
+			if( BytesPerSample == 2 ) intp = sinc256_16;
+			if( BytesPerSample == 4 ) intp = sinc256_32;
 			n = 16;
 			break;
 		case _sinc1024:	// sinc windowed to 1024 (2*16)^2 pixels
-			if( BytesPerSample == 1 ) intp = sinc1024; else intp = sinc1024_16;	
+			if( BytesPerSample == 1 ) intp = sinc1024;
+			if( BytesPerSample == 2 ) intp = sinc1024_16;
+			if( BytesPerSample == 4 ) intp = sinc1024_32;
 			n = 32;
 			break;
 		case _bilinear:	// Bilinear fit using 4 nearest points
-			if( BytesPerSample == 1 ) intp = bil; else intp = bil_16;	
+			if( BytesPerSample == 1 ) intp = bil;
+			if( BytesPerSample == 2 ) intp = bil_16;
+			if( BytesPerSample == 4 ) intp = bil_32;
 			n = 2;
 			break;
 		case _nn:// nearest neighbor fit using 4 nearest points
-			if( BytesPerSample == 1 ) intp = nn; else intp = nn_16;	
+			if( BytesPerSample == 1 ) intp = nn;
+			if( BytesPerSample == 2 ) intp = nn_16;
+			if( BytesPerSample == 4 ) intp = nn_32;
 			n = 1;
 			break;
 		default: 
@@ -1082,10 +1174,12 @@ void MyTransForm( TrformStr *TrPtr, fDesc *fD, int color, int imageNum)
 	else
 		theGamma = 1.0;
 	
+	if (BytesPerSample<=2) { // No Gammatable for float!
 	if( SetUpGamma( theGamma, BytesPerSample) != 0 ){
 		PrintError( "Could not set up lookup table for Gamma Correction" );
 		TrPtr->success = 0;
 		goto Trform_exit;
+	}
 	}
 
 	// FS+ allocates the temporary arrays
@@ -2251,15 +2345,15 @@ void transForm_aa( TrformStr *TrPtr, fDesc *fD,fDesc *finvD, int color, int imag
 									*aadst++=UCHAR_MAX;		 // Set alpha channel
 								}
 								if ((color==0) || (color==1) || (color==4) || (color==5)) {
-									*aadst  =   gamma_correct( rd/weight );
+									*aadst  =   gamma_char( rd/weight );
 								}
 								aadst++;
 								if ((color==0) || (color==2) || (color==4) || (color==6)) {
-									*aadst  =   gamma_correct( gd/weight );
+									*aadst  =   gamma_char( gd/weight );
 								}
 								aadst++;
 								if ((color==0) || (color==3) || (color==5) || (color==6)) {
-									*aadst  =   gamma_correct( bd/weight );
+									*aadst  =   gamma_char( bd/weight );
 								}
 							}
 							break;
@@ -2269,15 +2363,15 @@ void transForm_aa( TrformStr *TrPtr, fDesc *fD,fDesc *finvD, int color, int imag
 									*aadst++=USHRT_MAX;		 // Set alpha channel
 								}
 								if ((color==0) || (color==1) || (color==4) || (color==5)) {
-									*aadst  =   gamma_correct( rd/weight );
+									*aadst  =   gamma_short( rd/weight );
 								}
 								aadst++;
 								if ((color==0) || (color==2) || (color==4) || (color==6)) {
-									*aadst  =   gamma_correct( gd/weight );
+									*aadst  =   gamma_short( gd/weight );
 								}
 								aadst++;
 								if ((color==0) || (color==3) || (color==5) || (color==6)) {
-									*aadst  =   gamma_correct( bd/weight );
+									*aadst  =   gamma_short( bd/weight );
 								}
 							}
 							break;
@@ -2287,15 +2381,15 @@ void transForm_aa( TrformStr *TrPtr, fDesc *fD,fDesc *finvD, int color, int imag
 									*aadst++=1.0; // Set alpha channel
 								}
 								if ((color==0) || (color==1) || (color==4) || (color==5)) {
-									*aadst  = rd/weight;
+									*aadst  = gamma_float(rd/weight);
 								}
 								aadst++;
 								if ((color==0) || (color==2) || (color==4) || (color==6)) {
-									*aadst  = gd/weight;
+									*aadst  = gamma_float(gd/weight);
 								}
 								aadst++;
 								if ((color==0) || (color==3) || (color==5) || (color==6)) {
-									*aadst  = bd/weight;
+									*aadst  = gamma_float(bd/weight);
 								}
 							}
 							break;
