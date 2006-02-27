@@ -1,3 +1,4 @@
 .cvsignore
+.deps
 working
 Makefile.in
