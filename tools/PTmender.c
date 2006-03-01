@@ -51,7 +51,7 @@
 // Global variables for the program
 
 
-stBuf global5640;
+//stBuf global5640;
 int   quietFlag;
 
 VRPanoOptions defaultVRPanoOptions;
@@ -64,10 +64,8 @@ int sorting_function(const void *, const void *);
 
 int main(int argc,char *argv[])
 {
-  // It does nothing yet
-
   int ebx;
-  int var44;
+  int inputFileCounter2;
   char *script;
   char *currentParm;
   DIR *directory;
@@ -97,28 +95,25 @@ int main(int argc,char *argv[])
     
     switch(opt) {  // fhoqs        f: 102 h:104  111 113 115  o:f:hsq
       
-      //        This is 'o' option of switch!
-      // 
-    case 'o':
+    case 'o':   // specifies output file name
       if (StringtoFullPath(&panoFileName, optarg) != 0) { 
-	PrintError("Syntax error: Not a valid pathname");
-	return(-1);
+      	PrintError("Syntax error: Not a valid pathname");
+      	return(-1);
       }
       break;
 
-    case 'f':
-      
+    case 'f':   // specifies script name
       if (StringtoFullPath(&scriptFileName,optarg) != 0) { 
-	PrintError("Syntax error: Not a valid pathname");
-	return(-1);
+      	PrintError("Syntax error: Not a valid pathname");
+      	return(-1);
       }
       break;
+
     case 's':
       sort = 1;
       break;
 
     case 'q':
-      
       quietFlag = 1;
       break;
       
@@ -132,7 +127,6 @@ int main(int argc,char *argv[])
   }
 
   while (optind < argc  ) {
-
     currentParm = argv[optind];
     optind++;
     // Test if it is a directory?
@@ -150,62 +144,55 @@ int main(int argc,char *argv[])
     //              }
     //*/
 
-      //     readdir(DIR *dirp);
       while ((dirEntry =  readdir(directory)) != NULL) {
-	edx = dirEntry->d_name;
-	if (strcmp(dirEntry->d_name, ".") != 0 ||
-	    strcmp(dirEntry->d_name, "..") != 0) {
-    
-	  strcpy(var36, currentParm);
-    
-	  if (var36[strlen(var36)] == '/') {
-	    // if the name has a trailing /, remove it
-	    var36[strlen(var36)] = 0;
-	  }
-    
-	  sprintf(var36+ strlen(var36), "%c%s", '/', dirEntry->d_name);
-    
-	  if (IsTextFile(var36)) {
-	    if (StringtoFullPath(&scriptFileName,var36) != 0) {
-	      PrintError("Syntax error: Not a valid pathname");
-	      return(-1);
-	    } 
-
-	  } else {
-    
-	    /* if it not a text file then assume it is an image */
-
-	    /* Allocate one more slot */
-
-	    if ((ptrImageFileNames = realloc(ptrImageFileNames, ++counter * 512)) == NULL) {
-      	      exit(0);
-	    }
-	    
-	    sort = 1;
-	    /* move the new filename */
-	    if (StringtoFullPath(&ptrImageFileNames[counter], var36) != 0) {
-	      PrintError("Syntax error: Not a valid pathname");
-	      return(-1);
-	    }
-	  }
-	}
-    
+        edx = dirEntry->d_name;
+        if (strcmp(dirEntry->d_name, ".") != 0 || strcmp(dirEntry->d_name, "..") != 0) {
+          strcpy(var36, currentParm);
+          
+          if (var36[strlen(var36)] == '/') {
+            // if the name has a trailing /, remove it
+            var36[strlen(var36)] = 0;
+          }
+          
+          sprintf(var36+ strlen(var36), "%c%s", '/', dirEntry->d_name);
+          
+          if (IsTextFile(var36)) {
+            if (StringtoFullPath(&scriptFileName,var36) != 0) {
+              PrintError("Syntax error: Not a valid pathname");
+              return(-1);
+            } 
+          } else {
+            // if it not a text file then assume it is an image
+            // Allocate one more slot
+            if ((ptrImageFileNames = realloc(ptrImageFileNames, ++counter * 512)) == NULL) {
+              exit(0);
+            }
+            
+            sort = 1;
+            /* move the new filename */
+            if (StringtoFullPath(&ptrImageFileNames[counter], var36) != 0) {
+              PrintError("Syntax error: Not a valid pathname");
+              return(-1);
+            }
+          }
+        }
+          
       }
      //    if ((directory =  opendir(currentParm)) != NULL) 
     } else if (IsTextFile(currentParm) == 0) { // checks if the file does not have .txt extension
       // it is a assumed to be an image
       counter++;
-      if((ptrImageFileNames = realloc(ptrImageFileNames, counter * 512)) == NULL) {
-	exit(0);
-      } 
+      if((ptrImageFileNames = realloc(ptrImageFileNames, counter * 512)) == NULL)
+      	exit(0);
+
       if (StringtoFullPath(&ptrImageFileNames[counter-1], currentParm) != 0) {
-	PrintError("Syntax error: Not a valid pathname");
-	return(-1);
+      	PrintError("Syntax error: Not a valid pathname");
+      	return(-1);
       }
     } else { //It has to be textfile
       if (StringtoFullPath(&scriptFileName, currentParm) !=0) { // success
-	PrintError("Syntax error: Not a valid pathname");
-	return(-1);
+      	PrintError("Syntax error: Not a valid pathname");
+      	return(-1);
       }
     }
   } // end of while loop  while (optind < argc  ) {
@@ -213,47 +200,38 @@ int main(int argc,char *argv[])
   //;;;;;;;; While loop ends here
   
   // This code sets scriptFileName to "./Script.txt" if no other name was given
-  
   if (scriptFileName.name[0] == 0) {
     char *temp;
     
     // set scriptFilename to default path './'
-
     makePathToHost(&scriptFileName);
 
-    /* Then append/replace the filename */
-    
-    if ((temp = strrchr(scriptFileName.name, PATH_SEP)) != NULL) {
+    // Then append/replace the filename
+    if ((temp = strrchr(scriptFileName.name, PATH_SEP)) != NULL)
       temp++;
-    }
 
     strcpy(temp, "Script.txt");
-
   }  // end of if (scriptFileName[0] != 0) {
 
-  /* Code to set the panorama filename if none given in the command line */
-  
+  // Prompt user to specify output filename if not set via command line
   if (strlen(panoFileName.name) == 0) {
 
     // This is what todo if at this point we dont have a panorama filename
-    
-    if (SaveFileAs(&panoFileName, "Save Panorama as... ", "pano") != 0) {
+    if (SaveFileAs(&panoFileName, "Save Panorama as... ", "pano") != 0)
       exit(0);
-    }
-    /* SO at this point we have script and panorama filenames */
+
+    // So at this point we have script and panorama filenames
     if (counter != 0) {
       sort = 1;
     }
   }
   
+  //Sort input file names if requested
   if (counter != 0) {
-    
-    if (sort != 0) {
+    if (sort != 0)
       qsort(ptrImageFileNames, counter, 512, sorting_function);
-    }
   } else {
-    // We don't have any images yet. We read the 
-    // Script and load them from it.
+    // We don't have any images yet. We read the Script and load them from it.
     script = LoadScript(&scriptFileName);
     
     if (script == NULL) {
@@ -261,110 +239,109 @@ int main(int argc,char *argv[])
       exit(0);
     }
     
-    if (ParseScript(script, &alignInfo) == 0) {
 
+    // parse input script and set up an array of input file names
+    if (ParseScript(script, &alignInfo) == 0) {
       counter = alignInfo.numIm;
       if (counter != 0) {
-	if ((ptrImageFileNames = malloc(512 * counter)) == NULL) {
-	  PrintError("Not enough memory");
-	  exit(0);
-	}
-	// For loop
-	
-	for (ebx = 0; ebx < counter; ebx ++) {
-	  strcpy(ptrImageFileNames[ebx].name, scriptFileName.name);
-	  InsertFileName(&ptrImageFileNames[ebx], alignInfo.im[ebx].name);
-	} // for (ebx = 0; ebx < counter; ebx ++) {
+      	if ((ptrImageFileNames = malloc(512 * counter)) == NULL) {
+      	  PrintError("Not enough memory");
+      	  exit(0);
+      	}
+      	
+      	//Iterate over input images and populate input filename array
+      	for (ebx = 0; ebx < counter; ebx ++) {
+      	  strcpy(ptrImageFileNames[ebx].name, scriptFileName.name); //what does this do?!
+      	  InsertFileName(&ptrImageFileNames[ebx], alignInfo.im[ebx].name);
+      	} // for (ebx = 0; ebx < counter; ebx ++)
       }//  if (counter != 0) 
       
       DisposeAlignInfo(&alignInfo);
     }  // if (ParseScript(script, &alignInfo) == 0)
     
+    
+    //Copy script to temporary directory, reparse and populate input filename arrray
     if (counter == 0) {
-      
-      //  Still no files ...
+      //  Still no files ... TODO: determine conditions under which this logic is exercised
 
       // In the original program alignInfo is used as a fullPath
       // I don't understand why, and instead I created a local variable
       // to do it.
 
-
       fullPath scriptPathName;
       FILE* scriptFD;
       int temp;
 
+      //an "o" line represents an input image
       counter = numLines(script, 'o');
       
       if (counter == 0) {
-	PrintError("No Input Images");
-	exit(0);
+      	PrintError("No Input Images");
+      	exit(0);
       }
       
       strcpy(scriptPathName.name, scriptFileName.name);
       
       if (makeTempPath(&scriptPathName) != 0) {
-	
-	PrintError("Could not make Tempfile");
-	exit(0);
-	
+      	PrintError("Could not make Tempfile");
+      	exit(0);
       }
       
       if ((scriptFD = fopen(scriptPathName.name, "w")) == NULL) {
-	PrintError("Could not open temporary Scriptfile");
-	exit(0);
-	
+      	PrintError("Could not open temporary Scriptfile");
+      	exit(0);
       }
       
       temp = fwrite(script, 1, strlen(script), scriptFD); 
       
       if (strlen(script) != temp) {
-	PrintError("Could not write temporary Scriptfile");
-	exit(0);
+        PrintError("Could not write temporary Scriptfile");
+        exit(0);
       }
       
       fclose(scriptFD);
       
       if ((ptrImageFileNames = malloc(counter * 512)) == NULL) {
-	
-	PrintError("Not enough memory\n");
-	exit(0);
+      	PrintError("Not enough memory\n");
+      	exit(0);
       }
       
-      for (var44 = 0; var44 < counter; var44++) {
-	aPrefs* preferences;
+      for (inputFileCounter2 = 0; inputFileCounter2 < counter; inputFileCounter2++) {
+      	aPrefs* preferences;
+      	
+      	if ( (preferences = readAdjustLine(&scriptPathName)) == NULL) {
+      	  PrintError("Could not read ScriptFile");
+      	  exit(0);
+      	}
 	
-	if ( (preferences = readAdjustLine(&scriptPathName)) == NULL) {
-	  
-	  PrintError("Could not read ScriptFile");
-	  exit(0);
-	  
-	}
+    	strcpy(ptrImageFileNames[inputFileCounter2].name, scriptFileName.name); //what does this do?
+    	InsertFileName(&ptrImageFileNames[inputFileCounter2], preferences->im.name);  //why are we doing this again?
 	
-	strcpy(ptrImageFileNames[var44].name, scriptFileName.name);
-	InsertFileName(&ptrImageFileNames[var44], preferences->im.name);
+    	if (preferences->td != NULL)
+    	  free(preferences->td);
+    	
+    	if (preferences->ts != NULL)
+    	  free(preferences->ts);
+
+    	free(preferences);
 	
-	if (preferences->td != NULL) {
-	  free(preferences->td);
-	}
-	
-	if (preferences->ts != NULL) {
-	  free(preferences->ts);
-	}
-	free(preferences);
-	
-      } // end of for (var44 = 0; var44 < counter; var44++) {
+      } // end of for (inputFileCounter2 = 0; inputFileCounter2 < counter; inputFileCounter2++) {
       
       remove(scriptPathName.name);
       
       if (counter == 0) {
-	PrintError("No Input Images");
-	exit(0);
+      	PrintError("No Input Images");
+      	exit(0);
       }
       
-    } //    if (counter == 0) {
+    } //    if (counter == 0)
     free(script); 
     
   }
+  
+  // By now we should have loaded up the input filename array, the output 
+  // panorama name, and the name of the script file (copied to a temporary
+  // directory).  Now we can create the output image.
   CreatePanorama(ptrImageFileNames, counter, &panoFileName, &scriptFileName);
 
   return (0);
@@ -390,33 +367,37 @@ int CreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles, fullPath
   char var28[512];
   char var16[512];
 
-  char       var5196[64];  // string
+  char           tmpStr[64];  // string
   fullPath       currentFullPath;
-  fullPath       panoName; /* according to documention: QTVR, PNG, PICT, TIFF, etc plus options...*/
+  fullPath       panoName;          // according to documention: QTVR, PNG, PICT, TIFF, etc plus options...*/
   fullPath       tempScriptFile ;
-  char      word[256];
-  Image  resultPanorama; //(resultPanorama.width)
-  Image  image1;
+  char           word[256];
+  Image          resultPanorama;    //Output Image
+  Image          image1;            //Input Image
 
-  FILE *regFile;
-  char *regScript;
-  unsigned int regLen;
-  unsigned int regWritten;
+  FILE            *regFile;
+  char            *regScript;
+  unsigned int    regLen;
+  unsigned int    regWritten;
 
-  unsigned int bits;
+  unsigned int    bpp;              // Bits Per Pixel
 
-  TIFF *tiffFile;
-  TrformStr transform;
+  TIFF            *tiffFile;       //Output file...will be written during this function
+  TrformStr       transform;       //structure holds pointers to input and output images and misc other info
 
   int ebx;
-
+  
+  int croppedOutput = 1, croppedWidth = 0, croppedHeight = 0;
+  PTRect ROIRect;
+  unsigned int outputScanlineNumber = 0;
+  
   /* Variables */
   colourCorrection = 0; // can have values of 1 2 or 3
   var00 = 0;
   var01 = 0;
 
+  //Copy script line for line into a new temporary file
   memcpy(&tempScriptFile , scriptFileName, sizeof(fullPath));
-  
   makeTempPath(&tempScriptFile);
     
   if ((regFile = fopen(tempScriptFile.name, "w")) == NULL) {
@@ -431,47 +412,42 @@ int CreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles, fullPath
 
   regLen = strlen(regScript);
   
-  // Copies input script into temp script
-  
+  // Write script to temp file
   regWritten = fwrite(regScript, 1, regLen, regFile);
   
-  // Count number of characters in script /
+  // Make sure script was written completely
   if (regWritten != strlen(regScript)) {
     PrintError("Could not write temporary script");
     goto mainError;
   }
-  // eax contains number of characters in script
-      
+
   fclose(regFile);
   free(regScript);
 
+  //Initialize members to zero
   SetImageDefaults(&image1);
-
   SetImageDefaults(&resultPanorama);
 
-  transform.src = &image1;
+  //transform structure holds input and output images, and some miscellaneous other information
+  transform.src = &image1;            // Input image
+  transform.dest = &resultPanorama;   // Output image
+  transform.mode = 8;                 // How to run transformation
+  transform.success = 1;              // 1 success 0 failure
 
-  transform.dest = &resultPanorama;
-
-  transform.mode = 8; /* How to run transformation */
-
-  transform.success = 1; /* 1 success 0 no */
-
-
+  //Allocate space to hold fully qualified names of input images
   if ((fullPathImages = malloc(counterImageFiles * 512)) ==  NULL) {
-    
     PrintError("Not enough memory");
     goto mainError;
-
   }
-  // This loop seems to read every image and then do something with it
   
+  // This is the main processing loop...it iterates over each input image
+  // and maps the pixels in these input images into the output image(s)
   for (loopCounter = 0; loopCounter < counterImageFiles; loopCounter++) {
     
     currentImagePtr = &image1;
 
-    //aPrefs* readAdjustLine( fullPath *theScript )
-
+    // Read the next adjust line (contains yaw, pitch, roll and other information)
+    // for one input image from the script file
     if ((prefs = readAdjustLine(&tempScriptFile)) == 0) {
       PrintError("Could not read Scriptfile");
       goto mainError;
@@ -483,9 +459,7 @@ int CreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles, fullPath
     // where i is the number of the reference image
 
     assert(colourCorrection >=0 && colourCorrection < (counterImageFiles+1) *4 );
-
-    if (prefs->pano.cP.radial != 0) {
-
+      if (prefs->pano.cP.radial != 0) {
       assert(0); // I really don't want to execute this code yet
 
 // correct_Prefs
@@ -539,254 +513,343 @@ I AM NOT TOTALLY SURE ABOUT THIS
 #endif
     }
 
-// seems to copy the current file name to the var6256
+    // Copy the current output file name to he fullPathImages[loopCounter]
     memcpy( &fullPathImages[loopCounter], &panoFileName, sizeof(fullPath));
 
+    // Create temporary file where output data wil be written
     if (makeTempPath(&fullPathImages[loopCounter]) != 0) {
-
       PrintError("Could not make Tempfile");
       goto mainError;
     }
 
+    // Populate currentFullPath.name with output file name
     GetFullPath(&fullPathImages[loopCounter], currentFullPath.name);
 
-    // TIFF* TIFFOpen(const char* filename, const char* mode)
-
+    // Open up output file for writing...data will be written in TIFF format
     if ((tiffFile = TIFFOpen(currentFullPath.name, "w")) == 0) {
-      PrintError("Could not get filename");
+      PrintError("Could not open %s for writing", currentFullPath.name);
       goto mainError;
     }
 
-    panoProjection = prefs->pano.format;           //move aprefts + 0x698 bytes to var6268
+    // Projection format for final panorama
+    panoProjection = prefs->pano.format;
 
-    //copy string at (aprefs + 0xbe0) to var4620
+    // Copy output pano name to panoName
     memcpy(&panoName,  &prefs->pano.name, sizeof(fullPath));
-
-    memcpy(&global5640, &prefs->sBuf, sizeof(stBuf));
-
+    //memcpy(&global5640, &prefs->sBuf, sizeof(stBuf));
+    
+    //Check if the output format from "p" line in script requests cropped output
+    //Only output cropped format for TIFF_m or TIFF_mask.  Other formats require
+    //flattening, and the code to flatten cropped images isn't ready yet
+    //TODO Max Lyons 20060228
+    if (strstr(prefs->pano.name, "TIFF_m") && strstr(prefs->pano.name, "r:CROP") )
+      croppedOutput = 1;
+    else
+      croppedOutput = 0;
+      
+    if (croppedOutput) {
+      //Currently, cropped output doesn't work with the fast transform logic.  
+      //I suspect a bug in the fast transform logic not dealing with the 
+      //destination rectangle region correctly.  Will investigate later, but
+      //for now disable the fast transform.  The speed gains from using 
+      //cropped output far outweight the speed losses from disabling the 
+      //fast transform. TODO: Max Lyons 20060228.
+      //fastTransformStep = 0;
+    }
+    
     transform.interpolator = prefs->interpolator;
     transform.gamma = prefs->gamma;
 
-    sprintf(var5196, "Converting Image %d", loopCounter);
-
- 
     if(quietFlag == 0) {
-
-      Progress(_initProgress, var5196 );
-      
+      sprintf(tmpStr, "Converting Image %d", loopCounter);    
+      Progress(_initProgress, tmpStr );
     }
  
-    // int readImage( Image *im, fullPath *sfile ) should return 0
-    // currentImagePtr points to image1
- 
+    //Read input image into transform.src
     if (readImage(currentImagePtr, &ptrImageFileNames[loopCounter]) != 0) {
       PrintError("could not read image");
       goto mainError;
     }
 
-    
+    //This "masks" the input image so that some pixels are excluded from 
+    //transformation routine during pixel remapping/interpolation 
     if (prefs->im.cP.cutFrame != 0) { // remove frame? 0 - no; 1 - yes
-      
       if (CropImage(currentImagePtr, &(prefs->im.selection)) == 0) {
-	prefs->im.selection.left  = 0;  
-	prefs->im.selection.right = 0; 
-	prefs->im.selection.bottom=0; 
-	prefs->im.selection.top   = 0; 
+        prefs->im.selection.left   = 0;  
+        prefs->im.selection.right  = 0; 
+        prefs->im.selection.bottom = 0; 
+        prefs->im.selection.top    = 0; 
       }
     }
     
+    //setup width/height of input image
     prefs->im.width = image1.width;
-
     prefs->im.height = image1.height;
 
     if (quietFlag == 0) {
-
       if (Progress(_setProgress, "5") == 0) {
-	  TIFFClose(tiffFile);
-	  remove(fullPathImages[loopCounter].name);
-	  return(-1);
+        TIFFClose(tiffFile);
+        remove(fullPathImages[loopCounter].name);
+        return(-1);
       }
     }
     
+    //Try to set reasonable values for output pano width and/or height if not 
+    //specified as part of input (Do this only when processing first image in script)
     if (loopCounter == 0) {
 
       if (prefs->pano.width == 0) {
-
-	// if the pano did not set the width, then try to set it
-
-	if (prefs->im.hfov != 0.0) {
-
-	  prefs->pano.width = prefs->im.width * prefs->pano.hfov /prefs->im.hfov;
-	  prefs->pano.width /=10; // Round to multiple of 10
-	  prefs->pano.width *=10;
-	  
-	}
+        // if the pano did not set the width, then try to set it
+        if (prefs->im.hfov != 0.0) {
+          prefs->pano.width = prefs->im.width * prefs->pano.hfov /prefs->im.hfov;
+          prefs->pano.width /=10; // Round to multiple of 10
+          prefs->pano.width *=10;
+        }
       }
 
-      if (prefs->pano.height == 0) { // 
-
-	prefs->pano.height = prefs->pano.width/2;
-
-      } //
-
+      if (prefs->pano.height == 0)
+        prefs->pano.height = prefs->pano.width/2;
 
       resultPanorama.height = prefs->pano.height;
-
-
       resultPanorama.width = prefs->pano.width;
 
       if (resultPanorama.height == 0 || resultPanorama.width == 0) {
-	PrintError("Please set Panorama width/height");
-	goto mainError;
+        PrintError("Please set Panorama width/height");
+        goto mainError;
       }
+    } //End attempt at setting reasonable values for pano width/height
 
-      // Above this only happens with first image. 
-    } //if (loopCounter == 0) 
 
-    TIFFSetField(tiffFile, TIFFTAG_IMAGEWIDTH, resultPanorama.width);
+    // Set output width/height for output file 
+    if (croppedOutput) {
+      getROI( &transform, prefs, &ROIRect);
+      //Dimensions determine size of TIFF file
+      croppedWidth = (ROIRect.right - ROIRect.left);// + 1;
+      croppedHeight = (ROIRect.bottom - ROIRect.top);// + 1;
 
-    TIFFSetField(tiffFile, TIFFTAG_IMAGELENGTH, resultPanorama.height);
-
-    if (image1.bitsPerPixel > 47) {
-      bits = image1.bitsPerPixel;
+      TIFFSetField(tiffFile, TIFFTAG_IMAGEWIDTH, croppedWidth);
+      TIFFSetField(tiffFile, TIFFTAG_IMAGELENGTH, croppedHeight);
     } else {
-      bits = 8;
+      TIFFSetField(tiffFile, TIFFTAG_IMAGEWIDTH, resultPanorama.width);
+      TIFFSetField(tiffFile, TIFFTAG_IMAGELENGTH, resultPanorama.height);
+    }
+    
+    
+    if (image1.bitsPerPixel > 47) {
+      bpp = image1.bitsPerPixel;
+    } else {
+      bpp = 8;
     }
 
-    TIFFSetField(tiffFile, TIFFTAG_BITSPERSAMPLE, bits);
-
-    assert(PHOTOMETRIC_RGB == 2);
+    // Number of bits per pixel...generally 8 bits per channel (but can also do 16 bits)
+    TIFFSetField(tiffFile, TIFFTAG_BITSPERSAMPLE, bpp);
+    
+    // We always use Photometric RGB (Indicates a RGB TIFF file with no ColorMap.)
     TIFFSetField(tiffFile, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB); // 0x106
 
-    assert(PLANARCONFIG_CONTIG == 1);
-    assert(TIFFTAG_PLANARCONFIG == 0x11c);
-    TIFFSetField(tiffFile, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG); // 0x11c
+    //Indicates how the components of each pixel are stored.  
+    //1 (PLANARCONFIG_CONTIG) is the default and 
+    //indicates that the data are stored in "Chunky format".
+    //The component values for each pixel are stored contiguously.
+    //The order of the components within the pixel is specified by
+    //PhotometricInterpretation. For RGB data, the data is stored as
+    //RGBRGBRGB...
+    TIFFSetField(tiffFile, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
 
-    assert(TIFFTAG_SAMPLESPERPIXEL == 0x115);
+    //Always use 4 samples per pixel (RGB + Alpha channel)
     TIFFSetField(tiffFile, TIFFTAG_SAMPLESPERPIXEL, 4);
 
-    assert(0x8005 == COMPRESSION_PACKBITS);
-    TIFFSetField(tiffFile, TIFFTAG_COMPRESSION, COMPRESSION_PACKBITS);
+    //Packbits compression was used by original PTStitcher and is retained
+    //as the default...the option to use the more efficient LZW compression
+    //is also provided
+    if (strstr(prefs->pano.name, "c:LZW") != NULL)
+    {
+      TIFFSetField(tiffFile, TIFFTAG_COMPRESSION, (uint16)COMPRESSION_LZW);
+      TIFFSetField(tiffFile, TIFFTAG_PREDICTOR, 2);   //using predictor usually increases LZW compression ratio for RGB data
+    }
+    else
+    {
+      TIFFSetField(tiffFile, TIFFTAG_COMPRESSION, COMPRESSION_PACKBITS);
+    }
 
-    TIFFSetField(tiffFile, 0x112, 1);
+    //"1" indicates that The 0th row represents the visual top of the image, 
+    //and the 0th column represents the visual left-hand side.
+    TIFFSetField(tiffFile, TIFFTAG_ORIENTATION, 1);
 
-    TIFFSetField(tiffFile, 0x116, resultPanorama.height);
+    //TIFFTAG_ROWSPERSTRIP indicates the number of rows per "strip" of TIFF data.  The original PTStitcher
+    //set this value to the panorama height whch meant that the entire image
+    //was contained in one strip.  This is not only explicitly discouraged by the 
+    //TIFF specification ("Use of a single strip is not recommended. Choose RowsPerStrip 
+    //such that each strip is about 8K bytes, even if the data is not compressed, 
+    //since it makes buffering simpler for readers. The “8K” value is fairly 
+    //arbitrary, but seems to work well."), but is also makes it impossible
+    //for programs to read the output from Pano Tools to perform random 
+    //access on the data which leads to unnecessarily inefficient approaches to 
+    //manipulating these images).
+    //
+    //In practice, most panoramas generated these days (Feb 2006) contain more than 
+    //2000 pixels per row (equal to 8KB mentioned above), so it is easiest to
+    //hard-code this value to one, which also enables complete random access to 
+    //the output files by subsequent blending/processing applications
+    
+    //PTStitcher code:
+    //TIFFSetField(tiffFile, TIFFTAG_ROWSPERSTRIP, (croppedOutput ? croppedHeight : resultPanorama.height) );
+    
+    //New-and-improved PTMender code:
+    TIFFSetField(tiffFile, TIFFTAG_ROWSPERSTRIP, 1);
 
-    //////////////////////
+    if (croppedOutput) {
+      //If writing cropped output, these tags write the postion offset (from top left)
+      //into TIFF metadata. 
+      
+      
+      //The X offset in ResolutionUnits of the left side of the image, with 
+      //respect to the left side of the page.
+      TIFFSetField(tiffFile, TIFFTAG_XPOSITION, (float)(ROIRect.left) / 150.0 );
+      
+      //The Y offset in ResolutionUnits of the top of the image, with 
+      //respect to the top of the page.
+      TIFFSetField(tiffFile, TIFFTAG_YPOSITION, (float)(ROIRect.top) / 150.0 );
 
-    if (loopCounter == 0) {
+      //The number of pixels per ResolutionUnit in the ImageWidth
+      TIFFSetField(tiffFile, TIFFTAG_XRESOLUTION, (float)150.0);
+      
+      //The number of pixels per ResolutionUnit in the ImageLength (height)
+      TIFFSetField(tiffFile, TIFFTAG_YRESOLUTION, (float)150.0);
+      
+      //The size of the picture represented by an image.  Note: 2 = Inches.  This
+      //is required so that the computation of pixel offset using XPOSITION/YPOSITION and
+      //XRESOLUTION/YRESOLUTION is valid (See tag description for XPOSITION/YPOSITION).
+      TIFFSetField(tiffFile, TIFFTAG_RESOLUTIONUNIT, (uint16)2);      
+      
+      // TIFFTAG_PIXAR_IMAGEFULLWIDTH and TIFFTAG_PIXAR_IMAGEFULLLENGTH
+      // are set when an image has been cropped out of a larger image.  
+      // They reflect the size of the original uncropped image.
+      // The TIFFTAG_XPOSITION and TIFFTAG_YPOSITION can be used
+      // to determine the position of the smaller image in the larger one.
+      TIFFSetField(tiffFile, TIFFTAG_PIXAR_IMAGEFULLWIDTH, resultPanorama.width);
+    	TIFFSetField(tiffFile, TIFFTAG_PIXAR_IMAGEFULLLENGTH, resultPanorama.height);      
+    }    
 
-/// THIS AGAIN HAPPENS ONLY WITH loopCounter == 0
+    //The resultPanorama.selection determines which region of the output image
+    //is iterated over during the main pixel-remapping processing logic.  Much
+    //of the image will be empty (black space) for any given input image.  However,
+    //if cropped output is selected, then only the region of interest (ROI) into
+    //which this input image will be mapped is processed...this significantly
+    //speeds up processing
+    if (croppedOutput) {
+      resultPanorama.selection.left     = ROIRect.left;
+      resultPanorama.selection.right    = ROIRect.right;    
+      resultPanorama.selection.top      = ROIRect.top;      
+    } else {
+      resultPanorama.selection.left     = 0;
+      resultPanorama.selection.right    = resultPanorama.width;    
+      resultPanorama.selection.top      = 0;      
+    }
 
-
+    //if (loopCounter == 0) {
+      //Set up metadata about final panorama...need to do this on each pass
+      //because if we are using cropped output, then the output panorama size
+      //might be different for each input image
       resultPanorama.bitsPerPixel = image1.bitsPerPixel ;
-
       resultPanorama.bytesPerLine = TIFFScanlineSize(tiffFile);
 
-      resultPanorama.selection.left = 0;
-
-      resultPanorama.selection.right = resultPanorama.width;
-
+      //The output image is generated a few lines at a time to make efficient use
+      //of limited memory...compute a reasonable number of lines to process (must
+      //be at least 1, but no more than output height)
       lines = 500000 / resultPanorama.bytesPerLine;
  
-      if (0 == lines) { 
-	lines = 1;
-      } 
+      if (lines == 0)
+	      lines = 1;
 
-      if (resultPanorama.height < lines) {  
-	lines = resultPanorama.height;
-      } 
-      if ((
-	   resultPanorama.data  = (unsigned char**)mymalloc(lines * resultPanorama.bytesPerLine )
-	   ) == NULL) {
-	PrintError("Not enough memory");
-	exit(0);
+      //Don't process more lines than are available
+      if (lines > (croppedOutput ? croppedHeight : resultPanorama.height) )
+	      lines = (croppedOutput ? croppedHeight : resultPanorama.height);
+
+      if ((resultPanorama.data  = (unsigned char**)mymalloc(lines * resultPanorama.bytesPerLine ) ) == NULL) {
+      	PrintError("Not enough memory for output panorama buffer");
+      	exit(0);
       }
-    } 
+    //} 
 
+    resultPanorama.selection.bottom   = resultPanorama.selection.top + lines;
+    
     if (resultPanorama.bitsPerPixel != image1.bitsPerPixel) {
-      PrintError("All source images must have the same pixelsize.");
+      PrintError("All source images must have the same number of bits per pixel.");
       exit(0);
     }
 
-    resultPanorama.selection.top = 0;
- 
-    resultPanorama.selection.bottom = lines ;
-
+    //Copy all position related data (yaw, pitch, roll, etc) for input image to currentImagePtr
     CopyPosition(currentImagePtr, &(prefs->im));
 
+    //image1.selection determines how much of the input image to be 
+    //included during main pixel remapping logic
     image1.selection.top =  prefs->im.selection.top ;
-
     image1.selection.bottom = prefs->im.selection.bottom;
-
     image1.selection.left = prefs->im.selection.left;
-
     image1.selection.right = prefs->im.selection.right;
 
     CopyPosition(&resultPanorama, &(prefs->pano));
 
+    //Set image data outside selection region to zeros
     Clear_Area_Outside_Selected_Region(currentImagePtr);
 
+    //pano.width and height must be equal to the full canvas size (not the 
+    //size of the cropped output image...if selected) in order for the pixel 
+    //remapping logic to work correctly.
     prefs->pano.width = resultPanorama.width;
-
     prefs->pano.height = resultPanorama.height;
 
-  makePano:
-
-    MakePano(&transform, prefs);
-      
-    if (transform.success == 0) { //* Error 
-      PrintError("Error converting image");
-      goto mainError;
-    }
-    
-    ARGtoRGBAImage(&resultPanorama);
-    
-    for (ebx = 0; ebx< resultPanorama.selection.bottom - resultPanorama.selection.top ; ebx++) {
-      
-      // Be careful here. resultPanorama.data is a char **, this arithmetic might be plain wrong. I suspect
-      // it will segfault. We'll see
-
-      TIFFWriteScanline(tiffFile, *resultPanorama.data + (resultPanorama.bytesPerLine * ebx), resultPanorama.selection.top + ebx  , 1);
-
-      assert(resultPanorama.selection.bottom >= resultPanorama.selection.top);
-
-    } // end of inner for loop
-
-    sprintf(var5196, "%d", (int)(resultPanorama.selection.bottom*100  /resultPanorama.height)); /// 
-
-
-    if (quietFlag == 0) {
-      
-      if (Progress(_setProgress, var5196) == 0) {
-	// Cancelled by the user
-	TIFFClose(tiffFile);
-	remove(tempScriptFile.name);
-	remove(fullPathImages[loopCounter].name);
-	return(-1);
+    //Iterate over the output image multiple lines at a time, remapping pixels
+    //from the input image into the output image, and writing data to an
+    //output TIFF file.  Finish iterating when we reach the bottom of the 
+    //output image (or, in the case of a cropped file, the bottom of the 
+    //output ROI).
+    outputScanlineNumber = 0;
+    while (resultPanorama.selection.top < (croppedOutput ? ROIRect.bottom : resultPanorama.height) ) {
+  
+      // Call the main pixel remapping routine...all the interpolation happens here
+      MakePano(&transform, prefs);
+        
+      if (transform.success == 0) { // Error 
+        PrintError("Error converting image");
+        goto mainError;
       }
-    }
-    
-    resultPanorama.selection.top = resultPanorama.selection.bottom;
-    
-    resultPanorama.selection.bottom = resultPanorama.selection.top + lines;
-
-    if (resultPanorama.selection.top >= resultPanorama.height ) { //
-      goto closeTIFF;
-    }
-
-    if ( resultPanorama.selection.bottom <= resultPanorama.height) { 
-      goto makePano;
       
+      //Reverse byte order before writing out to TIFF file
+      ARGtoRGBAImage(&resultPanorama);
+      
+      //Write calculated data rows to TIFF file one row (aka "scanline") at a time
+      for (ebx = 0; ebx< resultPanorama.selection.bottom - resultPanorama.selection.top ; ebx++) {
+        TIFFWriteScanline(tiffFile, *resultPanorama.data + (resultPanorama.bytesPerLine * ebx), outputScanlineNumber, 1);
+        outputScanlineNumber++;
+      }
+  
+      //Update progress bar
+      if (croppedOutput)
+        sprintf(tmpStr, "%d", (int)( (resultPanorama.selection.bottom-ROIRect.top)*100  / croppedHeight));
+      else
+        sprintf(tmpStr, "%d", (int)(resultPanorama.selection.bottom*100  / resultPanorama.height));
+  
+      if (quietFlag == 0) {
+        if (Progress(_setProgress, tmpStr) == 0) {
+          // Cancelled by the user
+          TIFFClose(tiffFile);
+          remove(tempScriptFile.name);
+          remove(fullPathImages[loopCounter].name);
+          return(-1);
+        }
+      }
+      
+      //specify the next batch of rows to be processed 
+      resultPanorama.selection.top = resultPanorama.selection.bottom;
+      resultPanorama.selection.bottom = resultPanorama.selection.top + lines;
+   
+      //Be careful at boundary...end of image
+      if ( resultPanorama.selection.bottom > (croppedOutput ? ROIRect.bottom : resultPanorama.height) )
+        resultPanorama.selection.bottom = (croppedOutput ? ROIRect.bottom : resultPanorama.height);
     }
-
-    resultPanorama.selection.bottom = resultPanorama.height;
-
-    if (resultPanorama.selection.bottom <= resultPanorama.height ) {// 
-      goto makePano;
-    }
-
-  closeTIFF:
+    
     TIFFClose(tiffFile);
     
     if (image1.data != NULL) {
@@ -802,7 +865,18 @@ I AM NOT TOTALLY SURE ABOUT THIS
       myfree((void**)prefs->ts);
     }
     free(prefs);
-  } // This is the end of the for loop loopCounter = 0 ...
+    
+    if (resultPanorama.data != NULL) {
+      myfree((void**)resultPanorama.data);
+      resultPanorama.data = NULL;
+    }
+    
+    
+  } 
+  // This is the end of the pixel remapping for all input images.
+  // At this point we should have a collection of TIFF files containing
+  // the warped input images.  For TIFF_m format this is all we need.  For
+  // other formats, we may need to do extra work (feathering, flattening, etc.)
   
   //----------------------------------------------------------------------
   
@@ -834,7 +908,7 @@ I AM NOT TOTALLY SURE ABOUT THIS
 
   SetVRPanoOptionsDefaults(&defaultVRPanoOptions);
 
-/* All the folloging is strange. Look into what panoName is */
+  //panoName contains the n"XXX" value from the script "p" lines (e.g. n"TIFF_m" or n"QTVR w400 h300 c1"
   tempString = panoName.name;
 
   //void nextWord( register char* word, char** ch )
@@ -900,7 +974,7 @@ I AM NOT TOTALLY SURE ABOUT THIS
   } // if strcmp(word, "PSD_nomask."
   
 
-  if (AddStitchingMasks(fullPathImages, fullPathImages, counterImageFiles, global5640.feather)!=0) {
+  if (AddStitchingMasks(fullPathImages, fullPathImages, counterImageFiles, prefs->sBuf.feather)!=0) {
     PrintError("Could not create stitching masks");
     goto mainError;
   }
@@ -1142,8 +1216,8 @@ void ARGtoRGBAImage(Image *im)
 
 void Clear_Area_Outside_Selected_Region(Image *image)
 {
-  /* This function seems to 'clear' the area outside left,top; right,bottom
-     in the picture with zeros */
+  // This function clears (i.e. sets to zero) the area outside the 
+  // selection region 
 
   int right;    
   int left;
@@ -1158,24 +1232,19 @@ void Clear_Area_Outside_Selected_Region(Image *image)
   int currentRow;
   int currentColumn;
 
-  /* it seems to work only for these types of images*/
-  assert(image->bitsPerPixel == 0x20 ||
-         image->bitsPerPixel == 0x40);
+  // Only works for 8/16 bit per channel (32/64 bits per pixel) images
+  assert(image->bitsPerPixel == 32 || image->bitsPerPixel == 64);
   
   top = image->selection.top;
   bottom = image->selection.bottom;
   left = image->selection.left;
   right = image->selection.right;
   
-  if ( bottom == 0 ) {
+  if ( bottom == 0 )
     bottom = image->height;
-  }
-  
-  if ( right == 0 ) {
+ 
+  if ( right == 0 )
     right = image->width;
-  }
-  
-
 
   if ( image -> format == _fisheye_circ) {
     PrintError("Not implemented yet");
@@ -1191,31 +1260,25 @@ void Clear_Area_Outside_Selected_Region(Image *image)
     exit(0);
   }
     
-  /* Clear the area at above the image */
-
+  // Clear the area at above the image
   dataPtr = *(image->data);
 
   for (currentRow =0; currentRow < top; currentRow++ ) {
-	
     pixelPtr = dataPtr;
         
     for (currentColumn = 0;  currentColumn < image->width ;   currentColumn++) {
       assert(sizeof(int) == bytesPerPixel);
-
       memset(pixelPtr, 0, bytesPerPixel);
-
       pixelPtr+=bytesPerPixel;
     }
     
     dataPtr += image->bytesPerLine;
   }
       
-  /* Clear area below the picture */
-  
+  // Clear area below the picture
   dataPtr = bottom * image->bytesPerLine + *(image->data);
   
   for (currentRow=bottom    ;  currentRow < image->height ; currentRow++) {
-        
     pixelPtr = dataPtr;
     for (currentColumn = 0; currentColumn < image->width ; currentColumn++) {
       memset(pixelPtr, 0, bytesPerPixel);
@@ -1391,4 +1454,76 @@ int sorting_function(const void *p1, const void *p2)
 {
   return strcmp(p1, p2);
 }
+
+
+/**
+ * This function computes the minimal rectangle needed to encompass
+ * the region of the output image (TrPtr->dest) that will be populated with 
+ * data from the input image (TrPtr->src) using the options specified
+ * in aP.  The ROIRect is populated with the left/right/top/bottom values
+ * that define this ROI within the output image
+ */
+void getROI( TrformStr *TrPtr, aPrefs *aP, PTRect *ROIRect )
+{
+	struct 	MakeParams	mpinv;
+	fDesc 	invstack[15], finvD;
+	int 	color               = 0;
+
+  int             x, y, x_jump;
+	double 			    x_d, y_d;	// Cartesian Coordinates of point in source (i.e. input) image
+	double 		  	  Dx, Dy;		// Coordinates of corresponding point in destination (i.e. output) image
+
+	double 			    w2 	= (double) TrPtr->dest->width  / 2.0 - 0.5;   //half destination image width
+	double 			    h2 	= (double) TrPtr->dest->height / 2.0 - 0.5;   //half destination image height
+	double 			    sw2 = (double) TrPtr->src->width   / 2.0 - 0.5;   //half source image width
+	double 			    sh2 = (double) TrPtr->src->height  / 2.0 - 0.5;   //half source image height
+
+  //Set initial values for ROI to be adjusted during this function
+  ROIRect->left         = TrPtr->dest->width;
+  ROIRect->right        = 0;
+  ROIRect->top          = TrPtr->dest->height; 
+  ROIRect->bottom       = 0;
+
+  //The "forward" transform (although not used here) allows us to map pixel
+  //coordinates in the output image to their location in the source image.
+  //SetMakeParams( stack, &mp, &(aP->im) , &(aP->pano), color );
+	//fD.func = execute_stack; fD.param = stack;
+
+	//The "inverse" transform allows us to map pixel coordinates in each source image
+	//to their location in the output image.
+	SetInvMakeParams( invstack, &mpinv, &(aP->im) , &(aP->pano), color );	
+	finvD.func = execute_stack; finvD.param = invstack;
+  
+  //iterate over edges of input image and compute left/right/top/bottom-most coordinate
+  //in output image
+  for (y = 0; y <= TrPtr->src->height; y += 1) {
+      
+      x_jump = (y==0 || y==TrPtr->src->height) ? 1 : TrPtr->src->width;
+        
+      for (x = 0; x <= TrPtr->src->width; x += x_jump) {
+        //convert source coordinates to cartesian coordinates (i.e. origin at center of image)
+        x_d = (double) x - sw2 ;
+        y_d = (double) y - sh2 ;
+        
+        //Map the source image cartesian coordinate to the destination image cartesian coordinate
+        finvD.func( x_d, y_d, &Dx, &Dy, finvD.param);
+        
+        //Convert destination cartesian coordinate back to destination "screen" coordinates (i.e. origin at top left of image)
+        Dx += w2;
+      	Dy =  h2 + Dy ;
+      	
+    		if( (Dx < TrPtr->dest->width) && (Dy < TrPtr->dest->height) && (Dx >= 0) && (Dy >= 0) ) {
+    		  //Update ROI if pixel is valid (i.e. inside the final panorama region)
+    		  if ((int)Dx < ROIRect->left) ROIRect->left = (int)Dx;
+    		  if ((int)Dx > ROIRect->right) ROIRect->right = (int)Dx;
+          if ((int)Dy < ROIRect->top) ROIRect->top = (int)Dy;
+    		  if ((int)Dy > ROIRect->bottom) ROIRect->bottom = (int)Dy;
+    		}
+      }
+  }
+
+  //PrintError("ROI: %d,%d - %d, %d", ROIRect->left, ROIRect->top, ROIRect->right, ROIRect->bottom);
+}
+
+ 
 
