@@ -39,6 +39,16 @@ extern VRPanoOptions defaultVRPanoOptions;
 extern int jpegQuality;
 extern int jpegProgressive;
 
+// TIFFTAG_PIXAR_IMAGEFULLWIDTH and TIFFTAG_PIXAR_IMAGEFULLLENGTH should be defined in 
+// tiff.h.  but, just in case...
+#ifndef TIFFTAG_PIXAR_IMAGEFULLWIDTH
+#define TIFFTAG_PIXAR_IMAGEFULLWIDTH    33300   /* full image size in x */
+#endif
+
+#ifndef TIFFTAG_PIXAR_IMAGEFULLLENGTH
+#define TIFFTAG_PIXAR_IMAGEFULLLENGTH   33301   /* full image size in y */
+#endif
+
 
 
 /* These functions are already implemented */
@@ -64,12 +74,7 @@ int Unknown04(Image *, fullPath*);
 int Unknown05(Image *, fullPath*);
 int Unknown07(Image *, fullPath*);
 int Create_LP_ivr(Image *, fullPath*);
-
-
-
-/*  defined in ptpicker.c, but never exported */
-void InsertFileName( fullPath *fp, char *fname );
-
+void getROI( TrformStr *TrPtr, aPrefs *aP, PTRect *ROIRect);
 
 #endif
 

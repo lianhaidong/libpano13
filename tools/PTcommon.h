@@ -34,6 +34,8 @@
 int VerifyTiffsAreCompatible(fullPath *tiffFiles, int filesCount);
 int AddStitchingMasks(fullPath *inputFiles, fullPath *outputFiles, int numberImages, int featherSize);
 
+/*  defined in ptpicker.c, but never exported */
+void InsertFileName( fullPath *fp, char *fname );
 
 extern int quietFlag;
 	
