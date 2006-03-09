@@ -2,3 +2,10 @@
 .deps
 working
 Makefile.in
+.libs
+Makefile
+PTOptimizer
+PTblender
+PTmender
+PTtiff2psd
+panoinfo
