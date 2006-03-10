@@ -693,6 +693,7 @@ static void sinc1024_16( unsigned char *dst, unsigned char **rgb,
 
 #undef maxalpha
 #define maxalpha  1.0
+#define unsigned
 
 // Nearest neighbor sampling, nowhere used (yet)
 
@@ -752,6 +753,7 @@ static void sinc1024_32( unsigned char *dst, unsigned char **rgb,
 		register double Dx, register double Dy,	int color, int SamplesPerPixel)
 		{	RESAMPLE_N( SINC, 32, float) 	}
 		
+#undef unsigned
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
