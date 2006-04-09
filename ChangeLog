@@ -1,3 +1,7 @@
+2006-04-09  dmg  <dmgerman@uvic.ca>
+
+	* rgbe.c: Replaced #include <malloc.h> with <stdlib.h> to avoid
+	MacOS compilation error
 
 2006-02-21 10:19:20  dmg  (dmg)
 
