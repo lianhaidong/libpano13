@@ -58,7 +58,7 @@ VRPanoOptions defaultVRPanoOptions;
 
 int ptDebug = 0;
 
-#define PT_MENDER_VERSION  "PTmender Version 0.4, originally written by Helmut Dersch, rewritten by Daniel German\n"
+#define PT_MENDER_VERSION  "PTmender Version 0.4.0, originally written by Helmut Dersch, rewritten by Daniel German\n"
 
 int sorting_function(const void *, const void *);
 

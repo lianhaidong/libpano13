@@ -1,5 +1,7 @@
 2006-04-10  dmg  <dmgerman@uvic.ca>
 
+	* Released version 0.4 of PTblender and PTmender.
+	
 	* toos/README.PTmender: updated it.
 	
 	* tools/PTmender.h: removed some prototypes from the file that

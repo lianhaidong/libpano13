@@ -54,7 +54,7 @@ int quietFlag = 0;
 			 "\t-q\t\tQuiet run\n\t-h\t\tShow this message\n"\
                          "\n"
 
-#define PT_BLENDER_VERSION "PTblender Version 0.1, originally written by Helmut Dersch, rewritten by Daniel M German\n"
+#define PT_BLENDER_VERSION "PTblender Version 0.4.0, originally written by Helmut Dersch, rewritten by Daniel M German\n"
 
 #define DEFAULT_PREFIX "corrected%04d"
 #define DEFAULT_PREFIX_NUMBER_FORMAT "%04d"
