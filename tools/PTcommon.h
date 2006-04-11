@@ -31,11 +31,28 @@
 
 #define __PTcommon_h__
 
+#include <tiffio.h>
+
+typedef struct {
+  uint16 samplesPerPixel;
+  uint16 bitsPerSample;
+  uint32 imageLength;
+  uint32 imageWidth;
+  int bytesPerLine;
+  int bitsPerPixel;
+  uint32 rowsPerStrip;
+} pt_tiff_parms;
+
+
 int VerifyTiffsAreCompatible(fullPath *tiffFiles, int filesCount);
 int AddStitchingMasks(fullPath *inputFiles, fullPath *outputFiles, int numberImages, int featherSize);
 
 /*  defined in ptpicker.c, but never exported */
 void InsertFileName( fullPath *fp, char *fname );
+
+int FlattenTIFF(fullPath *fullPathImages, int counterImageFiles, fullPath *outputFileName, int removeOriginals);
+int  CreatePSD(  fullPath *fullPathImages, int, fullPath*);
+
 
 extern int quietFlag;
 	

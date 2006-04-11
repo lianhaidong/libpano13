@@ -64,9 +64,6 @@ void ARGtoRGBAImage(Image *im);
 /* These functions need to be implemented */
 
 void Clear_Area_Outside_Selected_Region(Image *currentImagePtr);
-void Colour_Brightness(  fullPath *fullPathImages, int p1, int p2, int p3);
-int FlattenTIFF(  fullPath *fullPathImages, int);
-int  CreatePSD(  fullPath *fullPathImages, int, fullPath*);
 int Unknown01(Image *, fullPath*);
 int Unknown02(Image *, fullPath*);
 int Unknown03(Image *, fullPath*);

@@ -1,5 +1,5 @@
 /*
- *  PTblender
+ *  PTblender $id$
  *
  *  Based on the program PTStitcher by Helmut Dersch.
  *  
@@ -50,6 +50,7 @@ int quietFlag = 0;
                          "Options:\n"\
 			 "\t-o <prefix>\tPrefix for output filename\n"\
 			 "\t-k <index>\tIndex to image to use as a reference (0-based)\n"\
+                         "\t-f <filename>\t\tFlatten images to single TIFF file\n"\
 			 "\t-q\t\tQuiet run\n\t-h\t\tShow this message\n"\
                          "\n"
 
@@ -61,17 +62,19 @@ int quietFlag = 0;
 int main(int argc,char *argv[])
 {
   char opt;
-  int referenceImage = 0;
+  int referenceImage = -1;
   fullPath *ptrInputFiles;
   fullPath *ptrOutputFiles;
 
   int counter;
   char outputPrefix[MAX_PATH_LENGTH];
+  char flatOutputFileName[MAX_PATH_LENGTH];
   char *endPtr;
   int filesCount;
   char tempString[MAX_PATH_LENGTH];
   int i;
   int base = 0;
+  int flattenFlag =0;
 
   ptrInputFiles = NULL;
   counter = 0;
@@ -81,7 +84,7 @@ int main(int argc,char *argv[])
 
   strcpy(outputPrefix, "corrected%4d");
 
-  while ((opt = getopt(argc, argv, "o:k:hqc")) != -1) {
+  while ((opt = getopt(argc, argv, "o:k:hf:qc")) != -1) {
 
 // o and f -> set output file
 // h       -> help
@@ -102,6 +105,16 @@ int main(int argc,char *argv[])
 	PrintError("Invalid integer in -k option");
 	return -1;
       }
+    case 'f':
+      flattenFlag = 1;
+      if (strlen(optarg) < MAX_PATH_LENGTH) {
+	strcpy(flatOutputFileName, optarg);
+      } else {
+	PrintError("Illegal length for flat output prefix");
+      }
+      break;
+
+      break;
     case 'q':
       quietFlag = 1;
       break;
@@ -139,7 +152,7 @@ int main(int argc,char *argv[])
     return -1;
   }
 
-  if (referenceImage <0 || referenceImage >= filesCount) {
+  if (referenceImage <-1 || referenceImage >= filesCount) {
     sprintf(tempString, "Illegal reference image number %d. It should be between 0 and %d\n", 
 	    referenceImage, filesCount-1);
     PrintError(tempString);
@@ -171,7 +184,6 @@ int main(int argc,char *argv[])
     ReplaceExt(ptrOutputFiles[i].name, ".tif");
     
     //    fprintf(stderr, "Output filename [%s]\n", ptrOutputFiles[i].name);
-
   }
 
   if (!VerifyTiffsAreCompatible(ptrInputFiles, filesCount)) {
@@ -179,7 +191,28 @@ int main(int argc,char *argv[])
     return -1;
   }
 
-  ColourBrightness(ptrInputFiles, ptrOutputFiles, filesCount, referenceImage, 0);
+  if (referenceImage >= 0) {
+    printf("Colour correcting photo using %d as a base\n", referenceImage);
+    ColourBrightness(ptrInputFiles, ptrOutputFiles, filesCount, referenceImage, 0);
+  }
+
+  if (flattenFlag) {
+
+    fullPath pathName;
+
+    printf("Flattening image\n");
+
+    if (StringtoFullPath(&pathName, flatOutputFileName) != 0) { 
+      PrintError("Syntax error: Not a valid pathname");
+      return(-1);
+    }
+    ReplaceExt(pathName.name, ".tif");
+
+    if (FlattenTIFF(ptrInputFiles, filesCount, &pathName, FALSE) != 0) { 
+      PrintError("Error while flattening TIFF-image");
+      return -1;
+    }
+  }
 
   free(ptrInputFiles);
   free(ptrOutputFiles);

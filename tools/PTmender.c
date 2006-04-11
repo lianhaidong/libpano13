@@ -55,10 +55,10 @@
 int   quietFlag;
 
 VRPanoOptions defaultVRPanoOptions;
-int jpegQuality;
-int jpegProgressive;
 
-#define PT_MENDER_VERSION  "PTmender Version 0.3, originally written by Helmut Dersch, rewritten by Daniel German\n"
+int ptDebug = 0;
+
+#define PT_MENDER_VERSION  "PTmender Version 0.4, originally written by Helmut Dersch, rewritten by Daniel German\n"
 
 int sorting_function(const void *, const void *);
 
@@ -86,7 +86,7 @@ int main(int argc,char *argv[])
 
   printf(PT_MENDER_VERSION);
 
-  while ((opt = getopt(argc, argv, "o:f:hsq")) != -1) {
+  while ((opt = getopt(argc, argv, "o:f:hsqd")) != -1) {
 
 // o and f -> set output file
 // h       -> help?
@@ -113,6 +113,9 @@ int main(int argc,char *argv[])
       sort = 1;
       break;
 
+    case 'd':
+      ptDebug = 1;
+      break;
     case 'q':
       quietFlag = 1;
       break;
@@ -211,6 +214,10 @@ int main(int argc,char *argv[])
       temp++;
 
     strcpy(temp, "Script.txt");
+
+    if (ptDebug)
+      fprintf(stderr, "Using Script.txt by default\n");
+
   }  // end of if (scriptFileName[0] != 0) {
 
   // Prompt user to specify output filename if not set via command line
@@ -232,6 +239,10 @@ int main(int argc,char *argv[])
       qsort(ptrImageFileNames, counter, 512, sorting_function);
   } else {
     // We don't have any images yet. We read the Script and load them from it.
+    if (ptDebug) {
+      fprintf(stderr, "Loading script %s\n", scriptFileName.name);
+    }
+
     script = LoadScript(&scriptFileName);
     
     if (script == NULL) {
@@ -871,8 +882,16 @@ I AM NOT TOTALLY SURE ABOUT THIS
       resultPanorama.data = NULL;
     }
     
+
+
+
+
     
-  } 
+  }
+
+  if (!quietFlag) 
+    Progress(_disposeProgress, "");
+
   // This is the end of the pixel remapping for all input images.
   // At this point we should have a collection of TIFF files containing
   // the warped input images.  For TIFF_m format this is all we need.  For
@@ -1016,9 +1035,9 @@ I AM NOT TOTALLY SURE ABOUT THIS
 
   } // if (strcmp(word, "TIFF_mask") == 0)
 
-  /* Above this is multi-layer, below is flattening */
+  /* Above this is multi-layer, below is one single output file */
 
-  if (FlattenTIFF(fullPathImages,counterImageFiles) != 0) { 
+  if (FlattenTIFF(fullPathImages,counterImageFiles,&fullPathImages[0], TRUE) != 0) { 
     PrintError("Error while flattening TIFF-image");
    goto mainError;
   }
@@ -1037,8 +1056,8 @@ I AM NOT TOTALLY SURE ABOUT THIS
     return(0);
   }
 
-  if (readImage(&resultPanorama, panoFileName) == 0) {
-    PrintError("Could not read result image");
+  if (readImage(&resultPanorama, panoFileName) != 0) {
+    PrintError("Could not read result image %s", panoFileName->name);
     goto mainError;
   }
 
@@ -1080,11 +1099,15 @@ I AM NOT TOTALLY SURE ABOUT THIS
     return Unknown04(&resultPanorama, panoFileName);
   }  // 804ae10
 
-  if (strcmp(word, "JPEG") == 0 || strcmp(word, "JPG")) {
-    ReplaceExt(panoFileName->name, ".JPG");
+  if (strcmp(word, "JPEG") == 0 || strcmp(word, "JPG") == 0) {
+    if (!quietFlag) {
+      printf("Creating JPEG (quality %d jpegProgressive %d)\n", defaultVRPanoOptions.cquality, defaultVRPanoOptions.progressive);
+    }
+    ReplaceExt(panoFileName->name, ".jpg");
 //int writeJPEG( Image *im, fullPath *sfile, 	int quality, int progressive )
-    return writeJPEG(&resultPanorama, panoFileName, jpegQuality, jpegProgressive);
+    return writeJPEG(&resultPanorama, panoFileName, defaultVRPanoOptions.cquality, defaultVRPanoOptions.progressive);
   }
+
 
   if (strcmp(word, "PSD") == 0) {  // 
 
@@ -1101,7 +1124,6 @@ I AM NOT TOTALLY SURE ABOUT THIS
     return (writePNG(&resultPanorama, panoFileName));
 
   } // 
-
   assert(0); //It should never reach here 
 
 mainError:
@@ -1127,12 +1149,6 @@ char* Filename(fullPath* path)
 int Create_LP_ivr(Image *image, fullPath* fullPathImage)
 {
   fprintf(stderr,"Create_LP_ivr this function is not implemented yet\n");
-  exit(1);
-}
-
-int FlattenTIFF(  fullPath *fullPathImages, int numberImages)
-{
-  fprintf(stderr,"FlattenTIFF this function is not implemented yet\n");
   exit(1);
 }
 

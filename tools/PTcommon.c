@@ -36,23 +36,12 @@
 #include <stdint.h>
 #include <math.h>
 
-#include <tiffio.h>
 #include <filter.h>
 #include "panorama.h"
 
 
 #include "PTcommon.h"
 
-
-typedef struct {
-  uint16 samplesPerPixel;
-  uint16 bitsPerSample;
-  uint32 imageLength;
-  uint32 imageWidth;
-  int bytesPerLine;
-  int bitsPerPixel;
-  uint32 rowsPerStrip;
-} pt_tiff_parms;
 
 // This function verifies that all the TIFF files have the same width, length and other
 // parameters. Returns TRUE on success.
@@ -236,7 +225,7 @@ int  CreatePSD(  fullPath *fullPathImages, int numberImages, fullPath* outputFil
 
   }
 
-  TwoToOneByte(&image);
+  //  TwoToOneByte(&image);
 
   if (writePSDwithLayer(&image, outputFileName) != 0) {
 
@@ -604,7 +593,8 @@ int CreateMaskMapFiles(fullPath *inputFiles, fullPath *maskFiles, int numberImag
 
   } // for (index...
 
-  Progress(_disposeProgress, tempString);
+  if (!quietFlag)
+    Progress(_disposeProgress, tempString);
 
   return 1;
 }
@@ -836,8 +826,10 @@ int  ReplaceAlphaChannel(fullPath *inputImage, fullPath *mask, fullPath *output,
 
 static void SetBestAlphaChannel16bits(unsigned char *imagesBuffer, int numberImages, pt_tiff_parms *imageParms)
 {
+  fprintf(stderr, "SetBestAlphaChannel16bits not supported yet\n");
   assert(0); // it should not be here... yet
 }
+
 static void SetBestAlphaChannel8bits(unsigned char *imagesBuffer, int numberImages, pt_tiff_parms *imageParms)
 {
   unsigned char *pixel;
@@ -1012,6 +1004,10 @@ static int CreateAlphaChannels(fullPath *masksNames, fullPath *alphaChannelNames
   } //for i
 
 
+  if (!quietFlag) 
+    Progress(_disposeProgress, "Done creating masks");
+
+
   for (index = 0; index < numberImages; index ++) {
     TIFFClose(tiffMasks[index]);
     TIFFClose(tiffAlphaChannels[index]);
@@ -1116,10 +1112,6 @@ int AddStitchingMasks(fullPath *inputFiles, fullPath *outputFiles, int numberIma
 
   // From this point on we do not need to process all files at once. This will save temporary disk space
   
-  if ( quietFlag == 0 ) {
-    Progress(_setProgress, "Creating alpha channel and feather tool");
-  }
-
   for (i=0;i<numberImages;i++) {
     fullPath withAlphaChannel;
 
@@ -1170,6 +1162,362 @@ int AddStitchingMasks(fullPath *inputFiles, fullPath *outputFiles, int numberIma
 
 }
 
+void BlendLayers8Bit(unsigned char **imageDataBuffers, int counterImageFiles, char *resultBuffer, 
+		     int lines,
+		     int imageWidth, int scanLineSize)
+
+{
+
+  // 0x8(%ebp)    imageDataBuffers
+  // 0xc(%ebp)    counterImageFiles
+  // 0x10(%ebp)   resultBuffer
+  // 0x14(%ebp)   lines
+  // 0x18(%ebp)   imageWidth
+  // 0x1c(%ebp)   scanLineSize
+
+  // 0xffffffdc(%ebp)  imageIndex
+  // 0xffffffe0(%ebp)  alphaChannel
+  // 0xffffffe4(%ebp)  blue
+  // 0xffffffe8(%ebp)  green
+  // 0xffffffec(%ebp)  red
+  // 0xfffffff0(%ebp)  rowOffset
+  // 0xfffffff4(%ebp)  pixelOffset
+  // 0xfffffff8(%ebp)  currentLine
+  // 0xfffffffc(%ebp)  currentColumn
+
+  int imageIndex = 0;
+  unsigned int colours[3];
+  unsigned int alphaChannel;
+  unsigned int currentLine;
+  unsigned int currentColumn;
+  unsigned int rowOffset;
+
+  currentLine = 0;
+
+  for (currentLine = 0; currentLine < lines; currentLine++) {
+
+    //printf("Currnet line %d\n", currentLine);
+
+    rowOffset = scanLineSize * currentLine;
+
+    for (currentColumn = 0; currentColumn < imageWidth; currentColumn++) {
+
+      unsigned int pixelOffset;
+      unsigned int i;
+
+      //      printf("Currnet column %d\n", currentColumn);
+
+      pixelOffset = rowOffset + currentColumn * 4;
+
+
+      // Initialize colours for this pixel
+      alphaChannel = 0;
+      for (i=0;i<3;i++)
+	colours[i] =0;
+
+
+      // Do alpha blending, from top to bottom. Bail out when alpha channel is equal to maximum
+
+      for (imageIndex =counterImageFiles-1; imageIndex >= 0; imageIndex--) {
+
+	unsigned int alphaContribution;
+	unsigned char *ptrPixel;
+	unsigned int bottomAlpha;
+	unsigned int index;
+
+
+	//	printf("Currnet image %d\n", imageIndex);
+
+
+	// The alpha blending algorithm is (for premultiplied values)
+
+	// C_result = C_above + C_below * (1 - alpha_above)
+	// A_result = Alpha_above + alpha_below * (1 - alpha_above)
+
+	// Find pixel in this layer
+	ptrPixel = imageDataBuffers[imageIndex] + pixelOffset;
+
+
+	//	printf("TO read pixel\n");
+
+	bottomAlpha = *(ptrPixel + 3); // this should be the value of the mask for this particular pixel
+	
+	//	printf("After read pixel\n");
+
+	alphaContribution = ((0xff - alphaChannel) *  bottomAlpha)/0xff;
+
+	// I don't really think this step is necessary, but due to innestability of the calculation
+	// alphaContribution it might overflow the byte valuex
+
+	if ( alphaChannel + alphaContribution > 0xff ) {
+	  alphaContribution = 0xff - alphaChannel;
+	}
+
+	alphaChannel += alphaContribution;
+
+	// Makek sure the alpha channel is within range
+	assert(alphaChannel >= 0 && alphaChannel <= 0xff);
+
+	// now do the colours
+
+	//	printf("TO set pixel\n");
+
+	for (index = 0; index < 3; index ++) {
+	  colours[index] += (*(ptrPixel+index) * alphaContribution)/0xff ; // 
+	  if (!(colours[index] >= 0 && colours[index] <= 0xff)) {
+	    printf("PPPPPPPPPPPPPPPPPanic %d index [%d]\n", colours[index], index);
+	  }
+	  assert(colours[index] >= 0 && colours[index] <= 0xff);
+	}
+
+	// We don't need to continue if the alpha channel is at the max
+	if ( alphaChannel >= 0xff )
+	  break;
+
+      } // for (imageIndex =counterImageFiles-1; imageIndex >= 0; imageIndex--) {
+
+      // Is it really necessary to check the values of the colours and alphachannel to make
+      // sure they are not overflowing a byte?
+      
+      // Set the value of the pixel
+      for (i=0;i<3;i++) {
+	assert(colours[i] <= 0xff && colours[i] >= 0);
+	*(resultBuffer + pixelOffset + i) = colours[i];
+      }
+
+      *(resultBuffer + pixelOffset + 3) = alphaChannel;
+
+
+    } //(currentColumn < imageWidth)
+
+  } //for currentLine < lines
+
+}
+
+
+void BlendLayers(unsigned char **imageDataBuffers, unsigned int counterImageFiles, char *resultBuffer, 
+		 unsigned int linesToRead,
+		 unsigned int imageWidth, unsigned int bitsPerPixel, unsigned int scanLineSize)
+{
+
+  if (bitsPerPixel == 32) {
+    BlendLayers8Bit(imageDataBuffers, counterImageFiles, resultBuffer, linesToRead, imageWidth, scanLineSize);
+  } else if (bitsPerPixel == 64) {
+    PrintError("Blending of 16bit images not supported yet");
+      //    BlendLayers64(imageDataBuffers, counterImageFiles, resultBuffer, linesToRead, imageWidth, scanLineSize);
+  }
+}
+
+int FlattenTIFF(fullPath *fullPathImages, int counterImageFiles, fullPath *outputFileName, int removeOriginals)
+{
+		     
+  //+12   counterImageFil	es
+  //+8    fullPathImages
+
+  //  scanLineSize
+
+  /*
+  unsigned int linesToRead;
+  unsigned int offsetThisPass;
+  unsigned int linesPerPass;
+
+  unsigned int samplesPerPixel;
+  */
+  TIFF **tiffFileHandles;
+  unsigned char **imageDataBuffers;
+  unsigned char *resultBuffer;
+  
+  
+  fullPath var512;
+  char var1024[512];
+  pt_tiff_parms otherFileParms;
+  pt_tiff_parms imageParameters;
+  TIFF *tiffFile;
+  unsigned int linesPerPass;
+
+  unsigned int i;
+  unsigned int offsetBeforeThisPass = 0;
+  int linesLeft = 0;
+  unsigned int linesToRead;
+
+
+  if (!TiffGetImageParametersFromPathName(&fullPathImages[0], &imageParameters)) {
+    PrintError("Could not read TIFF-file");
+    return -1;
+  }
+  
+  strcpy(var512.name, fullPathImages[0].name);
+
+  if (makeTempPath(&var512) != 0) {
+    PrintError("Could not make Tempfile");
+    return -1;
+  }
+
+  if (GetFullPath(&var512, var1024) != 0) {
+    PrintError("Could not get filename");
+    return -1;
+  }
+
+  if ((tiffFile = TIFFOpen(var1024, "w")) == 0) {
+    PrintError("Could not create TIFF file");
+    return -1;
+  }
+
+  TiffSetImageParameters(tiffFile, &imageParameters);
+
+
+  // 500,000? 
+  // Read 500000 bytes at a time
+
+  linesPerPass = 500000 /imageParameters.bytesPerLine;
+
+  if (linesPerPass == 0) {
+
+    linesPerPass = 1;
+  
+  }
+  
+  // We dont need to read more lines that the size of the file
+  if (imageParameters.imageLength < linesPerPass ) { //   
+    
+    linesPerPass = imageParameters.imageLength;
+    if (linesPerPass == 0) {
+      PrintError("Invalid image length in TIFF file. It might be corrupted");
+      return -1;
+    }
+  }
+  
+  tiffFileHandles = calloc(counterImageFiles, sizeof(TIFF*));
+  
+
+  for (i = 0; i < counterImageFiles; i ++ ) {        // ends at 804dfd7
+    
+    
+    if (GetFullPath(&fullPathImages[i], var1024) != 0) {
+      PrintError("Could not get filename");
+      return -1;
+    }
+    
+    if ((tiffFileHandles[i] = TIFFOpen(var1024, "r")) == 0) {
+      PrintError("Could not open TIFF-Layer %d", i);
+      return -1;
+    }
+    
+  } // end of for loop
+
+
+  imageDataBuffers = calloc(counterImageFiles,sizeof(unsigned char*));
+
+  for (i = 0; i < counterImageFiles; i ++) {
+    //    printf("szie of scan line %d \n",imageParameters.bytesPerLine);
+    imageDataBuffers[i] = calloc(linesPerPass * imageParameters.bytesPerLine, 1);
+
+  }
+
+  resultBuffer = calloc(linesPerPass * imageParameters.bytesPerLine, 1);
+  
+  if (resultBuffer == NULL) {
+    PrintError("Not enough memory");
+    return -1;
+  }
+
+  // Process the image in batches of close to 500,000 bytes each
+
+  offsetBeforeThisPass = 0;
+
+  if (quietFlag == 0) {
+    Progress(_initProgress, "Flattening Image");
+  }
+
+  //  printf("To do %d lines\n", imageParameters.imageLength);
+
+  linesLeft = imageParameters.imageLength;
+
+  while (linesLeft > 0) {
+
+    if (linesLeft > linesPerPass) 
+      linesToRead = linesPerPass;
+    else
+      linesToRead = linesLeft;
+
+    for (i = 0; i < counterImageFiles; i ++) {
+      int rowInPass;
+
+      // Read data 
+
+      for (rowInPass = 0; rowInPass < linesToRead; rowInPass++) {
+
+	//	printf("Passing %d %d\n", offsetBeforeThisPass, rowInPass);
+	if (TIFFReadScanline(tiffFileHandles[i], imageDataBuffers[i]  + imageParameters.bytesPerLine *rowInPass, 
+			     offsetBeforeThisPass + rowInPass, 0) != 1) {
+	  PrintError("Error reading tiff file\n");
+	  return -1;
+	}
+      } 
+    } //end of for loop
+
+    //    printf("Passing offsetAfterThisPass [%d] of [%d] linesPerPass  %d \n",offsetAfterThisPass, imageParameters.imageLength, linesPerPass);
+
+    if (quietFlag == 0) {
+
+      sprintf(var1024, "%d", (offsetBeforeThisPass+linesToRead)  * 100 / imageParameters.imageLength);
+
+      if (Progress(_setProgress, var1024) == 0) {
+	return -1;
+      }
+
+    }
+    
+    // FlattenImageSection
+
+    BlendLayers(imageDataBuffers, counterImageFiles, resultBuffer, 
+		linesToRead,
+		imageParameters.imageWidth, imageParameters.bitsPerPixel, 
+		imageParameters.bytesPerLine);
+
+    for (i = 0; i < linesToRead; i++) {
+      //      printf("Line to write %d\n", offsetBeforeThisPass + i);
+      TIFFWriteScanline(tiffFile, resultBuffer + imageParameters.bytesPerLine * i, offsetBeforeThisPass + i, 0);
+      //      TIFFWriteScanline(tiffFile, imageDataBuffers[0] + imageParameters.bytesPerLine * i, offsetBeforeThisPass + i, 0);
+
+    } // end of for
+
+    offsetBeforeThisPass += linesToRead;
+
+    linesLeft -= linesToRead;
+
+  } 
+
+  if (!quietFlag) 
+    Progress(_disposeProgress, "Done flattening.");
+
+  //  printf("Lines read %d from %d\n", offsetBeforeThisPass,imageParameters.imageLength);
+
+  for (i = 0; i < counterImageFiles; i ++) {
+    free(imageDataBuffers[i]);
+    TIFFClose(tiffFileHandles[i]);
+  }
+
+  TIFFClose(tiffFile);
+
+  if (removeOriginals) {
+    for (i = 0; i < counterImageFiles; i ++) {
+      remove(fullPathImages[i].name);
+    }
+  }
+
+  rename(var512.name, outputFileName->name);
+
+  free(tiffFileHandles);
+
+  free(imageDataBuffers);
+  free(resultBuffer);
+
+  return 0;
+
+}
+
+
 #ifdef __Win__
 void InsertFileName( fullPath *fp, char *fname ){
 	char *c = strrchr((char*)(fp->name), PATH_SEP);
@@ -1178,4 +1526,7 @@ void InsertFileName( fullPath *fp, char *fname ){
 	strcpy( c, fname );
 }	
 #endif
+
+
+
 
