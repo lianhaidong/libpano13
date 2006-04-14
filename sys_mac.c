@@ -94,7 +94,7 @@ void unsetLibToResFile( void )
 
 // Error reporting
 
-void  PrintError( char* fmt, ...)
+void  PrintErrorIntern( char* fmt, ...)
 {
 	va_list	ap;
 	char message[257];
@@ -116,7 +116,7 @@ void  PrintError( char* fmt, ...)
 
 // Progress report; return false if canceled
 
-int Progress( int command, char* argument )
+int ProgressIntern( int command, char* argument )
 {
 	static GrafPtr 		port;			// Must all be static 
 	static DialogPtr	dialog = nil;
@@ -227,7 +227,7 @@ int Progress( int command, char* argument )
 
 
 
-int infoDlg ( int command, char* argument )	// Display info: same argumenmts as progress
+int infoDlgIntern ( int command, char* argument )	// Display info: same argumenmts as progress
 {
 	static GrafPtr 		port;			// Must all be static 
 	static DialogPtr	dialog;

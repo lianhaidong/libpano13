@@ -103,7 +103,7 @@ void filter_main( TrformStr *TrPtr, struct size_Prefs *spref)
 
 // Error reporting
 
-void  PrintError(char* fmt, ...){
+void  PrintErrorIntern(char* fmt, ...){
 	va_list	ap;
 	char message[257];
 	
@@ -122,7 +122,7 @@ void  PrintError(char* fmt, ...){
 // Progress report; return false if canceled
 
 
-int Progress( int command, char* argument ){
+int ProgressIntern( int command, char* argument ){
 	static HWND hwDlg = NULL;
 	MSG	msg;
 	long percent;	
@@ -192,7 +192,7 @@ int Progress( int command, char* argument ){
 }
 
 
-int infoDlg ( int command, char* argument )	// Display info: same argumenmts as progress
+int infoDlgIntern ( int command, char* argument )	// Display info: same argumenmts as progress
 {
 	char 				text[256];
 	static char			mainMessage[256];						

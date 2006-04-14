@@ -71,7 +71,7 @@ void filter_main( TrformStr *TrPtr, struct size_Prefs *spref)
 
 // Error reporting
 
-void  PrintError( char* fmt, ...)
+void  PrintErrorIntern( char* fmt, ...)
 {
 	va_list	ap;
 	char message[255];
@@ -85,7 +85,7 @@ void  PrintError( char* fmt, ...)
 
 // Progress report; return false if canceled
 
-int Progress( int command, char* argument )
+int ProgressIntern( int command, char* argument )
 {
 	double percentage;
 
@@ -111,7 +111,7 @@ int Progress( int command, char* argument )
 	return TRUE;
 }
 
-int infoDlg ( int command, char* argument )	// Display info: same argumenmts as progress
+int infoDlgIntern ( int command, char* argument )	// Display info: same argumenmts as progress
 {
 	if( command != _setProgress)
 		return Progress( command, argument );

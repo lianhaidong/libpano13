@@ -538,8 +538,11 @@ enum{					// Enumerates used by Progress and infoDlg
 	_idleProgress		// do nothing; on Mac: call waitnextevent;
 	};
 
+void PT_setProgressFcn(int (*ptr)(int, char *));           // set custom progress callback
 int 	Progress( int command, char* argument );	// Progress Reporting 
+void PT_setInfoDlgFcn(int (*ptr)(int, char *));            // set custom info callback
 int 	infoDlg ( int command, char* argument );	// Display info: same argumenmts as progress
+void PT_setErrorFcn( void (*ptr)( char* , ...));         // set custom error function
 void  	PrintError( char* fmt, ...);				// Error Reporting
 
 int 	ccommand( char ***argvPtr);					// Shell for standalone programs

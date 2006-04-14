@@ -48,4 +48,9 @@ int queryFeatureInt(const char *name, int *result);
 int queryFeatureDouble(const char *name, double *result);
 int queryFeatureString(const char *name,char *result, const int bufsize);
 
+/** defined if progress and output dialogs can be overridden by using
+ *  setProgressFcn, setInfoDlgFcn and setErrorFcn
+ */
+#define PANO12_FEATURE_DLG_FCN 1
+
 #endif

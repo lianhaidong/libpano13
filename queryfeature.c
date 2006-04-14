@@ -27,7 +27,8 @@ TIntFeature intFeatures[] ={
   {"CanCropOutside",1},
   {"CanHaveNegativeCP",1},
   {"AntiAliasingFilter",1},
-  {"NumFilter",24}
+  {"NumFilter",24},
+  {"SetProgressFcn",1}             // setProgressFcn and setInfoDlgFcn are available
 };
 
 TDoubleFeature doubleFeatures[] ={
