@@ -1,3 +1,8 @@
+2006-04-14  dmg  <dmg@hydrogen.dmg>
+
+	* Patch by Pablo de Angelo to support a callback for error and
+	progress reporting. Committed by Bruno Postle.
+
 2006-04-10  dmg  <dmgerman@uvic.ca>
 
 	* Released version 0.4 of PTblender and PTmender.
