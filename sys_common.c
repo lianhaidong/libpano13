@@ -39,7 +39,7 @@ int infoDlgIntern( int command, char* argument );
 
 void PT_setErrorFcn(void (*ptr)(char *, ...))
 {
-    g_progressFcn = ptr;
+    g_printErrorFcn = ptr;
 }
 
 void PT_setProgressFcn(int (*ptr)(int, char *))
