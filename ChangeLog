@@ -1,32 +1,3 @@
-2006-04-14  dmg  <dmg@hydrogen.dmg>
-
-	* Patch by Pablo de Angelo to support a callback for error and
-	progress reporting. Committed by Bruno Postle.
-
-2006-04-10  dmg  <dmgerman@uvic.ca>
-
-	* Released version 0.4 of PTblender and PTmender.
-	
-	* toos/README.PTmender: updated it.
-	
-	* tools/PTmender.h: removed some prototypes from the file that
-	belong now to PTcommon.h
-	
-	* tools/PTmender.c: added support for flattening tiffs (including,
-	by extension, JPG and PNG support).
-	
-	* tools/PTcommon.h: moved pt_tiff_parms into it, moved some
-	prototypes from tools/PTmender.h
-	
-	* tools/PTcommon.c: Added blending of TIFFs into a single
-	one. JPG creation.
-	
-	* tools/PTblender.c: added JPG creation.
-
-2006-04-09  dmg  <dmgerman@uvic.ca>
-
-	* rgbe.c: Replaced #include <malloc.h> with <stdlib.h> to avoid
-	MacOS compilation error
 
 2006-02-21 10:19:20  dmg  (dmg)
 

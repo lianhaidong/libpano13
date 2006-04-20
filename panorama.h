@@ -221,7 +221,12 @@ enum{				// Enumerates for Image.format
 	_spherical_tp	= 6,
 	_mirror			= 7,
 	_orthographic 	= 8,
-	_cubic			= 9
+	_cubic			= 9,
+	_stereographic  = 10,
+	_mercator       = 11,
+	_trans_mercator = 12,
+	_trans_panorama = 13,
+	_sinusoidal     = 14
 	};
 
 // A large rectangle

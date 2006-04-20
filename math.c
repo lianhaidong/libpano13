@@ -202,11 +202,29 @@ void execute_stack		( double x_dest, double y_dest, double* x_src, double* y_src
 	}
 }
 	
+int execute_stack_try( double x_dest, double y_dest, double* x_src, double* y_src, void* params)
+{
+    register double xd = x_dest,
+                    yd = y_dest;
+    register struct fDesc*  stack = (struct fDesc *) params;
+
+    while( (stack->func) != NULL )
+    {
+        if ( (stack->func) ( xd, yd, x_src, y_src, stack->param ) ) {
+            xd = *x_src;
+            yd = *y_src;
+            stack++;
+        } else {
+            return 0;
+        }
+    }
+    return 1;
+}
 
 
 // Rotate equirectangular image
 
-void rotate_erect( double x_dest, double y_dest, double* x_src, double* y_src, void* params)
+int rotate_erect( double x_dest, double y_dest, double* x_src, double* y_src, void* params)
 {
 	// params: double 180degree_turn(screenpoints), double turn(screenpoints);
 
@@ -219,6 +237,7 @@ void rotate_erect( double x_dest, double y_dest, double* x_src, double* y_src, v
 			*x_src -= 2 *  var0;
 
 		*y_src = y_dest ;
+    return 1;
 }
 
 
@@ -227,7 +246,7 @@ void rotate_erect( double x_dest, double y_dest, double* x_src, double* y_src, v
 // Don't use on large image (slow)!
 
 
-void inv_radial( double x_dest, double y_dest, double* x_src, double* y_src, void* params)
+int inv_radial( double x_dest, double y_dest, double* x_src, double* y_src, void* params)
 {
 	// params: double coefficients[4]
 
@@ -254,9 +273,10 @@ void inv_radial( double x_dest, double y_dest, double* x_src, double* y_src, voi
 	
 	*x_src = x_dest * scale  ;
 	*y_src = y_dest * scale  ;
+    return 1;
 }
 
-void inv_vertical( double x_dest, double y_dest, double* x_src, double* y_src, void* params)
+int inv_vertical( double x_dest, double y_dest, double* x_src, double* y_src, void* params)
 {
 	// params: double coefficients[4]
 
@@ -283,44 +303,49 @@ void inv_vertical( double x_dest, double y_dest, double* x_src, double* y_src, v
 	
 	*x_src = x_dest  ;
 	*y_src = y_dest * scale  ;
+    return 1;
 }
 
 
 
-void resize( double x_dest, double y_dest, double* x_src, double* y_src, void* params)
+int resize( double x_dest, double y_dest, double* x_src, double* y_src, void* params)
 {
 	// params: double scale_horizontal, double scale_vertical;
 
 		*x_src = x_dest * var0;
 		*y_src = y_dest * var1;
+    return 1;
 }
 
-void shear( double x_dest, double y_dest, double* x_src, double* y_src, void* params)
+int shear( double x_dest, double y_dest, double* x_src, double* y_src, void* params)
 {
 	// params: double shear_horizontal, double shear_vertical;
 
 		*x_src  = x_dest + var0 * y_dest;
 		*y_src  = y_dest + var1 * x_dest;
+    return 1;
 }
 
-void horiz( double x_dest, double y_dest, double* x_src, double* y_src, void* params)
+int horiz( double x_dest, double y_dest, double* x_src, double* y_src, void* params)
 {
 	// params: double horizontal shift
 
 		*x_src	= x_dest + shift;	
 		*y_src  = y_dest;
+    return 1;
 }
 
-void vert( double x_dest, double y_dest, double* x_src, double* y_src, void* params)
+int vert( double x_dest, double y_dest, double* x_src, double* y_src, void* params)
 {
 	// params: double vertical shift
 
 		*x_src	= x_dest;	
 		*y_src  = y_dest + shift;		
+    return 1;
 }
 
 	
-void radial( double x_dest, double y_dest, double* x_src, double* y_src, void* params)
+int radial( double x_dest, double y_dest, double* x_src, double* y_src, void* params)
 {
 	// params: double coefficients[4], scale, correction_radius
 
@@ -337,9 +362,10 @@ void radial( double x_dest, double y_dest, double* x_src, double* y_src, void* p
 	
 	*x_src = x_dest * scale  ;
 	*y_src = y_dest * scale  ;
+    return 1;
 }
 
-void vertical( double x_dest, double y_dest, double* x_src, double* y_src, void* params)
+int vertical( double x_dest, double y_dest, double* x_src, double* y_src, void* params)
 {
 	// params: double coefficients[4]
 
@@ -354,9 +380,10 @@ void vertical( double x_dest, double y_dest, double* x_src, double* y_src, void*
 	
 	*x_src = x_dest;
 	*y_src = y_dest * scale  ;
+    return 1;
 }
 
-void deregister( double x_dest, double y_dest, double* x_src, double* y_src, void* params)
+int deregister( double x_dest, double y_dest, double* x_src, double* y_src, void* params)
 {
 	// params: double coefficients[4]
 
@@ -371,12 +398,13 @@ void deregister( double x_dest, double y_dest, double* x_src, double* y_src, voi
 	
 	*x_src = x_dest + abs( y_dest ) * scale;
 	*y_src = y_dest ;
+    return 1;
 }
 
 
 
 	
-void persp_sphere( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
+int persp_sphere( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {
 	// params :  double Matrix[3][3], double distance
 
@@ -420,10 +448,10 @@ void persp_sphere( double x_dest,double  y_dest, double* x_src, double* y_src, v
 	*x_src 	= theta * v[0];
 	*y_src 	= theta * v[1];
 
-
+    return 1;
 }	
 
-void persp_rect( double x_dest, double y_dest, double* x_src, double* y_src, void* params)
+int persp_rect( double x_dest, double y_dest, double* x_src, double* y_src, void* params)
 {
 	// params :  double Matrix[3][3], double distance, double x-offset, double y-offset
 
@@ -437,24 +465,27 @@ void persp_rect( double x_dest, double y_dest, double* x_src, double* y_src, voi
 	
 	*x_src = v[0] * *((double*) ((void**)params)[1]) / v[2] ;
 	*y_src = v[1] * *((double*) ((void**)params)[1]) / v[2] ;
+    return 1;
 }
 
 
 
-void rect_pano( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
+int rect_pano( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {									
 								
 	*x_src = distance * tan( x_dest / distance ) ;
 	*y_src = y_dest / cos( x_dest / distance );
+    return 1;
 }
 
-void pano_rect( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
+int pano_rect( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {	
 	*x_src = distance * atan ( x_dest / distance );
 	*y_src = y_dest * cos( *x_src / distance );
+    return 1;
 }
 
-void rect_erect( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
+int rect_erect( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {	
 	// params: double distance
 
@@ -491,25 +522,183 @@ void rect_erect( double x_dest,double  y_dest, double* x_src, double* y_src, voi
 	*x_src = distance * tan(phi);
 	*y_src = distance / (tan( theta ) * cos(phi));
 #endif
+    return 1;
 }
 
-void pano_erect( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
+int pano_erect( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {	
 	// params: double distance
 
 	*x_src = x_dest;
 	*y_src = distance * tan( y_dest / distance);
+    return 1;
 }
 
-void erect_pano( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
+int erect_pano( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {	
 	// params: double distance
 
 	*x_src = x_dest;
 	*y_src = distance * atan( y_dest / distance);
+    return 1;
 }
 
-void sphere_cp_erect( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
+/** convert from erect to mercator */
+int mercator_erect( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
+{
+    // params: distance
+    *x_src = x_dest;
+    *y_src = distance*log(tan(y_dest/distance)+1/cos(y_dest/distance));
+    return 1;
+}
+
+/** convert from mercator to erect */
+int erect_mercator( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
+{
+    // params: distance
+    *x_src = x_dest;
+    *y_src = distance*atan(sinh(y_dest/distance));
+    return 1;
+}
+
+
+/** convert from erect to transverse mercator */
+int transmercator_erect( double x_dest,double  y_dest, double* x_src, double* y_src, void*  params)
+{
+    // params: distance
+    double B;
+    x_dest /= distance;
+    y_dest /= distance;
+    B = cos(y_dest)*sin(x_dest);
+    *x_src = distance / tanh(B);
+    *y_src = distance * atan(tan(y_dest)/cos(x_dest));
+    return 1;
+}
+
+/** convert from erect to transverse mercator */
+int erect_transmercator( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
+{
+    // params: distance
+    x_dest /= distance;
+    y_dest /= distance;
+    *x_src = distance * atan(sinh(x_dest)/cos(y_dest));
+    *y_src = distance * asin(sin(y_dest)/cosh(x_dest));
+    return 1;
+}
+
+/** convert from erect to sinusoidal */
+int sinusoidal_erect( double x_dest,double  y_dest, double* x_src, double* y_src, void*  params)
+{
+    // params: distance
+
+    *x_src = distance * (x_dest/distance*cos(y_dest/distance));
+    *y_src = y_dest;
+    return 1;
+}
+
+/** convert from sinusoidal to erect */
+int erect_sinusoidal( double x_dest,double  y_dest, double* x_src, double* y_src, void*  params)
+{
+    // params: distance
+
+    *y_src = y_dest;
+    *x_src = x_dest/cos(y_dest/distance);
+    // TODO: need to check if we are outside of the source
+    return 1;
+}
+
+/** convert from erect to stereographic */
+int stereographic_erect_old( double x_dest,double  y_dest, double* x_src, double* y_src, void*  params)
+{
+    // params: distance
+    double lon = x_dest / distance;
+    double lat = y_dest / distance;
+
+    // use: R = 1
+    double k=2.0/(1+cos(lat)*cos(lon));
+    *x_src = distance * k*cos(lat)*sin(lon);
+    *y_src = distance * k*sin(lat);
+    return 1;
+}
+
+int stereographic_erect( double x_dest,double  y_dest, double* x_src, double* y_src, void*  params)
+{
+    double lon, lat;
+    double sinphi, cosphi, coslon;
+    double g,ksp;
+
+    lon = x_dest / distance;
+    lat = y_dest / distance;
+
+    sinphi = sin(lat);
+    cosphi = cos(lat);
+    coslon = cos(lon);
+
+    g = cosphi * coslon;
+
+    // point projects to infinity:
+    //    if (fabs(g + 1.0) <= EPSLN)
+
+    ksp = distance * 2.0 / (1.0 + g);
+    *x_src = ksp * cosphi * sin(lon);
+    *y_src = ksp * sinphi;
+
+    return 1;
+}
+
+/** convert from stereographic to erect */
+int erect_stereographic( double x_dest,double  y_dest, double* lon, double* lat, void*  params)
+{
+    double rh;		/* height above sphere*/
+    double c;		/* angle					*/
+    double sinc,cosc;	/* sin of c and cos of c			*/
+    double con;
+
+    /* Inverse equations
+     -----------------*/
+    double x = x_dest / distance;
+    double y = y_dest / distance;
+    rh = sqrt(x * x + y * y);
+    c = 2.0 * atan(rh / (2.0 * 1));
+    sinc = sin(c);
+    cosc = cos(c);
+    *lon = 0;
+    if (fabs(rh) <= EPSLN)
+    {
+        *lat = 0;
+        return 0;
+    }
+    else
+    {
+        *lat = asin((y * sinc) / rh) * distance;
+        con = HALF_PI;
+   
+        con = cosc;
+        if ((fabs(cosc) < EPSLN) && (fabs(x) < EPSLN))
+            return 0;
+        else
+            *lon = atan2((x * sinc), (cosc * rh)) * distance;
+    }
+    return 1;
+}
+
+
+/** convert from stereographic to erect */
+int erect_stereographic_old( double x_dest,double  y_dest, double* x_src, double* y_src, void*  params)
+{
+    // params: distance
+
+    // use: R = 1
+    double p=sqrt(x_dest*x_dest + y_dest*y_dest) / distance;
+    double c= 2.0*atan(p/2.0);
+
+    *x_src = distance * atan2(x_dest/distance*sin(c),(p*cos(c)));
+    *y_src = distance * asin(y_dest/distance*sin(c)/p);
+    return 1;
+}
+
+
+int sphere_cp_erect( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {
 	// params: double distance, double b
 
@@ -526,9 +715,10 @@ void sphere_cp_erect( double x_dest,double  y_dest, double* x_src, double* y_src
 	
 	*x_src =  theta * cos( phi );
 	*y_src =  theta * sin( phi );
+    return 1;
 }
 
-void sphere_tp_erect( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
+int sphere_tp_erect( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {
 	// params: double distance
 
@@ -571,10 +761,10 @@ void sphere_tp_erect( double x_dest,double  y_dest, double* x_src, double* y_src
 	
 	*x_src =  theta * v[0] / r;
 	*y_src =  theta * v[1] / r;
-
+    return 1;
 }
 
-void erect_sphere_cp( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
+int erect_sphere_cp( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {
 	// params: double distance, double b
 
@@ -592,10 +782,10 @@ void erect_sphere_cp( double x_dest,double  y_dest, double* x_src, double* y_src
 	
 	*x_src = var0 * phi;
 	*y_src = theta - var1;
-	
+    return 1;
 }
 
-void rect_sphere_tp( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
+int rect_sphere_tp( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {
 	// params: double distance
 
@@ -624,9 +814,10 @@ void rect_sphere_tp( double x_dest,double  y_dest, double* x_src, double* y_src,
 		rho =  tan( theta ) / theta;
 	*x_src = rho * x_dest ;
 	*y_src = rho * y_dest ;
+    return 1;
 }
 
-void sphere_tp_rect( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
+int sphere_tp_rect( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {	
 	// params: double distance
 
@@ -647,10 +838,10 @@ void sphere_tp_rect( double x_dest,double  y_dest, double* x_src, double* y_src,
 	
 	*x_src =  theta * x_dest ;
 	*y_src =  theta * y_dest ;
-
+    return 1;
 }
 
-void sphere_tp_pano( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
+int sphere_tp_pano( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {
 	// params: double distance
 
@@ -685,10 +876,10 @@ void sphere_tp_pano( double x_dest,double  y_dest, double* x_src, double* y_src,
 	*x_src =  theta * s ;
 	*y_src =  theta * y_dest ;
 #endif
-
+    return 1;
 }
 
-void pano_sphere_tp( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
+int pano_sphere_tp( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {
 	// params: double distance
 	register double r,s, theta;
@@ -723,11 +914,11 @@ void pano_sphere_tp( double x_dest,double  y_dest, double* x_src, double* y_src,
 	*x_src = distance * atan2( v[1], v[0] );
 	*y_src = distance * s * y_dest / sqrt( v[0]*v[0] + v[1]*v[1] );
 
-
+    return 1;
 }
 
 
-void sphere_cp_pano( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
+int sphere_cp_pano( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {
 	// params: double distance
 
@@ -739,9 +930,10 @@ void sphere_cp_pano( double x_dest,double  y_dest, double* x_src, double* y_src,
 
 	*x_src = distance * theta * cos( phi );
 	*y_src = distance * theta * sin( phi );
+    return 1;
 }
 
-void erect_rect( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
+int erect_rect( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {
 	// params: double distance
 #if 0
@@ -763,11 +955,11 @@ void erect_rect( double x_dest,double  y_dest, double* x_src, double* y_src, voi
 	*x_src = distance * atan2( x_dest, distance );
 	*y_src = distance * atan2(  y_dest, sqrt( distance*distance + x_dest*x_dest ) );
 
-
+    return 1;
 }
 
 
-void erect_sphere_tp( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
+int erect_sphere_tp( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {
 	// params: double distance
 
@@ -805,9 +997,10 @@ void erect_sphere_tp( double x_dest,double  y_dest, double* x_src, double* y_src
 
 	*x_src = distance * atan2( v[1], v[0] );
 	*y_src = distance * atan( s * y_dest /sqrt( v[0]*v[0] + v[1]*v[1] ) ); 
+    return 1;
 }
 
-void mirror_sphere_cp( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
+int mirror_sphere_cp( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {
 	// params: double distance, double b
 
@@ -820,9 +1013,10 @@ void mirror_sphere_cp( double x_dest,double  y_dest, double* x_src, double* y_sr
 	
 	*x_src = - rho * cos( phi );
 	*y_src = rho * sin( phi );
+    return 1;
 }
 
-void mirror_erect( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
+int mirror_erect( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {
 	// params: double distance, double b, double b2
 
@@ -835,9 +1029,10 @@ void mirror_erect( double x_dest,double  y_dest, double* x_src, double* y_src, v
 	
 	*x_src = - rho * cos( phi );
 	*y_src = rho * sin( phi );
+    return 1;
 }
 
-void mirror_pano( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
+int mirror_pano( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {
 	// params: double distance, double b
 
@@ -851,9 +1046,10 @@ void mirror_pano( double x_dest,double  y_dest, double* x_src, double* y_src, vo
 	
 	*x_src = rho * cos( phi );
 	*y_src = rho * sin( phi );
+    return 1;
 }
 
-void sphere_cp_mirror( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
+int sphere_cp_mirror( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {
 	// params: double distance, double b
 
@@ -866,10 +1062,11 @@ void sphere_cp_mirror( double x_dest,double  y_dest, double* x_src, double* y_sr
 
 	*x_src = ((double*)params)[0] * theta * cos( phi );
 	*y_src = ((double*)params)[0] * theta * sin( phi );
+    return 1;
 }
 
 
-void shift_scale_rotate( double x_dest,double  y_dest, double* x_src, double* y_src, void* params){
+int shift_scale_rotate( double x_dest,double  y_dest, double* x_src, double* y_src, void* params){
 	// params: double shift_x, shift_y, scale, cos_phi, sin_phi
 	
 	register double x = x_dest - ((double*)params)[0];
@@ -877,6 +1074,7 @@ void shift_scale_rotate( double x_dest,double  y_dest, double* x_src, double* y_
 
 	*x_src = (x * ((double*)params)[3] - y * ((double*)params)[4]) * ((double*)params)[2];
 	*y_src = (x * ((double*)params)[4] + y * ((double*)params)[3]) * ((double*)params)[2];
+    return 1;
 }
 
 

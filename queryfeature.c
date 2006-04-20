@@ -23,7 +23,7 @@ typedef struct {char* name; char* value;}  TStringFeature;
 TIntFeature intFeatures[] ={
   {"CPErrorIsDistSphere",1},       // optimizer reports angular control point errors
   {"NumLensTypes",5},              // source lens types 0..4
-  {"NumPanoTypes",4},              // pano lens types 0..3
+  {"NumPanoTypes",8},              // pano lens types 0..7
   {"CanCropOutside",1},
   {"CanHaveNegativeCP",1},
   {"AntiAliasingFilter",1},
@@ -60,6 +60,10 @@ TStringFeature stringFeatures[]={
   {"PanoType1","Cylindrical"},
   {"PanoType2","Equirectangular"},
   {"PanoType3","Full Frame"},
+  {"PanoType4","Stereographic"},
+  {"PanoType5","Mercator"},
+  {"PanoType6","Transverse mercator"},
+  {"PanoType7","Sinusoidal"},
   // Filter Types
   //   fix: Fixed Windowsize
   //   aa: Antialiasing filter with adaptive filter size

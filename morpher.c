@@ -155,7 +155,7 @@ void SortControlPoints( AlignInfo *g, int nIm )
 
 #define OUTSIDE 10000000.0
 
-void tmorph( double x_dest,double  y_dest, double* x_src, double* y_src, void* params )
+int tmorph( double x_dest,double  y_dest, double* x_src, double* y_src, void* params )
 {
 	static int CurTriangle = 0;
 	double c[2];
@@ -188,6 +188,7 @@ void tmorph( double x_dest,double  y_dest, double* x_src, double* y_src, void* p
 	*x_src = s->v[0].x + c[0] * ( s->v[1].x - s->v[0].x ) + c[1] * ( s->v[2].x - s->v[0].x );
 	*y_src = s->v[0].y + c[0] * ( s->v[1].y - s->v[0].y ) + c[1] * ( s->v[2].y - s->v[0].y );
 	lastCurTriangle = CurTriangle;
+    return 1;
 }
 
 

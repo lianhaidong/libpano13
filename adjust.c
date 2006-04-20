@@ -505,8 +505,8 @@ void MyMakePano( TrformStr *TrPtr, aPrefs *aP, int imageNum )
 
 		if( TrPtr->success != 0)
 		{
-			fD.func = execute_stack; fD.param = stack;
-			finvD.func = execute_stack; finvD.param = invstack;
+			fD.func = execute_stack_try; fD.param = stack;
+			finvD.func = execute_stack_try; finvD.param = invstack;
 
 			transFormEx( TrPtr,  &fD , &finvD , k, imageNum );
 		}
@@ -551,8 +551,8 @@ void ExtractStill( TrformStr *TrPtr , aPrefs *aP )
 		
 		if( TrPtr->success != 0)
 		{
-			fD.func = execute_stack; fD.param = stack;
-			fDinv.func = execute_stack; fDinv.param = stackinv;
+			fD.func = execute_stack_try; fD.param = stack;
+			fDinv.func = execute_stack_try; fDinv.param = stackinv;
 			transFormEx( TrPtr, &fD, &fDinv, k, 1 );
 		}
 	}
@@ -565,6 +565,7 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
 {
 	int 		i;
 	double		a,b;						// field of view in rad
+        double          tx,ty, tpara;               // temporary variables
 /* Joost Nieuwenhuijse, 3 feb 2005: Fix for cropping bug
    If a script containing the 'C' crop parameter was stitched by PTStitcher,
    it would fail if the cropping area is partially outside the source image.
@@ -618,42 +619,110 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
 					mp->mt,
 					0 );
 
+#if 0
+        switch (pn->format)
+        {
+        case _rectilinear:
+            mp->distance        = (double) pn->width / (2.0 * tan(b/2.0));
+            if(im->format == _rectilinear) // rectilinear image
+            {
+                mp->scale[0] = ((double)pn->hfov / im->hfov) * 
+                                        (a /(2.0 * tan(a/2.0))) * ((double)image_selection_width/(double) pn->width)
+                                        * 2.0 * tan(b/2.0) / b; 
 
-	if(pn->format == _rectilinear)									// rectilinear panorama
-	{
-		mp->distance 	= (double) pn->width / (2.0 * tan(b/2.0));
-		if(im->format == _rectilinear)										// rectilinear image
-		{
-			mp->scale[0] = ((double)pn->hfov / im->hfov) * 
-						   (a /(2.0 * tan(a/2.0))) * ((double)image_selection_width/(double) pn->width)
-						   * 2.0 * tan(b/2.0) / b; 
+            }
+            else //  pamoramic or fisheye image
+            {
+                    mp->scale[0] = ((double)pn->hfov / im->hfov) * ((double)image_selection_width/ (double) pn->width)
+                                            * 2.0 * tan(b/2.0) / b; 
+            }
+            break;
+        case _equirectangular:
+        case _fisheye_ff:
+        case _panorama:
+        case _mercator:
+        case _sinusoidal:
+            // horizontal pixels per degree
+            mp->distance        = ((double) pn->width) / b;
+            if(im->format == _rectilinear) // rectilinear image
+            {
+                    mp->scale[0] = ((double)pn->hfov / im->hfov) * (a /(2.0 * tan(a/2.0))) * ((double)image_selection_width)/ ((double) pn->width); 
+            }
+            else //  pamoramic or fisheye image
+            {
+                    mp->scale[0] = ((double)pn->hfov / im->hfov) * ((double)image_selection_width)/ ((double) pn->width); 
+            }
+            break;
+        case _stereographic:
+        case _trans_mercator:
+        default:
+            break;
+        }
+        mp->scale[1]    = mp->scale[0];
 
-		}
-		else 																//  pamoramic or fisheye image
-		{
-			mp->scale[0] = ((double)pn->hfov / im->hfov) * ((double)image_selection_width/ (double) pn->width)
-						   * 2.0 * tan(b/2.0) / b; 
-		}
-	}
-	else																// equirectangular or panoramic or fisheye
-	{
-		mp->distance 	= ((double) pn->width) / b;
-		if(im->format == _rectilinear)										// rectilinear image
-		{
-			mp->scale[0] = ((double)pn->hfov / im->hfov) * (a /(2.0 * tan(a/2.0))) * ((double)image_selection_width)/ ((double) pn->width); 
+        printf("\nOrig params: mp->distance: %lf, mp->scale: %lf\n\n", mp->distance, mp->scale[0]);
+#endif
 
-		}
-		else 																//  pamoramic or fisheye image
-		{
-			mp->scale[0] = ((double)pn->hfov / im->hfov) * ((double)image_selection_width)/ ((double) pn->width); 
-		}
-	}
-	mp->scale[1] 	= mp->scale[0];
+ /* Pablo d'Angelo, April 2006.
+  * Added more output projection types. Broke mp->distance and mp->scale factor calculation
+  * into separate parts, making it easier to add new projection types
+ */
+        // calculate distance
+        switch (pn->format)
+        {
+        case _rectilinear:
+            mp->distance        = (double) pn->width / (2.0 * tan(b/2.0));
+            break;
+        case _equirectangular:
+        case _fisheye_ff:
+        case _panorama:
+        case _mercator:
+        case _sinusoidal:
+            // horizontal pixels per degree
+            mp->distance        = ((double) pn->width) / b;
+            break;
+        case _stereographic:
+            tpara = 1;
+            stereographic_erect(b/2.0, 0.0, &tx, &ty, & tpara);
+            mp->distance = pn->width/(2.0*tx);
+            break;
+        case _trans_mercator:
+            tpara = 1;
+            transmercator_erect(b/2.0, 0.0, &tx, &ty, &tpara);
+            mp->distance = pn->width/(2.0*tx);
+            break;
+        default:
+            // unknown
+            PrintError ("SetMakeParams: Unsupported panorama projection");
+            // no way to report an error back to the caller...
+            mp->distance = 1;
+        }
 
+        // calculate final scaling factor, that reverses the mp->distance
+        // scaling and applies the required output scaling factor
+        switch (im->format)
+        {
+        case _rectilinear:
+            // calculate distance for this projection
+            mp->scale[0] = (double) im->width / (2.0 * tan(a/2.0)) / mp->distance;
+            break;
+        case _equirectangular:
+        case _panorama:
+        case _fisheye_ff:
+            mp->scale[0] = ((double) im->width) / a / mp->distance;
+            break;
+        default:
+            PrintError ("SetMakeParams: Unsupported input image projection");
+            // no way to report an error back to the caller...
+            mp->scale[1] = 1;
+        }
+        mp->scale[1]    = mp->scale[0];
+
+//        printf("new params: mp->distance: %lf, mp->scale: %lf\n\n", mp->distance, mp->scale[0]);
 
 	mp->shear[0] 	= im->cP.shear_x / image_selection_height;
 	mp->shear[1] 	= im->cP.shear_y / image_selection_width;
-	mp->rot[0]		= mp->distance * PI;								// 180¡ in screenpoints
+	mp->rot[0]		= mp->distance * PI;								// 180 in screenpoints
 	mp->rot[1]		= -im->yaw *  mp->distance * PI / 180.0; 			//    rotation angle in screenpoints
 
 	mp->perspect[0] = (void*)(mp->mt);
@@ -687,6 +756,29 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
 	{
 		SetDesc(stack[i],	erect_sphere_tp,		&(mp->distance)	); i++;	// Convert panoramic to sphere
 	}
+   	else if(pn->format == _mercator)
+	{
+		SetDesc(stack[i],	erect_mercator,		&(mp->distance)	); i++;	// Convert mercator to sphere
+    }
+   	else if(pn->format == _trans_mercator)
+	{
+		SetDesc(stack[i], erect_transmercator, &(mp->distance)	); i++;	// Convert transverse mercator to sphere
+    }
+	else if(pn->format == _stereographic)
+	{
+		SetDesc(stack[i], erect_stereographic, &(mp->distance) ); i++;	// Convert stereographic to sphere
+    }
+   	else if(pn->format == _sinusoidal)
+	{
+		SetDesc(stack[i],	erect_sinusoidal,		&(mp->distance)	); i++;	// Convert sinusoidal to sphere
+	}
+   	else if(pn->format == _equirectangular) 
+	{
+		// no conversion needed		
+    } else {
+		PrintError("Projection type %d not supported, using equirectangular", pn->format);
+	}
+
 
 	SetDesc(	stack[i],	rotate_erect,		mp->rot			); i++;	// Rotate equirect. image horizontally
 	SetDesc(	stack[i],	sphere_tp_erect,	&(mp->distance)	); i++;	// Convert spherical image to equirect.
@@ -792,7 +884,7 @@ void 	SetInvMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , 
 
 	int 		i;
 	double		a,b;							// field of view in rad
-
+    double      tx,ty,tpara;
 
 	a =	 DEG_TO_RAD( im->hfov );	// field of view in rad		
 	b =	 DEG_TO_RAD( pn->hfov );
@@ -804,7 +896,58 @@ void 	SetInvMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , 
 				mp->mt, 
 				1 );
 
+        // dangelo: added mercator, sinusoidal and stereographic projection
+        switch (pn->format)
+        {
+        case _rectilinear:
+            mp->distance        = (double) pn->width / (2.0 * tan(b/2.0));
+            break;
+        case _equirectangular:
+        case _fisheye_ff:
+        case _panorama:
+        case _mercator:
+        case _sinusoidal:
+            // horizontal pixels per degree
+            mp->distance        = ((double) pn->width) / b;
+            break;
+        case _stereographic:
+            tpara = 1;
+            stereographic_erect(b/2.0, 0.0, &tx, &ty, & tpara);
+            mp->distance = pn->width/(2.0*tx);
+            break;
+        case _trans_mercator:
+            tpara = 1;
+            transmercator_erect(b/2.0, 0.0, &tx, &ty, & tpara);
+            mp->distance = pn->width/(2.0*tx);
+            break;
+        default:
+            // unknown
+            PrintError ("SetMakeParams: Unsupported panorama projection");
+            // no way to report an error back to the caller...
+            mp->distance = 1;
+        }
 
+        // calculate final scaling factor, that reverses the mp->distance
+        // scaling and applies the required output scaling factor
+        switch (im->format)
+        {
+        case _rectilinear:
+            // calculate distance for this projection
+            mp->scale[0] = (double) im->width / (2.0 * tan(a/2.0)) / mp->distance;
+            break;
+        case _equirectangular:
+        case _panorama:
+        case _fisheye_ff:
+            mp->scale[0] = ((double) im->width) / a / mp->distance;
+            break;
+        default:
+            PrintError ("SetMakeParams: Unsupported input image projection");
+            // no way to report an error back to the caller...
+            mp->scale[1] = 1;
+        }
+        mp->scale[1]    = mp->scale[0];
+
+        /*
 	if(pn->format == _rectilinear)									// rectilinear panorama
 	{
 		mp->distance 	= (double) pn->width / (2.0 * tan(b/2.0));
@@ -834,6 +977,8 @@ void 	SetInvMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , 
 			mp->scale[0] = ((double)pn->hfov / im->hfov) * ((double)im->width)/ ((double) pn->width); 
 		}
 	}
+        */
+
 	mp->shear[0] 	= -im->cP.shear_x / im->height;
 	mp->shear[1] 	= -im->cP.shear_y / im->width;
 	
@@ -852,7 +997,7 @@ void 	SetInvMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , 
 		case correction_mode_deregister: mp->rad[4] = ((double) im->height) / 2.0;break;
 	}
 
-	mp->rot[0]		= mp->distance * PI;								// 180¡ in screenpoints
+	mp->rot[0]		= mp->distance * PI;								// 180 in screenpoints
 	mp->rot[1]		= im->yaw *  mp->distance * PI / 180.0; 			//    rotation angle in screenpoints
 
 	mp->perspect[0] = (void*)(mp->mt);
@@ -918,6 +1063,28 @@ void 	SetInvMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , 
 	else if(pn->format == _fisheye_circ || pn->format == _fisheye_ff )
 	{
 		SetDesc(stack[i],	sphere_tp_erect,		&(mp->distance)	); i++;	// Convert rectilinear to spherical
+	}
+   	else if(pn->format == _mercator)
+	{
+		SetDesc(stack[i],	mercator_erect,		&(mp->distance)	); i++;	// Convert sphere to sphere
+    }
+   	else if(pn->format == _trans_mercator)
+	{
+		SetDesc(stack[i],	transmercator_erect,		&(mp->distance)	); i++;	// Convert sphere to transverse mercator
+    }
+	else if(pn->format == _stereographic)
+	{
+		SetDesc(stack[i],	stereographic_erect,		&(mp->distance)	); i++;	// Convert sphere to stereographic
+    }
+   	else if(pn->format == _sinusoidal)
+	{
+		SetDesc(stack[i],	sinusoidal_erect,		&(mp->distance)	); i++;	// Convert sphere to sinusoidal
+	}
+   	else if(pn->format == _equirectangular) 
+	{
+		// no conversion needed		
+    } else {
+		PrintError("Projection type %d not supported, using equirectangular", pn->format);
 	}
 	
 	stack[i].func = (trfn)NULL;

@@ -172,7 +172,7 @@ EXPORTS
 			queryFeatureInt @169
 			queryFeatureDouble @170
 			queryFeatureString @171
-                        PT_setProgressFcn @172
-                        PT_setInfoDlgFcn @173
-                        PT_setErrorFcn @174
+			PT_setProgressFcn @172
+			PT_setInfoDlgFcn @173
+                        PT_setErrorFcn @174 
 

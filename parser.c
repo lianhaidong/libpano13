@@ -443,15 +443,38 @@ int ParseScript( char* script, AlignInfo *gl )
 						PrintError( "Syntax error in line %d" , lineNum);
 						return -1;
 					}
-					// Convert format; rectilinear and panorama ok
-					
-					if( gl->pano.format == 2 )
-						gl->pano.format = _equirectangular;
-						
-						
-					if( gl->pano.format == _rectilinear && gl->pano.hfov >= 180.0 )
+					switch (gl->pano.format) {
+						case 0:
+							gl->pano.format = _rectilinear;
+							break;
+						case 1:
+							gl->pano.format = _panorama;
+							break;
+						case 2:
+							gl->pano.format = _equirectangular;
+							break;
+						case 3:
+							gl->pano.format = _fisheye_ff;
+							break;
+						case 4:
+							gl->pano.format = _stereographic;
+							break;
+						case 5:
+							gl->pano.format = _mercator;
+							break;
+						case 6:
+							gl->pano.format = _trans_mercator;
+							break;
+						case 7:
+							gl->pano.format = _sinusoidal;
+							break;
+						default:
+							PrintError( "Unknown panorama projection: %d", gl->pano.format );
+							return -1;
+					}
+					if( (gl->pano.format == _rectilinear || gl->pano.format == _trans_mercator) && gl->pano.hfov >= 180.0 )
 					{
-						PrintError( "Destination image must have FOV < 180" );
+						PrintError( "Destination image must have HFOV < 180" );
 						return -1;
 					}
 					break;
@@ -588,7 +611,8 @@ void WriteResults( char* script, fullPath *sfile,  AlignInfo *g, double ds( int 
 	sprintf( line, "\n# Panorama description\n" );strcat( res, line );
 	switch( g->pano.format )
 	{
-		case _equirectangular:		format = 2; break;
+                case _mercator:		        format = 4; break;
+                case _equirectangular:		format = 2; break;
 		case _rectilinear:			format = 0; break;
 		case _panorama:				format = 1; break;
 		default:			format = -1; break;
@@ -882,18 +906,38 @@ int readAdjust( aPrefs *p,  fullPath* sfile, int insert, sPrefs *sP )
 						free( script );
 						return -1;
 					}
-					// Convert format; rectilinear and panorama ok
-					
-					if( p->pano.format == 2 )
-						p->pano.format = _equirectangular;
-						
-					if( p->pano.height == 0 )
-						p->pano.height = p->pano.width/2;
-						
-					if( p->pano.format == _rectilinear && p->pano.hfov >= 180.0 )
+					switch (p->pano.format) {
+						case 0:
+							p->pano.format = _rectilinear;
+							break;
+						case 1:
+							p->pano.format = _panorama;
+							break;
+						case 2:
+							p->pano.format = _equirectangular;
+							break;
+						case 3:
+							p->pano.format = _fisheye_ff;
+							break;
+						case 4:
+							p->pano.format = _stereographic;
+							break;
+						case 5:
+							p->pano.format = _mercator;
+							break;
+						case 6:
+							p->pano.format = _trans_mercator;
+							break;
+						case 7:
+							p->pano.format = _sinusoidal;
+							break;
+						default:
+							PrintError( "Unknown panorama projection: %d", p->pano.format );
+							return -1;
+					}
+					if( (p->pano.format == _rectilinear || p->pano.format == _trans_mercator) && p->pano.hfov >= 180.0 )
 					{
-						PrintError( "Destination image must have FOV < 180" );
-						free( script );
+						PrintError( "Destination image must have HFOV < 180" );
 						return -1;
 					}
 					break;

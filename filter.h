@@ -58,6 +58,11 @@ enum{
 #ifndef PI
 	#define PI 3.14159265358979323846
 #endif
+#ifndef HALF_PI
+    #define HALF_PI (PI*0.5)
+#endif
+
+#define EPSLN	1.0e-10
 
 // Normalize an angle to +/-180degrees
 
@@ -450,7 +455,7 @@ void filter_main( TrformStr *TrPtr, sPrefs *spref);
 
 // Transformation function type (we have only one...)
 
-typedef		void (*trfn)( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
+typedef         int (*trfn)( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
 
 
 // Function descriptor to be executed by exec_function
@@ -777,47 +782,58 @@ double GetBlendfactor( int d, int s, int feather );
 
 void execute_stack		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
 
-void resize				( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );		
-void shear				( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
-void horiz				( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
-void vert				( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
-void radial				( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
+int execute_stack_try          ( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );   
+
+int resize				( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );		
+int shear				( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
+int horiz				( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
+int vert				( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
+int radial				( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
 
 
-void persp_sphere		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
-void persp_rect			( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
+int persp_sphere		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
+int persp_rect			( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
 
 
-void rect_pano			( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
-void pano_rect			( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
-void pano_erect			( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
-void erect_pano			( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
-void sphere_cp_erect	( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
-void sphere_tp_erect	( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
-void erect_sphere_cp	( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
-void rect_sphere_tp		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
-void sphere_tp_rect		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
-void sphere_cp_pano		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
-void rect_erect			( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
-void erect_rect			( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
-void erect_sphere_tp	( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
-void mirror_erect		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	 
-void mirror_sphere_cp	( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
-void mirror_pano		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
-void sphere_cp_mirror	( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
-void sphere_tp_pano		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
+int rect_pano			( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
+int pano_rect			( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
+int pano_erect			( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
+int erect_pano			( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
+int sphere_cp_erect	( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
+int sphere_tp_erect	( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
+int erect_sphere_cp	( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
+int rect_sphere_tp		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
+int sphere_tp_rect		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
+int sphere_cp_pano		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
+int rect_erect			( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
+int erect_rect			( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
+int erect_sphere_tp	( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
+int mirror_erect		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
+int mercator_erect		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
+int erect_mercator		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
+int transmercator_erect		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
+int erect_transmercator		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
+int sinusoidal_erect		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
+int erect_sinusoidal		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
+int stereographic_erect		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
+int erect_stereographic		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
 
-void pano_sphere_tp		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
+int mirror_sphere_cp	( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
+int mirror_pano		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
+int sphere_cp_mirror	( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
+int sphere_tp_pano		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
 
-void rotate_erect		( double x_dest, double y_dest, double* x_src, double* y_src, void* params );
-void inv_radial			( double x_dest, double y_dest, double* x_src, double* y_src, void* params );
+int pano_sphere_tp		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
 
-void vertical			( double x_dest, double y_dest, double* x_src, double* y_src, void* params );
-void inv_vertical		( double x_dest, double y_dest, double* x_src, double* y_src, void* params );
-void deregister			( double x_dest, double y_dest, double* x_src, double* y_src, void* params );
-void tmorph				( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
+int rotate_erect		( double x_dest, double y_dest, double* x_src, double* y_src, void* params );
+int inv_radial			( double x_dest, double y_dest, double* x_src, double* y_src, void* params );
 
-void shift_scale_rotate ( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
+int vertical			( double x_dest, double y_dest, double* x_src, double* y_src, void* params );
+int inv_vertical		( double x_dest, double y_dest, double* x_src, double* y_src, void* params );
+int deregister			( double x_dest, double y_dest, double* x_src, double* y_src, void* params );
+int tmorph				( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
+
+int shift_scale_rotate ( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
 
 
 
