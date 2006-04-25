@@ -23,6 +23,10 @@
 #                  1 - Cylindrical (for Printing and QTVR)
 #                  2 - Equirectangular ( for Spherical panos), default
 #                  3 - full-frame fisheye
+#                  4 - stereographic
+#                  5 - mercator
+#                  6 - transverse mercator
+#                  7 - sinusoidal
 # v360         horizontal field of view of panorama (default 360)
 # nPICT        Panorama file format, one of:
 #                  PICT          pict-file on macs, bmp-file on win (default)
