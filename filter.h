@@ -690,7 +690,7 @@ int 	InterpolateTrianglesPerspective( AlignInfo *g, int nIm, double s, PTTriangl
 int 	InterpolateImageFile( fullPath *sfile, fullPath *dfile, AlignInfo *g,int nIm );
 void 	OneToTwoByte		( Image *im );
 void 	TwoToOneByte		( Image *im );
-void 	SetMakeParams		( struct fDesc *stack, struct MakeParams *mp, Image *im , Image *pn, int color );
+void 	SetMakeParams           ( struct fDesc *stack, struct MakeParams *mp, Image *im , Image *pn, int color );
 void 	SetInvMakeParams	( struct fDesc *stack, struct MakeParams *mp, Image *im , Image *pn, int color );
 // same as SetInvMakeParams but includes Joosts inverted changes to SetMakeParams
 void 	SetInvMakeParamsCorrect( struct fDesc *stack, struct MakeParams *mp, Image *im , Image *pn, int color );
@@ -782,7 +782,7 @@ double GetBlendfactor( int d, int s, int feather );
 
 void execute_stack		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
 
-int execute_stack_try          ( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );   
+int execute_stack_new               ( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );   
 
 int resize				( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );		
 int shear				( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	

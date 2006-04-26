@@ -557,7 +557,7 @@ void 	correct	(TrformStr *TrPtr, cPrefs *prefs)
 			}
 			else if( TrPtr->success != 0 && i != 0 )
 			{
-				fD.func = execute_stack; fD.param = stack;
+				fD.func = execute_stack_new; fD.param = stack;
 				transForm( TrPtr,  &fD, k);
 			}
             

@@ -764,12 +764,13 @@ static void sinc1024_32( unsigned char *dst, unsigned char **rgb,
 void ComputePixelCoords( double *ax, double *ay, int *trinum, char *avalid, pt_int32 x, long offset, double w2, double y_d, 
 						  fDesc *fD, double sw2, double sh2, double min_x, double max_x, double min_y, double max_y ) {
 	double x_d, Dx, Dy;
+        int tvalid;
 
 	// Convert destination screen coordinates to cartesian coordinates.			
 	x_d = (double) (x + offset) - w2;
 
 	// Get source cartesian coordinates 
-	fD->func( x_d, y_d , &Dx, &Dy, fD->param);
+	tvalid = fD->func( x_d, y_d , &Dx, &Dy, fD->param);
 
 	// Convert source cartesian coordinates to screen coordinates 
 	Dx += sw2;
@@ -781,7 +782,7 @@ void ComputePixelCoords( double *ax, double *ay, int *trinum, char *avalid, pt_i
 	trinum[x] = getLastCurTriangle();
 
 	// Is the pixel valid, i.e. from within source image?
-	if( (Dx >= max_x)   || (Dy >= max_y) || (Dx < min_x) || (Dy < min_y)  )
+        if( (Dx >= max_x)   || (Dy >= max_y) || (Dx < min_x) || (Dy < min_y)  || (tvalid==0))
 		avalid[x] = FALSE;
 	else
 		avalid[x] = TRUE;
@@ -959,6 +960,7 @@ void MyTransForm( TrformStr *TrPtr, fDesc *fD, int color, int imageNum)
 	char			progressMessage[30];// Message to be displayed by progress reporter
 	char                	percent[8];	// Number displayed by Progress reporter
 	int			valid;		// Is this pixel valid? (i.e. inside source image)
+        int                     tvalid;         // temp variable, holds if the transform for this pixel was defined
 	long			coeff;		// pixel coefficient in destination image
 	long			cy;		// rownum in destimage
 	int			xc,yc;
@@ -1253,7 +1255,7 @@ void MyTransForm( TrformStr *TrPtr, fDesc *fD, int color, int imageNum)
 			x_d = (double) x - w2 ;
 			
 			// Get source cartesian coordinates 
-			fD->func( x_d, y_d , &Dx, &Dy, fD->param);
+			tvalid = fD->func( x_d, y_d , &Dx, &Dy, fD->param);
 
 			// Convert source cartesian coordinates to screen coordinates 
 			Dx += sw2;
@@ -1264,7 +1266,7 @@ void MyTransForm( TrformStr *TrPtr, fDesc *fD, int color, int imageNum)
 				}
 				else {
 			// Is the pixel valid, i.e. from within source image?
-			if( (Dx >= max_x)   || (Dy >= max_y) || (Dx < min_x) || (Dy < min_y)  )
+                        if( (Dx >= max_x)   || (Dy >= max_y) || (Dx < min_x) || (Dy < min_y) || (tvalid==0) )
 				valid = FALSE;
 			else
 				valid = TRUE;

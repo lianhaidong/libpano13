@@ -455,8 +455,8 @@ of the image that has to be converted.*/
 void MyMakePano( TrformStr *TrPtr, aPrefs *aP, int imageNum )
 {
 	struct 	MakeParams	mp,mpinv;
-	fDesc 	stack[15], fD;		// Parameters for execute 
-	fDesc 	invstack[15], finvD;		// Invers Parameters for execute 
+	fDesc        stack[15], fD;		// Parameters for execute 
+	fDesc        invstack[15], finvD;		// Invers Parameters for execute 
 	void	*morph[3];	
 
 	int 	i,k, kstart, kend, color;
@@ -505,8 +505,8 @@ void MyMakePano( TrformStr *TrPtr, aPrefs *aP, int imageNum )
 
 		if( TrPtr->success != 0)
 		{
-			fD.func = execute_stack_try; fD.param = stack;
-			finvD.func = execute_stack_try; finvD.param = invstack;
+			fD.func = execute_stack_new; fD.param = stack;
+			finvD.func = execute_stack_new; finvD.param = invstack;
 
 			transFormEx( TrPtr,  &fD , &finvD , k, imageNum );
 		}
@@ -551,8 +551,8 @@ void ExtractStill( TrformStr *TrPtr , aPrefs *aP )
 		
 		if( TrPtr->success != 0)
 		{
-			fD.func = execute_stack_try; fD.param = stack;
-			fDinv.func = execute_stack_try; fDinv.param = stackinv;
+			fD.func = execute_stack_new; fD.param = stack;
+			fDinv.func = execute_stack_new; fDinv.param = stackinv;
 			transFormEx( TrPtr, &fD, &fDinv, k, 1 );
 		}
 	}
@@ -1295,7 +1295,7 @@ double distSphere( int num ){
 	Image sph;
 	int n[2];
 	struct 	MakeParams	mp;
-	struct  fDesc 		stack[15];
+	struct  fDesc        	stack[15];
 	CoordInfo b[2];
 	CoordInfo cp;
 	double lat[2], lon[2];  // latitude & longitude
@@ -1329,7 +1329,7 @@ double distSphere( int num ){
 		w2	= (double)g->im[ n[j] ].width  / 2.0 - 0.5;
 		
 		
-		execute_stack( 	(double)g->cpt[num].x[j] - w2,		// cartesian x-coordinate src
+		execute_stack_new( 	(double)g->cpt[num].x[j] - w2,		// cartesian x-coordinate src
 						(double)g->cpt[num].y[j] - h2,		// cartesian y-coordinate src
 						&x, &y, stack);
 
@@ -1382,7 +1382,7 @@ double distSphere( int num ){
 
 void pt_getXY(int n, double x, double y, double *X, double *Y){
 	struct 	MakeParams	mp;
-	struct  fDesc 		stack[15];
+	struct  fDesc        	stack[15];
 	double h2,w2;
 
 	SetInvMakeParams( stack, &mp, &g->im[ n ], &g->pano, 0 );
@@ -1390,7 +1390,7 @@ void pt_getXY(int n, double x, double y, double *X, double *Y){
 	w2	= (double)g->im[ n ].width  / 2.0 - 0.5;
 
 
-	execute_stack( 	x - w2,	y - h2,	X, Y, stack);
+	execute_stack_new( 	x - w2,	y - h2,	X, Y, stack);
 }
 
 // Return distance of points from a line
@@ -1456,7 +1456,7 @@ double rectDistSquared( int num )
 	double result;
 
 	struct 	MakeParams	mp;
-	struct  fDesc 		stack[15];
+	struct  fDesc        	stack[15];
 
 	
 
@@ -1473,7 +1473,7 @@ double rectDistSquared( int num )
 		w2	= (double)g->im[ n[j] ].width  / 2.0 - 0.5;
 		
 
-		execute_stack( 	(double)g->cpt[num].x[j] - w2,		// cartesian x-coordinate src
+		execute_stack_new( 	(double)g->cpt[num].x[j] - w2,		// cartesian x-coordinate src
 						(double)g->cpt[num].y[j] - h2,		// cartesian y-coordinate src
 						&x[j], &y[j], stack);
 		// test to check if inverse works
@@ -1483,7 +1483,7 @@ double rectDistSquared( int num )
 			struct 	MakeParams	mtest;
 			struct  fDesc 		stacktest[15];
 			SetMakeParams( stacktest, &mtest, &g->im[ n[j] ], &g->pano, 0 );
-			execute_stack( 	x[j],		// cartesian x-coordinate src
+			execute_stack_new( 	x[j],		// cartesian x-coordinate src
 							y[j],		// cartesian y-coordinate src
 						&xt, &yt, stacktest);
 			
@@ -2542,7 +2542,7 @@ void GetControlPointCoordinates(int i, double *x, double *y, AlignInfo *gl )
 	int j, n[2];
 
 	struct 	MakeParams	mp;
-	struct  fDesc 		stack[15];
+	struct  fDesc        	stack[15];
 
 	
 
@@ -2559,7 +2559,7 @@ void GetControlPointCoordinates(int i, double *x, double *y, AlignInfo *gl )
 		w2	= (double)gl->im[ n[j] ].width  / 2.0 - 0.5;
 		
 
-		execute_stack( 	(double)gl->cpt[i].x[j] - w2,		// cartesian x-coordinate src
+		execute_stack_new( 	(double)gl->cpt[i].x[j] - w2,		// cartesian x-coordinate src
 						(double)gl->cpt[i].y[j] - h2,		// cartesian y-coordinate src
 						&x[j], &y[j], stack);
 

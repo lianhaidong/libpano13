@@ -185,7 +185,6 @@ void SettMatrixDefaults( tMatrix *t )
 
 // execute a stack of functions stored in stack
 
-
 void execute_stack		( double x_dest, double y_dest, double* x_src, double* y_src, void* params)
 {
 	register double 		xd = x_dest, 
@@ -201,8 +200,9 @@ void execute_stack		( double x_dest, double y_dest, double* x_src, double* y_src
 		stack++;
 	}
 }
+
 	
-int execute_stack_try( double x_dest, double y_dest, double* x_src, double* y_src, void* params)
+int execute_stack_new( double x_dest, double y_dest, double* x_src, double* y_src, void* params)
 {
     register double xd = x_dest,
                     yd = y_dest;
@@ -570,8 +570,8 @@ int transmercator_erect( double x_dest,double  y_dest, double* x_src, double* y_
     x_dest /= distance;
     y_dest /= distance;
     B = cos(y_dest)*sin(x_dest);
-    *x_src = distance / tanh(B);
-    *y_src = distance * atan(tan(y_dest)/cos(x_dest));
+    *x_src = distance * atanh(B);
+    *y_src = distance * atan2(tan(y_dest), cos(x_dest));
     return 1;
 }
 
@@ -581,7 +581,7 @@ int erect_transmercator( double x_dest,double  y_dest, double* x_src, double* y_
     // params: distance
     x_dest /= distance;
     y_dest /= distance;
-    *x_src = distance * atan(sinh(x_dest)/cos(y_dest));
+    *x_src = distance * atan2(sinh(x_dest),cos(y_dest));
     *y_src = distance * asin(sin(y_dest)/cosh(x_dest));
     return 1;
 }
@@ -603,7 +603,8 @@ int erect_sinusoidal( double x_dest,double  y_dest, double* x_src, double* y_src
 
     *y_src = y_dest;
     *x_src = x_dest/cos(y_dest/distance);
-    // TODO: need to check if we are outside of the source
+    if (*x_src/distance < -PI || *x_src/distance > PI)
+	return 0; 
     return 1;
 }
 
