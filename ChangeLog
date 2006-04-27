@@ -1,3 +1,7 @@
+2006-04-27  brunopostle  (brunopostle)
+
+	* ChangeLog, configure.ac, version.h: update version to 2.8.1
+
 2006-04-26  dmg (dmg)
 
 	* ChangeLog: updated changelog to match last 2 changes (including
