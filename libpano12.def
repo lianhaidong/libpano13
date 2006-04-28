@@ -169,3 +169,4 @@ EXPORTS
 			PT_setProgressFcn @172
 			PT_setInfoDlgFcn @173
                         PT_setErrorFcn @174
+                        execute_stack_new @175
