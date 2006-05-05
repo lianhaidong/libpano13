@@ -37,6 +37,50 @@ int 	polzeros_();
 
 //------------------------- Some auxilliary math functions --------------------------------------------
 
+// atanh is not available on MSVC. Use the atanh routine from gsl
+#ifdef _MSC_VER
+
+#define GSL_DBL_EPSILON        2.2204460492503131e-16
+#define GSL_SQRT_DBL_EPSILON   1.4901161193847656e-08 
+
+static double
+log1p (const double x)
+{
+  volatile double y;
+  y = 1 + x;
+  return log(y) - ((y-1)-x)/y ;  /* cancels errors with IEEE arithmetic */
+} 
+
+static double
+atanh (const double x)
+{
+  double a = fabs (x);
+  double s = (x < 0) ? -1 : 1;
+
+  if (a > 1)
+    {
+      //return NAN;
+      return 0;
+    }
+  else if (a == 1)
+    {
+      //return (x < 0) ? GSL_NEGINF : GSL_POSINF; 
+      return (x < 0) ? -1e300 : 1e300;
+    }
+  else if (a >= 0.5)
+    {
+      return s * 0.5 * log1p (2 * a / (1 - a));
+    }
+  else if (a > GSL_DBL_EPSILON)
+    {
+      return s * 0.5 * log1p (2 * a + 2 * a * a / (1 - a));
+    }
+  else
+    {
+      return x;
+    }
+} 
+#endif
 
 void matrix_mult( double m[3][3], double vector[3] )
 {
