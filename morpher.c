@@ -178,7 +178,7 @@ int tmorph( double x_dest,double  y_dest, double* x_src, double* y_src, void* pa
 			lastCurTriangle = CurTriangle;
 			*x_src		= OUTSIDE;
 			*y_src		= OUTSIDE;
-			return;
+			return 0;
 		}
 	}
 	
