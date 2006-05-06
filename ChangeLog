@@ -1,3 +1,21 @@
+2006-05-06  dmg  <dmgerman@uvic.ca>
+
+	* Added missing entries to Changelog 
+
+2006-05-05 05:46:48  dangelo  (dangelo)
+
+	* morpher.c: fixed return code
+
+	* math.c: MSVC does not provide atanh.
+
+	* libpano.vcproj: updated MSVC project file. Use $WXWIDGETS_HOME
+	and $JDK_HOME environment variables instead of hardcoded paths
+
+2006-04-28 06:39:00  dangelo  (dangelo)
+
+	* libpano12.def, pano12.def, pano12vc.def, pano12vcd.def: export
+	exectute_stack_new in windows .dll
+
 2006-04-27  brunopostle  (brunopostle)
 
 	* ChangeLog, configure.ac, version.h: update version to 2.8.1
