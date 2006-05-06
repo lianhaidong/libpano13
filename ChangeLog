@@ -1,5 +1,7 @@
 2006-05-06  dmg  <dmgerman@uvic.ca>
 
+	* Makefile.am (STD_HDR): Install PTcommon.h
+
 	* version.h: Updated version to 2.8.2 and improved ifdefs for
 	easier maintenance
 
