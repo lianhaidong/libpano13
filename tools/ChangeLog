@@ -1,3 +1,11 @@
+2006-05-06  dmg  <dmgerman@uvic.ca>
+
+	* PTcommon.c, PTcommon.h, PTmender.c, Makefile.am: Moved
+	CreatePanorama to PTcommon.c and all the functions required by it.
+
+	* PTcommon.c (CreatePanorama): Added an error when the type of
+	panorama is not valid.
+
 2006-02-21  dmg  <dmgerman@uvic.ca>
 
 	* PTcommon.c: Replaced InsertFileName with the one from
