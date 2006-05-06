@@ -27,14 +27,14 @@
 
 //version of preferences file, used to verify data
 #ifndef VERSION
-#define VERSION "2.6.b1 "
+#define VERSION "2.8.2 "
 #endif
 
 #ifndef PTVERSION_NAME_LONG
 #define PTVERSION_NAME_LONG "LongVersion"
 #endif
 #ifndef LONGVERSION
-#define LONGVERSION "2.8.1 , Copyright (c) 1998-2001, H. Dersch, der@fh-furtwangen.de"
+#define LONGVERSION VERSION ", Copyright (c) 1998-2001, H. Dersch, der@fh-furtwangen.de"
 #endif
 
 #ifndef PTVERSION_FILEVERSIONNUMBER
@@ -45,11 +45,11 @@
 #define PTVERSION_NAME_FILEVERSION "FileVersion"
 #endif
 #ifndef PTVERSION_FILEVERSION
-#define PTVERSION_FILEVERSION "2.8.1\0"
+#define PTVERSION_FILEVERSION VERSION "\0"
 #endif
 
 #ifndef PROGRESS_VERSION
-#define PROGRESS_VERSION "2.8.1\0"
+#define PROGRESS_VERSION VERSION "\0"
 #endif
 
 #ifndef PTVERSION_NAME_LEGALCOPYRIGHT 

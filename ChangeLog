@@ -1,5 +1,12 @@
 2006-05-06  dmg  <dmgerman@uvic.ca>
 
+	* version.h: Updated version to 2.8.2 and improved ifdefs for
+	easier maintenance
+
+	* pano12.def: Added ColourBrightness, PTcommon definitions.
+
+	* Moved ColourBrightness.{c,h}, PTcommon.{c,h} to this directory.
+
 	* Added missing entries to Changelog 
 
 2006-05-05 05:46:48  dangelo  (dangelo)

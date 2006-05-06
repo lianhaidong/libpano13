@@ -299,6 +299,7 @@ typedef struct TrformStr TrformStr;
 
 //void filter_main();
 
+#include "PTcommon.h"
 
 #endif // PANORAMA_H
 

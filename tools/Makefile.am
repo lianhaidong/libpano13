@@ -37,13 +37,13 @@ AM_LDFLAGS  = -L${top_builddir}
 
 bin_PROGRAMS = panoinfo PTOptimizer PTmender PTblender PTtiff2psd
 
-PTblender_SOURCES = PTblender.c ColourBrightness.h ColourBrightness.c PTcommon.c PTcommon.h
+PTblender_SOURCES = PTblender.c 
 PTblender_LDADD = -lpano12 -ltiff
 
-PTmender_SOURCES = PTmender.c PTmender.h ColourBrightness.h ColourBrightness.c PTcommon.c PTcommon.h
+PTmender_SOURCES = PTmender.c PTmender.h 
 PTmender_LDADD   = -lpano12 -ljpeg -ltiff
 
-PTtiff2psd_SOURCES = PTcommon.c PTcommon.h PTtiff2psd.c ColourBrightness.c ColourBrightness.h
+PTtiff2psd_SOURCES = PTtiff2psd.c 
 PTtiff2psd_LDADD   = -lpano12 -ljpeg -ltiff
 
 

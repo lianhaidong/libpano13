@@ -29,6 +29,9 @@
 #include "filter.h"
 #include <stdio.h>
 
+#define PT_OPTIMIZER_VERSION "PTOptimizer Version " VERSION ", written by Helmut Dersch\n"
+
+
 //static  AlignInfo	*g;
 int                     CheckParams( AlignInfo *g );
 
@@ -43,10 +46,13 @@ int main(int argc,char *argv[])
 	fullPath	infile;
 	//fullPath	outfile;
 
+	//	
+
 	SetAdjustDefaults(&aP);
 
 	if(argc != 2)
 	{
+                printf(PT_OPTIMIZER_VERSION);
 		printf("Usage: %s /path/to/script.txt\n", argv[0]);
 		exit(1);
 	}

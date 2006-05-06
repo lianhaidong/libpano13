@@ -1,5 +1,10 @@
 2006-05-06  dmg  <dmgerman@uvic.ca>
 
+	* PTStitcher.cpp: sent to the attic.
+
+	* PTblender.c, PTtiff2psd, PTmender: Changed name of quietFlag to
+	ptQuietFlag. I replaced their own version number with libpano.
+
 	* PTcommon.c, PTcommon.h, PTmender.c, Makefile.am: Moved
 	CreatePanorama to PTcommon.c and all the functions required by it.
 

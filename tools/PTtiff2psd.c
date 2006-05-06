@@ -42,8 +42,6 @@
 #include "PTcommon.h"
 #include "ColourBrightness.h"
 
-int quietFlag = 0;
-
 
 #define PT_TIFF2PSD_USAGE "PTtiff2psd [options] <tiffFiles>+\n\n"\
                          "Options:\n"\
@@ -54,7 +52,7 @@ int quietFlag = 0;
                          "\t-h\t\tShow this message\n"\
                          "\n"
 
-#define PT_TIFF2PSD_VERSION "PTtiff2psd Version 0.1, based on PTstitcher by Helmut Dersch, rewritten by Daniel M German\n"
+#define PT_TIFF2PSD_VERSION "PTtiff2psd Version " VERSION ", based on PTstitcher by Helmut Dersch, rewritten by Daniel M German\n"
 
 #define DEFAULT_OUTPUT_FILENAME "merged.psd"
 
@@ -108,7 +106,7 @@ int main(int argc,char *argv[])
       reverseLayers = 1;
       break;
     case 'q':
-      quietFlag = 1;
+      ptQuietFlag = 1;
       break;
     case 'h':
       printf(PT_TIFF2PSD_USAGE);
@@ -167,7 +165,7 @@ int main(int argc,char *argv[])
 
   if (addMask) {
 
-    if (!quietFlag) {
+    if (!ptQuietFlag) {
       Progress(_initProgress, "To add stitching mask");
     }
 
@@ -196,7 +194,7 @@ int main(int argc,char *argv[])
 
   // Finally create the PSD
 
-  if (!quietFlag) {
+  if (!ptQuietFlag) {
     char tempString[MAX_PATH_LENGTH + 40];
     sprintf(tempString, "Creating output file %s", outputFilename.name);
     Progress(_initProgress, tempString);

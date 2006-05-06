@@ -51,13 +51,9 @@
 // Global variables for the program
 
 
-//stBuf global5640;
-int   quietFlag;
-
-
 int ptDebug = 0;
 
-#define PT_MENDER_VERSION  "PTmender Version 0.4.0, originally written by Helmut Dersch, rewritten by Daniel German\n"
+#define PT_MENDER_VERSION  "PTmender Version " VERSION ", originally written by Helmut Dersch, rewritten by Daniel German\n"
 
 int sorting_function(const void *, const void *);
 
@@ -116,7 +112,7 @@ int main(int argc,char *argv[])
       ptDebug = 1;
       break;
     case 'q':
-      quietFlag = 1;
+      ptQuietFlag = 1;
       break;
       
     case 'h':

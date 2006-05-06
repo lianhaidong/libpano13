@@ -180,4 +180,9 @@ EXPORTS
 			PT_setInfoDlgFcn @173
                         PT_setErrorFcn @174 
                         execute_stack_new @175
-
+                        InsertFileName           @176
+                        VerifyTiffsAreCompatible @177
+                        AddStitchingMasks        @178
+                        FlattenTIFF              @179
+                        CreatePSD                @180
+                        CreatePanorama           @181
