@@ -1,5 +1,11 @@
 2006-05-06  dmg  <dmgerman@uvic.ca>
 
+	* PTcommon.h (CreatePanorama): Added StringtoFullPath
+
+	* pano12.def: Exported StringtoFullPath
+
+	* PTcommon.h: removed <tiffio.h> from its includes. 
+
 	* Makefile.am (STD_HDR): Install PTcommon.h
 
 	* version.h: Updated version to 2.8.2 and improved ifdefs for

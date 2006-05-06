@@ -42,6 +42,8 @@
 
 #include "PTcommon.h"
 
+#include <tiffio.h>
+
 int ptQuietFlag = 0;
 
 // This function verifies that all the TIFF files have the same width, length and other
@@ -316,8 +318,8 @@ static void ComputeStitchingMask8bits(Image *image)
   int row;
   unsigned char *ptr;
   unsigned char *pixel;
-  uint16  *ptrCounter;
-  uint16 count;
+  uint16_t  *ptrCounter;
+  uint16_t count;
 
 
   //  fprintf(stderr, "St1\n");
@@ -352,7 +354,7 @@ static void ComputeStitchingMask8bits(Image *image)
       // Use the GB pixel area to keep a count of how many pixels we have seen in 
       // the mask area.
 
-      ptrCounter = (uint16*)(pixel +2);
+      ptrCounter = (uint16_t*)(pixel +2);
       *ptrCounter = count;
 
     } //     for (row = 0; row < image->heght; row ++) {
@@ -379,7 +381,7 @@ static void ComputeStitchingMask8bits(Image *image)
 
       }
 
-      ptrCounter = (uint16*)(pixel +2);
+      ptrCounter = (uint16_t*)(pixel +2);
 
       if ( *ptrCounter < count) {
       
@@ -427,7 +429,7 @@ static void ComputeStitchingMask8bits(Image *image)
 	
       }
       
-      ptrCounter = (uint16*)(pixel +2);
+      ptrCounter = (uint16_t*)(pixel +2);
       
       if (*ptrCounter < count) {
 	
@@ -455,7 +457,7 @@ static void ComputeStitchingMask8bits(Image *image)
 	count ++;
       }
 
-      ptrCounter =  (uint16*)(pixel +2);
+      ptrCounter =  (uint16_t*)(pixel +2);
 
       if (*ptrCounter < count) {
 	//	count = *ptrCounter; AAAAAAAAAAAAAAA
@@ -481,7 +483,7 @@ static void ComputeStitchingMask8bits(Image *image)
 	count ++;
       }
 
-      ptrCounter =  (uint16*)(pixel +2);
+      ptrCounter =  (uint16_t*)(pixel +2);
 
       if (*ptrCounter < count) {
 	count = *ptrCounter;
@@ -505,7 +507,7 @@ static void ComputeStitchingMask8bits(Image *image)
 	count ++;
       }
 
-      ptrCounter =  (uint16*)(pixel +2);
+      ptrCounter =  (uint16_t*)(pixel +2);
 
       if (*ptrCounter < count) {
 	
@@ -547,7 +549,7 @@ static void ComputeStitchingMaskMap(Image *image)
 //
 // Compute the map of the stitching mask and create a file with it.
 // The stitching mask will be contained in the GB channels (this is,
-// the 16 bits corresponding to the G and B channel will contain a uint16 that
+// the 16 bits corresponding to the G and B channel will contain a uint16_t that
 // contains, for that particular point, the stitching mask.
 //
 int CreateMaskMapFiles(fullPath *inputFiles, fullPath *maskFiles, int numberImages)
@@ -834,9 +836,9 @@ static void SetBestAlphaChannel16bits(unsigned char *imagesBuffer, int numberIma
 static void SetBestAlphaChannel8bits(unsigned char *imagesBuffer, int numberImages, pt_tiff_parms *imageParms)
 {
   unsigned char *pixel;
-  uint16 *ptrCount;
-  uint16 best;
-  uint16 maskValue;
+  uint16_t *ptrCount;
+  uint16_t best;
+  uint16_t maskValue;
   int column;
   int j;
 
@@ -844,14 +846,14 @@ static void SetBestAlphaChannel8bits(unsigned char *imagesBuffer, int numberImag
   for  (column=0, pixel = imagesBuffer;  column < imageParms->imageWidth; column++, pixel +=4) {
 
     best = 0;
-    ptrCount = (uint16*)(pixel + 2);
+    ptrCount = (uint16_t*)(pixel + 2);
     maskValue = *ptrCount;
 
     // find the image with the highest value
 
     for (j = 1; j < numberImages; j ++) {
 
-      ptrCount = (uint16*)(pixel + imageParms->bytesPerLine * j  + 2);
+      ptrCount = (uint16_t*)(pixel + imageParms->bytesPerLine * j  + 2);
 
       if (*ptrCount > maskValue) {
 
@@ -2240,7 +2242,7 @@ I AM NOT TOTALLY SURE ABOUT THIS
     //is also provided
     if (strstr(prefs->pano.name, "c:LZW") != NULL)
     {
-      TIFFSetField(tiffFile, TIFFTAG_COMPRESSION, (uint16)COMPRESSION_LZW);
+      TIFFSetField(tiffFile, TIFFTAG_COMPRESSION, (uint16_t)COMPRESSION_LZW);
       TIFFSetField(tiffFile, TIFFTAG_PREDICTOR, 2);   //using predictor usually increases LZW compression ratio for RGB data
     }
     else
@@ -2296,7 +2298,7 @@ I AM NOT TOTALLY SURE ABOUT THIS
       //The size of the picture represented by an image.  Note: 2 = Inches.  This
       //is required so that the computation of pixel offset using XPOSITION/YPOSITION and
       //XRESOLUTION/YRESOLUTION is valid (See tag description for XPOSITION/YPOSITION).
-      TIFFSetField(tiffFile, TIFFTAG_RESOLUTIONUNIT, (uint16)2);      
+      TIFFSetField(tiffFile, TIFFTAG_RESOLUTIONUNIT, (uint16_t)2);      
       
       // TIFFTAG_PIXAR_IMAGEFULLWIDTH and TIFFTAG_PIXAR_IMAGEFULLLENGTH
       // are set when an image has been cropped out of a larger image.  

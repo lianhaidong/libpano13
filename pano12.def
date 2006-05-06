@@ -186,3 +186,4 @@ EXPORTS
                         FlattenTIFF              @179
                         CreatePSD                @180
                         CreatePanorama           @181
+			StringtoFullPath         @182

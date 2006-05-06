@@ -31,16 +31,16 @@
 
 #define __PTcommon_h__
 
-#include <tiffio.h>
+#include <stdint.h>
 
 typedef struct {
-  uint16 samplesPerPixel;
-  uint16 bitsPerSample;
-  uint32 imageLength;
-  uint32 imageWidth;
+  uint16_t samplesPerPixel;
+  uint16_t bitsPerSample;
+  uint32_t imageLength;
+  uint32_t imageWidth;
   int bytesPerLine;
   int bitsPerPixel;
-  uint32 rowsPerStrip;
+  uint32_t rowsPerStrip;
 } pt_tiff_parms;
 
 
@@ -58,6 +58,7 @@ int  CreatePSD(  fullPath *fullPathImages, int, fullPath*);
 
 extern int quietFlag;
 	
+int 	StringtoFullPath	(fullPath *path, char *filename);
 int CreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles, fullPath *panoFileName, fullPath *scriptFileName);
 
 
