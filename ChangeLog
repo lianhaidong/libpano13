@@ -1,4 +1,14 @@
+2006-05-07  dmg  <dmgerman@uvic.ca>
+
+	* version.h: Updated version to 2.8.3
+	
+	* PTcommon.c (SetBestAlphaChannel16bits): Implemented function.
+
 2006-05-06  dmg  <dmgerman@uvic.ca>
+
+	* PTcommon.c: (BlendLayers): Added support for 16 bit images.
+
+	* PTcommon.c (BlendLayers16Bit): Added function. 
 
 	* PTcommon.h (CreatePanorama): Added StringtoFullPath
 

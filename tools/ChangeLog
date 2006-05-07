@@ -1,5 +1,8 @@
 2006-05-06  dmg  <dmgerman@uvic.ca>
 
+	* PTmender.c: Make sure that Stitching masks is done only when
+	there are at least 2 photos. Improve progress errors. 
+
 	* PTStitcher.cpp: sent to the attic.
 
 	* PTblender.c, PTtiff2psd, PTmender: Changed name of quietFlag to
