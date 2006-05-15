@@ -1,3 +1,29 @@
+2006-05-15 Max Lyons (maxlyons@tawbaware.com)
+
+	* Removed old versions of ptcommon and colourbrightness from the 
+	tools...these had already been moved into libpano main directory
+
+	* Updated Makefile.win32 to include missing references to sys_common.c, 
+	PTCommon.c, hdrfile.c, rgbe.c, ColourBrightness.c...should now build 
+	correctly using MingW
+
+	* pano12.def: Removed duplicate entry for "StringtoFullPath" 
+	(exported twice).
+
+	* PTcommon.c: Changed #include <filter.h> to #include "filter.h" (this 
+	prevented compilation with MingW)
+
+	* PTcommon.c: Changed call to execute_stack to execute_stack_new (necessary 
+	as a result of modification to Transformation function type)
+
+	* PTcommon.c: Removed InsertFileName definition.  This is already defined 
+	in PTPicker, and prevented compilation with MingW.
+
+	* ColourBrightness.c: Changed #include <filter.h> to #include "filter.h" 
+	(this prevented compilation with MingW)
+
+	* PTBlender: Fixed comparison between pointer and integer error (line 102)
+
 2006-05-07  dmg  <dmgerman@uvic.ca>
 
 	* version.h: Updated version to 2.8.3
