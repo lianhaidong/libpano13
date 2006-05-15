@@ -2,7 +2,7 @@ LIBJPEG=$(wildcard ../*jpeg*)
 LIBTIFF=$(wildcard ../*tiff*)
 LIBZ=$(wildcard ../z*)
 LIBPNG=$(wildcard ../*png*)
-# note: if you have installed the JAVA SDK somewhere else you need to change 
+# note: if you have installed the JAVA SDK somewhere else you need to change
 # JAVASDK to point to it.
 JAVASDK=$(wildcard ../*sdk*)
 
@@ -54,19 +54,19 @@ endif
 
 sources = panorama.h filter.h fftn.h f2c.h pteditor.h \
           ptutils.h sys_win.h version.h \
-          filter.c parser.c queryfeature.c sys_win.c  correct.c perspect.c \
+          filter.c parser.c queryfeature.c sys_win.c sys_common.c PTcommon.c ColourBrightness.c correct.c perspect.c \
           adjust.c  remap.c lmdif.c  file.c \
           math.c pan.c PTDialogs.c fftn.c fourier.c resample.c \
           optimize.c morpher.c Triangulate.c \
           seamer.c ptpicker.c pteditor.c seamer_.c \
-          tiff.c bmp.c jpeg.c png.c  multilayer.c ZComb.c\
+          tiff.c bmp.c jpeg.c png.c  multilayer.c ZComb.c hdrfile.c rgbe.c\
           Makefile pano12.rc pano12.def sys_ansi.c ppm.c
 
-objects = filter.o parser.o queryfeature.o correct.o perspect.o \
+objects = filter.o parser.o queryfeature.o sys_common.o PTcommon.o ColourBrightness.o correct.o perspect.o \
           adjust.o  remap.o lmdif.o  file.o math.o pan.o \
           PTDialogs.o fftn.o fourier.o resample.o optimize.o \
           morpher.o Triangulate.o seamer.o ptpicker.o pteditor.o \
-          tiff.o jpeg.o png.o multilayer.o ZComb.o
+          tiff.o jpeg.o png.o multilayer.o ZComb.o hdrfile.o rgbe.o
 
 winobj =  sys_win.o bmp.o pano12rc.o
 
@@ -74,7 +74,7 @@ ansobj =  sys_ansi.o ppm.o
 
 libDirs =  -L/usr/local/lib
 incDirs =  -I/usr/local/include -I$(JAVASDK)/include -I$(JAVASDK)/include/win32
-CC = gcc -O2 -mms-bitfields $(incDirs) 
+CC = gcc -O2 -mms-bitfields $(incDirs)
 
 pano12rc.o  : pano12.rc
 	windres  -i pano12.rc -o pano12rc.o
@@ -85,8 +85,8 @@ pano12.dll  : $(objects) $(winobj)
 	dlltool --dllname pano12.dll --def pano12.def --output-lib libpano12.a
 
 install  : pano12.dll
-	mv pano12.dll C:/WINDOWS/SYSTEM32/pano12.dll	
-	
+	mv pano12.dll C:/WINDOWS/SYSTEM32/pano12.dll
+
 .PHONY : clean
 clean :
 	-rm -f *.o pano12.dll libpano12.a panosrc.zip
