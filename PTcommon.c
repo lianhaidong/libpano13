@@ -36,13 +36,16 @@
 #include <stdint.h>
 #include <math.h>
 
-#include <filter.h>
+#include "filter.h"
 #include "panorama.h"
 
 
 #include "PTcommon.h"
 
 #include <tiffio.h>
+
+//declare functions
+void getROI( TrformStr *TrPtr, aPrefs *aP, PTRect *ROIRect );
 
 int ptQuietFlag = 0;
 
@@ -1903,12 +1906,12 @@ int FlattenTIFF(fullPath *fullPathImages, int counterImageFiles, fullPath *outpu
 
 
 #ifdef __Win__
-void InsertFileName( fullPath *fp, char *fname ){
-	char *c = strrchr((char*)(fp->name), PATH_SEP);
-	if(c != NULL) c++;
-	else c = fp->name;
-	strcpy( c, fname );
-}	
+//void InsertFileName( fullPath *fp, char *fname ){
+//	char *c = strrchr((char*)(fp->name), PATH_SEP);
+//	if(c != NULL) c++;
+//	else c = fp->name;
+//	strcpy( c, fname );
+//}	
 #endif
 
 
@@ -2270,7 +2273,7 @@ void getROI( TrformStr *TrPtr, aPrefs *aP, PTRect *ROIRect )
 	//The "inverse" transform allows us to map pixel coordinates in each source image
 	//to their location in the output image.
 	SetInvMakeParams( invstack, &mpinv, &(aP->im) , &(aP->pano), color );	
-	finvD.func = execute_stack; 
+	finvD.func = execute_stack_new; 
 	finvD.param = invstack;
   
   //iterate over edges of input image and compute left/right/top/bottom-most coordinate
