@@ -99,7 +99,7 @@ int main(int argc,char *argv[])
       break;
     case 'k':
       referenceImage = strtol(optarg, &endPtr, 10);
-      if (*endPtr != NULL) {
+      if (endPtr != NULL) {
 	PrintError("Invalid integer in -k option");
 	return -1;
       }
