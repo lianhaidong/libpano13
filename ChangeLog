@@ -1,5 +1,8 @@
 2006-05-15  dmg  <dmgerman@uvic.ca>
 
+	* PTcommon.c (CreatePanorama): Fixed a typo related to QTVR
+	images. I also renamed Unknown07 to Create_QTVR
+
 	* resample.c: Fixed compilation warnings by moving #define
 	unsigned inside the body of the functions.
 

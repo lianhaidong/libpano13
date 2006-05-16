@@ -1951,9 +1951,9 @@ static int Unknown05(Image *image, fullPath* fullPathImage)
   exit(1);
 }
 
-static int Unknown07(Image *image, fullPath* fullPathImage)
+static int Create_QTVR(Image *image, fullPath* fullPathImage)
 {
-  fprintf(stderr,"Unknown07 this function is not implemented yet\n");
+  fprintf(stderr,"Create QTVR is not implemented yet\n");
   exit(1);
 }
 
@@ -3022,9 +3022,9 @@ I AM NOT TOTALLY SURE ABOUT THIS
 
   remove(panoFileName->name);
 
-  if (strcmp(word, "WTVR") == 0) { 
+  if (strcmp(word, "QTVR") == 0) { 
 
-    return Unknown07(&resultPanorama, panoFileName);
+    return Create_QTVR(&resultPanorama, panoFileName);
 
   }
 
