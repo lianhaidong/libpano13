@@ -1,3 +1,8 @@
+2006-05-15  dmg  <dmgerman@uvic.ca>
+
+	* resample.c: Fixed compilation warnings by moving #define
+	unsigned inside the body of the functions.
+
 2006-05-16 Max Lyons (maxlyons@tawbaware.com)
 
 	* resample.c: Fixing bug in fast transform logic that caused crash when 

@@ -691,23 +691,61 @@ static void sinc1024_16( unsigned char *dst, unsigned char **rgb,
 		
 //--------------- Same as above, for float -------------------
 
+/*
+
+A note about the use of undef signed below.
+
+	When RESAMPLE_N uses its third parameter sometimes it prefixes
+	it with unsigned. But floats can be unsigned. We previously
+	hacked it by removing "unsigned" via the preprocessor. We
+	originally wrapped all the functiosn that used RESAMPLE_N with
+	float with a single undef unsigned. Unfortunately this also
+	wrapped other (correct) uses of unsigned. What I did in this
+	change is wrap only the invocation to RESAMPLE_N. This should
+	improve readability and maintanability.
+	
+	Another alternative (suggested by Walter Harms) is to do something
+	like this:
+
+	#define MACRO( psize , sign ) \
+	sign psize *r;    \
+	call##psize ( r );
+
+	MACRO(float, )
+	MACRO(int, unsigned )
+
+	This in fact works, but it requires far more changed lines than
+	the current fix. Furthermore RESAMPLE_N  is one of those macros
+	that nobody (ok, I) wants to debug if something goes wrong.
+*/
+
+
 #undef maxalpha
 #define maxalpha  1.0
-#define unsigned
+
+
+
 
 // Nearest neighbor sampling, nowhere used (yet)
 
 static void nn_32( unsigned char *dst, unsigned char **rgb, 
 		register double Dx PT_UNUSED, register double Dy PT_UNUSED,
 		int color, int SamplesPerPixel)
-		{
-			RESAMPLE_N( NNEIGHBOR, 1, float)	}
+{
+#define unsigned
+  RESAMPLE_N( NNEIGHBOR, 1, float);
+#undef unsigned
+}
 
 // Bilinear sampling, nowhere used (yet).
 
 static void bil_32( unsigned char *dst, unsigned char **rgb,  
 		register double Dx, register double Dy,	int color, int SamplesPerPixel)
-		{	RESAMPLE_N( BILINEAR, 2, float) 	}
+{	
+#define unsigned
+  RESAMPLE_N( BILINEAR, 2, float);
+#undef unsigned
+}
 
 
 // Lowest quality sampler in distribution; since version 1.8b1 changed to closely
@@ -715,27 +753,42 @@ static void bil_32( unsigned char *dst, unsigned char **rgb,
 
 static void poly3_32( unsigned char *dst, unsigned char **rgb,  
 		register double Dx, register double Dy,	int color, int SamplesPerPixel)
-		{	RESAMPLE_N( CUBIC, 4, float) 	}
-
+{
+#define unsigned  
+  RESAMPLE_N( CUBIC, 4, float);
+#undef unsigned
+}
 
 // Spline using 16 pixels; smoother and less artefacts than poly3, softer; same speed
 
 static void spline16_32( unsigned char *dst, unsigned char **rgb,  
 		register double Dx, register double Dy,	int color, int SamplesPerPixel)
-		{	RESAMPLE_N( SPLINE16, 4, float) 	}
+{
+#define unsigned
+  RESAMPLE_N( SPLINE16, 4, float) ;
+#undef unsigned
+}
 
 // Spline using 36 pixels; significantly sharper than both poly3 and spline16,
 // almost no artefacts
 
 static void spline36_32( unsigned char *dst, unsigned char **rgb,  
 		register double Dx, register double Dy,	int color, int SamplesPerPixel)
-		{	RESAMPLE_N( SPLINE36, 6, float) 	}
+{
+#define unsigned
+  RESAMPLE_N( SPLINE36, 6, float) ;
+#undef unsigned
+}
 
 // Not used anymore
 
 static void spline64_32( unsigned char *dst, unsigned char **rgb,  
 		register double Dx, register double Dy,	int color, int SamplesPerPixel)
-		{	RESAMPLE_N( SPLINE64, 8, float) 	}
+{
+#define unsigned
+  RESAMPLE_N( SPLINE64, 8, float) ;
+#undef unsigned
+}
 
 
 // Highest quality sampler since version 1.8b1
@@ -743,7 +796,11 @@ static void spline64_32( unsigned char *dst, unsigned char **rgb,
 
 static void sinc256_32( unsigned char *dst, unsigned char **rgb,  
 		register double Dx, register double Dy,	int color, int SamplesPerPixel)
-		{	RESAMPLE_N( SINC, 16, float) 	}
+{
+#define unsigned
+  RESAMPLE_N( SINC, 16, float) ;
+#undef unsigned
+}
 		
 
 // Highest quality sampler since version 1.8b1
@@ -751,10 +808,12 @@ static void sinc256_32( unsigned char *dst, unsigned char **rgb,
 
 static void sinc1024_32( unsigned char *dst, unsigned char **rgb,  
 		register double Dx, register double Dy,	int color, int SamplesPerPixel)
-		{	RESAMPLE_N( SINC, 32, float) 	}
-		
+{
+#define unsigned
+  RESAMPLE_N( SINC, 32, float) ;
 #undef unsigned
-
+}
+		
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // FS+ start of functions used to compute the pixel tranform from dest to source using linear interpolation
