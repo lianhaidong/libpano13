@@ -767,14 +767,15 @@ void ComputePixelCoords( double *ax, double *ay, int *trinum, char *avalid, pt_i
         int tvalid;
 
 	// Convert destination screen coordinates to cartesian coordinates.			
-	x_d = (double) (x + offset) - w2;
+	// Offset is the distance between the left edge of the ROI and the left edge of the full output canvas (always less than or equal to 0)
+	x_d = (double) (x - offset) - w2;
 
 	// Get source cartesian coordinates 
 	tvalid = fD->func( x_d, y_d , &Dx, &Dy, fD->param);
 
 	// Convert source cartesian coordinates to screen coordinates 
 	Dx += sw2;
-	Dy =  sh2 + Dy ;
+	Dy = sh2 + Dy;
 
 	// stores the computed pixel
 	ax[x] = Dx;
@@ -782,7 +783,7 @@ void ComputePixelCoords( double *ax, double *ay, int *trinum, char *avalid, pt_i
 	trinum[x] = getLastCurTriangle();
 
 	// Is the pixel valid, i.e. from within source image?
-        if( (Dx >= max_x)   || (Dy >= max_y) || (Dx < min_x) || (Dy < min_y)  || (tvalid==0))
+	if( (Dx >= max_x)   || (Dy >= max_y) || (Dx < min_x) || (Dy < min_y)  || (tvalid==0))
 		avalid[x] = FALSE;
 	else
 		avalid[x] = TRUE;
@@ -1047,7 +1048,7 @@ void MyTransForm( TrformStr *TrPtr, fDesc *fD, int color, int imageNum)
 		case _poly3:// Third order polynomial fitting 16 nearest pixels
 			if( BytesPerSample == 1 ) intp = poly3; 
 			if( BytesPerSample == 2 ) intp = poly3_16;		
-			if( BytesPerSample == 4 ) intp = poly3_32;		
+			if( BytesPerSample == 4 ) intp = poly3_32;
 			n = 4;
 			break;
 		case _spline16:// Cubic Spline fitting 16 nearest pixels
@@ -1251,30 +1252,32 @@ void MyTransForm( TrformStr *TrPtr, fDesc *fD, int color, int imageNum)
 
 			// FS+
 			if( fastTransformStep == 0 || evaluateError ) {
-			// Convert destination screen coordinates to cartesian coordinates.			
-			x_d = (double) x - w2 ;
-			
-			// Get source cartesian coordinates 
-			tvalid = fD->func( x_d, y_d , &Dx, &Dy, fD->param);
-
-			// Convert source cartesian coordinates to screen coordinates 
-			Dx += sw2;
-			Dy =  sh2 + Dy ;
-			
+				// Convert destination screen coordinates to cartesian coordinates.			
+				x_d = (double) x - w2 ;
+				
+				// Get source cartesian coordinates 
+				tvalid = fD->func( x_d, y_d , &Dx, &Dy, fD->param);
+	
+				// Convert source cartesian coordinates to screen coordinates 
+				Dx += sw2;
+				Dy =  sh2 + Dy ;
+				
 				if( evaluateError ) {
 					valid = avalid[x];
 				}
 				else {
-			// Is the pixel valid, i.e. from within source image?
-                        if( (Dx >= max_x)   || (Dy >= max_y) || (Dx < min_x) || (Dy < min_y) || (tvalid==0) )
-				valid = FALSE;
-			else
-				valid = TRUE;
+					// Is the pixel valid, i.e. from within source image?
+					if( (Dx >= max_x)   || (Dy >= max_y) || (Dx < min_x) || (Dy < min_y) || (tvalid==0) )
+						valid = FALSE;
+					else
+						valid = TRUE;
 				}
 			} else {
-				Dx = ax[x];
-				Dy = ay[x];
-				valid = avalid[x];
+				//Do "fast transform" by looking up coordinates from pre-populated arrays
+				//NB: "fast transform" arrays are as large as the ROI...
+				Dx = ax[x-destRect.left];
+				Dy = ay[x-destRect.left];
+				valid = avalid[x-destRect.left];
 			}
 			// was:
 
