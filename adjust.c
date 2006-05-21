@@ -709,6 +709,7 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
         case _equirectangular:
         case _panorama:
         case _fisheye_ff:
+        case _fisheye_circ:
             mp->scale[0] = ((double) im->width) / a / mp->distance;
             break;
         default:
@@ -938,6 +939,7 @@ void 	SetInvMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , 
         case _equirectangular:
         case _panorama:
         case _fisheye_ff:
+        case _fisheye_circ:
             mp->scale[0] = ((double) im->width) / a / mp->distance;
             break;
         default:
