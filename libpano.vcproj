@@ -246,6 +246,9 @@
 				RelativePath=".\panorama.h">
 			</File>
 			<File
+				RelativePath=".\pt_stdint.h">
+			</File>
+			<File
 				RelativePath=".\pteditor.h">
 			</File>
 			<File

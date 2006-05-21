@@ -31,7 +31,7 @@
 
 #define __PTcommon_h__
 
-#include <stdint.h>
+#include "pt_stdint.h"
 
 typedef struct {
   uint16_t samplesPerPixel;

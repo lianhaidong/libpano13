@@ -31,13 +31,13 @@ static int (*g_progressFcn)(int, char *) = NULL;
 
 static int (*g_infoDlgFcn)(int, char *) = NULL;
 
-static void  (*g_printErrorFcn)(char* , ...) = NULL;
+static void  (*g_printErrorFcn)(char* , va_list va) = NULL;
 
 int ProgressIntern( int command, char* argument );
-void PrintErrorIntern(char*fmt, ...);
+void PrintErrorIntern(char*fmt, va_list va);
 int infoDlgIntern( int command, char* argument );
 
-void PT_setErrorFcn(void (*ptr)(char *, ...))
+void PT_setErrorFcn(void (*ptr)(char *, va_list va))
 {
     g_printErrorFcn = ptr;
 }
@@ -55,11 +55,15 @@ void PT_setInfoDlgFcn(int (*ptr)(int, char *))
 void PrintError(char*fmt, ...)
 {
     va_list ap;
+    va_start(ap, fmt);
+
     if (g_printErrorFcn == NULL) {
         PrintErrorIntern(fmt, ap);
     } else {
         (*g_printErrorFcn)(fmt, ap);
     }
+
+    va_end(ap);
 }
 
 // Progress report; return false if canceled
