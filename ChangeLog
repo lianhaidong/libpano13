@@ -5,7 +5,12 @@
 	just continue blindly). Added Error and Warning handler for TIFF
 	library so the errors are now reported using the PTtools error
 	handler.
-	
+	(CreatePSD): Make sure PSD is 8 bit if it contains more than 1
+	layer (we do not support multi-layer 16bit images). Cleaned up the
+	function and added some comments.
+	(ComputeStitchingMask8bits): Cleanedup the function (still more
+	work to do)
+
 2006-05-20  dmg  <dmgerman@uvic.ca>
 
 	* PTcommon.c (CreatePanorama): Fixed a bug in TIFF_mask (the

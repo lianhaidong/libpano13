@@ -130,29 +130,21 @@ int TiffSetImageParameters(TIFF *tiffFile, pt_tiff_parms *tiffData)
   int returnValue = 1;
 
   assert(tiffFile != NULL);
+  assert(tiffData != NULL);
 
-  assert(PHOTOMETRIC_RGB == 2);
-  assert(TIFFTAG_PHOTOMETRIC == 0x106);
-  assert(TIFFTAG_PLANARCONFIG == 0x11c);
-  assert(PLANARCONFIG_CONTIG == 1);
-  assert(0x8005 == COMPRESSION_PACKBITS);
-  assert(TIFFTAG_ORIENTATION == 0x112);
-  assert(TIFFTAG_ROWSPERSTRIP == 0x116);
-  
   // Each of the invocations below returns 1 if ok, 0 if error. 
 
-  returnValue = TIFFSetField(tiffFile, TIFFTAG_IMAGEWIDTH, tiffData->imageWidth);
-  returnValue, returnValue = TIFFSetField(tiffFile, TIFFTAG_IMAGELENGTH, tiffData->imageLength);
-  returnValue, returnValue = TIFFSetField(tiffFile, TIFFTAG_BITSPERSAMPLE, tiffData->bitsPerSample);
-  returnValue, returnValue = TIFFSetField(tiffFile, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB);
-  returnValue, returnValue = TIFFSetField(tiffFile,  TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
-  returnValue, returnValue = TIFFSetField(tiffFile, TIFFTAG_SAMPLESPERPIXEL, tiffData->samplesPerPixel);
-  returnValue, returnValue = TIFFSetField(tiffFile, TIFFTAG_COMPRESSION, COMPRESSION_PACKBITS);
-  returnValue, returnValue = TIFFSetField(tiffFile, TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT);
-  returnValue, returnValue = TIFFSetField(tiffFile,  TIFFTAG_ROWSPERSTRIP, tiffData->rowsPerStrip);
+  returnValue = TIFFSetField(tiffFile, TIFFTAG_IMAGEWIDTH, tiffData->imageWidth)
+    && TIFFSetField(tiffFile, TIFFTAG_IMAGELENGTH, tiffData->imageLength)
+    && TIFFSetField(tiffFile, TIFFTAG_BITSPERSAMPLE, tiffData->bitsPerSample)
+    && TIFFSetField(tiffFile, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB)
+    && TIFFSetField(tiffFile,  TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG)
+    && TIFFSetField(tiffFile, TIFFTAG_SAMPLESPERPIXEL, tiffData->samplesPerPixel)
+    && TIFFSetField(tiffFile, TIFFTAG_COMPRESSION, COMPRESSION_PACKBITS)
+    && TIFFSetField(tiffFile, TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT)
+    && TIFFSetField(tiffFile,  TIFFTAG_ROWSPERSTRIP, tiffData->rowsPerStrip);
 
   return returnValue;
-
 
 }
 
@@ -210,31 +202,23 @@ int  CreatePSD(  fullPath *fullPathImages, int numberImages, fullPath* outputFil
 {
 
   Image *ptrImage;
-  char *var24;
   int i;
-  stBuf stitchInfo; // length 524
+  stBuf stitchInfo; 
   fullPath tempFile;
   char tempString[128];
   Image image;
   
+  assert(numberImages > 0);
+  assert(fullPathImages != NULL);
+  assert(outputFileName != NULL);
 
-  if ( numberImages == 0 ) {
-    return 0;
-  }
-  
   if ( ptQuietFlag == 0 ) {
-    
     Progress(_initProgress, "Converting TIFF to PSD");
-  }
-
-  sprintf(tempString, "%d", 0x64/numberImages);
-
-  if ( ptQuietFlag == 0 ) {
-
+    sprintf(tempString, "%d", 100/numberImages);
     Progress(_setProgress, tempString);
-
   }
   
+  // Process background of PSD
   SetImageDefaults(&image);
 
   if (readTIFF(&image, &fullPathImages[0]) != 0 ) {
@@ -245,11 +229,19 @@ int  CreatePSD(  fullPath *fullPathImages, int numberImages, fullPath* outputFil
       Progress(_disposeProgress, tempString);
     }
     return -1;
-
   }
 
-  //  TwoToOneByte(&image);
-
+  if (!( image.bitsPerPixel == 64 ||  image.bitsPerPixel == 32)  ) {
+    PrintError("Image type not supported (%d bits per pixel)\n", image.bitsPerPixel);
+    return 0;
+  }
+  
+  if (numberImages > 1 && image.bitsPerPixel != 32) {
+    if ( image.bitsPerPixel == 64 ) {
+      PrintError("Panotools is not able to save 16bit PSD images. Downsampling to 8 bit");
+      TwoToOneByte(&image); //we need to downsample to 8 bit if we are provided 16 bit images
+    }
+  }
   if (writePSDwithLayer(&image, outputFileName) != 0) {
 
     PrintError("Could not write PSD-file");
@@ -260,49 +252,39 @@ int  CreatePSD(  fullPath *fullPathImages, int numberImages, fullPath* outputFil
   }
 
   myfree((void**)image.data);
-
  
-  i = 1;
-
-  var24 = tempString;
-  
   ptrImage = &image;
 
+  // Process each of the layers
   for (i = 1; i < numberImages; i++) {
     
-    sprintf(var24, "%d", i * 100/numberImages);
-    
-    
+    // Report progress
     if ( ptQuietFlag == 0 ) {
-      
-      if ( Progress(_setProgress,var24) == 0 ) {
+      sprintf(tempString, "%d", i * 100/numberImages);
+      if ( Progress(_setProgress,tempString) == 0 ) {
 	remove(outputFileName->name);
 	return -1;
       }
-      
     }
 
     if (readTIFF(ptrImage, &fullPathImages[i]) != 0) {
       
       PrintError("Could not read TIFF image No &d", i);
-      
-      
       if ( ptQuietFlag == 0 ) {
-	
-	Progress(_disposeProgress, var24);
-	
+	Progress(_disposeProgress, tempString);
       }
       return -1;
       
     }
     
-    TwoToOneByte(ptrImage);
+    // We can't process 16 bit TIFFs. We have to downsample to 8 bit if necessary
+
+    if ( image.bitsPerPixel == 64 ) 
+      TwoToOneByte(ptrImage);
     
-    stitchInfo.seam = 1;
-    stitchInfo.feather = 0;
-    
+    // Create a new file with the result PSD, then delete the current one
+
     strcpy(tempFile.name, outputFileName->name);
-    
     
     if (makeTempPath(&tempFile) != 0) {
       PrintError("Could not make Tempfile");
@@ -310,18 +292,20 @@ int  CreatePSD(  fullPath *fullPathImages, int numberImages, fullPath* outputFil
       
     }
     
+    stitchInfo.seam = 1;
+    stitchInfo.feather = 0;
+    
     if (addLayerToFile(ptrImage, outputFileName, &tempFile, &stitchInfo) != 0) {
-      //       remove(outputFileName->name);
       PrintError("Could not write Panorama File");
       return -1;
     }
     
     remove(outputFileName->name);
-    
     rename(tempFile.name, outputFileName->name);
     
     myfree((void**)image.data);
   }   
+
   if (! ptQuietFlag) {
     Progress(_setProgress, "100");
     Progress(_disposeProgress, tempString);
@@ -341,76 +325,65 @@ static void ComputeStitchingMask8bits(Image *image)
   uint16_t  *ptrCounter;
   uint16_t count;
 
+  // Use the GreenBlue pixel area is used to keep a counter of the
+  // minimum distance (in pixels) away we are from the edges of the
+  // mask (horizontal or vertical)
 
-  //  fprintf(stderr, "St1\n");
+  // The algorithm is fairly simple:
+
+  // For each column
+  //   Process each row from top to down
+  //     Set each pixel counter to the number of pixels from edge of the mask (from the left)
+  //   Process each row from bottom to top
+  // Set each pixel counter to the minimum between current counter and number of pixels
+  // from edge (from the right)
+
+  // for each row
+  //   repeat the same algorithm (done per column)
 
   for (column = 0; column < image->width; column ++) {
 
     count = 0;
 
-    // Point to the given column in row 0
+    // Point to the pixel in given column in row 0
 
     ptr = *image->data + column * 4;
 
-    //    fprintf(stderr, "St1.1 Column[%d]\n", column);
-
-
-
+    // Process all rows from top to bottom
     for (row = 0; row < image->height; row ++) {
 
-      //      fprintf(stderr, "St1.2 Column[%d] Row[%d]\n", column, row);
-
       pixel = row * image->bytesPerLine + ptr;
-
       if (*pixel == 0) {
-	
 	count = 0;
-	
       } else {
-
 	count ++;
-	
       }
-      // Use the GB pixel area to keep a count of how many pixels we have seen in 
-      // the mask area.
 
       ptrCounter = (uint16_t*)(pixel +2);
       *ptrCounter = count;
 
     } //     for (row = 0; row < image->heght; row ++) {
 
-
-    //    fprintf(stderr, "St1.3 Column[%d]\n", column);
-
     count = 0;
     row = image->height;
 
+    // Process all rows from bottom to up
     while (--row  >= 0) {
-
-      //      fprintf(stderr, "St1.4 Column[%d] Row[%d]\n", column, row);
 
       pixel = ptr + row + image->bytesPerLine;
 
       if ( *pixel == 0 ) {
-
 	count = 0;
-
       } else {
-
 	count ++;
-
       }
 
       ptrCounter = (uint16_t*)(pixel +2);
 
       if ( *ptrCounter < count) {
-      
 	count = *ptrCounter; 
-      
       } else {
-      
 	*ptrCounter  = count;
-      
       }
     
     
@@ -421,39 +394,29 @@ static void ComputeStitchingMask8bits(Image *image)
     
   } //
 
-  ///////////// row by row
-
-  //  fprintf(stderr, "St2\n");
-  //  return; ///AAAAAAAAAAAAAAAA
+  // Repeat the process but now do it row by row
 
   for (row = 0; row < image->height; row ++) {
 
     count = image->width;
     
     ptr = row * image->bytesPerLine + *(image->data);
-    
-    
+
+    // process from left to right
+
+
     for (column = 0; column < image->width; column ++ ) {
-      
-      
+
       pixel = ptr + 4 * column;
       
       if ( *pixel == 0 ) {
-	
 	count = 0;
-	
       } else {
-	
 	count ++;
-	
       }
-      
       ptrCounter = (uint16_t*)(pixel +2);
-      
       if (*ptrCounter < count) {
-	
-	//	count = *ptrCounter; AAAAAAAAAAAAA
-	
+	;
       } else {
 	
 	*ptrCounter = count;
@@ -463,10 +426,8 @@ static void ComputeStitchingMask8bits(Image *image)
     } // for column
 
     //-----------------------------;;
-
-
+  
     for (column = 0; column < image->width; column ++ ) {
-
 
       pixel = ptr + column * 4;
 
@@ -479,7 +440,7 @@ static void ComputeStitchingMask8bits(Image *image)
       ptrCounter =  (uint16_t*)(pixel +2);
 
       if (*ptrCounter < count) {
-	//	count = *ptrCounter; AAAAAAAAAAAAAAA
+	;
       } else {
 	*ptrCounter = count;
       }
