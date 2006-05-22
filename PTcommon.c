@@ -49,6 +49,13 @@ void getROI( TrformStr *TrPtr, aPrefs *aP, PTRect *ROIRect );
 
 int ptQuietFlag = 0;
 
+void tiffErrorHandler(const char* module, const char* fmt, va_list ap)
+{
+  PrintError("Error in TIFF file (%s) ", module);
+  PrintError(fmt, ap);
+}
+
+
 // This function verifies that all the TIFF files have the same width, length and other
 // parameters. Returns TRUE on success.
 //
@@ -118,8 +125,10 @@ int TiffGetImageParametersFromPathName(fullPath *filename, pt_tiff_parms *tiffDa
 
 
 
-void TiffSetImageParameters(TIFF *tiffFile, pt_tiff_parms *tiffData)
+int TiffSetImageParameters(TIFF *tiffFile, pt_tiff_parms *tiffData)
 {
+  int returnValue = 1;
+
   assert(tiffFile != NULL);
 
   assert(PHOTOMETRIC_RGB == 2);
@@ -130,16 +139,20 @@ void TiffSetImageParameters(TIFF *tiffFile, pt_tiff_parms *tiffData)
   assert(TIFFTAG_ORIENTATION == 0x112);
   assert(TIFFTAG_ROWSPERSTRIP == 0x116);
   
-  
-  TIFFSetField(tiffFile, TIFFTAG_IMAGEWIDTH, tiffData->imageWidth);
-  TIFFSetField(tiffFile, TIFFTAG_IMAGELENGTH, tiffData->imageLength);
-  TIFFSetField(tiffFile, TIFFTAG_BITSPERSAMPLE, tiffData->bitsPerSample);
-  TIFFSetField(tiffFile, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB);
-  TIFFSetField(tiffFile,  TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
-  TIFFSetField(tiffFile, TIFFTAG_SAMPLESPERPIXEL, tiffData->samplesPerPixel);
-  TIFFSetField(tiffFile, TIFFTAG_COMPRESSION, COMPRESSION_PACKBITS);
-  TIFFSetField(tiffFile, TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT);
-  TIFFSetField(tiffFile,  TIFFTAG_ROWSPERSTRIP, tiffData->rowsPerStrip);
+  // Each of the invocations below returns 1 if ok, 0 if error. 
+
+  returnValue = TIFFSetField(tiffFile, TIFFTAG_IMAGEWIDTH, tiffData->imageWidth);
+  returnValue, returnValue = TIFFSetField(tiffFile, TIFFTAG_IMAGELENGTH, tiffData->imageLength);
+  returnValue, returnValue = TIFFSetField(tiffFile, TIFFTAG_BITSPERSAMPLE, tiffData->bitsPerSample);
+  returnValue, returnValue = TIFFSetField(tiffFile, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB);
+  returnValue, returnValue = TIFFSetField(tiffFile,  TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
+  returnValue, returnValue = TIFFSetField(tiffFile, TIFFTAG_SAMPLESPERPIXEL, tiffData->samplesPerPixel);
+  returnValue, returnValue = TIFFSetField(tiffFile, TIFFTAG_COMPRESSION, COMPRESSION_PACKBITS);
+  returnValue, returnValue = TIFFSetField(tiffFile, TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT);
+  returnValue, returnValue = TIFFSetField(tiffFile,  TIFFTAG_ROWSPERSTRIP, tiffData->rowsPerStrip);
+
+  return returnValue;
+
 
 }
 
@@ -151,6 +164,10 @@ int VerifyTiffsAreCompatible(fullPath *tiffFiles, int numberImages)
   pt_tiff_parms firstFileParms;
   pt_tiff_parms otherFileParms;
   char *errorMsg;
+
+  // Make sure we have a tiff error handler
+  TIFFSetWarningHandler(tiffErrorHandler);
+  TIFFSetErrorHandler(tiffErrorHandler);
 
   // Open TIFFs
 
@@ -876,7 +893,10 @@ static int  ReplaceAlphaChannels(fullPath *inputImagesNames, fullPath *masksName
       PrintError("Could not create TIFF-file");
       return 0;
     }
-    TiffSetImageParameters(outputFile,imageDefaultParms);
+    if (!TiffSetImageParameters(outputFile,imageDefaultParms)) {
+      PrintError("Unable to initialize TIFF file\n");
+      return 0;
+    }
 
     // start processing each row
 
@@ -917,8 +937,13 @@ static int  ReplaceAlphaChannels(fullPath *inputImagesNames, fullPath *masksName
        
       } // end of if
 
-      TIFFWriteScanline(outputFile, imageRowBuffer, row, 0);
-     
+      if (TIFFWriteScanline(outputFile, imageRowBuffer, row, 0) != 1) {
+	PrintError("Unable to write scan line\n");
+	TIFFClose(imageFile);
+	TIFFClose(maskFile);
+	TIFFClose(outputFile);
+	return 0;
+      }
     } // for 
 
     TIFFClose(imageFile);
@@ -926,6 +951,7 @@ static int  ReplaceAlphaChannels(fullPath *inputImagesNames, fullPath *masksName
     TIFFClose(outputFile);
 
   } // for index
+
   if (!ptQuietFlag) 
     Progress(_disposeProgress, tempString);
 
@@ -945,6 +971,7 @@ static int  ReplaceAlphaChannel(fullPath *inputImage, fullPath *mask, fullPath *
   int row;
   int j;
 
+  int returnValue = 0;
   TIFF *imageFile;
   TIFF *outputFile;
   TIFF *maskFile;
@@ -978,7 +1005,10 @@ static int  ReplaceAlphaChannel(fullPath *inputImage, fullPath *mask, fullPath *
     PrintError("Could not create TIFF-file");
     return 0;
   }
-  TiffSetImageParameters(outputFile,imageDefaultParms);
+  if (!TiffSetImageParameters(outputFile,imageDefaultParms)) {
+    PrintError("Unable to initialize TIFF file\n");
+    return 0;
+  }
   
   // start processing each row
   
@@ -1019,10 +1049,17 @@ static int  ReplaceAlphaChannel(fullPath *inputImage, fullPath *mask, fullPath *
       
     } // end of if
     
-    TIFFWriteScanline(outputFile, imageRowBuffer, row, 0);
+    if (TIFFWriteScanline(outputFile, imageRowBuffer, row, 0)!= 1) {
+      PrintError("Unable to write data to output file\n");
+      returnValue = 0;
+      goto end;
+    }
     
   } // for 
   
+  returnValue = 1;
+ end:
+
   TIFFClose(imageFile);
   TIFFClose(maskFile);
   TIFFClose(outputFile);
@@ -1030,7 +1067,7 @@ static int  ReplaceAlphaChannel(fullPath *inputImage, fullPath *mask, fullPath *
   free(imageRowBuffer);
   free(maskRowBuffer);
 
-  return 1;
+  return returnValue;
 
 }
 
@@ -1163,6 +1200,7 @@ static int CreateAlphaChannels(fullPath *masksNames, fullPath *alphaChannelNames
   int index;
   int row;
   char tempString[24];
+  int returnValue = 0;
 
   
   // Allocate arrays of TIFF* for the input and output
@@ -1213,7 +1251,11 @@ static int CreateAlphaChannels(fullPath *masksNames, fullPath *alphaChannelNames
       return 0;
     }
 
-    TiffSetImageParameters(tiffAlphaChannels[index], imageParameters);
+
+    if (!TiffSetImageParameters(tiffAlphaChannels[index], imageParameters)) {
+      PrintError("Unable to initialize TIFF file\n");
+      return 0;
+    }
 
   }// for index...
 
@@ -1256,12 +1298,21 @@ static int CreateAlphaChannels(fullPath *masksNames, fullPath *alphaChannelNames
     for (index = 0 , ptrBuffer = imagesBuffer; index < numberImages; index ++, ptrBuffer+= imageParameters->bytesPerLine) {
 
       ARGBtoRGBA(ptrBuffer, imageParameters->imageWidth, imageParameters->bitsPerPixel);
-      TIFFWriteScanline(tiffAlphaChannels[index], ptrBuffer, row, 0);
+
+      if ( TIFFWriteScanline(tiffAlphaChannels[index], ptrBuffer, row, 0) != 1) {
+	PrintError("Unable to write data to output file\n");
+	returnValue = 0;
+	goto end;
+      }
+
      
     } //for
    
   } //for i
 
+  returnValue = 1;
+
+ end:
 
   if (!ptQuietFlag) {
     Progress(_setProgress, "100");
@@ -1277,7 +1328,7 @@ static int CreateAlphaChannels(fullPath *masksNames, fullPath *alphaChannelNames
   free(tiffAlphaChannels);
   free(tiffMasks);
 
-  return 1;
+  return returnValue;
 }
 
 static void ApplyFeather8bits(Image *image, int featherSize)
@@ -1750,7 +1801,10 @@ int FlattenTIFF(fullPath *fullPathImages, int counterImageFiles, fullPath *outpu
     return -1;
   }
 
-  TiffSetImageParameters(tiffFile, &imageParameters);
+  if (!TiffSetImageParameters(tiffFile, &imageParameters)) {
+    PrintError("Unable to initialize TIFF file\n");
+    return 0;
+  }
 
 
   // 500,000? 
@@ -1864,7 +1918,10 @@ int FlattenTIFF(fullPath *fullPathImages, int counterImageFiles, fullPath *outpu
 
     for (i = 0; i < linesToRead; i++) {
       //      printf("Line to write %d\n", offsetBeforeThisPass + i);
-      TIFFWriteScanline(tiffFile, resultBuffer + imageParameters.bytesPerLine * i, offsetBeforeThisPass + i, 0);
+      if (TIFFWriteScanline(tiffFile, resultBuffer + imageParameters.bytesPerLine * i, offsetBeforeThisPass + i, 0) != 1) {
+	PrintError("Unable to write TIFF to file\n");
+	return -1;
+      }
       //      TIFFWriteScanline(tiffFile, imageDataBuffers[0] + imageParameters.bytesPerLine * i, offsetBeforeThisPass + i, 0);
 
     } // end of for
@@ -2363,6 +2420,10 @@ int CreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles, fullPath
   memcpy(&tempScriptFile , scriptFileName, sizeof(fullPath));
   makeTempPath(&tempScriptFile);
     
+  TIFFSetWarningHandler(tiffErrorHandler);
+  TIFFSetErrorHandler(tiffErrorHandler);
+
+
   if ((regFile = fopen(tempScriptFile.name, "w")) == NULL) {
     PrintError("Could not open temporary Scriptfile");
     goto mainError;
@@ -2631,7 +2692,10 @@ I AM NOT TOTALLY SURE ABOUT THIS
     //is also provided
     if (strstr(prefs->pano.name, "c:LZW") != NULL)
     {
-      TIFFSetField(tiffFile, TIFFTAG_COMPRESSION, (uint16_t)COMPRESSION_LZW);
+      int temp;
+      temp = TIFFSetField(tiffFile, TIFFTAG_COMPRESSION, (uint16_t)COMPRESSION_LZW);
+
+      printf("******Setting LZW [%d]...\n", temp);
       TIFFSetField(tiffFile, TIFFTAG_PREDICTOR, 2);   //using predictor usually increases LZW compression ratio for RGB data
     }
     else
@@ -2792,7 +2856,11 @@ I AM NOT TOTALLY SURE ABOUT THIS
 
       //Write calculated data rows to TIFF file one row (aka "scanline") at a time
       for (ebx = 0; ebx< resultPanorama.selection.bottom - resultPanorama.selection.top ; ebx++) {
-        TIFFWriteScanline(tiffFile, *resultPanorama.data + (resultPanorama.bytesPerLine * ebx), outputScanlineNumber, 1);
+
+	if (TIFFWriteScanline(tiffFile, *resultPanorama.data + (resultPanorama.bytesPerLine * ebx), outputScanlineNumber, 1) != 1) {
+	  PrintError("Unable to write to TIFF file\n");
+	  return -1;
+	}
         outputScanlineNumber++;
       }
   
@@ -2972,6 +3040,8 @@ I AM NOT TOTALLY SURE ABOUT THIS
       rename(fullPathImages[loopCounter].name, var28);
       
     } // end of for loop started at 
+
+    return(0);
 
   } //end of if (strcmp(word, "TIFF_mask") == 0)
 

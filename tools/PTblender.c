@@ -35,7 +35,7 @@
 #include <sys/types.h>
 #include <dirent.h>
 #include <unistd.h>
-
+#include <errno.h>
 
 
 #include "filter.h"
@@ -99,7 +99,7 @@ int main(int argc,char *argv[])
       break;
     case 'k':
       referenceImage = strtol(optarg, &endPtr, 10);
-      if (endPtr != NULL) {
+      if (errno != 0) {
 	PrintError("Invalid integer in -k option");
 	return -1;
       }
