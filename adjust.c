@@ -77,8 +77,6 @@ void adjust(TrformStr *TrPtr, aPrefs *prefs)
 #endif
 	SetAdjustDefaults(&aP);
 
-	//PrintError ("MRDL: In adjust");
-
 	switch( prefs->mode & 7 )// Should we use prefs, or read from script?
 	{
 		case _insert:
