@@ -41,6 +41,8 @@ typedef struct {
   int bytesPerLine;
   int bitsPerPixel;
   uint32_t rowsPerStrip;
+  uint16_t compression;
+  uint16_t predictor;
 } pt_tiff_parms;
 
 

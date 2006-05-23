@@ -1,3 +1,10 @@
+2006-05-23  dmg  <dmgerman@uvic.ca>
+
+	* PTcommon.c (TiffGetImageParameters, TiffSetImageParameters):
+	Make sure compression is propagated at further stages
+	(CreatePanorama): Implemented support for C:NONE 
+	(CreatePanorama): Implemented support for C:DEFLATE 
+
 2006-05-22  dmg  <dmgerman@uvic.ca>
 
 	* PTcommon.c: Checked return value of each TIFFWriteScanline. It

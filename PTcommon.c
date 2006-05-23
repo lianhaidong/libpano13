@@ -94,6 +94,19 @@ int TiffGetImageParameters(TIFF *tiffFile, pt_tiff_parms *tiffData)
     return 0;
   }
 
+  if (!TIFFGetField(tiffFile, TIFFTAG_COMPRESSION, &tiffData->compression)) {
+    PrintError("File did not include predictor information.");
+    return 0;
+  }
+  if (tiffData->compression == COMPRESSION_LZW) {
+    //predictor only exists in LZW compressed files
+    if (!TIFFGetField(tiffFile, TIFFTAG_PREDICTOR, &tiffData->predictor)) {
+      PrintError("File did not include predictor information.");
+      return 0;
+    }
+  }
+
+
   tiffData->bytesPerLine = TIFFScanlineSize(tiffFile);
   if (tiffData->bytesPerLine <= 0) {
     PrintError("File did not include proper bytes per line information.");
@@ -140,9 +153,13 @@ int TiffSetImageParameters(TIFF *tiffFile, pt_tiff_parms *tiffData)
     && TIFFSetField(tiffFile, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB)
     && TIFFSetField(tiffFile,  TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG)
     && TIFFSetField(tiffFile, TIFFTAG_SAMPLESPERPIXEL, tiffData->samplesPerPixel)
-    && TIFFSetField(tiffFile, TIFFTAG_COMPRESSION, COMPRESSION_PACKBITS)
+    && TIFFSetField(tiffFile, TIFFTAG_COMPRESSION, tiffData->compression)
     && TIFFSetField(tiffFile, TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT)
     && TIFFSetField(tiffFile,  TIFFTAG_ROWSPERSTRIP, tiffData->rowsPerStrip);
+
+  if (returnValue && tiffData->compression == COMPRESSION_LZW) {
+    returnValue = TIFFSetField(tiffFile, TIFFTAG_PREDICTOR, tiffData->predictor);
+  }
 
   return returnValue;
 
@@ -1248,7 +1265,11 @@ static int CreateAlphaChannels(fullPath *masksNames, fullPath *alphaChannelNames
 
     for (ptrBuffer = imagesBuffer, index = 0; index < numberImages; index ++, ptrBuffer += imageParameters->bytesPerLine) {
 
-      TIFFReadScanline(tiffMasks[index], ptrBuffer, row, 0);
+      if (TIFFReadScanline(tiffMasks[index], ptrBuffer, row, 0) != 1) {
+	PrintError("Error reading temporary TIFF data");
+	returnValue = 0;
+	goto end;
+      }
 
       RGBAtoARGB(ptrBuffer, imageParameters->imageWidth, imageParameters->bitsPerPixel);
      
@@ -2653,16 +2674,18 @@ I AM NOT TOTALLY SURE ABOUT THIS
     //is also provided
     if (strstr(prefs->pano.name, "c:LZW") != NULL)
     {
-      int temp;
-      temp = TIFFSetField(tiffFile, TIFFTAG_COMPRESSION, (uint16_t)COMPRESSION_LZW);
-
-      printf("******Setting LZW [%d]...\n", temp);
+      TIFFSetField(tiffFile, TIFFTAG_COMPRESSION, (uint16_t)COMPRESSION_LZW);
       TIFFSetField(tiffFile, TIFFTAG_PREDICTOR, 2);   //using predictor usually increases LZW compression ratio for RGB data
+    } else if (strstr(prefs->pano.name, "c:NONE") != NULL) {
+      TIFFSetField(tiffFile, TIFFTAG_COMPRESSION, (uint16_t)COMPRESSION_NONE);
+    } else if (strstr(prefs->pano.name, "c:DEFLATE") != NULL) {
+      TIFFSetField(tiffFile, TIFFTAG_COMPRESSION, COMPRESSION_DEFLATE);
     }
-    else
+    else // Default is PACKBITS
     {
       TIFFSetField(tiffFile, TIFFTAG_COMPRESSION, COMPRESSION_PACKBITS);
     }
+
 
     //"1" indicates that The 0th row represents the visual top of the image, 
     //and the 0th column represents the visual left-hand side.
