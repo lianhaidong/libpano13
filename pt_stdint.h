@@ -1,8 +1,6 @@
 /* pt_stdint.h */
-
 #ifndef PT_STDINT__H
 #define PT_STDINT__H
-
 # ifdef _MSC_VER  /* Microsoft Visual C++ */
 typedef signed char             int8_t;
 typedef short int               int16_t;
