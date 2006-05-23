@@ -238,6 +238,14 @@ typedef struct{
 	pt_int32	right;
 	}	PTRect;
 
+typedef struct {
+	pt_int32		full_width;
+	pt_int32		full_height;
+	pt_int32		cropped_width;
+	pt_int32		cropped_height;
+	pt_int32		x_offset;
+	pt_int32		y_offset;
+} CropInfo;
 
 
 struct Image{
@@ -260,6 +268,8 @@ struct Image{
 	};
 		
 typedef struct Image Image;
+
+
 
 
 struct TrformStr 				// This structure holds all image information
