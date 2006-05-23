@@ -98,6 +98,11 @@ int TiffGetImageParameters(TIFF *tiffFile, pt_tiff_parms *tiffData)
     PrintError("File did not include predictor information.");
     return 0;
   }
+  if (!TIFFGetField(tiffFile,  TIFFTAG_ROWSPERSTRIP, &tiffData->rowsPerStrip)) {
+    PrintError("Unable to get rows per strip");
+    return 0;
+  }
+
   if (tiffData->compression == COMPRESSION_LZW) {
     //predictor only exists in LZW compressed files
     if (!TIFFGetField(tiffFile, TIFFTAG_PREDICTOR, &tiffData->predictor)) {
@@ -106,14 +111,12 @@ int TiffGetImageParameters(TIFF *tiffFile, pt_tiff_parms *tiffData)
     }
   }
 
-
   tiffData->bytesPerLine = TIFFScanlineSize(tiffFile);
   if (tiffData->bytesPerLine <= 0) {
-    PrintError("File did not include proper bytes per line information.");
+    PrintError("File did not include proper bytes-per-line information.");
     return 0;
   }
   tiffData->bitsPerPixel = tiffData->samplesPerPixel * tiffData->bitsPerSample;
-  tiffData->rowsPerStrip = tiffData->imageLength;
   return 1;
 }
 
@@ -435,44 +438,19 @@ static void ComputeStitchingMask8bits(Image *image)
       if (*ptrCounter < count) {
 	;
       } else {
-	
 	*ptrCounter = count;
-	
       } //
 
     } // for column
 
     //-----------------------------;;
-  
-    for (column = 0; column < image->width; column ++ ) {
 
-      pixel = ptr + column * 4;
-
-      if ( *pixel == 0 ) {
-	count = 0;
-      } else {
-	count ++;
-      }
-
-      ptrCounter =  (uint16_t*)(pixel +2);
-
-      if (*ptrCounter < count) {
-	;
-      } else {
-	*ptrCounter = count;
-      }
-    } // for
-
-    //---------------------------------------;
-
-    //  fprintf(stderr, "St3\n");
-
-    count = image->width;
+    count = 0;
     column = image->width;
 
     while (--column >= 0) {
 
-      pixel = ptr + column * 4;
+      pixel = ptr + 4 * column;
 
       if (0 == *pixel ) {
 	count = 0;
@@ -488,36 +466,7 @@ static void ComputeStitchingMask8bits(Image *image)
 	*ptrCounter = count;
       }
     } //    while (--column >= 0) {
-
-    //--------------------------------;
-    column = image->width;
-
-    //  fprintf(stderr, "St4\n");
-
-    while (--column >= 0) {
-
-      pixel = ptr + 4 * column;
-
-      if ( *pixel == 0 ) {
-	count = 0;
-      } else {
-	count ++;
-      }
-
-      ptrCounter =  (uint16_t*)(pixel +2);
-
-      if (*ptrCounter < count) {
-	
-	count = *ptrCounter ;
-      
-      } else {
-	*ptrCounter = count;
-      }
-    } // end of while
-    
   } // end of for row
-
-
 }
 
 static void ComputeStitchingMask16bits(Image *image)
@@ -1241,16 +1190,13 @@ static int CreateAlphaChannels(fullPath *masksNames, fullPath *alphaChannelNames
  
   for (row= 0; row< imageParameters->imageLength; row++) {
 
-
     if ( ptQuietFlag == 0 ) {
       
       if ( row== (row/ 20) * 20 ) {
 	
 	sprintf(tempString, "%lu", row* 100/imageParameters->imageLength);
 	
-	
 	if (Progress(_setProgress, tempString) == 0) {
-	  
 	  for (index = 0 ; index < numberImages; index ++) {
 	    TIFFClose(tiffMasks[index]);
 	    TIFFClose(tiffAlphaChannels[index]);
