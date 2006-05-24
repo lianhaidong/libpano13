@@ -649,6 +649,7 @@ int 	readPNG				( Image *im, fullPath *sfile );
 int 	LaunchAndSendScript(char* application, char* script);
 aPrefs* readAdjustLine( fullPath *theScript );
 //int	readtif(Image *im, TIFF* tif);
+void getCropInformation(char *filename, CropInfo *c);
 
 // Read and Write Radiance HDR files
 int 	writeHDR			( Image *im, fullPath *sfile );
