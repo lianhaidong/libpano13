@@ -74,13 +74,13 @@
 static int 				writeImageDataPlanar	( Image *im, file_spec fnum );
 static int 				readImageDataPlanar		(Image *im, file_spec fnum ) ;
 static int 				ParsePSDHeader			( char *header, Image *im );
-static int 				writeChannelData		( Image *im, file_spec fnum, int channel, PTRect *r );
-static int 				writeLayerAndMask		( Image *im, file_spec fnum );
-static void 			getImageRectangle		( Image *im, PTRect *r );
+static int 				writeChannelData		( Image *im, file_spec fnum, int channel, CropInfo *crop_info, PTRect *r );
+static int 				writeLayerAndMask		( Image *im, CropInfo *crop_info, file_spec fnum );
+static void 			getImageRectangle		( Image *im, CropInfo *crop_info, PTRect *r );
 static int 				fileCopy				( file_spec src, file_spec dest, size_t numBytes, unsigned char *buf);
 static void 			orAlpha					( unsigned char* alpha, unsigned char *buf, Image *im, PTRect *r );
 static void 			writeWhiteBackground	( pt_int32 width, pt_int32 height, file_spec fnum );
-static int				addLayer				( Image *im, file_spec src, file_spec fnum , stBuf *sB);
+static int				addLayer				( Image *im, CropInfo *crop_info, file_spec src, file_spec fnum , stBuf *sB);
 static int				hasFeather				( Image *im );
 static int				writeTransparentAlpha	( Image *im, file_spec fnum, PTRect *theRect );
 
@@ -161,7 +161,12 @@ int writePSDwithLayer(Image *im, fullPath *sfile )
 	unsigned char  ch;
 	short		svar;
 	int			BitsPerChannel;
+	CropInfo    crop_info;
 
+	//Determine if this is a "cropped" tiff, and, if so, what is 
+	//the full size from which this is cropped?
+	getCropInformation(im->name, &crop_info);
+	
 	// Jim Watters 2003/11/18: Photoshop CS does 16bit channels if 16 bit in, allow 16 bit out
 	// TwoToOneByte( im ); // Multilayer image format doesn't support 16 bit channels
 	
@@ -185,8 +190,13 @@ int writePSDwithLayer(Image *im, fullPath *sfile )
 	WRITEUCHAR( 0 );
 	WRITEUCHAR( 3 );			// No of channels; Background always white, 3 channels
 		
-	WRITEINT32( im->height );
-	WRITEINT32( im->width  );
+	//WRITEINT32( im->height );
+	//WRITEINT32( im->width  );
+	
+	//The Photoshop file has the dimensions of the full size image, regardless
+	//of whether the TIFF file is "cropped" or not.
+	WRITEINT32( crop_info.full_height);
+	WRITEINT32( crop_info.full_width);
 			
 	WRITESHORT( BitsPerChannel ); 			// BitsPerChannel
 	switch( im->dataformat )
@@ -200,7 +210,7 @@ int writePSDwithLayer(Image *im, fullPath *sfile )
 	WRITEINT32( 0 );				// Color Mode
 	WRITEINT32( 0 ); 			// Image Resources
 			
-	writeLayerAndMask( im, fnum );
+	writeLayerAndMask( im, &crop_info, fnum );
 
 	writeWhiteBackground( im->width * BitsPerChannel/8, im->height, fnum );
 		
@@ -210,7 +220,7 @@ int writePSDwithLayer(Image *im, fullPath *sfile )
 }
 
 
-// Add image as additional layer into PSD-file
+// Add image as additional layer into PSD-file (exported function)
 int addLayerToFile( Image *im, fullPath* sfile, fullPath* dfile, stBuf *sB)
 {
 	file_spec	src;
@@ -222,10 +232,12 @@ int addLayerToFile( Image *im, fullPath* sfile, fullPath* dfile, stBuf *sB)
 	pt_uint32	var;
 	char		data[12], *d;
 	int			BitsPerChannel, result = 0;
+	CropInfo    crop_info;
 
 	// Jim Watters 2003/11/18: Photoshop CS does 16bit channels if 16 bit in, allow 16 bit out
-	//TwoToOneByte( im ); // Multilayer image format doesn't support 16 bit channels
+	// TwoToOneByte( im ); // Multilayer image format doesn't support 16 bit channels
 	
+	getCropInformation(im->name, &crop_info);
 	GetBitsPerChannel( im, BitsPerChannel );
 	
 
@@ -256,7 +268,7 @@ int addLayerToFile( Image *im, fullPath* sfile, fullPath* dfile, stBuf *sB)
 	}
 	
 	// Check if image can be inserted
-	if( sim.width != im->width || sim.height != im->height )
+	if( sim.width != crop_info.full_width || sim.height != crop_info.full_height )
 	{	
 		PrintError("Can't add layer: Images have different size");
 		return -1;
@@ -304,7 +316,7 @@ int addLayerToFile( Image *im, fullPath* sfile, fullPath* dfile, stBuf *sB)
 	myfree( (void**)buf );
 
 	// Add one layer	
-    if( addLayer( im, src, fnum, sB ) != 0 )
+    if( addLayer( im, &crop_info, src, fnum, sB ) != 0 )
 	{
 		result = -1;
 		goto _addLayerToFile_exit;
@@ -734,7 +746,7 @@ readImageDataPlanar_exit:
 
 // Write image as separate first layer
 
-static int writeLayerAndMask( Image *im, file_spec fnum )
+static int writeLayerAndMask( Image *im, CropInfo *crop_info, file_spec fnum )
 {
 	pt_uint32	 	var;
 	PTRect 			theRect;
@@ -762,7 +774,11 @@ static int writeLayerAndMask( Image *im, file_spec fnum )
 		}
 	}
 
-	getImageRectangle( im, &theRect );
+	//we only write to the PSD file the smallest region of the input file that 
+	//contains "non-empty" image data.  The bounds of this region are recorded in
+	//in "theRect".  If this input image is a "cropped" image, then theRect will
+	//just use the data region specified "crop_info".
+	getImageRectangle( im, crop_info, &theRect );
 
 	numLayers = 1;
 	
@@ -864,12 +880,12 @@ static int writeLayerAndMask( Image *im, file_spec fnum )
 	// Write color channels
 	for( i=0; i<3; i++)
 	{
-		if( writeChannelData( im, fnum, i + channels - 3, &theRect ) ) 
+		if( writeChannelData( im, fnum, i + channels - 3, crop_info, &theRect ) ) 
 			return -1;
 	}
 	if( hasShapeMask )
 	{
-		if( writeChannelData( im, fnum, 0, &theRect ) ) 
+		if( writeChannelData( im, fnum, 0, crop_info, &theRect ) ) 
 			return -1;
 	}
 	else
@@ -879,7 +895,7 @@ static int writeLayerAndMask( Image *im, file_spec fnum )
 	}
 	if( hasClipMask )
 	{
-		if( writeChannelData( im, fnum, 0, &theRect ) ) 
+		if( writeChannelData( im, fnum, 0, crop_info, &theRect ) ) 
 			return -1;
 	}
 		
@@ -913,14 +929,15 @@ static int writeLayerAndMask( Image *im, file_spec fnum )
 
 
 
-static int writeChannelData( Image *im, file_spec fnum, int channel, PTRect *theRect )
+static int writeChannelData( Image *im, file_spec fnum, int channel, CropInfo *crop_info, PTRect *theRect )
 {
-	register int 			x,y,idy, bpp,BitsPerChannel,channels;
+	register int 			x, y, idx, idy, bpp, BitsPerChannel, channels;
 	unsigned char 			**ch;
 	register unsigned char 	*c, *idata;
 	size_t					count;
 	short					svar;
 	char					data[12], *d;
+	pt_int32				outputRegionWidth, outputRegionHeight;
 
 	GetBitsPerChannel( im, BitsPerChannel );
 	GetChannels( im, channels );
@@ -941,16 +958,36 @@ static int writeChannelData( Image *im, file_spec fnum, int channel, PTRect *the
 		return -1;
 	}
 
+	//note: theRect specifies the position in the output layer where the data should
+	//be placed.  crop_info contains information about where the source data
+	//is positioned relative to the full output size
+	outputRegionWidth  = (theRect->right - theRect->left);
+	outputRegionHeight = (theRect->bottom - theRect->top);
+	
+	if (outputRegionWidth > crop_info->cropped_width || outputRegionHeight > crop_info->cropped_height) 
+	{
+		printf("output region (%d x %d) is larger than input image data region (%d x %d)\n", 
+			outputRegionWidth, outputRegionHeight, crop_info->cropped_width, crop_info->cropped_height);
+		return 1;
+	}
+	
 	c = *ch; idata = &((*(im->data))[channel*BitsPerChannel/8]);
 	
 	if(BitsPerChannel == 8)
 	{
 		for(y=theRect->top; y<theRect->bottom;y++)
 		{
-			idy = y * im->bytesPerLine;
+			idy = (y - crop_info->y_offset) * im->bytesPerLine;
+
+			if (idy < 0) {	//should never happen
+				PrintError("writeChannelData: index error");
+				return 1;
+			}
+			
 			for(x=theRect->left; x<theRect->right;x++)
 			{
-				*c++ = idata [ idy + x * bpp ];
+				idx = ((x - crop_info->x_offset) * bpp);
+				*c++ = idata [ idy + idx ];
 			}
 		}
 	}
@@ -959,10 +996,17 @@ static int writeChannelData( Image *im, file_spec fnum, int channel, PTRect *the
 		unsigned short storage;
 		for(y=theRect->top; y<theRect->bottom;y++)
 		{
-			idy = y * im->bytesPerLine;
+			idy = (y - crop_info->y_offset) * im->bytesPerLine;
+			
+			if (idy < 0) {	//should never happen
+				PrintError("writeChannelData: index error");
+				return 1;
+			}
+						
 			for(x=theRect->left; x<theRect->right;x++)
 			{
-				storage = *(unsigned short*)&idata [ idy + x * bpp ];
+				idx = ((x - crop_info->x_offset) * bpp);			
+				storage = *(unsigned short*)&idata [ idy + idx ];
 				SHORTNUMBER( storage, c );
 			}
 		}
@@ -1034,12 +1078,31 @@ static int writeTransparentAlpha( Image *im, file_spec fnum, PTRect *theRect )
 
 // Return the smallest rectangle enclosing the image; 
 // Use alpha channel and rgb data 
-static void getImageRectangle( Image *im, PTRect *theRect )
+static void getImageRectangle( Image *im, CropInfo *crop_info, PTRect *theRect )
 {
 	register unsigned char *alpha, *data;
 	register int x,y,cy,bpp,channels;
 	int BitsPerChannel;
 
+	//If this is a cropped TIFF then we can get the image rectangle ROI from
+	//the metadata in crop_info, rather than having to parse the entire
+	//file to look for ROI
+	if ( crop_info->full_height != crop_info->cropped_height || crop_info->full_width != crop_info->cropped_width ) {
+		theRect->left   = crop_info->x_offset;
+		theRect->top    = crop_info->y_offset;
+		//Slightly counter-intuitive...right and bottom are one pixel larger than expected
+		//so that the width and height can be calculated by subtracting
+		//left from right or top from bottom
+		theRect->right  = theRect->left + crop_info->cropped_width;
+		theRect->bottom = theRect->top  + crop_info->cropped_height;
+		
+		return;
+	}
+	
+
+	//the crop_info seems indicates that this isn't a cropped TIFF...we have
+	//to parse the entire file to determine the ROI that contains non-empty
+	//image data
 	GetChannels( im, channels );
 	GetBitsPerChannel( im, BitsPerChannel );
 	bpp = im->bitsPerPixel/8;
@@ -1131,6 +1194,7 @@ static void getImageRectangle( Image *im, PTRect *theRect )
 		theRect->right 			= im->width;
 	}
 
+	//printf("Image Rectangle = %d,%d - %d,%d\n", theRect->left, theRect->top, theRect->right, theRect->bottom);
 #if 0
 	{ char msg[1000];
 	  sprintf(msg,"width=%d, height=%d, top = %d, bottom = %d, left = %d, right = %d\n",
@@ -1147,7 +1211,7 @@ static void getImageRectangle( Image *im, PTRect *theRect )
 // There must be one valid layer structure, and the
 // filepointer is at the beginning of it in both src and dest
 
-static int addLayer( Image *im, file_spec src, file_spec fnum, stBuf *sB )
+static int addLayer( Image *im, CropInfo *crop_info, file_spec src, file_spec fnum, stBuf *sB )
 {
 	pt_uint32	 	var;
 	PTRect			theRect, *nRect = NULL;
@@ -1184,7 +1248,7 @@ static int addLayer( Image *im, file_spec src, file_spec fnum, stBuf *sB )
 		if( sB->seam == _middle )	// we have to stitch
 		{
 			alpha = (unsigned char**) mymalloc( (size_t)(im->width * im->height * BitsPerChannel/8));
-	}
+		}
 	}
 
 	if( alpha != NULL )
@@ -1192,7 +1256,7 @@ static int addLayer( Image *im, file_spec src, file_spec fnum, stBuf *sB )
 		memset( *alpha, 0 , (size_t)(im->width * im->height * BitsPerChannel/8));
 	}
 
-	getImageRectangle( im, &theRect );
+	getImageRectangle( im, crop_info, &theRect );
 	channelLength = (theRect.right-theRect.left) * (theRect.bottom-theRect.top)  + 2;
 	
 	
@@ -1462,7 +1526,7 @@ static int addLayer( Image *im, file_spec src, file_spec fnum, stBuf *sB )
 	// Write color channels
 	for( i=0; i<3; i++)
 	{
-		if( writeChannelData( im, fnum, i + channels - 3, &theRect ) ) 
+		if( writeChannelData( im, fnum, i + channels - 3, crop_info, &theRect ) ) 
 		{
 			result = -1;
 			goto _addLayer_exit;
@@ -1471,7 +1535,7 @@ static int addLayer( Image *im, file_spec src, file_spec fnum, stBuf *sB )
 	
 	if( hasShapeMask ) 	// Alpha channel present
 	{		
-		if( writeChannelData( im, fnum, 0, &theRect ) ) 
+		if( writeChannelData( im, fnum, 0, crop_info, &theRect ) ) 
 		{
 			result = -1;
 			goto _addLayer_exit;
@@ -1504,7 +1568,7 @@ static int addLayer( Image *im, file_spec src, file_spec fnum, stBuf *sB )
 			}
 #endif
 		}
-		if( writeChannelData( im, fnum, 0, &theRect ) ) 
+		if( writeChannelData( im, fnum, 0, crop_info, &theRect ) ) 
 		{
 			result = -1;
 			goto _addLayer_exit;
