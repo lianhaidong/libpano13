@@ -1,3 +1,45 @@
+2006-05-24  Max Lyons <maxlyons@tawbaware.com>
+
+	* PTCommon.c: All logic has been reworked so that "cropped"
+	TIFF files can be used throughout the stitching process for all currently 
+	supported output formats.  (Cropped TIFF files are those that are just 
+	large enough to contain	the remapped image, and the offset/full size 
+	information is stored in the TIFF header).  Modified functions include 
+	ReplaceAlphaChannel, CreateAlphaChannels, AddStitchingMasks, FlattenTIFF, 
+	createPanorama.  New functions include getCropInformationFromTiff, 
+	setFullSizeImageParameters.
+	
+	* PTCommon.c: Simplified ComputeStitchingMask8bits syntax
+	
+	* PTCommon.c: CreatePanorama.  Reworked logic to handle intermediate output files
+	and produce final output in various formats.  Added logic that decides when
+	to use cropped TIFF as intermediate format based on chosen output format.  TODO:
+	this could use some tidy up, and it might be a good idea to have cropped TIFF
+	as the default intermediate format for TIFF_m and TIFF_mask, and include a 
+	function to "expand" the cropped TIFFs to full size when finished (if the 
+	user requests non-cropped TIFF).
+	
+	* PTCommon.c: Reluctantly commented out calls to TIFFSetWarningHandler and 
+    TIFFSetErrorHandler...these cause to GCC to abort, with a series of errors 
+    about multiple definition of TIFF functions in libpano and libtiff.  
+    
+    * PTCommon.c: Changed title bar of progress dialog to indicate currently 
+    processing image number (indexed at 1) and total images to be processed.
+	
+	* ColourBrightness.c, PTMender.c : changed #include syntax
+	
+	* file.c: writePSD, writeLayerAndMask, writeChannelData, getImageRectangle, 
+	addLayer.  Reworked to handle "cropped" files.
+	
+	* filter.h: getCropInformation. Adding declaration.
+	
+	* tiff.c: readTIFF.  Storing filename of TIFF in im->name.
+	
+	* panorama.h: Adding CropInfo struct...used for processed cropped images
+
+	* pt_stdint.h: Fixing bad CR/LF combinations
+        	
+
 2006-05-24  dmg  <dmgerman@uvic.ca>
 
 	* PTcommon.c (TiffSetImageParameters, TiffGetImageParameters):
