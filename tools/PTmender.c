@@ -39,8 +39,8 @@
 #include <dirent.h>
 #include <unistd.h>
 
-#include <tiffio.h>
-#include <filter.h>
+#include "tiffio.h"
+#include "filter.h"
 #include "panorama.h"
 
 #include "PTmender.h"

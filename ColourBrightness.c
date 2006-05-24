@@ -35,11 +35,12 @@
 #include <stdint.h>
 #include <math.h>
 
-#include <tiffio.h>
+#include "tiffio.h"
 #include "filter.h"
 #include "panorama.h"
 
 #include "PTcommon.h"
+
 #include "ColourBrightness.h"
 
 FILE *debugFile;
