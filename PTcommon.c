@@ -39,13 +39,15 @@
 #include "filter.h"
 #include "panorama.h"
 
+#include "tiffio.h"
 
 #include "PTcommon.h"
 
-#include <tiffio.h>
 
 //declare functions
+void getCropInformationFromTiff(TIFF *tif, CropInfo *c);
 void getROI( TrformStr *TrPtr, aPrefs *aP, PTRect *ROIRect );
+void setFullSizeImageParameters(pt_tiff_parms *imageParameters, CropInfo *crop_info);
 
 int ptQuietFlag = 0;
 
@@ -98,11 +100,6 @@ int TiffGetImageParameters(TIFF *tiffFile, pt_tiff_parms *tiffData)
     PrintError("File did not include predictor information.");
     return 0;
   }
-  if (!TIFFGetField(tiffFile,  TIFFTAG_ROWSPERSTRIP, &tiffData->rowsPerStrip)) {
-    PrintError("Unable to get rows per strip");
-    return 0;
-  }
-
   if (tiffData->compression == COMPRESSION_LZW) {
     //predictor only exists in LZW compressed files
     if (!TIFFGetField(tiffFile, TIFFTAG_PREDICTOR, &tiffData->predictor)) {
@@ -111,12 +108,20 @@ int TiffGetImageParameters(TIFF *tiffFile, pt_tiff_parms *tiffData)
     }
   }
 
+
   tiffData->bytesPerLine = TIFFScanlineSize(tiffFile);
   if (tiffData->bytesPerLine <= 0) {
-    PrintError("File did not include proper bytes-per-line information.");
+    PrintError("File did not include proper bytes per line information.");
     return 0;
   }
   tiffData->bitsPerPixel = tiffData->samplesPerPixel * tiffData->bitsPerSample;
+
+  //tiffData->rowsPerStrip = tiffData->imageLength;
+  if (!TIFFGetField(tiffFile, TIFFTAG_ROWSPERSTRIP, &tiffData->rowsPerStrip)) {
+    PrintError("File did not include rows per strip information.");
+    return 0;
+  }  
+    
   return 1;
 }
 
@@ -165,7 +170,7 @@ int TiffSetImageParameters(TIFF *tiffFile, pt_tiff_parms *tiffData)
   }
 
   return returnValue;
-
+  
 }
 
 
@@ -177,10 +182,15 @@ int VerifyTiffsAreCompatible(fullPath *tiffFiles, int numberImages)
   pt_tiff_parms otherFileParms;
   char *errorMsg;
 
+  //MRDL: Reluctantly commented these out...the calls to TIFFSetWarningHandler and 
+  //TIFFSetErrorHandler cause to GCC to abort, with a series of errors like this:
+  //../../../LibTiff/tiff-v3.6.1/libtiff/libtiff.a(tif_unix.o)(.text+0x11a): In function `TIFFOpen':
+  //../../../libtiff/tiff-v3.6.1/libtiff/../libtiff/tif_unix.c:144: multiple definition of `TIFFOpen'
+  //../libpano12.a(dyces00121.o)(.text+0x0): first defined here
   // Make sure we have a tiff error handler
-  TIFFSetWarningHandler(tiffErrorHandler);
-  TIFFSetErrorHandler(tiffErrorHandler);
-
+  //TIFFSetWarningHandler(tiffErrorHandler);
+  //TIFFSetErrorHandler(tiffErrorHandler);
+  
   // Open TIFFs
 
   if (!TiffGetImageParametersFromPathName(&tiffFiles[0], &firstFileParms)) {
@@ -223,87 +233,82 @@ int  CreatePSD(  fullPath *fullPathImages, int numberImages, fullPath* outputFil
 
   Image *ptrImage;
   int i;
-  stBuf stitchInfo; 
+  stBuf stitchInfo;
   fullPath tempFile;
   char tempString[128];
   Image image;
-  
+
   assert(numberImages > 0);
   assert(fullPathImages != NULL);
   assert(outputFileName != NULL);
-
+  
   if ( ptQuietFlag == 0 ) {
     Progress(_initProgress, "Converting TIFF to PSD");
     sprintf(tempString, "%d", 100/numberImages);
     Progress(_setProgress, tempString);
   }
-  
+
   // Process background of PSD
   SetImageDefaults(&image);
 
   if (readTIFF(&image, &fullPathImages[0]) != 0 ) {
-
+  
     PrintError("Could not read TIFF image No 0");
+	if ( ptQuietFlag == 0 )
+    	Progress(_disposeProgress, tempString);
 
-    if ( ptQuietFlag == 0 ) {
-      Progress(_disposeProgress, tempString);
-    }
     return -1;
   }
+
 
   if (!( image.bitsPerPixel == 64 ||  image.bitsPerPixel == 32)  ) {
     PrintError("Image type not supported (%d bits per pixel)\n", image.bitsPerPixel);
     return 0;
   }
-  
+
   if (numberImages > 1 && image.bitsPerPixel != 32) {
     if ( image.bitsPerPixel == 64 ) {
       PrintError("Panotools is not able to save 16bit PSD images. Downsampling to 8 bit");
       TwoToOneByte(&image); //we need to downsample to 8 bit if we are provided 16 bit images
     }
   }
+
+  //Write out the first image as the base layer in the PSD file
   if (writePSDwithLayer(&image, outputFileName) != 0) {
-
     PrintError("Could not write PSD-file");
-
     if ( ptQuietFlag != 0 ) 
-      Progress(_disposeProgress, tempString);
+		Progress(_disposeProgress, tempString);
     return -1;
   }
 
   myfree((void**)image.data);
- 
   ptrImage = &image;
-
-  // Process each of the layers
+  
+  //Now iterate over all other images and add them as layers to the PSD file
   for (i = 1; i < numberImages; i++) {
     
-    // Report progress
     if ( ptQuietFlag == 0 ) {
-      sprintf(tempString, "%d", i * 100/numberImages);
-      if ( Progress(_setProgress,tempString) == 0 ) {
-	remove(outputFileName->name);
-	return -1;
-      }
+        sprintf(tempString, "%d", i * 100/numberImages);    
+		if ( Progress(_setProgress,tempString) == 0 ) {
+			remove(outputFileName->name);
+			return -1;
+		}
     }
 
     if (readTIFF(ptrImage, &fullPathImages[i]) != 0) {
-      
-      PrintError("Could not read TIFF image No &d", i);
-      if ( ptQuietFlag == 0 ) {
-	Progress(_disposeProgress, tempString);
-      }
-      return -1;
-      
+
+      	PrintError("Could not read TIFF image No &d", i);
+		if ( ptQuietFlag == 0 )
+			Progress(_disposeProgress, tempString);
+    	return -1;
     }
     
     // We can't process 16 bit TIFFs. We have to downsample to 8 bit if necessary
-
     if ( image.bitsPerPixel == 64 ) 
       TwoToOneByte(ptrImage);
     
     // Create a new file with the result PSD, then delete the current one
-
+    
     strcpy(tempFile.name, outputFileName->name);
     
     if (makeTempPath(&tempFile) != 0) {
@@ -311,10 +316,10 @@ int  CreatePSD(  fullPath *fullPathImages, int numberImages, fullPath* outputFil
       return -1;
       
     }
-    
+
     stitchInfo.seam = 1;
     stitchInfo.feather = 0;
-    
+        
     if (addLayerToFile(ptrImage, outputFileName, &tempFile, &stitchInfo) != 0) {
       PrintError("Could not write Panorama File");
       return -1;
@@ -324,8 +329,8 @@ int  CreatePSD(  fullPath *fullPathImages, int numberImages, fullPath* outputFil
     rename(tempFile.name, outputFileName->name);
     
     myfree((void**)image.data);
-  }   
-
+  }
+  
   if (! ptQuietFlag) {
     Progress(_setProgress, "100");
     Progress(_disposeProgress, tempString);
@@ -360,52 +365,35 @@ static void ComputeStitchingMask8bits(Image *image)
 
   // for each row
   //   repeat the same algorithm (done per column)
-
+  
   for (column = 0; column < image->width; column ++) {
-
     count = 0;
-
-    // Point to the pixel in given column in row 0
-
+    // Point to the given column in row 0
     ptr = *image->data + column * 4;
+    //    fprintf(stderr, "St1.1 Column[%d]\n", column);
 
-    // Process all rows from top to bottom
     for (row = 0; row < image->height; row ++) {
-
       pixel = row * image->bytesPerLine + ptr;
-      if (*pixel == 0) {
-	count = 0;
-      } else {
-	count ++;
-      }
+      count = (*pixel == 0) ? 0 : count+1;
 
       ptrCounter = (uint16_t*)(pixel +2);
       *ptrCounter = count;
+    }
 
-    } //     for (row = 0; row < image->heght; row ++) {
 
     count = 0;
     row = image->height;
 
-    // Process all rows from bottom to up
     while (--row  >= 0) {
-
       pixel = ptr + row + image->bytesPerLine;
 
-      if ( *pixel == 0 ) {
-	count = 0;
-      } else {
-	count ++;
-      }
+      count = (*pixel == 0) ? 0 : count+1;
 
       ptrCounter = (uint16_t*)(pixel +2);
-
-      if ( *ptrCounter < count) {
-	count = *ptrCounter; 
-      } else {
-	*ptrCounter  = count;
-      }
-    
+      if ( *ptrCounter < count)
+        count = *ptrCounter; 
+      else
+        *ptrCounter  = count;
     
     } //while
     
@@ -414,59 +402,50 @@ static void ComputeStitchingMask8bits(Image *image)
     
   } //
 
-  // Repeat the process but now do it row by row
+  ///////////// row by row
+
+  //  fprintf(stderr, "St2\n");
 
   for (row = 0; row < image->height; row ++) {
-
     count = image->width;
-    
     ptr = row * image->bytesPerLine + *(image->data);
 
     // process from left to right
-
-
     for (column = 0; column < image->width; column ++ ) {
-
       pixel = ptr + 4 * column;
-      
-      if ( *pixel == 0 ) {
-	count = 0;
-      } else {
-	count ++;
-      }
-      ptrCounter = (uint16_t*)(pixel +2);
-      if (*ptrCounter < count) {
-	;
-      } else {
-	*ptrCounter = count;
-      } //
+      count = (*pixel == 0) ? 0 : count+1;
 
+      ptrCounter = (uint16_t*)(pixel +2);
+      
+      if (*ptrCounter > count)
+	    *ptrCounter = count;
     } // for column
 
     //-----------------------------;;
 
-    count = 0;
-    column = image->width;
+
+    //  fprintf(stderr, "St3\n");
+
+	count = 0;
+	column = image->width;
 
     while (--column >= 0) {
+      pixel = ptr + column * 4;
 
-      pixel = ptr + 4 * column;
-
-      if (0 == *pixel ) {
-	count = 0;
-      } else {
-	count ++;
-      }
+      count = (*pixel == 0) ? 0 : count+1;
 
       ptrCounter =  (uint16_t*)(pixel +2);
+      if (*ptrCounter < count)
+	    count = *ptrCounter;
+      else
+        *ptrCounter = count;
 
-      if (*ptrCounter < count) {
-	count = *ptrCounter;
-      } else {
-	*ptrCounter = count;
-      }
-    } //    while (--column >= 0) {
+    } //    while (--column >= 0)
+
+
   } // end of for row
+
+
 }
 
 static void ComputeStitchingMask16bits(Image *image)
@@ -864,13 +843,13 @@ static int  ReplaceAlphaChannels(fullPath *inputImagesNames, fullPath *masksName
        
       } // end of if
 
-      if (TIFFWriteScanline(outputFile, imageRowBuffer, row, 0) != 1) {
-	PrintError("Unable to write scan line\n");
-	TIFFClose(imageFile);
-	TIFFClose(maskFile);
-	TIFFClose(outputFile);
-	return 0;
-      }
+    if (TIFFWriteScanline(outputFile, imageRowBuffer, row, 0) != 1) {
+      PrintError("Unable to write scan line\n");
+      TIFFClose(imageFile);
+      TIFFClose(maskFile);
+      TIFFClose(outputFile);
+      return 0;
+    }
     } // for 
 
     TIFFClose(imageFile);
@@ -890,8 +869,7 @@ static int  ReplaceAlphaChannels(fullPath *inputImagesNames, fullPath *masksName
 
 }
 
-static int  ReplaceAlphaChannel(fullPath *inputImage, fullPath *mask, fullPath *output,
-			 pt_tiff_parms *imageDefaultParms)
+static int  ReplaceAlphaChannel(fullPath *inputImage, fullPath *mask, fullPath *output)
 {
   unsigned char *imageRowBuffer = NULL;
   unsigned char *maskRowBuffer = NULL;
@@ -899,27 +877,42 @@ static int  ReplaceAlphaChannel(fullPath *inputImage, fullPath *mask, fullPath *
   int j;
 
   int returnValue = 0;
+  
+  unsigned char *source;
+  unsigned char *destination;
+
   TIFF *imageFile;
   TIFF *outputFile;
   TIFF *maskFile;
-
-  if ((imageRowBuffer = calloc(imageDefaultParms->bytesPerLine,1 )) == NULL ||
-      (maskRowBuffer = calloc(imageDefaultParms->bytesPerLine,1 )) == NULL ) {
-    PrintError("Not enough memory");
-    return 0;
-  }
-
-  //   For each row in that image
+  
+  CropInfo crop_info;
+  pt_tiff_parms croppedImageParms;
+  
+  //   For each row
   //     Read row of image
   //     Read row of mask
   //     Replace alpha channel in image with masks alpha channel
   //     Write row
+  //
+  //Note that all three images involved here (input image, mask image and 
+  //resulting image) have the same dimensions, and we don't care what the 
+  //dimensions are the for the final output image  
 
   // Open input image	
   if ( (imageFile = OpenTiffFromFullPath(inputImage, "r")) == NULL) {
     PrintError("Could not open TIFF-file");
     return 0;
+  } else {
+    TiffGetImageParameters(imageFile, &croppedImageParms);
+    getCropInformationFromTiff(imageFile, &crop_info);
   }
+  
+  //Allocate line buffers for image and mask
+  if ((imageRowBuffer = calloc(croppedImageParms.bytesPerLine,1 )) == NULL ||
+      (maskRowBuffer = calloc(croppedImageParms.bytesPerLine,1 )) == NULL ) {
+    PrintError("Not enough memory");
+    return 0;
+  }  
   
   // Open mask file
   if ( (maskFile = OpenTiffFromFullPath(mask, "r")) == NULL) {
@@ -932,49 +925,29 @@ static int  ReplaceAlphaChannel(fullPath *inputImage, fullPath *mask, fullPath *
     PrintError("Could not create TIFF-file");
     return 0;
   }
-  if (!TiffSetImageParameters(outputFile,imageDefaultParms)) {
+  
+  if (!TiffSetImageParameters(outputFile, &croppedImageParms)) {
     PrintError("Unable to initialize TIFF file\n");
     return 0;
   }
   
-  // start processing each row
+  // Processing one row at a time
+  int jumpBytes          = (croppedImageParms.bitsPerPixel == 32 ) ? 4 : 8;
+  int alphaChannelOffset = (croppedImageParms.bitsPerPixel == 32 ) ? 3 : 6;
   
-  for (row = 0; row < imageDefaultParms->imageLength; row ++) {
-    
-    unsigned char *source;
-    unsigned char *destination;
+  for (row = 0; row < croppedImageParms.imageLength; row ++) {
     
     TIFFReadScanline(imageFile, imageRowBuffer, row, 0);
-    
     TIFFReadScanline(maskFile, maskRowBuffer, row, 0);
     
-    // Depending on the type of image, process...
-    
-    if ( imageDefaultParms->bitsPerPixel == 32 ) {
+    destination = imageRowBuffer + alphaChannelOffset;
+    source      = maskRowBuffer  + alphaChannelOffset;
       
-      destination = imageRowBuffer + 3;
-      source = maskRowBuffer + 3;
-      
-      for (j = 0; j < imageDefaultParms->imageWidth; j ++ ) {
-	*destination = *source;
-	destination +=4;
-	source +=4;
-      } 
-      
-    } else {
-      
-      destination = imageRowBuffer + 6;
-      source = maskRowBuffer + 6;
-      
-      for (j = 0; j < imageDefaultParms->imageWidth ; j ++ ) {
-	*destination = *source;
-	
-	source += 8;
-	destination += 8;
-	
-      } // for j
-      
-    } // end of if
+    for (j = 0; j < croppedImageParms.imageWidth; j++ ) {
+      *destination = *source;
+      destination += jumpBytes;
+      source      += jumpBytes;
+    } 
     
     if (TIFFWriteScanline(outputFile, imageRowBuffer, row, 0)!= 1) {
       PrintError("Unable to write data to output file\n");
@@ -982,7 +955,7 @@ static int  ReplaceAlphaChannel(fullPath *inputImage, fullPath *mask, fullPath *
       goto end;
     }
     
-  } // for 
+  }
   
   returnValue = 1;
  end:
@@ -1116,53 +1089,61 @@ static void CalculateAlphaChannel(unsigned char *imagesBuffer, int numberImages,
 }
 
 
-
+/**
+ * imageParameters contains the dimensions of the output image, which may not be 
+ * the same as the dimensions fo the input images if they are "cropped"
+ */
 static int CreateAlphaChannels(fullPath *masksNames, fullPath *alphaChannelNames,
-			       int numberImages, pt_tiff_parms *imageParameters)
+			       int numberImages, pt_tiff_parms *fullSizeImageParameters)
 {
   TIFF **tiffMasks;
   TIFF **tiffAlphaChannels;
   unsigned char *imagesBuffer;
   unsigned char *ptrBuffer;
+  unsigned char *ptrPixel;
   int index;
-  int row;
   char tempString[24];
-  int returnValue = 0;
+  
+  int returnValue = 0;  
+  pt_tiff_parms inputImageParameters;
+  int croppedImageRowIndex;
+  int fullSizeRowIndex;
+  CropInfo crop_info;
 
   
   // Allocate arrays of TIFF* for the input and output
   // images. process is one row at a time, with all images
   // processed at the same time
-  tiffMasks = (TIFF**)calloc(numberImages, sizeof(TIFF*));
+  tiffMasks         = (TIFF**)calloc(numberImages, sizeof(TIFF*));
   tiffAlphaChannels = (TIFF**)calloc(numberImages, sizeof(TIFF*));
-  imagesBuffer = calloc(numberImages, imageParameters->bytesPerLine);
   
-  if (imagesBuffer == NULL ||
-      tiffAlphaChannels == NULL ||
-      imagesBuffer == NULL) {
+  // The imagesBuffer contains as many rows as we have input images, and 
+  // each row is as wide as the final output image
+  imagesBuffer = calloc(numberImages, fullSizeImageParameters->bytesPerLine);
+  
+  if (imagesBuffer == NULL || tiffAlphaChannels == NULL || imagesBuffer == NULL) {
     PrintError("Not enough memory");
     return 0;
   }
 
-  /// Alpha Channel calculation
-
-  //  fprintf(stderr, "Start alpha channel calculation\n");
- 
-  if ( ptQuietFlag == 0 ) {
+  if ( ptQuietFlag == 0 )
     Progress(_initProgress, "Calculating Alpha Channel");
-  }
-    
+
+  // Alpha Channel calculation    
   // Open for read
   //       mask files
   //  and  input files
   // Open for write  alpha channel files
 
+  // Open up an input image, then create a corresponding output image...repeat for all images
   for (index = 0; index < numberImages; index++) {
-
+  
     if ((tiffMasks[index] = OpenTiffFromFullPath(&masksNames[index], "r")) == 0) {
       PrintError("Could not open TIFF-file");
       return 0;
     }
+    
+    TiffGetImageParameters(tiffMasks[index], &inputImageParameters);
 
     strcpy(alphaChannelNames[index].name, masksNames[0].name);
 
@@ -1178,68 +1159,81 @@ static int CreateAlphaChannels(fullPath *masksNames, fullPath *alphaChannelNames
       return 0;
     }
 
-
-    if (!TiffSetImageParameters(tiffAlphaChannels[index], imageParameters)) {
+    if (!TiffSetImageParameters(tiffAlphaChannels[index], &inputImageParameters)) {
       PrintError("Unable to initialize TIFF file\n");
       return 0;
     }
+        
 
-  }// for index...
+  }// finished opening up output files
+  
+   
 
   //  fprintf(stderr, "Files have been created, process each row\n");
  
-  for (row= 0; row< imageParameters->imageLength; row++) {
+  //iterate one row at a time, and for each row process all images
+  for (fullSizeRowIndex = 0; fullSizeRowIndex < fullSizeImageParameters->imageLength; fullSizeRowIndex++) {
 
     if ( ptQuietFlag == 0 ) {
-      
-      if ( row== (row/ 20) * 20 ) {
-	
-	sprintf(tempString, "%lu", row* 100/imageParameters->imageLength);
-	
-	if (Progress(_setProgress, tempString) == 0) {
-	  for (index = 0 ; index < numberImages; index ++) {
-	    TIFFClose(tiffMasks[index]);
-	    TIFFClose(tiffAlphaChannels[index]);
-	    remove(alphaChannelNames[index].name);
-	  }
-	  return 0;
-	}
+      if ( fullSizeRowIndex== (fullSizeRowIndex/ 20) * 20 ) {
+        sprintf(tempString, "%lu", fullSizeRowIndex * 100/fullSizeImageParameters->imageLength);
+        if (Progress(_setProgress, tempString) == 0) {
+          for (index = 0 ; index < numberImages; index ++) {
+	        TIFFClose(tiffMasks[index]);
+	        TIFFClose(tiffAlphaChannels[index]);
+	        remove(alphaChannelNames[index].name);
+	      }
+	      return 0;
+	    }
       } 
     }
     
     //    fprintf(stderr, "To process row [%d] bytesperline %d\n", i, bytesPerLine);
+    //read data from all input images
+    for (ptrBuffer = imagesBuffer, index = 0; index < numberImages; index++, ptrBuffer += fullSizeImageParameters->bytesPerLine) {
 
-    for (ptrBuffer = imagesBuffer, index = 0; index < numberImages; index ++, ptrBuffer += imageParameters->bytesPerLine) {
-
-      if (TIFFReadScanline(tiffMasks[index], ptrBuffer, row, 0) != 1) {
-	PrintError("Error reading temporary TIFF data");
-	returnValue = 0;
-	goto end;
+      memset(ptrBuffer, 0, fullSizeImageParameters->bytesPerLine);
+      
+      getCropInformationFromTiff(tiffMasks[index], &crop_info);
+      croppedImageRowIndex = fullSizeRowIndex - crop_info.y_offset;
+      
+      if (croppedImageRowIndex >= 0 && croppedImageRowIndex < crop_info.cropped_height ) {
+      
+        if (TIFFReadScanline(tiffMasks[index], ptrBuffer + (crop_info.x_offset * fullSizeImageParameters->bitsPerPixel/8), croppedImageRowIndex, 0) != 1) {
+          PrintError("Error reading temporary TIFF data");
+          returnValue = 0;
+          goto end;
+        }
       }
-
-      RGBAtoARGB(ptrBuffer, imageParameters->imageWidth, imageParameters->bitsPerPixel);
-     
+      RGBAtoARGB(ptrBuffer, fullSizeImageParameters->imageWidth, fullSizeImageParameters->bitsPerPixel);      
+      
     }
 
-    CalculateAlphaChannel(imagesBuffer, numberImages, imageParameters);
+	//calculate the alpha channel for this row in all images
+    CalculateAlphaChannel(imagesBuffer, numberImages, fullSizeImageParameters);
 
-    for (index = 0 , ptrBuffer = imagesBuffer; index < numberImages; index ++, ptrBuffer+= imageParameters->bytesPerLine) {
+	//write out the alpha channel data for this row to all output images
+    for (index = 0 , ptrBuffer = imagesBuffer; index < numberImages; index++, ptrBuffer += fullSizeImageParameters->bytesPerLine) {
 
-      ARGBtoRGBA(ptrBuffer, imageParameters->imageWidth, imageParameters->bitsPerPixel);
+      ARGBtoRGBA(ptrBuffer, fullSizeImageParameters->imageWidth, fullSizeImageParameters->bitsPerPixel);
+      
+      getCropInformationFromTiff(tiffMasks[index], &crop_info);
+      croppedImageRowIndex = fullSizeRowIndex - crop_info.y_offset;
+            
+      if (croppedImageRowIndex >= 0 && croppedImageRowIndex < crop_info.cropped_height ) {
 
-      if ( TIFFWriteScanline(tiffAlphaChannels[index], ptrBuffer, row, 0) != 1) {
-	PrintError("Unable to write data to output file\n");
-	returnValue = 0;
-	goto end;
+        if ( TIFFWriteScanline(tiffAlphaChannels[index], ptrBuffer + (crop_info.x_offset * fullSizeImageParameters->bitsPerPixel/8), croppedImageRowIndex, 0) != 1) {
+          PrintError("Unable to write data to output file\n");
+          returnValue = 0;
+          goto end;
+        }
       }
+    }
 
-     
-    } //for
-   
-  } //for i
+  } //for fullSizeRowIndex
 
   returnValue = 1;
-
+  
  end:
 
   if (!ptQuietFlag) {
@@ -1303,7 +1297,11 @@ static int ApplyFeather(fullPath *inputFile, fullPath *outputFile, int featherSi
 
 }
 
-
+/**
+ * Replaces the alpha channel in each image in inputFiles with a generated
+ * mask.  The mask is calculated so as to route the seam between overlapping
+ * images through the center of the overlap region...
+ */
 int AddStitchingMasks(fullPath *inputFiles, fullPath *outputFiles, int numberImages, int featherSize)
 {
   fullPath *alphaChannelFiles;
@@ -1312,6 +1310,7 @@ int AddStitchingMasks(fullPath *inputFiles, fullPath *outputFiles, int numberIma
   Image image ;
   char tempString[512];
   pt_tiff_parms imageParameters;
+  CropInfo crop_info;
 
   if ( numberImages == 0 ) {
     return 0;
@@ -1329,20 +1328,25 @@ int AddStitchingMasks(fullPath *inputFiles, fullPath *outputFiles, int numberIma
   } 
 
   // CREATE stitching maps
-
   if (!CreateMaskMapFiles(inputFiles, maskFiles, numberImages)) {
     PrintError("Could not create the stitching masks");
     return -1;
   }
   //  exit(1);
 
-  // Get TIFF information
-  
+  // Get TIFF information from 0th image in input list
   if (!TiffGetImageParametersFromPathName(&inputFiles[0], &imageParameters)) {
     PrintError("Could not read TIFF-file");
     return -1;
   }
   
+  getCropInformation(inputFiles[0].name, &crop_info);
+  
+  // Because the 0th intermediate TIFF file might be a "cropped" file, we 
+  // need to update the imageParameters so that the dimensions reflect the
+  // the size of the full-sized output image, rather than one of the 
+  // (potentially) cropped intermediate files
+  setFullSizeImageParameters(&imageParameters, &crop_info);  
   
   if (!CreateAlphaChannels(maskFiles, alphaChannelFiles, numberImages, &imageParameters)) {
     PrintError("Could not create alpha channels");
@@ -1354,13 +1358,12 @@ int AddStitchingMasks(fullPath *inputFiles, fullPath *outputFiles, int numberIma
   for (i=0;i<numberImages;i++) {
     fullPath withAlphaChannel;
 
-
     sprintf(tempString, "%d", 100 * i/ numberImages);
 
     if ( ptQuietFlag == 0 ) {
       if (Progress(_setProgress, tempString) == 0) {
-	// We have to delete any temp file
-	return -1;
+      // We have to delete any temp file
+      return -1;
       }
     }
 
@@ -1371,7 +1374,7 @@ int AddStitchingMasks(fullPath *inputFiles, fullPath *outputFiles, int numberIma
     memcpy(&withAlphaChannel, &maskFiles[i], sizeof(fullPath));
 
     // Replace the alpha channel of the input image
-    if (!ReplaceAlphaChannel(&inputFiles[i], &alphaChannelFiles[i], &withAlphaChannel, &imageParameters)) {
+    if (!ReplaceAlphaChannel(&inputFiles[i], &alphaChannelFiles[i], &withAlphaChannel)) {
       PrintError("Unable to replace alpha channel in image %d", i);
       return -1;
     }
@@ -1382,9 +1385,10 @@ int AddStitchingMasks(fullPath *inputFiles, fullPath *outputFiles, int numberIma
 
       fullPath feathered;
       memcpy(&feathered, &maskFiles[i], sizeof(fullPath));
+
       if (!ApplyFeather(&withAlphaChannel, &feathered, featherSize)) {
-	PrintError("Unable to apply feather to image %d", i);
-	return -1;
+        PrintError("Unable to apply feather to image %d", i);
+        return -1;
       }
 
       remove(withAlphaChannel.name);
@@ -1695,10 +1699,11 @@ int FlattenTIFF(fullPath *fullPathImages, int counterImageFiles, fullPath *outpu
   unsigned char *resultBuffer;
   
   
-  fullPath var512;
-  char var1024[512];
+  fullPath tmpFullPath;
+  char tmpFilename[512];
   pt_tiff_parms otherFileParms;
   pt_tiff_parms imageParameters;
+  CropInfo crop_info;
   TIFF *tiffFile;
   unsigned int linesPerPass;
 
@@ -1706,49 +1711,61 @@ int FlattenTIFF(fullPath *fullPathImages, int counterImageFiles, fullPath *outpu
   unsigned int offsetBeforeThisPass = 0;
   int linesLeft = 0;
   unsigned int linesToRead;
+  int rowInPass;
+  int inputImageRowIndex;
+  int outputImageRowIndex;
+  unsigned char *pixelPtr;  
 
+  // Get TIFF parameters from the 0th intermediate file...we can reuse most of
+  // these for the final flattened output file
   if (!TiffGetImageParametersFromPathName(&fullPathImages[0], &imageParameters)) {
     PrintError("Could not read TIFF-file");
     return -1;
   }
   
-  strcpy(var512.name, fullPathImages[0].name);
-
-  if (makeTempPath(&var512) != 0) {
+  strcpy(tmpFullPath.name, fullPathImages[0].name);
+  
+  // Read the crop information from the 0th file...this will tell us what 
+  // the dimensions of the "full-size" output image should be
+  getCropInformation(tmpFullPath.name, &crop_info);
+  
+  // Because the 0th intermediate TIFF file might be a "cropped" file, we 
+  // need to update the imageParameters so that the dimensions reflect the
+  // the size of the full-sized output image, rather than one of the 
+  // (potentially) cropped intermediate files
+  setFullSizeImageParameters(&imageParameters, &crop_info);
+  
+  //modify "tmpFullPath" to contain the name of a new, empty temp file
+  if (makeTempPath(&tmpFullPath) != 0) {
     PrintError("Could not make Tempfile");
     return -1;
   }
 
-  if (GetFullPath(&var512, var1024) != 0) {
+  //copy the name of this new tmpFullPath into a string (tmpFilename)
+  if (GetFullPath(&tmpFullPath, tmpFilename) != 0) {
     PrintError("Could not get filename");
     return -1;
   }
 
-  if ((tiffFile = TIFFOpen(var1024, "w")) == 0) {
+  //open up temporary output file for writing as a TIFF
+  if ((tiffFile = TIFFOpen(tmpFilename, "w")) == 0) {
     PrintError("Could not create TIFF file");
     return -1;
   }
 
-  if (!TiffSetImageParameters(tiffFile, &imageParameters)) {
-    PrintError("Unable to initialize TIFF file\n");
-    return 0;
-  }
+  TiffSetImageParameters(tiffFile, &imageParameters);
 
+  // Calculate number of lines to read at a time so that we are reading 
+  // approximately 500 KB at a time from each input file.  This could be 
+  // memory intensive if we have an awful lot of images and not much memory, 
+  // but probably not a big problem for 99.9% of cases on 99.9% of machines.
+  linesPerPass = 500000 / imageParameters.bytesPerLine;
 
-  // 500,000? 
-  // Read 500000 bytes at a time
-
-  linesPerPass = 500000 /imageParameters.bytesPerLine;
-
-  if (linesPerPass == 0) {
-
+  if (linesPerPass == 0)
     linesPerPass = 1;
   
-  }
-  
   // We dont need to read more lines that the size of the file
-  if (imageParameters.imageLength < linesPerPass ) { //   
-    
+  if (imageParameters.imageLength < linesPerPass ) {
     linesPerPass = imageParameters.imageLength;
     if (linesPerPass == 0) {
       PrintError("Invalid image length in TIFF file. It might be corrupted");
@@ -1756,41 +1773,44 @@ int FlattenTIFF(fullPath *fullPathImages, int counterImageFiles, fullPath *outpu
     }
   }
   
+  //Open up all intermediate TIFF files at once
   tiffFileHandles = calloc(counterImageFiles, sizeof(TIFF*));
-  
 
-  for (i = 0; i < counterImageFiles; i ++ ) {        // ends at 804dfd7
+  for (i = 0; i < counterImageFiles; i ++ ) {
     
-    
-    if (GetFullPath(&fullPathImages[i], var1024) != 0) {
+    if (GetFullPath(&fullPathImages[i], tmpFilename) != 0) {
       PrintError("Could not get filename");
       return -1;
     }
     
-    if ((tiffFileHandles[i] = TIFFOpen(var1024, "r")) == 0) {
+    if ((tiffFileHandles[i] = TIFFOpen(tmpFilename, "r")) == 0) {
       PrintError("Could not open TIFF-Layer %d", i);
       return -1;
     }
     
-  } // end of for loop
+  }
 
-
+  // Create as many image data buffers as we have input files.  Note that the 
+  // input buffers are as wide as the final output image, which may be more
+  // than we technically need if the input images are cropped...it makes the 
+  // code simpler, however.
   imageDataBuffers = calloc(counterImageFiles,sizeof(unsigned char*));
 
   for (i = 0; i < counterImageFiles; i ++) {
-    //    printf("szie of scan line %d \n",imageParameters.bytesPerLine);
     imageDataBuffers[i] = calloc(linesPerPass * imageParameters.bytesPerLine, 1);
-
+	if (imageDataBuffers[i] == NULL) {
+    	PrintError("Not enough memory to allocate input buffers");
+    	return -1;
+  	}    
   }
 
+  //we need one buffer to store output result
   resultBuffer = calloc(linesPerPass * imageParameters.bytesPerLine, 1);
   
   if (resultBuffer == NULL) {
-    PrintError("Not enough memory");
+    PrintError("Not enough memory to allocate output buffer");
     return -1;
   }
-
-  // Process the image in batches of close to 500,000 bytes each
 
   offsetBeforeThisPass = 0;
 
@@ -1802,60 +1822,60 @@ int FlattenTIFF(fullPath *fullPathImages, int counterImageFiles, fullPath *outpu
 
   linesLeft = imageParameters.imageLength;
 
+  // Main flattening loop...iterate over input files, read some data from each, 
+  // combine into output buffer, write to file
   while (linesLeft > 0) {
 
-    if (linesLeft > linesPerPass) 
-      linesToRead = linesPerPass;
-    else
-      linesToRead = linesLeft;
+    linesToRead = (linesLeft > linesPerPass) ? linesPerPass : linesLeft;
 
+	// iterate over each input file
     for (i = 0; i < counterImageFiles; i ++) {
-      int rowInPass;
+      getCropInformationFromTiff(tiffFileHandles[i], &crop_info);
 
-      // Read data 
-
+      // Get a few lines of data from this input file one row at a time
       for (rowInPass = 0; rowInPass < linesToRead; rowInPass++) {
+      
+        //figure out which row to read/write from input/output images
+        outputImageRowIndex = offsetBeforeThisPass + rowInPass;
+        inputImageRowIndex  = outputImageRowIndex - crop_info.y_offset;
+        
+        //point to first byte on this row of the input buffer
+        pixelPtr = imageDataBuffers[i]  + (imageParameters.bytesPerLine * rowInPass);
+		
+		//clear out any old data, and fill with empty space (zeros)
+		memset(pixelPtr, 0, imageParameters.bytesPerLine);        
 
-	//	printf("Passing %d %d\n", offsetBeforeThisPass, rowInPass);
-	if (TIFFReadScanline(tiffFileHandles[i], imageDataBuffers[i]  + imageParameters.bytesPerLine *rowInPass, 
-			     offsetBeforeThisPass + rowInPass, 0) != 1) {
-	  PrintError("Error reading tiff file\n");
-	  return -1;
-	}
+		// Only try to read data if we are reading from a row that exists in the 
+		// input image        
+        if (inputImageRowIndex >= 0 && inputImageRowIndex < crop_info.cropped_height) {
+          if (TIFFReadScanline(tiffFileHandles[i], pixelPtr + (crop_info.x_offset * imageParameters.bitsPerPixel/8), inputImageRowIndex, 0) != 1) {
+            PrintError("Error reading tiff file\n");
+            return -1;
+          }
+	    }
       } 
-    } //end of for loop
+    }
 
     //    printf("Passing offsetAfterThisPass [%d] of [%d] linesPerPass  %d \n",offsetAfterThisPass, imageParameters.imageLength, linesPerPass);
 
     if (ptQuietFlag == 0) {
-
-      sprintf(var1024, "%d", (offsetBeforeThisPass+linesToRead)  * 100 / imageParameters.imageLength);
-
-      if (Progress(_setProgress, var1024) == 0) {
-	return -1;
-      }
-
+      sprintf(tmpFilename, "%d", (offsetBeforeThisPass+linesToRead)  * 100 / imageParameters.imageLength);
+      if (Progress(_setProgress, tmpFilename) == 0)
+        return -1;
     }
     
     // FlattenImageSection
-
-    BlendLayers(imageDataBuffers, counterImageFiles, resultBuffer, 
-		linesToRead,
-		imageParameters.imageWidth, imageParameters.bitsPerPixel, 
-		imageParameters.bytesPerLine);
+    BlendLayers(imageDataBuffers, counterImageFiles, resultBuffer, linesToRead,
+		imageParameters.imageWidth, imageParameters.bitsPerPixel, imageParameters.bytesPerLine);
 
     for (i = 0; i < linesToRead; i++) {
-      //      printf("Line to write %d\n", offsetBeforeThisPass + i);
       if (TIFFWriteScanline(tiffFile, resultBuffer + imageParameters.bytesPerLine * i, offsetBeforeThisPass + i, 0) != 1) {
-	PrintError("Unable to write TIFF to file\n");
-	return -1;
+        PrintError("Unable to write TIFF to file\n");
+        return -1;
       }
-      //      TIFFWriteScanline(tiffFile, imageDataBuffers[0] + imageParameters.bytesPerLine * i, offsetBeforeThisPass + i, 0);
-
-    } // end of for
+    }
 
     offsetBeforeThisPass += linesToRead;
-
     linesLeft -= linesToRead;
 
   } 
@@ -1878,7 +1898,7 @@ int FlattenTIFF(fullPath *fullPathImages, int counterImageFiles, fullPath *outpu
     }
   }
 
-  rename(var512.name, outputFileName->name);
+  rename(tmpFullPath.name, outputFileName->name);
 
   free(tiffFileHandles);
 
@@ -2114,7 +2134,7 @@ void Clear_Area_Outside_Selected_Region(Image *image)
     var24 = (top + bottom) /2;
     assert(left >= right);
     temp = (left - right ) /2;
-    var28 = temp * temp;
+    tmpStr28 = temp * temp;
     
 
     dataPtr =  *(image->data);
@@ -2136,7 +2156,7 @@ void Clear_Area_Outside_Selected_Region(Image *image)
           temp = currentColumn - var20;
           temp = temp * temp + var36;
           
-          if ( %eax > var28 ) {
+          if ( %eax > tmpStr28 ) {
             
             *pixelPtr = 0; //moves only 1 byte
           }
@@ -2171,7 +2191,7 @@ void Clear_Area_Outside_Selected_Region(Image *image)
     
     currentColumn = (left - right )/2;
     
-    var28 = currentColumn * currentColumn;
+    tmpStr28 = currentColumn * currentColumn;
     
     dataPtr = *(image->data);
     
@@ -2190,7 +2210,7 @@ void Clear_Area_Outside_Selected_Region(Image *image)
           
           eax = currentColumn * currentColumn + var40;
           
-          if ( %eax > var28 ) {
+          if ( %eax > tmpStr28 ) {
             *pixelPtr = 0; // Again CAREFUL, moves 8 bytes
           }
           
@@ -2292,8 +2312,63 @@ void getROI( TrformStr *TrPtr, aPrefs *aP, PTRect *ROIRect )
   //PrintError("ROI: %d,%d - %d, %d", ROIRect->left, ROIRect->top, ROIRect->right, ROIRect->bottom);
 }
 
- 
+/**
+ * Populates the CropInfo struct with data about cropping of 
+ * the TIFF file specified by filename
+ */
+void getCropInformationFromTiff(TIFF *tif, CropInfo *c)
+{
+	float x_position, x_resolution, y_position, y_resolution;
+	
+	//these are the actual, physical dimensions of the TIFF file
+	TIFFGetField(tif, TIFFTAG_IMAGEWIDTH, &(c->cropped_width));
+  	TIFFGetField(tif, TIFFTAG_IMAGELENGTH, &(c->cropped_height));
 
+  	//If nothing is stored in these tags, then this must be an "uncropped" TIFF 
+  	//file, in which case, the "full size" width/height is the same as the 
+  	//"cropped" width and height
+	if (TIFFGetField(tif, TIFFTAG_PIXAR_IMAGEFULLWIDTH, &(c->full_width))==0)   (c->full_width = c->cropped_width);
+	if (TIFFGetField(tif, TIFFTAG_PIXAR_IMAGEFULLLENGTH, &(c->full_height))==0) (c->full_height = c->cropped_height);
+	
+	if (TIFFGetField(tif, TIFFTAG_XPOSITION, &x_position)==0) x_position = 0;
+    if (TIFFGetField(tif, TIFFTAG_XRESOLUTION, &x_resolution) == 0) x_resolution = 0;
+	if (TIFFGetField(tif, TIFFTAG_YPOSITION, &y_position)==0) y_position = 0;
+    if (TIFFGetField(tif, TIFFTAG_YRESOLUTION, &y_resolution) == 0) y_resolution = 0;
+
+	//offset in pixels of "cropped" image from top left corner of 
+	//full image (rounded to nearest integer)
+    c->x_offset = (uint32)((x_position * x_resolution) + 0.49);
+    c->y_offset = (uint32)((y_position * y_resolution) + 0.49);
+    
+    //printf("%s: %dx%d  @ %d,%d", filename, c->cropped_width, c->cropped_height, c->x_offset, c->y_offset);
+}
+
+/**
+ * Populates the CropInfo struct with data about cropping of 
+ * the TIFF file specified by filename
+ */
+void getCropInformation(char *filename, CropInfo *c)
+{
+	
+	TIFF *tif = TIFFOpen(filename, "r");
+	if (tif == NULL) {
+		PrintError("getCropInformation: Could not open TIFF file");
+	} else {
+		getCropInformationFromTiff(tif, c);
+	    TIFFClose(tif);
+	}
+		    
+}
+ 
+void setFullSizeImageParameters(pt_tiff_parms *imageParameters, CropInfo *crop_info)
+{
+	// Update the imageParameters so that the dimensions reflect the
+	// the size of the full-sized output image, (recorded in the crop_info struct)
+	imageParameters->imageLength    = crop_info->full_height;
+	imageParameters->imageWidth     = crop_info->full_width;
+	imageParameters->bytesPerLine   = imageParameters->imageWidth * (imageParameters->bitsPerPixel/8);
+}
+  
 
 int CreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles, fullPath *panoFileName, fullPath *scriptFileName)
 {
@@ -2308,10 +2383,10 @@ int CreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles, fullPath
   int lines;
   fullPath *fullPathImages;
   int  loopCounter;
-  char var48[8];
+  char tmpStr48[8];
   char var40[8];
   char *tempString;        // It looks like a char *temp;          
-  char var28[512];
+  char tmpStr28[512];
   char var16[512];
   VRPanoOptions defaultVRPanoOptions;
 
@@ -2319,7 +2394,7 @@ int CreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles, fullPath
   fullPath       currentFullPath;
   fullPath       panoName;          // according to documention: QTVR, PNG, PICT, TIFF, etc plus options...*/
   fullPath       tempScriptFile ;
-  char           word[256];
+  char           output_file_format[256];
   Image          resultPanorama;    //Output Image
   Image          image1;            //Input Image
 
@@ -2348,10 +2423,10 @@ int CreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles, fullPath
   memcpy(&tempScriptFile , scriptFileName, sizeof(fullPath));
   makeTempPath(&tempScriptFile);
     
-  TIFFSetWarningHandler(tiffErrorHandler);
-  TIFFSetErrorHandler(tiffErrorHandler);
-
-
+  //TIFFSetWarningHandler(tiffErrorHandler);
+  //TIFFSetErrorHandler(tiffErrorHandler);
+  
+  
   if ((regFile = fopen(tempScriptFile.name, "w")) == NULL) {
     PrintError("Could not open temporary Scriptfile");
     goto mainError;
@@ -2490,30 +2565,46 @@ I AM NOT TOTALLY SURE ABOUT THIS
     memcpy(&panoName,  &prefs->pano.name, sizeof(fullPath));
     //memcpy(&global5640, &prefs->sBuf, sizeof(stBuf));
     
-    //Check if the output format from "p" line in script requests cropped output
-    //Only output cropped format for TIFF_m or TIFF_mask.  Other formats require
-    //flattening, and the code to flatten cropped images isn't ready yet
-    //TODO Max Lyons 20060228
-    if (strstr(prefs->pano.name, "TIFF_m") && strstr(prefs->pano.name, "r:CROP") )
+    //panoName.name contains the n"XXX" value from the script "p" lines (e.g. n"TIFF_m" or n"QTVR w400 h300 c1")
+    tempString = panoName.name;
+    --tempString; /* nextWord does ++ before testing anything, this guarantess proper execution */
+    nextWord(output_file_format, &tempString);
+        
+	//New for PTMender...Use "cropped" TIFFs as intermediate file format when creating
+	//most flattened output images (e.g. PNG, JPG), as well as for layered
+	//PSD formats.  By default, PTMender works similarly to PTStitcher for 
+	//TIFF_m and TIFF_mask formats, using "full size" TIFFs as intermediate 
+	//(and output) format, unless the user explicitly requests cropped
+	//output by inlcluding "r:CROP" as part of the "p" line (e.g. n"TIFF_m r:CROP")
+	//This behavior is retained to maintain compatibility with PTStitcher, although
+	//it is clearly less efficient than producting cropped TIFFs as output.
+	//
+	//Using cropped TIFF as the intermediate format significantly speeds up 
+	//processing, with larger panos showing more dramatic increases in speed.  
+	//It should also mean that the creation of the "flattened" formats will 
+	//be significantly more memory-friendly, as the masking steps and PSD 
+	//assembly steps won't need to load images the size of the output file 
+	//into memory at once.  Unless the PTMender is fed extremely large input 
+	//images, all memory constraints should now be a thing of the past (MRDL - May 2006).
+	
+    if ( (strstr(output_file_format, "TIFF_") && strstr(panoName.name, "r:CROP")) || 
+         strcmp(output_file_format, "PSD_nomask") == 0 ||
+         strcmp(output_file_format, "PSD_mask")   == 0 ||
+         strcmp(output_file_format, "PSD")        == 0 ||
+         strcmp(output_file_format, "JPEG")       == 0 ||
+         strcmp(output_file_format, "JPG")        == 0 ||
+         strcmp(output_file_format, "TIFF")       == 0 ||
+         strcmp(output_file_format, "TIF")        == 0 ||
+         strcmp(output_file_format, "PNG")        == 0)
       croppedOutput = 1;
     else
       croppedOutput = 0;
       
-    if (croppedOutput) {
-      //Currently, cropped output doesn't work with the fast transform logic.  
-      //I suspect a bug in the fast transform logic not dealing with the 
-      //destination rectangle region correctly.  Will investigate later, but
-      //for now disable the fast transform.  The speed gains from using 
-      //cropped output far outweight the speed losses from disabling the 
-      //fast transform. TODO: Max Lyons 20060228.
-      //fastTransformStep = 0;
-    }
-    
     transform.interpolator = prefs->interpolator;
     transform.gamma = prefs->gamma;
 
     if(ptQuietFlag == 0) {
-      sprintf(tmpStr, "Converting Image %d", loopCounter);    
+      sprintf(tmpStr, "Converting Image %d / %d", (loopCounter+1), counterImageFiles);
       Progress(_initProgress, tmpStr );
     }
  
@@ -2642,7 +2733,7 @@ I AM NOT TOTALLY SURE ABOUT THIS
     //was contained in one strip.  This is not only explicitly discouraged by the 
     //TIFF specification ("Use of a single strip is not recommended. Choose RowsPerStrip 
     //such that each strip is about 8K bytes, even if the data is not compressed, 
-    //since it makes buffering simpler for readers. The “8K” value is fairly 
+    //since it makes buffering simpler for readers. The 8K value is fairly 
     //arbitrary, but seems to work well."), but is also makes it impossible
     //for programs to read the output from Pano Tools to perform random 
     //access on the data which leads to unnecessarily inefficient approaches to 
@@ -2689,8 +2780,8 @@ I AM NOT TOTALLY SURE ABOUT THIS
       // The TIFFTAG_XPOSITION and TIFFTAG_YPOSITION can be used
       // to determine the position of the smaller image in the larger one.
       TIFFSetField(tiffFile, TIFFTAG_PIXAR_IMAGEFULLWIDTH, resultPanorama.width);
-    	TIFFSetField(tiffFile, TIFFTAG_PIXAR_IMAGEFULLLENGTH, resultPanorama.height);      
-    }    
+      TIFFSetField(tiffFile, TIFFTAG_PIXAR_IMAGEFULLLENGTH, resultPanorama.height);      
+    }
 
     //The resultPanorama.selection determines which region of the output image
     //is iterated over during the main pixel-remapping processing logic.  Much
@@ -2733,6 +2824,7 @@ I AM NOT TOTALLY SURE ABOUT THIS
       }
     //} 
 
+	//NB resultPanorama.selection.bottom is actually one pixel beyond last row with data.
     resultPanorama.selection.bottom   = resultPanorama.selection.top + lines;
     
     //    printf("bits per pixel %d\n", resultPanorama.bitsPerPixel);
@@ -2786,11 +2878,11 @@ I AM NOT TOTALLY SURE ABOUT THIS
 
       //Write calculated data rows to TIFF file one row (aka "scanline") at a time
       for (ebx = 0; ebx< resultPanorama.selection.bottom - resultPanorama.selection.top ; ebx++) {
-
-	if (TIFFWriteScanline(tiffFile, *resultPanorama.data + (resultPanorama.bytesPerLine * ebx), outputScanlineNumber, 1) != 1) {
-	  PrintError("Unable to write to TIFF file\n");
-	  return -1;
-	}
+        if (TIFFWriteScanline(tiffFile, *resultPanorama.data + (resultPanorama.bytesPerLine * ebx), outputScanlineNumber, 1) != 1) {
+          PrintError("Unable to write to TIFF file\n");
+          return -1;
+        }
+	        
         outputScanlineNumber++;
       }
   
@@ -2855,17 +2947,23 @@ I AM NOT TOTALLY SURE ABOUT THIS
   
   remove(tempScriptFile.name);
   
-  if (resultPanorama.data != NULL) {
+  if (resultPanorama.data != NULL)
     myfree((void**)resultPanorama.data);
-  }
-  if (image1.data != NULL) {
+
+  if (image1.data != NULL)
     myfree((void**)image1.data);
-  }
   
-  // I have the feeling these functions are to correct brigthness
-  // And they are related to the assembly above.
-  // I have the feeling they are not required for panoramas 
-  // that do not need any brightness adjustments
+  // These functions are to correct and/or brightness.  They are not required for 
+  // panoramas that do not need any brightness adjustments.  Moreover, Dersch
+  // was not fully satisfied with the quality of results obtained from
+  // using these functions, and knew that they could be significantly
+  // improved.  In general, I think it best to avoid using these features, 
+  // and doing any color/brightness adjustments manually either before
+  // or after stitching.  While these functions work OK for some images, some 
+  // of the time, they can produce some obviously wrong results in some
+  // circumstances...perhaps an area for future improvement, but probably not 
+  // as important a feature (now that we have multi-resolution splining 
+  // software like Enblend) as when Desrch first added these (MRDL).
 
   if (var00 != 0) {
     ColourBrightness(fullPathImages,fullPathImages, counterImageFiles, var00 -1, 1);
@@ -2880,14 +2978,6 @@ I AM NOT TOTALLY SURE ABOUT THIS
   }
 
   SetVRPanoOptionsDefaults(&defaultVRPanoOptions);
-
-  //panoName contains the n"XXX" value from the script "p" lines (e.g. n"TIFF_m" or n"QTVR w400 h300 c1"
-  tempString = panoName.name;
-
-  //void nextWord( register char* word, char** ch )
-
-  --tempString; /* nextWord does ++ before testing anything, this guarantess proper execution */
-  nextWord(word, &tempString);
 
 /* Soo, at this point we have skipped the first word of the panorama:
 # n"QTVR w400 h300 c1"           additional viewer options in a quoted string together with format
@@ -2906,20 +2996,34 @@ I AM NOT TOTALLY SURE ABOUT THIS
 //int	getVRPanoOptions( VRPanoOptions *v, char *line )
 
   getVRPanoOptions(&defaultVRPanoOptions, tempString);
-
-  if (strcmp(word, "TIFF_m") == 0) {//
+  
+  
+  //If we are dealing with an output format that is not TIFF_m or PSD_nomask,
+  //then we have to add "masks" to the images before finishing...
+  if ( strcmp(output_file_format, "TIFF_m") != 0 && strcmp(output_file_format, "PSD_nomask") != 0 ) {
+    // There is no point in adding stitching masks for just one image 
+    if (counterImageFiles > 1) {
+      if (AddStitchingMasks(fullPathImages, fullPathImages, counterImageFiles, prefs->sBuf.feather)!=0) {
+        PrintError("Could not create stitching masks");
+        goto mainError;
+      }
+    }
+  }
+  
+  /************ OUTPUT FORMATS: Multiple TIFF ***************/
+  // TIFF_m and TIFF_mask...just rename the intermediate files 
+  // that we've already computed with numbers (e.g. img0000.tif, img0001.tif, etc.) 
+  // and we are finished processing.
+  if ( strcmp(output_file_format, "TIFF_m")==0 || strcmp(output_file_format, "TIFF_mask")==0 ) {
 
     for (loopCounter = 0; loopCounter < counterImageFiles; loopCounter ++ ) {
 
       strcpy(var16, panoFileName->name);
-
       sprintf(var40, "%04d", loopCounter);
-
       strcat(var16, var40);
-
       ReplaceExt(var16, ".tif");
 
-	// This renames the currently morphed image to the new filename!
+      // This renames the currently morphed image to the new filename!
       rename(fullPathImages[loopCounter].name, var16);
 
     } // end of for loop
@@ -2927,7 +3031,10 @@ I AM NOT TOTALLY SURE ABOUT THIS
     return(0);
   }
 
-  if (strcmp(word, "PSD_nomask") == 0 || strcmp(word, "PSD_m")==0) { // 
+  /************ OUTPUT FORMATS: Layered PSD ***************/
+  // Layered PSD is less simple...we need to assemble the existing
+  // intermediate files into a layered photoshop document
+  if ( strcmp(output_file_format, "PSD_nomask") == 0 || strcmp(output_file_format, "PSD_mask")==0 ) {
     ReplaceExt(panoFileName->name, ".psd");
     
     if (CreatePSD(fullPathImages,counterImageFiles, panoFileName) != 0) {
@@ -2935,86 +3042,35 @@ I AM NOT TOTALLY SURE ABOUT THIS
       return(-1);
     }
     
-    for (loopCounter = 0; loopCounter < counterImageFiles; loopCounter++) { // 
-      
+    for (loopCounter = 0; loopCounter < counterImageFiles; loopCounter++) {
       remove(fullPathImages[loopCounter].name);
-      
-    } // end of for loop beginning at
+    }
     
     free(fullPathImages);
-    
     return(0);
-  } // if strcmp(word, "PSD_nomask."
+  } 
   
-
-  if (counterImageFiles > 1) {
-    // There is no point on doing this for just one image 
-    if (AddStitchingMasks(fullPathImages, fullPathImages, counterImageFiles, prefs->sBuf.feather)!=0) {
-      PrintError("Could not create stitching masks");
-      goto mainError;
-    }
-  }
-
-  if (strcmp(word, "TIFF_mask") == 0) { //
-
-    for (loopCounter = 0; loopCounter < counterImageFiles; loopCounter++) { //
-
-      strcpy(var28, panoFileName->name);
-
-      sprintf(var48, "%04d", loopCounter);
-
-      strcat(var28, var48);
-
-      ReplaceExt(var28, ".tif");
-
-      rename(fullPathImages[loopCounter].name, var28);
-      
-    } // end of for loop started at 
-
-    return(0);
-
-  } //end of if (strcmp(word, "TIFF_mask") == 0)
-
-  if (strcmp(word, "PSD_mask") == 0) {
-
-    ReplaceExt(panoFileName->name, ".psd");
-
-    if (CreatePSD(fullPathImages, counterImageFiles, panoFileName ) != 0) {
-      PrintError("Error while creating PSD file");
-      goto mainError;
-    }
-
-    for (loopCounter = 0; loopCounter < counterImageFiles; loopCounter++ ) { 
-
-      remove(fullPathImages[loopCounter].name);
-
-    } //
-
-    return(0);
-
-  } // if (strcmp(word, "TIFF_mask") == 0)
-
-  /* Above this is multi-layer, below is one single output file */
-
+  
+  /************ OUTPUT FORMATS: Flattened files ***************/
+  // All other formats require us to "flatten" the intermediate layers into
+  // one final document...general approach is to flatten to a single TIFF file, 
+  // and then convert this to the desired output file format (e.g. JPEG, PNG, etc.)
   if (FlattenTIFF(fullPathImages,counterImageFiles,&fullPathImages[0], TRUE) != 0) { 
     PrintError("Error while flattening TIFF-image");
    goto mainError;
   }
 
   ReplaceExt(panoFileName->name, ".tif");
-
   rename(fullPathImages[0].name, panoFileName->name);
 
   free(fullPathImages);
 
-  if (strcmp(word, "TIFF") == 0) { 
+  //Desired output format is TIFF...no further conversion needed
+  if (strcmp(output_file_format, "TIFF") == 0 || strcmp(output_file_format, "TIF") == 0)
     return(0);
-  }
 
-  if (strcmp(word, "TIF") == 0) { 
-    return(0);
-  }
 
+  //Read back in again so we can convert to final desired format
   if (readImage(&resultPanorama, panoFileName) != 0) {
     PrintError("Could not read result image %s", panoFileName->name);
     goto mainError;
@@ -3022,68 +3078,51 @@ I AM NOT TOTALLY SURE ABOUT THIS
 
   remove(panoFileName->name);
 
-  if (strcmp(word, "QTVR") == 0) { 
-
+  if (strcmp(output_file_format, "QTVR") == 0)
     return Create_QTVR(&resultPanorama, panoFileName);
 
+  if (strcmp(output_file_format, "IVR_java") == 0) { 
+    if (panoProjection == 1)
+      return Unknown03(&resultPanorama, panoFileName);
+    else
+      return Unknown02(&resultPanorama, panoFileName);
   }
 
-  if (strcmp(word, "IVR_java") == 0) { 
-
-    if (panoProjection == 1) {
-      return Unknown03(&resultPanorama, panoFileName);
-    }
-
-    return Unknown02(&resultPanorama, panoFileName);
-    
-  } // 
-
-  if (strcmp(word, "VRML") == 0) {  //
-
-
+  if (strcmp(output_file_format, "VRML") == 0)
     return Unknown05(&resultPanorama, panoFileName);
 
-  }
-
-  if (strncmp(word, "IVR", 3) == 0) {  // compare first 3 characters of it // end at 804ae10
-
-    if (panoProjection == 1) {
+  if (strncmp(output_file_format, "IVR", 3) == 0) {  // compare first 3 characters of it // end at 804ae10
+    if (panoProjection == 1)
       return Unknown01(&resultPanorama, panoFileName);
-    } else {
+    else
       return Create_LP_ivr(&resultPanorama, panoFileName);
-    }
   }
 
-  if (strcmp(word, "PAN") == 0) {  // 
+  if (strcmp(output_file_format, "PAN") == 0) {  // 
     return Unknown04(&resultPanorama, panoFileName);
   }  // 804ae10
 
-  if (strcmp(word, "JPEG") == 0 || strcmp(word, "JPG") == 0) {
+  if (strcmp(output_file_format, "JPEG") == 0 || strcmp(output_file_format, "JPG") == 0) {
     if (!ptQuietFlag) {
       printf("Creating JPEG (quality %d jpegProgressive %d)\n", defaultVRPanoOptions.cquality, defaultVRPanoOptions.progressive);
     }
     ReplaceExt(panoFileName->name, ".jpg");
-//int writeJPEG( Image *im, fullPath *sfile, 	int quality, int progressive )
     return writeJPEG(&resultPanorama, panoFileName, defaultVRPanoOptions.cquality, defaultVRPanoOptions.progressive);
   }
 
 
-  if (strcmp(word, "PSD") == 0) {  // 
-
+  if (strcmp(output_file_format, "PSD") == 0) {
     ReplaceExt(panoFileName->name, ".PSD");
-
     return (writePSD(&resultPanorama, panoFileName));
 
   } 
 
-  if (strcmp(word, "PNG") == 0) { //end 
-
+  if (strcmp(output_file_format, "PNG") == 0) {
     ReplaceExt(panoFileName->name, ".PNG");
-
     return (writePNG(&resultPanorama, panoFileName));
-
-  } // 
-  PrintError("Panorama output format not supported: %s", word);
+  }
+  
+  PrintError("Panorama output format not supported: %s", output_file_format);
 
 
 mainError:
