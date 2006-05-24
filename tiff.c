@@ -31,6 +31,7 @@ void RGBAtoARGB(UCHAR* buf, int width, int bitsPerPixel);
 void ARGBtoRGBA(UCHAR* buf, int width, int bitsPerPixel);
 int	readtif(Image *im, TIFF* tif);
 
+
 // image is allocated, but not image data
 
 int readtif(Image *im, TIFF* tif){
@@ -136,7 +137,11 @@ int readTIFF(Image *im, fullPath *sfile){
 		return -1;
 	}
 	result = readtif(im, tif);
-    	TIFFClose(tif);
+	
+	//Store name of TIFF file
+	strncpy(im->name, filename, 255);
+	
+	TIFFClose(tif);
 	return result;
 }
 
