@@ -97,7 +97,7 @@ int TiffGetImageParameters(TIFF *tiffFile, pt_tiff_parms *tiffData)
   }
 
   if (!TIFFGetField(tiffFile, TIFFTAG_COMPRESSION, &tiffData->compression)) {
-    PrintError("File did not include predictor information.");
+    PrintError("File did not include compression information.");
     return 0;
   }
   if (tiffData->compression == COMPRESSION_LZW) {
@@ -254,8 +254,8 @@ int  CreatePSD(  fullPath *fullPathImages, int numberImages, fullPath* outputFil
   if (readTIFF(&image, &fullPathImages[0]) != 0 ) {
   
     PrintError("Could not read TIFF image No 0");
-	if ( ptQuietFlag == 0 )
-    	Progress(_disposeProgress, tempString);
+	 if ( ptQuietFlag == 0 )
+      Progress(_disposeProgress, tempString);
 
     return -1;
   }
@@ -277,7 +277,7 @@ int  CreatePSD(  fullPath *fullPathImages, int numberImages, fullPath* outputFil
   if (writePSDwithLayer(&image, outputFileName) != 0) {
     PrintError("Could not write PSD-file");
     if ( ptQuietFlag != 0 ) 
-		Progress(_disposeProgress, tempString);
+      Progress(_disposeProgress, tempString);
     return -1;
   }
 
@@ -288,19 +288,19 @@ int  CreatePSD(  fullPath *fullPathImages, int numberImages, fullPath* outputFil
   for (i = 1; i < numberImages; i++) {
     
     if ( ptQuietFlag == 0 ) {
-        sprintf(tempString, "%d", i * 100/numberImages);    
-		if ( Progress(_setProgress,tempString) == 0 ) {
-			remove(outputFileName->name);
-			return -1;
-		}
+		sprintf(tempString, "%d", i * 100/numberImages);    
+      if ( Progress(_setProgress,tempString) == 0 ) {
+		  remove(outputFileName->name);
+		  return -1;
+      }
     }
 
     if (readTIFF(ptrImage, &fullPathImages[i]) != 0) {
 
-      	PrintError("Could not read TIFF image No &d", i);
-		if ( ptQuietFlag == 0 )
-			Progress(_disposeProgress, tempString);
-    	return -1;
+		PrintError("Could not read TIFF image No &d", i);
+      if ( ptQuietFlag == 0 )
+		  Progress(_disposeProgress, tempString);
+      return -1;
     }
     
     // We can't process 16 bit TIFFs. We have to downsample to 8 bit if necessary
@@ -418,7 +418,7 @@ static void ComputeStitchingMask8bits(Image *image)
       ptrCounter = (uint16_t*)(pixel +2);
       
       if (*ptrCounter > count)
-	    *ptrCounter = count;
+		  *ptrCounter = count;
     } // for column
 
     //-----------------------------;;
@@ -426,8 +426,8 @@ static void ComputeStitchingMask8bits(Image *image)
 
     //  fprintf(stderr, "St3\n");
 
-	count = 0;
-	column = image->width;
+	 count = 0;
+	 column = image->width;
 
     while (--column >= 0) {
       pixel = ptr + column * 4;
@@ -436,7 +436,7 @@ static void ComputeStitchingMask8bits(Image *image)
 
       ptrCounter =  (uint16_t*)(pixel +2);
       if (*ptrCounter < count)
-	    count = *ptrCounter;
+		  count = *ptrCounter;
       else
         *ptrCounter = count;
 
@@ -477,13 +477,13 @@ static void ComputeStitchingMask16bits(Image *image)
       pixel = (uint16_t*) (row * image->bytesPerLine + ptr);
 
       if (*pixel == 0) {
-	
-	count = 0;
-	
+   
+		  count = 0;
+   
       } else {
 
-	count ++;
-	
+		  count ++;
+   
       }
       // Use the G pixel area to keep a count of how many pixels we have seen in 
       // the mask area.
@@ -507,11 +507,11 @@ static void ComputeStitchingMask16bits(Image *image)
 
       if ( *pixel == 0 ) {
 
-	count = 0;
+		  count = 0;
 
       } else {
 
-	count ++;
+		  count ++;
 
       }
 
@@ -519,11 +519,11 @@ static void ComputeStitchingMask16bits(Image *image)
 
       if ( *ptrCounter < count) {
       
-	count = *ptrCounter; 
+		  count = *ptrCounter; 
       
       } else {
       
-	*ptrCounter  = count;
+		  *ptrCounter  = count;
       
       }
     
@@ -553,25 +553,25 @@ static void ComputeStitchingMask16bits(Image *image)
       pixel = (uint16_t*)(ptr + 4 * 2 * column);
       
       if ( *pixel == 0 ) {
-	
-	count = 0;
-	
+   
+		  count = 0;
+   
       } else {
-	
-	count ++;
-	
+   
+		  count ++;
+   
       }
       
       ptrCounter = pixel +2;
       
       if (*ptrCounter < count) {
-	
-	//	count = *ptrCounter; AAAAAAAAAAAAA
-	
+   
+		  // count = *ptrCounter; AAAAAAAAAAAAA
+   
       } else {
-	
-	*ptrCounter = count;
-	
+   
+		  *ptrCounter = count;
+   
       } //
 
     } // for column
@@ -585,17 +585,17 @@ static void ComputeStitchingMask16bits(Image *image)
       pixel = (uint16_t*)(ptr + 4 * 2 * column);
 
       if ( *pixel == 0 ) {
-	count = 0;
+		  count = 0;
       } else {
-	count ++;
+		  count ++;
       }
 
       ptrCounter = pixel +2;
 
       if (*ptrCounter < count) {
-	//	count = *ptrCounter; AAAAAAAAAAAAAAA
+		  // count = *ptrCounter; AAAAAAAAAAAAAAA
       } else {
-	*ptrCounter = count;
+		  *ptrCounter = count;
       }
     } // for
 
@@ -611,17 +611,17 @@ static void ComputeStitchingMask16bits(Image *image)
       pixel = (uint16_t*)(ptr + 4 * 2 * column);
 
       if (0 == *pixel ) {
-	count = 0;
+		  count = 0;
       } else {
-	count ++;
+		  count ++;
       }
 
       ptrCounter =  pixel +2;
 
       if (*ptrCounter < count) {
-	count = *ptrCounter;
+		  count = *ptrCounter;
       } else {
-	*ptrCounter = count;
+		  *ptrCounter = count;
       }
     } //    while (--column >= 0) {
 
@@ -636,19 +636,19 @@ static void ComputeStitchingMask16bits(Image *image)
 
 
       if ( *pixel == 0 ) {
-	count = 0;
+		  count = 0;
       } else {
-	count ++;
+		  count ++;
       }
 
       ptrCounter =  pixel +2;
 
       if (*ptrCounter < count) {
-	
-	count = *ptrCounter ;
+   
+		  count = *ptrCounter ;
       
       } else {
-	*ptrCounter = count;
+		  *ptrCounter = count;
       }
     } // end of while
     
@@ -695,7 +695,7 @@ int CreateMaskMapFiles(fullPath *inputFiles, fullPath *maskFiles, int numberImag
     // Do progress
     if ( ptQuietFlag == 0 ) {
       if (Progress(_setProgress, tempString) ==0 ) {
-	return 0;
+		  return 0;
       }
     }
     
@@ -728,7 +728,7 @@ int CreateMaskMapFiles(fullPath *inputFiles, fullPath *maskFiles, int numberImag
   if (!ptQuietFlag)
 
     Progress(_setProgress, "100");
-    Progress(_disposeProgress, tempString);
+  Progress(_disposeProgress, tempString);
 
   return 1;
 }
@@ -739,7 +739,7 @@ int CreateMaskMapFiles(fullPath *inputFiles, fullPath *maskFiles, int numberImag
 
 
 static int  ReplaceAlphaChannels(fullPath *inputImagesNames, fullPath *masksNames, fullPath *outputNames, int numberImages,
-			 pt_tiff_parms *imageDefaultParms)
+											pt_tiff_parms *imageDefaultParms)
 {
   int index;
   unsigned char *imageRowBuffer = NULL;
@@ -778,11 +778,11 @@ static int  ReplaceAlphaChannels(fullPath *inputImagesNames, fullPath *masksName
     if ( ptQuietFlag == 0 ) {
       sprintf(tempString, "%d", index * 100/ numberImages);
       if (Progress(_setProgress, tempString) == 0) {
-	return 0;
+		  return 0;
       }
     }
     
-    // Open input image	
+    // Open input image 
     if ( (imageFile = OpenTiffFromFullPath(&inputImagesNames[index], "r")) == NULL) {
       PrintError("Could not open TIFF-file");
       return 0;
@@ -819,37 +819,37 @@ static int  ReplaceAlphaChannels(fullPath *inputImagesNames, fullPath *masksName
 
       if ( imageDefaultParms->bitsPerPixel == 32 ) {
 
-	destination = imageRowBuffer + 3;
-	source = maskRowBuffer + 3;
+		  destination = imageRowBuffer + 3;
+		  source = maskRowBuffer + 3;
 
-	for (j = 0; j < imageDefaultParms->imageWidth; j ++ ) {
-	  *destination = *source;
-	  destination +=4;
-	  source +=4;
-	} 
+		  for (j = 0; j < imageDefaultParms->imageWidth; j ++ ) {
+			 *destination = *source;
+			 destination +=4;
+			 source +=4;
+		  } 
 
       } else {
 
-	destination = imageRowBuffer + 6;
-	source = maskRowBuffer + 6;
+		  destination = imageRowBuffer + 6;
+		  source = maskRowBuffer + 6;
 
-	for (j = 0; j < imageDefaultParms->imageWidth ; j ++ ) {
-	  *destination = *source;
+		  for (j = 0; j < imageDefaultParms->imageWidth ; j ++ ) {
+			 *destination = *source;
 
-	  source += 8;
-	  destination += 8;
+			 source += 8;
+			 destination += 8;
 
-	} // for j
+		  } // for j
        
       } // end of if
 
-    if (TIFFWriteScanline(outputFile, imageRowBuffer, row, 0) != 1) {
-      PrintError("Unable to write scan line\n");
-      TIFFClose(imageFile);
-      TIFFClose(maskFile);
-      TIFFClose(outputFile);
-      return 0;
-    }
+		if (TIFFWriteScanline(outputFile, imageRowBuffer, row, 0) != 1) {
+		  PrintError("Unable to write scan line\n");
+		  TIFFClose(imageFile);
+		  TIFFClose(maskFile);
+		  TIFFClose(outputFile);
+		  return 0;
+		}
     } // for 
 
     TIFFClose(imageFile);
@@ -898,7 +898,7 @@ static int  ReplaceAlphaChannel(fullPath *inputImage, fullPath *mask, fullPath *
   //resulting image) have the same dimensions, and we don't care what the 
   //dimensions are the for the final output image  
 
-  // Open input image	
+  // Open input image   
   if ( (imageFile = OpenTiffFromFullPath(inputImage, "r")) == NULL) {
     PrintError("Could not open TIFF-file");
     return 0;
@@ -999,8 +999,8 @@ static void SetBestAlphaChannel16bits(unsigned char *imagesBuffer, int numberIma
 
       if (*ptrCount > maskValue) {
 
-	best = j;
-	maskValue = *ptrCount;
+		  best = j;
+		  maskValue = *ptrCount;
       
       }
     } // for j
@@ -1010,13 +1010,13 @@ static void SetBestAlphaChannel16bits(unsigned char *imagesBuffer, int numberIma
       // set the mask of the ones above, but not below... interesting...
 
       for (j = best+1;  j < numberImages; j ++ ) {
-	uint16_t *pixel2;
+		  uint16_t *pixel2;
   
-	pixel2 = (uint16_t*)(pixel +  imageParms->bytesPerLine * j);
+		  pixel2 = (uint16_t*)(pixel +  imageParms->bytesPerLine * j);
 
-	if (0 != *pixel2) {
-	  *pixel2 = 1;
-	} 
+		  if (0 != *pixel2) {
+			 *pixel2 = 1;
+		  } 
       }
     }
   } // for i
@@ -1050,8 +1050,8 @@ static void SetBestAlphaChannel8bits(unsigned char *imagesBuffer, int numberImag
 
       if (*ptrCount > maskValue) {
 
-	best = j;
-	maskValue = *ptrCount;
+		  best = j;
+		  maskValue = *ptrCount;
       
       }
     } // for j
@@ -1061,13 +1061,13 @@ static void SetBestAlphaChannel8bits(unsigned char *imagesBuffer, int numberImag
       // set the mask of the ones above, but not below... interesting...
 
       for (j = best+1;  j < numberImages; j ++ ) {
-	unsigned char *pixel2;
+		  unsigned char *pixel2;
   
-	pixel2 = pixel +  imageParms->bytesPerLine * j;
+		  pixel2 = pixel +  imageParms->bytesPerLine * j;
 
-	if (0 != *pixel2) {
-	  *pixel2 = 1;
-	} 
+		  if (0 != *pixel2) {
+			 *pixel2 = 1;
+		  } 
       }
     }
   } // for i
@@ -1094,7 +1094,7 @@ static void CalculateAlphaChannel(unsigned char *imagesBuffer, int numberImages,
  * the same as the dimensions fo the input images if they are "cropped"
  */
 static int CreateAlphaChannels(fullPath *masksNames, fullPath *alphaChannelNames,
-			       int numberImages, pt_tiff_parms *fullSizeImageParameters)
+										 int numberImages, pt_tiff_parms *fullSizeImageParameters)
 {
   TIFF **tiffMasks;
   TIFF **tiffAlphaChannels;
@@ -1179,12 +1179,12 @@ static int CreateAlphaChannels(fullPath *masksNames, fullPath *alphaChannelNames
         sprintf(tempString, "%lu", fullSizeRowIndex * 100/fullSizeImageParameters->imageLength);
         if (Progress(_setProgress, tempString) == 0) {
           for (index = 0 ; index < numberImages; index ++) {
-	        TIFFClose(tiffMasks[index]);
-	        TIFFClose(tiffAlphaChannels[index]);
-	        remove(alphaChannelNames[index].name);
-	      }
-	      return 0;
-	    }
+				TIFFClose(tiffMasks[index]);
+				TIFFClose(tiffAlphaChannels[index]);
+				remove(alphaChannelNames[index].name);
+			 }
+			 return 0;
+		  }
       } 
     }
     
@@ -1209,10 +1209,10 @@ static int CreateAlphaChannels(fullPath *masksNames, fullPath *alphaChannelNames
       
     }
 
-	//calculate the alpha channel for this row in all images
+	 //calculate the alpha channel for this row in all images
     CalculateAlphaChannel(imagesBuffer, numberImages, fullSizeImageParameters);
 
-	//write out the alpha channel data for this row to all output images
+	 //write out the alpha channel data for this row to all output images
     for (index = 0 , ptrBuffer = imagesBuffer; index < numberImages; index++, ptrBuffer += fullSizeImageParameters->bytesPerLine) {
 
       ARGBtoRGBA(ptrBuffer, fullSizeImageParameters->imageWidth, fullSizeImageParameters->bitsPerPixel);
@@ -1362,8 +1362,8 @@ int AddStitchingMasks(fullPath *inputFiles, fullPath *outputFiles, int numberIma
 
     if ( ptQuietFlag == 0 ) {
       if (Progress(_setProgress, tempString) == 0) {
-      // We have to delete any temp file
-      return -1;
+		  // We have to delete any temp file
+		  return -1;
       }
     }
 
@@ -1407,8 +1407,8 @@ int AddStitchingMasks(fullPath *inputFiles, fullPath *outputFiles, int numberIma
 }
 
 void BlendLayers8Bit(unsigned char **imageDataBuffers, int counterImageFiles, char *resultBuffer, 
-		     int lines,
-		     int imageWidth, int scanLineSize)
+							int lines,
+							int imageWidth, int scanLineSize)
 
 {
 
@@ -1457,66 +1457,66 @@ void BlendLayers8Bit(unsigned char **imageDataBuffers, int counterImageFiles, ch
       // Initialize colours for this pixel
       alphaChannel = 0;
       for (i=0;i<3;i++)
-	colours[i] =0;
+		  colours[i] =0;
 
 
       // Do alpha blending, from top to bottom. Bail out when alpha channel is equal to maximum
 
       for (imageIndex =counterImageFiles-1; imageIndex >= 0; imageIndex--) {
 
-	unsigned int alphaContribution;
-	unsigned char *ptrPixel;
-	unsigned int bottomAlpha;
-	unsigned int index;
+		  unsigned int alphaContribution;
+		  unsigned char *ptrPixel;
+		  unsigned int bottomAlpha;
+		  unsigned int index;
 
 
-	//	printf("Currnet image %d\n", imageIndex);
+		  // printf("Currnet image %d\n", imageIndex);
 
 
-	// The alpha blending algorithm is (for premultiplied values)
+		  // The alpha blending algorithm is (for premultiplied values)
 
-	// C_result = C_above + C_below * (1 - alpha_above)
-	// A_result = Alpha_above + alpha_below * (1 - alpha_above)
+		  // C_result = C_above + C_below * (1 - alpha_above)
+		  // A_result = Alpha_above + alpha_below * (1 - alpha_above)
 
-	// Find pixel in this layer
-	ptrPixel = imageDataBuffers[imageIndex] + pixelOffset;
+		  // Find pixel in this layer
+		  ptrPixel = imageDataBuffers[imageIndex] + pixelOffset;
 
 
-	//	printf("TO read pixel\n");
+		  // printf("TO read pixel\n");
 
-	bottomAlpha = *(ptrPixel + 3); // this should be the value of the mask for this particular pixel
-	
-	//	printf("After read pixel\n");
+		  bottomAlpha = *(ptrPixel + 3); // this should be the value of the mask for this particular pixel
+   
+		  // printf("After read pixel\n");
 
-	alphaContribution = ((0xff - alphaChannel) *  bottomAlpha)/0xff;
+		  alphaContribution = ((0xff - alphaChannel) *  bottomAlpha)/0xff;
 
-	// I don't really think this step is necessary, but due to innestability of the calculation
-	// alphaContribution it might overflow the byte valuex
+		  // I don't really think this step is necessary, but due to innestability of the calculation
+		  // alphaContribution it might overflow the byte valuex
 
-	if ( alphaChannel + alphaContribution > 0xff ) {
-	  alphaContribution = 0xff - alphaChannel;
-	}
+		  if ( alphaChannel + alphaContribution > 0xff ) {
+			 alphaContribution = 0xff - alphaChannel;
+		  }
 
-	alphaChannel += alphaContribution;
+		  alphaChannel += alphaContribution;
 
-	// Makek sure the alpha channel is within range
-	assert(alphaChannel >= 0 && alphaChannel <= 0xff);
+		  // Makek sure the alpha channel is within range
+		  assert(alphaChannel >= 0 && alphaChannel <= 0xff);
 
-	// now do the colours
+		  // now do the colours
 
-	//	printf("TO set pixel\n");
+		  // printf("TO set pixel\n");
 
-	for (index = 0; index < 3; index ++) {
-	  colours[index] += (*(ptrPixel+index) * alphaContribution)/0xff ; // 
-	  if (!(colours[index] >= 0 && colours[index] <= 0xff)) {
-	    printf("PPPPPPPPPPPPPPPPPanic %d index [%d]\n", colours[index], index);
-	  }
-	  assert(colours[index] >= 0 && colours[index] <= 0xff);
-	}
+		  for (index = 0; index < 3; index ++) {
+			 colours[index] += (*(ptrPixel+index) * alphaContribution)/0xff ; // 
+			 if (!(colours[index] >= 0 && colours[index] <= 0xff)) {
+				printf("PPPPPPPPPPPPPPPPPanic %d index [%d]\n", colours[index], index);
+			 }
+			 assert(colours[index] >= 0 && colours[index] <= 0xff);
+		  }
 
-	// We don't need to continue if the alpha channel is at the max
-	if ( alphaChannel >= 0xff )
-	  break;
+		  // We don't need to continue if the alpha channel is at the max
+		  if ( alphaChannel >= 0xff )
+			 break;
 
       } // for (imageIndex =counterImageFiles-1; imageIndex >= 0; imageIndex--) {
 
@@ -1525,8 +1525,8 @@ void BlendLayers8Bit(unsigned char **imageDataBuffers, int counterImageFiles, ch
       
       // Set the value of the pixel
       for (i=0;i<3;i++) {
-	assert(colours[i] <= 0xff && colours[i] >= 0);
-	*(resultBuffer + pixelOffset + i) = colours[i];
+		  assert(colours[i] <= 0xff && colours[i] >= 0);
+		  *(resultBuffer + pixelOffset + i) = colours[i];
       }
 
       *(resultBuffer + pixelOffset + 3) = alphaChannel;
@@ -1539,8 +1539,8 @@ void BlendLayers8Bit(unsigned char **imageDataBuffers, int counterImageFiles, ch
 }
 
 void BlendLayers16Bit(unsigned char **imageDataBuffers, int counterImageFiles, char *resultBuffer, 
-		     int lines,
-		     int imageWidth, int scanLineSize)
+							 int lines,
+							 int imageWidth, int scanLineSize)
 
 {
 
@@ -1564,7 +1564,7 @@ void BlendLayers16Bit(unsigned char **imageDataBuffers, int counterImageFiles, c
     //  printf("length %d\n", scanLineSize);
 
 
-  //printf("Currnet line %d\n", currentLine);
+	 //printf("Currnet line %d\n", currentLine);
 
     // scanLineSize is in bytes, but we need the length in 16bit units
     rowOffset = (scanLineSize/2) * currentLine;
@@ -1583,66 +1583,66 @@ void BlendLayers16Bit(unsigned char **imageDataBuffers, int counterImageFiles, c
       // Initialize colours for this pixel
       alphaChannel = 0;
       for (i=0;i<3;i++)
-	colours[i] =0;
+		  colours[i] =0;
 
 
       // Do alpha blending, from top to bottom. Bail out when alpha channel is equal to maximum
 
       for (imageIndex =counterImageFiles-1; imageIndex >= 0; imageIndex--) {
 
-	unsigned long long alphaContribution;
-	uint16_t *ptrPixel;
-	unsigned long long bottomAlpha;
-	unsigned int index;
+		  unsigned long long alphaContribution;
+		  uint16_t *ptrPixel;
+		  unsigned long long bottomAlpha;
+		  unsigned int index;
 
 
-	//	printf("Currnet image %d\n", imageIndex);
+		  // printf("Currnet image %d\n", imageIndex);
 
 
-	// The alpha blending algorithm is (for premultiplied values)
+		  // The alpha blending algorithm is (for premultiplied values)
 
-	// C_result = C_above + C_below * (1 - alpha_above)
-	// A_result = Alpha_above + alpha_below * (1 - alpha_above)
+		  // C_result = C_above + C_below * (1 - alpha_above)
+		  // A_result = Alpha_above + alpha_below * (1 - alpha_above)
 
-	// Find pixel in this layer
-	ptrPixel = u16ImageDataBuffers[imageIndex] + pixelOffset;
+		  // Find pixel in this layer
+		  ptrPixel = u16ImageDataBuffers[imageIndex] + pixelOffset;
 
 
-	//	printf("TO read pixel\n");
+		  // printf("TO read pixel\n");
 
-	bottomAlpha = *(ptrPixel + 3); // this should be the value of the mask for this particular pixel
-	
-	//printf("After read pixel\n");
+		  bottomAlpha = *(ptrPixel + 3); // this should be the value of the mask for this particular pixel
+   
+		  //printf("After read pixel\n");
 
-	alphaContribution = ((0xffff - alphaChannel) *  bottomAlpha)/0xffff;
+		  alphaContribution = ((0xffff - alphaChannel) *  bottomAlpha)/0xffff;
 
-	// I don't really think this step is necessary, but due to innestability of the calculation
-	// alphaContribution it might overflow the byte valuex
+		  // I don't really think this step is necessary, but due to innestability of the calculation
+		  // alphaContribution it might overflow the byte valuex
 
-	if ( alphaChannel + alphaContribution > 0xffff ) {
-	  alphaContribution = 0xffff - alphaChannel;
-	}
+		  if ( alphaChannel + alphaContribution > 0xffff ) {
+			 alphaContribution = 0xffff - alphaChannel;
+		  }
 
-	alphaChannel += alphaContribution;
+		  alphaChannel += alphaContribution;
 
-	// Makek sure the alpha channel is within range
-	assert(alphaChannel >= 0 && alphaChannel <= 0xffff);
+		  // Makek sure the alpha channel is within range
+		  assert(alphaChannel >= 0 && alphaChannel <= 0xffff);
 
-	// now do the colours
+		  // now do the colours
 
-	//printf("TO set pixel\n");
+		  //printf("TO set pixel\n");
 
-	for (index = 0; index < 3; index ++) {
-	  colours[index] += (*(ptrPixel+index) * alphaContribution)/0xffff ; // 
-	  if (!(colours[index] >= 0 && colours[index] <= 0xffff)) {
-	    printf("PPPPPPPPPPPPPPPPPanic %d index [%d]\n", colours[index], index);
-	  }
-	  assert(colours[index] >= 0 && colours[index] <= 0xffff);
-	}
+		  for (index = 0; index < 3; index ++) {
+			 colours[index] += (*(ptrPixel+index) * alphaContribution)/0xffff ; // 
+			 if (!(colours[index] >= 0 && colours[index] <= 0xffff)) {
+				printf("PPPPPPPPPPPPPPPPPanic %d index [%d]\n", colours[index], index);
+			 }
+			 assert(colours[index] >= 0 && colours[index] <= 0xffff);
+		  }
 
-	// We don't need to continue if the alpha channel is at the max
-	if ( alphaChannel >= 0xffff )
-	  break;
+		  // We don't need to continue if the alpha channel is at the max
+		  if ( alphaChannel >= 0xffff )
+			 break;
 
       } // for (imageIndex =counterImageFiles-1; imageIndex >= 0; imageIndex--) {
 
@@ -1651,8 +1651,8 @@ void BlendLayers16Bit(unsigned char **imageDataBuffers, int counterImageFiles, c
       //      printf("Done loop\n");      
       // Set the value of the pixel
       for (i=0;i<3;i++) {
-	assert(colours[i] <= 0xffff && colours[i] >= 0);
-	*(u16ResultBuffer + pixelOffset + i) = colours[i];
+		  assert(colours[i] <= 0xffff && colours[i] >= 0);
+		  *(u16ResultBuffer + pixelOffset + i) = colours[i];
       }
       //      printf("Done loop 2\n");      
       *(u16ResultBuffer + pixelOffset + 3) = alphaChannel;
@@ -1668,8 +1668,8 @@ void BlendLayers16Bit(unsigned char **imageDataBuffers, int counterImageFiles, c
 
 
 static void BlendLayers(unsigned char **imageDataBuffers, unsigned int counterImageFiles, char *resultBuffer, 
-		 unsigned int linesToRead,
-		 unsigned int imageWidth, unsigned int bitsPerPixel, unsigned int scanLineSize)
+								unsigned int linesToRead,
+								unsigned int imageWidth, unsigned int bitsPerPixel, unsigned int scanLineSize)
 {
 
   if (bitsPerPixel == 32) {
@@ -1681,18 +1681,18 @@ static void BlendLayers(unsigned char **imageDataBuffers, unsigned int counterIm
 
 int FlattenTIFF(fullPath *fullPathImages, int counterImageFiles, fullPath *outputFileName, int removeOriginals)
 {
-		     
-  //+12   counterImageFil	es
+           
+  //+12   counterImageFil  es
   //+8    fullPathImages
 
   //  scanLineSize
 
   /*
-  unsigned int linesToRead;
-  unsigned int offsetThisPass;
-  unsigned int linesPerPass;
+	 unsigned int linesToRead;
+	 unsigned int offsetThisPass;
+	 unsigned int linesPerPass;
 
-  unsigned int samplesPerPixel;
+	 unsigned int samplesPerPixel;
   */
   TIFF **tiffFileHandles;
   unsigned char **imageDataBuffers;
@@ -1798,10 +1798,10 @@ int FlattenTIFF(fullPath *fullPathImages, int counterImageFiles, fullPath *outpu
 
   for (i = 0; i < counterImageFiles; i ++) {
     imageDataBuffers[i] = calloc(linesPerPass * imageParameters.bytesPerLine, 1);
-	if (imageDataBuffers[i] == NULL) {
-    	PrintError("Not enough memory to allocate input buffers");
-    	return -1;
-  	}    
+	 if (imageDataBuffers[i] == NULL) {
+      PrintError("Not enough memory to allocate input buffers");
+      return -1;
+	 }    
   }
 
   //we need one buffer to store output result
@@ -1828,7 +1828,7 @@ int FlattenTIFF(fullPath *fullPathImages, int counterImageFiles, fullPath *outpu
 
     linesToRead = (linesLeft > linesPerPass) ? linesPerPass : linesLeft;
 
-	// iterate over each input file
+	 // iterate over each input file
     for (i = 0; i < counterImageFiles; i ++) {
       getCropInformationFromTiff(tiffFileHandles[i], &crop_info);
 
@@ -1841,18 +1841,18 @@ int FlattenTIFF(fullPath *fullPathImages, int counterImageFiles, fullPath *outpu
         
         //point to first byte on this row of the input buffer
         pixelPtr = imageDataBuffers[i]  + (imageParameters.bytesPerLine * rowInPass);
-		
-		//clear out any old data, and fill with empty space (zeros)
-		memset(pixelPtr, 0, imageParameters.bytesPerLine);        
+      
+		  //clear out any old data, and fill with empty space (zeros)
+		  memset(pixelPtr, 0, imageParameters.bytesPerLine);        
 
-		// Only try to read data if we are reading from a row that exists in the 
-		// input image        
+		  // Only try to read data if we are reading from a row that exists in the 
+		  // input image        
         if (inputImageRowIndex >= 0 && inputImageRowIndex < crop_info.cropped_height) {
           if (TIFFReadScanline(tiffFileHandles[i], pixelPtr + (crop_info.x_offset * imageParameters.bitsPerPixel/8), inputImageRowIndex, 0) != 1) {
             PrintError("Error reading tiff file\n");
             return -1;
           }
-	    }
+		  }
       } 
     }
 
@@ -1866,7 +1866,7 @@ int FlattenTIFF(fullPath *fullPathImages, int counterImageFiles, fullPath *outpu
     
     // FlattenImageSection
     BlendLayers(imageDataBuffers, counterImageFiles, resultBuffer, linesToRead,
-		imageParameters.imageWidth, imageParameters.bitsPerPixel, imageParameters.bytesPerLine);
+					 imageParameters.imageWidth, imageParameters.bitsPerPixel, imageParameters.bytesPerLine);
 
     for (i = 0; i < linesToRead; i++) {
       if (TIFFWriteScanline(tiffFile, resultBuffer + imageParameters.bytesPerLine * i, offsetBeforeThisPass + i, 0) != 1) {
@@ -1912,11 +1912,11 @@ int FlattenTIFF(fullPath *fullPathImages, int counterImageFiles, fullPath *outpu
 
 #ifdef __Win__
 //void InsertFileName( fullPath *fp, char *fname ){
-//	char *c = strrchr((char*)(fp->name), PATH_SEP);
-//	if(c != NULL) c++;
-//	else c = fp->name;
-//	strcpy( c, fname );
-//}	
+// char *c = strrchr((char*)(fp->name), PATH_SEP);
+// if(c != NULL) c++;
+// else c = fp->name;
+// strcpy( c, fname );
+//}   
 #endif
 
 
@@ -2124,111 +2124,111 @@ void Clear_Area_Outside_Selected_Region(Image *image)
 
   //  THIS IS the code for fisheye_circular 24 bits, but I don't understand it yet.
 
-    pixelPtr = right;
-    currentColumn = left;
+  pixelPtr = right;
+  currentColumn = left;
 
-    eax = left + right;
+  eax = left + right;
 
 
-    var20 = (left + right)/2;
-    var24 = (top + bottom) /2;
-    assert(left >= right);
-    temp = (left - right ) /2;
-    tmpStr28 = temp * temp;
+  var20 = (left + right)/2;
+  var24 = (top + bottom) /2;
+  assert(left >= right);
+  temp = (left - right ) /2;
+  tmpStr28 = temp * temp;
     
 
-    dataPtr =  *(image->data);
+  dataPtr =  *(image->data);
     
-    for (currentRow = 0 ; currentRow < image->height ; currentRow++) {
+  for (currentRow = 0 ; currentRow < image->height ; currentRow++) {
       
-      currentColumn = 0;
-      pixelPtr = dataPtr;
+	 currentColumn = 0;
+	 pixelPtr = dataPtr;
       
-      if ( currentColumn < image->width ) {
+	 if ( currentColumn < image->width ) {
         
         
-        temp = currentRow - var24;
+		temp = currentRow - var24;
 
-        var36 = temp * temp;
+		var36 = temp * temp;
         
-        do { 
+		do { 
           
-          temp = currentColumn - var20;
-          temp = temp * temp + var36;
+		  temp = currentColumn - var20;
+		  temp = temp * temp + var36;
           
-          if ( %eax > tmpStr28 ) {
+		  if ( %eax > tmpStr28 ) {
             
-            *pixelPtr = 0; //moves only 1 byte
-          }
+			 *pixelPtr = 0; //moves only 1 byte
+		  }
           
-          currentColumn++;
-          pixelPtr += bytesPerPixel;
+		  currentColumn++;
+		  pixelPtr += bytesPerPixel;
           
-        } while ( currentColumn < image->width );
+		} while ( currentColumn < image->width );
         
-      } //    if ( currentColumn < image->width ) {
+	 } //    if ( currentColumn < image->width ) {
       
       
-      dataPtr += image-> bytesPerLine;
+	 dataPtr += image-> bytesPerLine;
       
       
-    } //for ( ; currentRow < image->height ; ) {
+  } //for ( ; currentRow < image->height ; ) {
     
-    return;
-  } //if ( image->bitsPerPixel == $0x20 ) {
+  return;
+} //if ( image->bitsPerPixel == $0x20 ) {
 #endif
     
 
 
 #ifdef not_implemented_yet
 
-  THIS IS the code for fisheye_circular 64 bits
+THIS IS the code for fisheye_circular 64 bits
 
     
-    var20 = (left + right) /2;
+var20 = (left + right) /2;
     
-    var24 = (top + bottom)/2;
+var24 = (top + bottom)/2;
     
-    currentColumn = (left - right )/2;
+currentColumn = (left - right )/2;
     
-    tmpStr28 = currentColumn * currentColumn;
+tmpStr28 = currentColumn * currentColumn;
     
-    dataPtr = *(image->data);
+dataPtr = *(image->data);
     
-    for (  currentRow = 0; ; currentRow < image->height ; ++currentRow) {
-      //if ( currentRow >= image->height )
-      //              return;
+for (  currentRow = 0; ; currentRow < image->height ; ++currentRow) {
+  //if ( currentRow >= image->height )
+  //              return;
       
-      currentColumn = 0;
-      pixelPtr = dataPtr;
+  currentColumn = 0;
+  pixelPtr = dataPtr;
       
-      if ( currentColumn < image->width ) {
+  if ( currentColumn < image->width ) {
         
-        var40 = (currentRow * var24) * (currentRow * var24);
+	 var40 = (currentRow * var24) * (currentRow * var24);
         
-        do {
+	 do {
           
-          eax = currentColumn * currentColumn + var40;
+		eax = currentColumn * currentColumn + var40;
           
-          if ( %eax > tmpStr28 ) {
-            *pixelPtr = 0; // Again CAREFUL, moves 8 bytes
-          }
+		if ( %eax > tmpStr28 ) {
+		  *pixelPtr = 0; // Again CAREFUL, moves 8 bytes
+		}
           
-          currentColumn ++;
-          pixelPtr = bytesPerPixel;
+		currentColumn ++;
+		pixelPtr = bytesPerPixel;
           
-        } while (currentColumn < image->width );
-        //if ( currentColumn < image->width )
-        //       
+	 } while (currentColumn < image->width );
+	 //if ( currentColumn < image->width )
+	 //       
         
-      } //if ( currentColumn < image->width ) {
+  } //if ( currentColumn < image->width ) {
       
-      dataPtr +=image->bytesPerLine;
+  dataPtr +=image->bytesPerLine;
       
-    } //for ( ; %currentRow < image->height ; ) 
+ } //for ( ; %currentRow < image->height ; ) 
 #endif
 
-    return;
+return;
 
   
 }
@@ -2251,18 +2251,18 @@ void Unknown09(Image *currentImagePtr)
  */
 void getROI( TrformStr *TrPtr, aPrefs *aP, PTRect *ROIRect )
 {
-	struct 	MakeParams	mpinv;
-	fDesc 	invstack[15], finvD;
-	int 	color               = 0;
+  struct   MakeParams  mpinv;
+  fDesc    invstack[15], finvD;
+  int   color               = 0;
 
   int             x, y, x_jump;
-	double 			    x_d, y_d;	// Cartesian Coordinates of point in source (i.e. input) image
-	double 		  	  Dx, Dy;		// Coordinates of corresponding point in destination (i.e. output) image
+  double             x_d, y_d;  // Cartesian Coordinates of point in source (i.e. input) image
+  double           Dx, Dy;      // Coordinates of corresponding point in destination (i.e. output) image
 
-	double 			    w2 	= (double) TrPtr->dest->width  / 2.0 - 0.5;   //half destination image width
-	double 			    h2 	= (double) TrPtr->dest->height / 2.0 - 0.5;   //half destination image height
-	double 			    sw2 = (double) TrPtr->src->width   / 2.0 - 0.5;   //half source image width
-	double 			    sh2 = (double) TrPtr->src->height  / 2.0 - 0.5;   //half source image height
+  double             w2   = (double) TrPtr->dest->width  / 2.0 - 0.5;   //half destination image width
+  double             h2   = (double) TrPtr->dest->height / 2.0 - 0.5;   //half destination image height
+  double             sw2 = (double) TrPtr->src->width   / 2.0 - 0.5;   //half source image width
+  double             sh2 = (double) TrPtr->src->height  / 2.0 - 0.5;   //half source image height
 
   //Set initial values for ROI to be adjusted during this function
   ROIRect->left         = TrPtr->dest->width;
@@ -2273,40 +2273,40 @@ void getROI( TrformStr *TrPtr, aPrefs *aP, PTRect *ROIRect )
   //The "forward" transform (although not used here) allows us to map pixel
   //coordinates in the output image to their location in the source image.
   //SetMakeParams( stack, &mp, &(aP->im) , &(aP->pano), color );
-	//fD.func = execute_stack; fD.param = stack;
+  //fD.func = execute_stack; fD.param = stack;
 
-	//The "inverse" transform allows us to map pixel coordinates in each source image
-	//to their location in the output image.
-	SetInvMakeParams( invstack, &mpinv, &(aP->im) , &(aP->pano), color );	
-	finvD.func = execute_stack_new; 
-	finvD.param = invstack;
+  //The "inverse" transform allows us to map pixel coordinates in each source image
+  //to their location in the output image.
+  SetInvMakeParams( invstack, &mpinv, &(aP->im) , &(aP->pano), color );   
+  finvD.func = execute_stack_new; 
+  finvD.param = invstack;
   
   //iterate over edges of input image and compute left/right/top/bottom-most coordinate
   //in output image
   for (y = 0; y <= TrPtr->src->height; y += 1) {
       
-      x_jump = (y==0 || y==TrPtr->src->height) ? 1 : TrPtr->src->width;
+	 x_jump = (y==0 || y==TrPtr->src->height) ? 1 : TrPtr->src->width;
         
-      for (x = 0; x <= TrPtr->src->width; x += x_jump) {
-        //convert source coordinates to cartesian coordinates (i.e. origin at center of image)
-        x_d = (double) x - sw2 ;
-        y_d = (double) y - sh2 ;
+	 for (x = 0; x <= TrPtr->src->width; x += x_jump) {
+		//convert source coordinates to cartesian coordinates (i.e. origin at center of image)
+		x_d = (double) x - sw2 ;
+		y_d = (double) y - sh2 ;
         
-        //Map the source image cartesian coordinate to the destination image cartesian coordinate
-        finvD.func( x_d, y_d, &Dx, &Dy, finvD.param);
+		//Map the source image cartesian coordinate to the destination image cartesian coordinate
+		finvD.func( x_d, y_d, &Dx, &Dy, finvD.param);
         
-        //Convert destination cartesian coordinate back to destination "screen" coordinates (i.e. origin at top left of image)
-        Dx += w2;
-      	Dy =  h2 + Dy ;
-      	
-    		if( (Dx < TrPtr->dest->width) && (Dy < TrPtr->dest->height) && (Dx >= 0) && (Dy >= 0) ) {
-    		  //Update ROI if pixel is valid (i.e. inside the final panorama region)
-    		  if ((int)Dx < ROIRect->left) ROIRect->left = (int)Dx;
-    		  if ((int)Dx > ROIRect->right) ROIRect->right = (int)Dx;
-          if ((int)Dy < ROIRect->top) ROIRect->top = (int)Dy;
-    		  if ((int)Dy > ROIRect->bottom) ROIRect->bottom = (int)Dy;
-    		}
-      }
+		//Convert destination cartesian coordinate back to destination "screen" coordinates (i.e. origin at top left of image)
+		Dx += w2;
+		Dy =  h2 + Dy ;
+         
+		if( (Dx < TrPtr->dest->width) && (Dy < TrPtr->dest->height) && (Dx >= 0) && (Dy >= 0) ) {
+		  //Update ROI if pixel is valid (i.e. inside the final panorama region)
+		  if ((int)Dx < ROIRect->left) ROIRect->left = (int)Dx;
+		  if ((int)Dx > ROIRect->right) ROIRect->right = (int)Dx;
+		  if ((int)Dy < ROIRect->top) ROIRect->top = (int)Dy;
+		  if ((int)Dy > ROIRect->bottom) ROIRect->bottom = (int)Dy;
+		}
+	 }
   }
 
   //PrintError("ROI: %d,%d - %d, %d", ROIRect->left, ROIRect->top, ROIRect->right, ROIRect->bottom);
@@ -2318,29 +2318,29 @@ void getROI( TrformStr *TrPtr, aPrefs *aP, PTRect *ROIRect )
  */
 void getCropInformationFromTiff(TIFF *tif, CropInfo *c)
 {
-	float x_position, x_resolution, y_position, y_resolution;
-	
-	//these are the actual, physical dimensions of the TIFF file
-	TIFFGetField(tif, TIFFTAG_IMAGEWIDTH, &(c->cropped_width));
-  	TIFFGetField(tif, TIFFTAG_IMAGELENGTH, &(c->cropped_height));
+  float x_position, x_resolution, y_position, y_resolution;
+   
+  //these are the actual, physical dimensions of the TIFF file
+  TIFFGetField(tif, TIFFTAG_IMAGEWIDTH, &(c->cropped_width));
+  TIFFGetField(tif, TIFFTAG_IMAGELENGTH, &(c->cropped_height));
 
-  	//If nothing is stored in these tags, then this must be an "uncropped" TIFF 
-  	//file, in which case, the "full size" width/height is the same as the 
-  	//"cropped" width and height
-	if (TIFFGetField(tif, TIFFTAG_PIXAR_IMAGEFULLWIDTH, &(c->full_width))==0)   (c->full_width = c->cropped_width);
-	if (TIFFGetField(tif, TIFFTAG_PIXAR_IMAGEFULLLENGTH, &(c->full_height))==0) (c->full_height = c->cropped_height);
-	
-	if (TIFFGetField(tif, TIFFTAG_XPOSITION, &x_position)==0) x_position = 0;
-    if (TIFFGetField(tif, TIFFTAG_XRESOLUTION, &x_resolution) == 0) x_resolution = 0;
-	if (TIFFGetField(tif, TIFFTAG_YPOSITION, &y_position)==0) y_position = 0;
-    if (TIFFGetField(tif, TIFFTAG_YRESOLUTION, &y_resolution) == 0) y_resolution = 0;
+  //If nothing is stored in these tags, then this must be an "uncropped" TIFF 
+  //file, in which case, the "full size" width/height is the same as the 
+  //"cropped" width and height
+  if (TIFFGetField(tif, TIFFTAG_PIXAR_IMAGEFULLWIDTH, &(c->full_width))==0)   (c->full_width = c->cropped_width);
+  if (TIFFGetField(tif, TIFFTAG_PIXAR_IMAGEFULLLENGTH, &(c->full_height))==0) (c->full_height = c->cropped_height);
+   
+  if (TIFFGetField(tif, TIFFTAG_XPOSITION, &x_position)==0) x_position = 0;
+  if (TIFFGetField(tif, TIFFTAG_XRESOLUTION, &x_resolution) == 0) x_resolution = 0;
+  if (TIFFGetField(tif, TIFFTAG_YPOSITION, &y_position)==0) y_position = 0;
+  if (TIFFGetField(tif, TIFFTAG_YRESOLUTION, &y_resolution) == 0) y_resolution = 0;
 
-	//offset in pixels of "cropped" image from top left corner of 
-	//full image (rounded to nearest integer)
-    c->x_offset = (uint32)((x_position * x_resolution) + 0.49);
-    c->y_offset = (uint32)((y_position * y_resolution) + 0.49);
+  //offset in pixels of "cropped" image from top left corner of 
+  //full image (rounded to nearest integer)
+  c->x_offset = (uint32)((x_position * x_resolution) + 0.49);
+  c->y_offset = (uint32)((y_position * y_resolution) + 0.49);
     
-    //printf("%s: %dx%d  @ %d,%d", filename, c->cropped_width, c->cropped_height, c->x_offset, c->y_offset);
+  //printf("%s: %dx%d  @ %d,%d", filename, c->cropped_width, c->cropped_height, c->x_offset, c->y_offset);
 }
 
 /**
@@ -2349,24 +2349,24 @@ void getCropInformationFromTiff(TIFF *tif, CropInfo *c)
  */
 void getCropInformation(char *filename, CropInfo *c)
 {
-	
-	TIFF *tif = TIFFOpen(filename, "r");
-	if (tif == NULL) {
-		PrintError("getCropInformation: Could not open TIFF file");
-	} else {
-		getCropInformationFromTiff(tif, c);
-	    TIFFClose(tif);
-	}
-		    
+   
+  TIFF *tif = TIFFOpen(filename, "r");
+  if (tif == NULL) {
+	 PrintError("getCropInformation: Could not open TIFF file");
+  } else {
+	 getCropInformationFromTiff(tif, c);
+	 TIFFClose(tif);
+  }
+          
 }
  
 void setFullSizeImageParameters(pt_tiff_parms *imageParameters, CropInfo *crop_info)
 {
-	// Update the imageParameters so that the dimensions reflect the
-	// the size of the full-sized output image, (recorded in the crop_info struct)
-	imageParameters->imageLength    = crop_info->full_height;
-	imageParameters->imageWidth     = crop_info->full_width;
-	imageParameters->bytesPerLine   = imageParameters->imageWidth * (imageParameters->bitsPerPixel/8);
+  // Update the imageParameters so that the dimensions reflect the
+  // the size of the full-sized output image, (recorded in the crop_info struct)
+  imageParameters->imageLength    = crop_info->full_height;
+  imageParameters->imageWidth     = crop_info->full_width;
+  imageParameters->bytesPerLine   = imageParameters->imageWidth * (imageParameters->bitsPerPixel/8);
 }
   
 
@@ -2486,38 +2486,38 @@ int CreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles, fullPath
     // where i is the number of the reference image
 
     assert(colourCorrection >=0 && colourCorrection < (counterImageFiles+1) *4 );
-      if (prefs->pano.cP.radial != 0) {
+	 if (prefs->pano.cP.radial != 0) {
       assert(0); // I really don't want to execute this code yet
 
-// correct_Prefs
-//...
-//  3 colors x (4 coeffic. for 3rd order polys + correction radius)
-//radial_params[3][5] double (OFFSET 6c4 1732
-//
-//  [0][0..4]  40 bytes      6c4  6cc   6d4   6dc 6e4
-//  [1][0..4]  40 (28)       6ec  6f4   6fc   704 70c
-//  [2][0..4]  40 (28)       714  71c   724   72c 734
-//                            3c
-// radial_params 
-//  3 * 5 * 8 = 120
+		// correct_Prefs
+		//...
+		//  3 colors x (4 coeffic. for 3rd order polys + correction radius)
+		//radial_params[3][5] double (OFFSET 6c4 1732
+		//
+		//  [0][0..4]  40 bytes      6c4  6cc   6d4   6dc 6e4
+		//  [1][0..4]  40 (28)       6ec  6f4   6fc   704 70c
+		//  [2][0..4]  40 (28)       714  71c   724   72c 734
+		//                            3c
+		// radial_params 
+		//  3 * 5 * 8 = 120
 
-	var00 = prefs->pano.cP.radial_params[0][2]; // what is this for, I have NO idea.
-	var00++;
+		var00 = prefs->pano.cP.radial_params[0][2]; // what is this for, I have NO idea.
+		var00++;
 #ifdef asdfasdf
-I AM NOT TOTALLY SURE ABOUT THIS
- 804a01d:	dd 82 d4 06 00 00    	fldl   0x6d4(%edx)            // loads address into FL
- 804a023:	d9 bd b2 eb ff ff    	fnstcw 0xffffebb2(%ebp)           ;;;;;;;;;;;>>> -5198
- 804a029:	66 8b 8d b2 eb ff ff 	mov    0xffffebb2(%ebp),%cx           ;;;;;;;;;;;>>> -5198
- 804a030:	66 81 c9 00 0c       	or     $0xc00,%cx
- 804a035:	66 89 8d b0 eb ff ff 	mov    %cx,0xffffebb0(%ebp)           ;;;;;;;;;;;>>> -5200
- 804a03c:	d9 ad b0 eb ff ff    	fldcw  0xffffebb0(%ebp)           ;;;;;;;;;;;>>> -5200
+	 I AM NOT TOTALLY SURE ABOUT THIS
+		804a01d:   dd 82 d4 06 00 00       fldl   0x6d4(%edx)            // loads address into FL
+		  804a023:   d9 bd b2 eb ff ff       fnstcw 0xffffebb2(%ebp)           ;;;;;;;;;;;>>> -5198
+																															 804a029:   66 8b 8d b2 eb ff ff    mov    0xffffebb2(%ebp),%cx           ;;;;;;;;;;;>>> -5198
+																																																													 804a030:   66 81 c9 00 0c          or     $0xc00,%cx
+																																																													 804a035:   66 89 8d b0 eb ff ff    mov    %cx,0xffffebb0(%ebp)           ;;;;;;;;;;;>>> -5200
+																																																																																											 804a03c:   d9 ad b0 eb ff ff       fldcw  0xffffebb0(%ebp)           ;;;;;;;;;;;>>> -5200
 
- 804a042:	db 9d 7c e7 ff ff    	fistpl 0xffffe77c(%ebp)           ;;;;;;;;;;;>>> -6276 var00
- 804a048:	d9 ad b2 eb ff ff    	fldcw  0xffffebb2(%ebp)           ;;;;;;;;;;;>>> -5198
- 804a04e:	ff 85 7c e7 ff ff    	incl   0xffffe77c(%ebp)           ;;;;;;;;;;;>>> -6276 var00
+																																																																																																																								804a042:   db 9d 7c e7 ff ff       fistpl 0xffffe77c(%ebp)           ;;;;;;;;;;;>>> -6276 var00
+																																																																																																																																																				  804a048:   d9 ad b2 eb ff ff       fldcw  0xffffebb2(%ebp)           ;;;;;;;;;;;>>> -5198
+																																																																																																																																																																																	 804a04e:   ff 85 7c e7 ff ff       incl   0xffffe77c(%ebp)           ;;;;;;;;;;;>>> -6276 var00
 #endif
-											   
-    } // begins 804a00e
+                                    
+																																																																																																																																																																																																														} // begins 804a00e
 
 
     if (prefs->pano.cP.horizontal != 0) {
@@ -2527,18 +2527,18 @@ I AM NOT TOTALLY SURE ABOUT THIS
       var01++;
 
 #ifdef adsfasdf 
-??
- 804a063:	dd 80 5c 07 00 00    	fldl   0x75c(%eax)               // loads address into FL
- 804a069:	d9 bd b2 eb ff ff    	fnstcw 0xffffebb2(%ebp)           ;;;;;;;;;;;>>> -5198
- 804a06f:	66 8b 95 b2 eb ff ff 	mov    0xffffebb2(%ebp),%dx           ;;;;;;;;;;;>>> -5198
- 804a076:	66 81 ca 00 0c       	or     $0xc00,%dx
- 804a07b:	66 89 95 b0 eb ff ff 	mov    %dx,0xffffebb0(%ebp)           ;;;;;;;;;;;>>> -5200
- 804a082:	d9 ad b0 eb ff ff    	fldcw  0xffffebb0(%ebp)           ;;;;;;;;;;;>>> -5200
- 804a088:	db 9d 78 e7 ff ff    	fistpl 0xffffe778(%ebp)           ;;;;;;;;;;;>>> -6280  var01
- 804a08e:	d9 ad b2 eb ff ff    	fldcw  0xffffebb2(%ebp)           ;;;;;;;;;;;>>> -5198
- 804a094:	ff 85 78 e7 ff ff    	incl   0xffffe778(%ebp)           ;;;;;;;;;;;>>> -6280  var01
+		??
+		  804a063:   dd 80 5c 07 00 00       fldl   0x75c(%eax)               // loads address into FL
+			 804a069:   d9 bd b2 eb ff ff       fnstcw 0xffffebb2(%ebp)           ;;;;;;;;;;;>>> -5198
+																																804a06f:   66 8b 95 b2 eb ff ff    mov    0xffffebb2(%ebp),%dx           ;;;;;;;;;;;>>> -5198
+																																																														804a076:   66 81 ca 00 0c          or     $0xc00,%dx
+																																																														804a07b:   66 89 95 b0 eb ff ff    mov    %dx,0xffffebb0(%ebp)           ;;;;;;;;;;;>>> -5200
+																																																																																												804a082:   d9 ad b0 eb ff ff       fldcw  0xffffebb0(%ebp)           ;;;;;;;;;;;>>> -5200
+																																																																																																																								  804a088:   db 9d 78 e7 ff ff       fistpl 0xffffe778(%ebp)           ;;;;;;;;;;;>>> -6280  var01
+																																																																																																																																																					 804a08e:   d9 ad b2 eb ff ff       fldcw  0xffffebb2(%ebp)           ;;;;;;;;;;;>>> -5198
+																																																																																																																																																																																		804a094:   ff 85 78 e7 ff ff       incl   0xffffe778(%ebp)           ;;;;;;;;;;;>>> -6280  var01
 #endif
-    }
+																																																																																																																																																																																																														  }
 
     // Copy the current output file name to he fullPathImages[loopCounter]
     memcpy( &fullPathImages[loopCounter], &panoFileName, sizeof(fullPath));
@@ -2570,23 +2570,23 @@ I AM NOT TOTALLY SURE ABOUT THIS
     --tempString; /* nextWord does ++ before testing anything, this guarantess proper execution */
     nextWord(output_file_format, &tempString);
         
-	//New for PTMender...Use "cropped" TIFFs as intermediate file format when creating
-	//most flattened output images (e.g. PNG, JPG), as well as for layered
-	//PSD formats.  By default, PTMender works similarly to PTStitcher for 
-	//TIFF_m and TIFF_mask formats, using "full size" TIFFs as intermediate 
-	//(and output) format, unless the user explicitly requests cropped
-	//output by inlcluding "r:CROP" as part of the "p" line (e.g. n"TIFF_m r:CROP")
-	//This behavior is retained to maintain compatibility with PTStitcher, although
-	//it is clearly less efficient than producting cropped TIFFs as output.
-	//
-	//Using cropped TIFF as the intermediate format significantly speeds up 
-	//processing, with larger panos showing more dramatic increases in speed.  
-	//It should also mean that the creation of the "flattened" formats will 
-	//be significantly more memory-friendly, as the masking steps and PSD 
-	//assembly steps won't need to load images the size of the output file 
-	//into memory at once.  Unless the PTMender is fed extremely large input 
-	//images, all memory constraints should now be a thing of the past (MRDL - May 2006).
-	
+	 //New for PTMender...Use "cropped" TIFFs as intermediate file format when creating
+	 //most flattened output images (e.g. PNG, JPG), as well as for layered
+	 //PSD formats.  By default, PTMender works similarly to PTStitcher for 
+	 //TIFF_m and TIFF_mask formats, using "full size" TIFFs as intermediate 
+	 //(and output) format, unless the user explicitly requests cropped
+	 //output by inlcluding "r:CROP" as part of the "p" line (e.g. n"TIFF_m r:CROP")
+	 //This behavior is retained to maintain compatibility with PTStitcher, although
+	 //it is clearly less efficient than producting cropped TIFFs as output.
+	 //
+	 //Using cropped TIFF as the intermediate format significantly speeds up 
+	 //processing, with larger panos showing more dramatic increases in speed.  
+	 //It should also mean that the creation of the "flattened" formats will 
+	 //be significantly more memory-friendly, as the masking steps and PSD 
+	 //assembly steps won't need to load images the size of the output file 
+	 //into memory at once.  Unless the PTMender is fed extremely large input 
+	 //images, all memory constraints should now be a thing of the past (MRDL - May 2006).
+   
     if ( (strstr(output_file_format, "TIFF_") && strstr(panoName.name, "r:CROP")) || 
          strcmp(output_file_format, "PSD_nomask") == 0 ||
          strcmp(output_file_format, "PSD_mask")   == 0 ||
@@ -2710,18 +2710,18 @@ I AM NOT TOTALLY SURE ABOUT THIS
     //as the default...the option to use the more efficient LZW compression
     //is also provided
     if (strstr(prefs->pano.name, "c:LZW") != NULL)
-    {
-      TIFFSetField(tiffFile, TIFFTAG_COMPRESSION, (uint16_t)COMPRESSION_LZW);
-      TIFFSetField(tiffFile, TIFFTAG_PREDICTOR, 2);   //using predictor usually increases LZW compression ratio for RGB data
-    } else if (strstr(prefs->pano.name, "c:NONE") != NULL) {
+		{
+		  TIFFSetField(tiffFile, TIFFTAG_COMPRESSION, (uint16_t)COMPRESSION_LZW);
+		  TIFFSetField(tiffFile, TIFFTAG_PREDICTOR, 2);   //using predictor usually increases LZW compression ratio for RGB data
+		} else if (strstr(prefs->pano.name, "c:NONE") != NULL) {
       TIFFSetField(tiffFile, TIFFTAG_COMPRESSION, (uint16_t)COMPRESSION_NONE);
     } else if (strstr(prefs->pano.name, "c:DEFLATE") != NULL) {
       TIFFSetField(tiffFile, TIFFTAG_COMPRESSION, COMPRESSION_DEFLATE);
     }
     else // Default is PACKBITS
-    {
-      TIFFSetField(tiffFile, TIFFTAG_COMPRESSION, COMPRESSION_PACKBITS);
-    }
+		{
+		  TIFFSetField(tiffFile, TIFFTAG_COMPRESSION, COMPRESSION_PACKBITS);
+		}
 
 
     //"1" indicates that The 0th row represents the visual top of the image, 
@@ -2800,31 +2800,31 @@ I AM NOT TOTALLY SURE ABOUT THIS
     }
 
     //if (loopCounter == 0) {
-      //Set up metadata about final panorama...need to do this on each pass
-      //because if we are using cropped output, then the output panorama size
-      //might be different for each input image
-      resultPanorama.bitsPerPixel = image1.bitsPerPixel ;
-      resultPanorama.bytesPerLine = TIFFScanlineSize(tiffFile);
+	 //Set up metadata about final panorama...need to do this on each pass
+	 //because if we are using cropped output, then the output panorama size
+	 //might be different for each input image
+	 resultPanorama.bitsPerPixel = image1.bitsPerPixel ;
+	 resultPanorama.bytesPerLine = TIFFScanlineSize(tiffFile);
 
-      //The output image is generated a few lines at a time to make efficient use
-      //of limited memory...compute a reasonable number of lines to process (must
-      //be at least 1, but no more than output height)
-      lines = 500000 / resultPanorama.bytesPerLine;
+	 //The output image is generated a few lines at a time to make efficient use
+	 //of limited memory...compute a reasonable number of lines to process (must
+	 //be at least 1, but no more than output height)
+	 lines = 500000 / resultPanorama.bytesPerLine;
  
-      if (lines == 0)
-	      lines = 1;
+	 if (lines == 0)
+		lines = 1;
 
-      //Don't process more lines than are available
-      if (lines > (croppedOutput ? croppedHeight : resultPanorama.height) )
-	      lines = (croppedOutput ? croppedHeight : resultPanorama.height);
+	 //Don't process more lines than are available
+	 if (lines > (croppedOutput ? croppedHeight : resultPanorama.height) )
+		lines = (croppedOutput ? croppedHeight : resultPanorama.height);
 
-      if ((resultPanorama.data  = (unsigned char**)mymalloc(lines * resultPanorama.bytesPerLine ) ) == NULL) {
-      	PrintError("Not enough memory for output panorama buffer");
-      	exit(0);
-      }
+	 if ((resultPanorama.data  = (unsigned char**)mymalloc(lines * resultPanorama.bytesPerLine ) ) == NULL) {
+		PrintError("Not enough memory for output panorama buffer");
+		exit(0);
+	 }
     //} 
 
-	//NB resultPanorama.selection.bottom is actually one pixel beyond last row with data.
+	 //NB resultPanorama.selection.bottom is actually one pixel beyond last row with data.
     resultPanorama.selection.bottom   = resultPanorama.selection.top + lines;
     
     //    printf("bits per pixel %d\n", resultPanorama.bitsPerPixel);
@@ -2882,17 +2882,17 @@ I AM NOT TOTALLY SURE ABOUT THIS
           PrintError("Unable to write to TIFF file\n");
           return -1;
         }
-	        
+           
         outputScanlineNumber++;
       }
   
       if (ptQuietFlag == 0) {
 
-	//Update progress bar
-	if (croppedOutput)
-	  sprintf(tmpStr, "%d", (int)( (resultPanorama.selection.bottom-ROIRect.top)*100  / croppedHeight));
-	else
-	  sprintf(tmpStr, "%d", (int)(resultPanorama.selection.bottom*100  / resultPanorama.height));
+		  //Update progress bar
+		  if (croppedOutput)
+			 sprintf(tmpStr, "%d", (int)( (resultPanorama.selection.bottom-ROIRect.top)*100  / croppedHeight));
+		  else
+			 sprintf(tmpStr, "%d", (int)(resultPanorama.selection.bottom*100  / resultPanorama.height));
 
         if (Progress(_setProgress, tmpStr) == 0) {
           // Cancelled by the user
@@ -2979,21 +2979,21 @@ I AM NOT TOTALLY SURE ABOUT THIS
 
   SetVRPanoOptionsDefaults(&defaultVRPanoOptions);
 
-/* Soo, at this point we have skipped the first word of the panorama:
-# n"QTVR w400 h300 c1"           additional viewer options in a quoted string together with format
-#              the following options are recognized:
-#                  w(width) and h(height) of viewer window (only QTVR on Macs)
-#                  c(codec: 0-JPEG, 1-Cinepak, 2-Sorenson) (only QTVR on Macs)
-#                  q(codec quality):
-#                     0-high,1-normal,2-low    QTVR on Macs
-#                     0-100(highest)           on other jpeg-formats (PAN, IVR, IVR_java, VRML)
-#                  g  progressive jpeg (0-no, 1-yes) (PAN, IVR, IVR_java, VRML)
-#                     Optimized JPEG (0-on(default), 2-disabled), (3-progressive with optimized disabled)
-#                  p  initial pan angle ( QTVR on Macs, VRML, IVR)
-#                  v  field of view (QTVR, VRML, IVR)
-#                  Many more options can be set by editing the viewer scripts
-*/
-//int	getVRPanoOptions( VRPanoOptions *v, char *line )
+  /* Soo, at this point we have skipped the first word of the panorama:
+	  # n"QTVR w400 h300 c1"           additional viewer options in a quoted string together with format
+	  #              the following options are recognized:
+	  #                  w(width) and h(height) of viewer window (only QTVR on Macs)
+	  #                  c(codec: 0-JPEG, 1-Cinepak, 2-Sorenson) (only QTVR on Macs)
+	  #                  q(codec quality):
+	  #                     0-high,1-normal,2-low    QTVR on Macs
+	  #                     0-100(highest)           on other jpeg-formats (PAN, IVR, IVR_java, VRML)
+	  #                  g  progressive jpeg (0-no, 1-yes) (PAN, IVR, IVR_java, VRML)
+	  #                     Optimized JPEG (0-on(default), 2-disabled), (3-progressive with optimized disabled)
+	  #                  p  initial pan angle ( QTVR on Macs, VRML, IVR)
+	  #                  v  field of view (QTVR, VRML, IVR)
+	  #                  Many more options can be set by editing the viewer scripts
+  */
+  //int getVRPanoOptions( VRPanoOptions *v, char *line )
 
   getVRPanoOptions(&defaultVRPanoOptions, tempString);
   
@@ -3057,7 +3057,7 @@ I AM NOT TOTALLY SURE ABOUT THIS
   // and then convert this to the desired output file format (e.g. JPEG, PNG, etc.)
   if (FlattenTIFF(fullPathImages,counterImageFiles,&fullPathImages[0], TRUE) != 0) { 
     PrintError("Error while flattening TIFF-image");
-   goto mainError;
+	 goto mainError;
   }
 
   ReplaceExt(panoFileName->name, ".tif");
@@ -3125,8 +3125,8 @@ I AM NOT TOTALLY SURE ABOUT THIS
   PrintError("Panorama output format not supported: %s", output_file_format);
 
 
-mainError:
-   return(-1);
+ mainError:
+  return(-1);
 
 }
 

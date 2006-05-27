@@ -250,7 +250,7 @@ int writeTIFF(Image *im, fullPath *sfile){
 	}
 	TIFFSetField(tif, TIFFTAG_COMPRESSION, COMPRESSION_PACKBITS );	
 	TIFFSetField(tif, TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT );
-	TIFFSetField(tif, TIFFTAG_ROWSPERSTRIP, im->height );
+	TIFFSetField(tif, TIFFTAG_ROWSPERSTRIP, 1 );
 	
 	bufsize = TIFFScanlineSize(tif);
 	if(bufsize < im->bytesPerLine) bufsize = im->bytesPerLine;

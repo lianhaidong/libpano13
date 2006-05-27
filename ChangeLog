@@ -1,3 +1,11 @@
+2006-05-27  dmg  <dmgerman@uvic.ca>
+
+	* PTcommon.c (TiffGetImageParameters): Fixed incorrect error message.
+	Removed tabs from entire file (some of them completely messed the
+	format), reindented entire file
+
+	* tiff.c: Changed TIFFTAG_ROWSPERSTRIP to 1.
+
 2006-05-24  Max Lyons <maxlyons@tawbaware.com>
 
 	* PTCommon.c: All logic has been reworked so that "cropped"
