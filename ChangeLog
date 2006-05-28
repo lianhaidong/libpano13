@@ -1,5 +1,8 @@
 2006-05-27  dmg  <dmgerman@uvic.ca>
 
+	* PTcommon.c (CreatePanorama): Removed some ugly formatting I
+	introduced in a recent commit
+
 	* PTcommon.h (TiffSetImageParameters,TiffGetImageParameters):
 	Exported  these functions to be able to use them in
 	PTuncrop. Added #include <tiffio.h>

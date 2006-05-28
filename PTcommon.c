@@ -2479,88 +2479,91 @@ int CreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles, fullPath
       PrintError("Could not read Scriptfile");
       goto mainError;
     }
-
+    
     colourCorrection = prefs->sBuf.colcorrect; 
     // This is a strange value:
     // colourCorrection == (i & 3) + (i+1)*4;
     // where i is the number of the reference image
-
+    
     assert(colourCorrection >=0 && colourCorrection < (counterImageFiles+1) *4 );
-	 if (prefs->pano.cP.radial != 0) {
+    if (prefs->pano.cP.radial != 0) {
       assert(0); // I really don't want to execute this code yet
-
-		// correct_Prefs
-		//...
-		//  3 colors x (4 coeffic. for 3rd order polys + correction radius)
-		//radial_params[3][5] double (OFFSET 6c4 1732
-		//
-		//  [0][0..4]  40 bytes      6c4  6cc   6d4   6dc 6e4
-		//  [1][0..4]  40 (28)       6ec  6f4   6fc   704 70c
-		//  [2][0..4]  40 (28)       714  71c   724   72c 734
-		//                            3c
-		// radial_params 
-		//  3 * 5 * 8 = 120
-
-		var00 = prefs->pano.cP.radial_params[0][2]; // what is this for, I have NO idea.
-		var00++;
+      
+      // correct_Prefs
+      //...
+      //  3 colors x (4 coeffic. for 3rd order polys + correction radius)
+      //radial_params[3][5] double (OFFSET 6c4 1732
+      //
+      //  [0][0..4]  40 bytes      6c4  6cc   6d4   6dc 6e4
+      //  [1][0..4]  40 (28)       6ec  6f4   6fc   704 70c
+      //  [2][0..4]  40 (28)       714  71c   724   72c 734
+      //                            3c
+      // radial_params 
+      //  3 * 5 * 8 = 120
+      
+      var00 = prefs->pano.cP.radial_params[0][2]; // what is this for, I have NO idea.
+      var00++;
 #ifdef asdfasdf
-	 I AM NOT TOTALLY SURE ABOUT THIS
-		804a01d:   dd 82 d4 06 00 00       fldl   0x6d4(%edx)            // loads address into FL
-		  804a023:   d9 bd b2 eb ff ff       fnstcw 0xffffebb2(%ebp)           ;;;;;;;;;;;>>> -5198
-																															 804a029:   66 8b 8d b2 eb ff ff    mov    0xffffebb2(%ebp),%cx           ;;;;;;;;;;;>>> -5198
-																																																													 804a030:   66 81 c9 00 0c          or     $0xc00,%cx
-																																																													 804a035:   66 89 8d b0 eb ff ff    mov    %cx,0xffffebb0(%ebp)           ;;;;;;;;;;;>>> -5200
-																																																																																											 804a03c:   d9 ad b0 eb ff ff       fldcw  0xffffebb0(%ebp)           ;;;;;;;;;;;>>> -5200
-
-																																																																																																																								804a042:   db 9d 7c e7 ff ff       fistpl 0xffffe77c(%ebp)           ;;;;;;;;;;;>>> -6276 var00
-																																																																																																																																																				  804a048:   d9 ad b2 eb ff ff       fldcw  0xffffebb2(%ebp)           ;;;;;;;;;;;>>> -5198
-																																																																																																																																																																																	 804a04e:   ff 85 7c e7 ff ff       incl   0xffffe77c(%ebp)           ;;;;;;;;;;;>>> -6276 var00
+      /*
+	I AM NOT TOTALLY SURE ABOUT THIS
+	804a01d:   dd 82 d4 06 00 00       fldl   0x6d4(%edx)            // loads address into FL
+	804a023:   d9 bd b2 eb ff ff       fnstcw 0xffffebb2(%ebp)           ;;;;;;;;;;;>>> -5198
+	804a029:   66 8b 8d b2 eb ff ff    mov    0xffffebb2(%ebp),%cx           ;;;;;;;;;;;>>> -5198
+	804a030:   66 81 c9 00 0c          or     $0xc00,%cx
+	804a035:   66 89 8d b0 eb ff ff    mov    %cx,0xffffebb0(%ebp)           ;;;;;;;;;;;>>> -5200
+	804a03c:   d9 ad b0 eb ff ff       fldcw  0xffffebb0(%ebp)           ;;;;;;;;;;;>>> -5200
+	
+	804a042:   db 9d 7c e7 ff ff       fistpl 0xffffe77c(%ebp)           ;;;;;;;;;;;>>> -6276 var00
+	804a048:   d9 ad b2 eb ff ff       fldcw  0xffffebb2(%ebp)           ;;;;;;;;;;;>>> -5198
+	804a04e:   ff 85 7c e7 ff ff       incl   0xffffe77c(%ebp)           ;;;;;;;;;;;>>> -6276 var00
+      */
 #endif
-                                    
-																																																																																																																																																																																																														} // begins 804a00e
-
-
+      
+    } // begins 804a00e
+	 
+	 
     if (prefs->pano.cP.horizontal != 0) {
       assert(0); // I really don't want to see this code executed yet
       
       var01 = prefs->pano.cP.horizontal_params[0] ;// 0x75c //[3] 3 colours x horizontal shift value
       var01++;
-
+      
 #ifdef adsfasdf 
-		??
-		  804a063:   dd 80 5c 07 00 00       fldl   0x75c(%eax)               // loads address into FL
-			 804a069:   d9 bd b2 eb ff ff       fnstcw 0xffffebb2(%ebp)           ;;;;;;;;;;;>>> -5198
-																																804a06f:   66 8b 95 b2 eb ff ff    mov    0xffffebb2(%ebp),%dx           ;;;;;;;;;;;>>> -5198
-																																																														804a076:   66 81 ca 00 0c          or     $0xc00,%dx
-																																																														804a07b:   66 89 95 b0 eb ff ff    mov    %dx,0xffffebb0(%ebp)           ;;;;;;;;;;;>>> -5200
-																																																																																												804a082:   d9 ad b0 eb ff ff       fldcw  0xffffebb0(%ebp)           ;;;;;;;;;;;>>> -5200
-																																																																																																																								  804a088:   db 9d 78 e7 ff ff       fistpl 0xffffe778(%ebp)           ;;;;;;;;;;;>>> -6280  var01
-																																																																																																																																																					 804a08e:   d9 ad b2 eb ff ff       fldcw  0xffffebb2(%ebp)           ;;;;;;;;;;;>>> -5198
-																																																																																																																																																																																		804a094:   ff 85 78 e7 ff ff       incl   0xffffe778(%ebp)           ;;;;;;;;;;;>>> -6280  var01
+      /*
+	804a063:   dd 80 5c 07 00 00       fldl   0x75c(%eax)               // loads address into FL
+	804a069:   d9 bd b2 eb ff ff       fnstcw 0xffffebb2(%ebp)           ;;;;;;;;;;;>>> -5198
+	804a06f:   66 8b 95 b2 eb ff ff    mov    0xffffebb2(%ebp),%dx           ;;;;;;;;;;;>>> -5198
+	804a076:   66 81 ca 00 0c          or     $0xc00,%dx
+	804a07b:   66 89 95 b0 eb ff ff    mov    %dx,0xffffebb0(%ebp)           ;;;;;;;;;;;>>> -5200
+	804a082:   d9 ad b0 eb ff ff       fldcw  0xffffebb0(%ebp)           ;;;;;;;;;;;>>> -5200
+	804a088:   db 9d 78 e7 ff ff       fistpl 0xffffe778(%ebp)           ;;;;;;;;;;;>>> -6280  var01
+	804a08e:   d9 ad b2 eb ff ff       fldcw  0xffffebb2(%ebp)           ;;;;;;;;;;;>>> -5198
+	804a094:   ff 85 78 e7 ff ff       incl   0xffffe778(%ebp)           ;;;;;;;;;;;>>> -6280  var01
+      */
 #endif
-																																																																																																																																																																																																														  }
-
+    }
+    
     // Copy the current output file name to he fullPathImages[loopCounter]
     memcpy( &fullPathImages[loopCounter], &panoFileName, sizeof(fullPath));
-
+    
     // Create temporary file where output data wil be written
     if (makeTempPath(&fullPathImages[loopCounter]) != 0) {
       PrintError("Could not make Tempfile");
       goto mainError;
     }
-
+    
     // Populate currentFullPath.name with output file name
     GetFullPath(&fullPathImages[loopCounter], currentFullPath.name);
-
+    
     // Open up output file for writing...data will be written in TIFF format
     if ((tiffFile = TIFFOpen(currentFullPath.name, "w")) == 0) {
       PrintError("Could not open %s for writing", currentFullPath.name);
       goto mainError;
     }
-
+    
     // Projection format for final panorama
     panoProjection = prefs->pano.format;
-
+    
     // Copy output pano name to panoName
     memcpy(&panoName,  &prefs->pano.name, sizeof(fullPath));
     //memcpy(&global5640, &prefs->sBuf, sizeof(stBuf));
@@ -2569,24 +2572,24 @@ int CreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles, fullPath
     tempString = panoName.name;
     --tempString; /* nextWord does ++ before testing anything, this guarantess proper execution */
     nextWord(output_file_format, &tempString);
-        
-	 //New for PTMender...Use "cropped" TIFFs as intermediate file format when creating
-	 //most flattened output images (e.g. PNG, JPG), as well as for layered
-	 //PSD formats.  By default, PTMender works similarly to PTStitcher for 
-	 //TIFF_m and TIFF_mask formats, using "full size" TIFFs as intermediate 
-	 //(and output) format, unless the user explicitly requests cropped
-	 //output by inlcluding "r:CROP" as part of the "p" line (e.g. n"TIFF_m r:CROP")
-	 //This behavior is retained to maintain compatibility with PTStitcher, although
-	 //it is clearly less efficient than producting cropped TIFFs as output.
-	 //
-	 //Using cropped TIFF as the intermediate format significantly speeds up 
-	 //processing, with larger panos showing more dramatic increases in speed.  
-	 //It should also mean that the creation of the "flattened" formats will 
-	 //be significantly more memory-friendly, as the masking steps and PSD 
-	 //assembly steps won't need to load images the size of the output file 
-	 //into memory at once.  Unless the PTMender is fed extremely large input 
-	 //images, all memory constraints should now be a thing of the past (MRDL - May 2006).
-   
+    
+    //New for PTMender...Use "cropped" TIFFs as intermediate file format when creating
+    //most flattened output images (e.g. PNG, JPG), as well as for layered
+    //PSD formats.  By default, PTMender works similarly to PTStitcher for 
+    //TIFF_m and TIFF_mask formats, using "full size" TIFFs as intermediate 
+    //(and output) format, unless the user explicitly requests cropped
+    //output by inlcluding "r:CROP" as part of the "p" line (e.g. n"TIFF_m r:CROP")
+    //This behavior is retained to maintain compatibility with PTStitcher, although
+    //it is clearly less efficient than producting cropped TIFFs as output.
+    //
+    //Using cropped TIFF as the intermediate format significantly speeds up 
+    //processing, with larger panos showing more dramatic increases in speed.  
+    //It should also mean that the creation of the "flattened" formats will 
+    //be significantly more memory-friendly, as the masking steps and PSD 
+    //assembly steps won't need to load images the size of the output file 
+    //into memory at once.  Unless the PTMender is fed extremely large input 
+    //images, all memory constraints should now be a thing of the past (MRDL - May 2006).
+    
     if ( (strstr(output_file_format, "TIFF_") && strstr(panoName.name, "r:CROP")) || 
          strcmp(output_file_format, "PSD_nomask") == 0 ||
          strcmp(output_file_format, "PSD_mask")   == 0 ||
