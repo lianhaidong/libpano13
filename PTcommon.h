@@ -31,7 +31,11 @@
 
 #define __PTcommon_h__
 
+#include <tiffio.h>
+
+#include "panorama.h"
 #include "pt_stdint.h"
+
 
 typedef struct {
   uint16_t samplesPerPixel;
@@ -63,5 +67,10 @@ extern int quietFlag;
 int 	StringtoFullPath	(fullPath *path, char *filename);
 int CreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles, fullPath *panoFileName, fullPath *scriptFileName);
 
+
+void getCropInformationFromTiff(TIFF *tif, CropInfo *c);
+
+int TiffGetImageParameters(TIFF *tiffFile, pt_tiff_parms *tiffData);
+int TiffSetImageParameters(TIFF *tiffFile, pt_tiff_parms *tiffData);
 
 #endif

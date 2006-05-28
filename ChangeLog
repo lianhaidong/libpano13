@@ -1,10 +1,8 @@
 2006-05-27  dmg  <dmgerman@uvic.ca>
 
-	* PTcommon.c (TiffGetImageParameters): Fixed incorrect error message.
-	Removed tabs from entire file (some of them completely messed the
-	format), reindented entire file
-
-	* tiff.c: Changed TIFFTAG_ROWSPERSTRIP to 1.
+	* PTcommon.h (TiffSetImageParameters,TiffGetImageParameters):
+	Exported  these functions to be able to use them in
+	PTuncrop. Added #include <tiffio.h>
 
 2006-05-24  Max Lyons <maxlyons@tawbaware.com>
 
