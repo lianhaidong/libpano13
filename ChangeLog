@@ -2,7 +2,9 @@
 
 	* PTcommon.c (CreatePanorama): Removed some ugly formatting I
 	introduced in a recent commit
-
+	(CreatePanorama): Fixed bug of the missing column/row introduced
+	in cropped files.
+	
 	* PTcommon.h (TiffSetImageParameters,TiffGetImageParameters):
 	Exported  these functions to be able to use them in
 	PTuncrop. Added #include <tiffio.h>

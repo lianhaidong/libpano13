@@ -2670,8 +2670,8 @@ int CreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles, fullPath
     if (croppedOutput) {
       getROI( &transform, prefs, &ROIRect);
       //Dimensions determine size of TIFF file
-      croppedWidth = (ROIRect.right - ROIRect.left);// + 1;
-      croppedHeight = (ROIRect.bottom - ROIRect.top);// + 1;
+      croppedWidth = (ROIRect.right - ROIRect.left) + 1;
+      croppedHeight = (ROIRect.bottom - ROIRect.top)+ 1;
 
       TIFFSetField(tiffFile, TIFFTAG_IMAGEWIDTH, croppedWidth);
       TIFFSetField(tiffFile, TIFFTAG_IMAGELENGTH, croppedHeight);
@@ -2712,19 +2712,17 @@ int CreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles, fullPath
     //Packbits compression was used by original PTStitcher and is retained
     //as the default...the option to use the more efficient LZW compression
     //is also provided
-    if (strstr(prefs->pano.name, "c:LZW") != NULL)
-		{
-		  TIFFSetField(tiffFile, TIFFTAG_COMPRESSION, (uint16_t)COMPRESSION_LZW);
-		  TIFFSetField(tiffFile, TIFFTAG_PREDICTOR, 2);   //using predictor usually increases LZW compression ratio for RGB data
-		} else if (strstr(prefs->pano.name, "c:NONE") != NULL) {
+    if (strstr(prefs->pano.name, "c:LZW") != NULL) {
+      TIFFSetField(tiffFile, TIFFTAG_COMPRESSION, (uint16_t)COMPRESSION_LZW);
+      TIFFSetField(tiffFile, TIFFTAG_PREDICTOR, 2);   //using predictor usually increases LZW compression ratio for RGB data
+    } else if (strstr(prefs->pano.name, "c:NONE") != NULL) {
       TIFFSetField(tiffFile, TIFFTAG_COMPRESSION, (uint16_t)COMPRESSION_NONE);
     } else if (strstr(prefs->pano.name, "c:DEFLATE") != NULL) {
       TIFFSetField(tiffFile, TIFFTAG_COMPRESSION, COMPRESSION_DEFLATE);
     }
-    else // Default is PACKBITS
-		{
-		  TIFFSetField(tiffFile, TIFFTAG_COMPRESSION, COMPRESSION_PACKBITS);
-		}
+    else { // Default is PACKBITS
+      TIFFSetField(tiffFile, TIFFTAG_COMPRESSION, COMPRESSION_PACKBITS);
+    }
 
 
     //"1" indicates that The 0th row represents the visual top of the image, 
@@ -2794,7 +2792,7 @@ int CreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles, fullPath
     //speeds up processing
     if (croppedOutput) {
       resultPanorama.selection.left     = ROIRect.left;
-      resultPanorama.selection.right    = ROIRect.right;    
+      resultPanorama.selection.right    = ROIRect.right +1;  // the right edge is actually the pixel NOT in the pano
       resultPanorama.selection.top      = ROIRect.top;      
     } else {
       resultPanorama.selection.left     = 0;
@@ -2802,31 +2800,25 @@ int CreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles, fullPath
       resultPanorama.selection.top      = 0;      
     }
 
-    //if (loopCounter == 0) {
-	 //Set up metadata about final panorama...need to do this on each pass
-	 //because if we are using cropped output, then the output panorama size
-	 //might be different for each input image
-	 resultPanorama.bitsPerPixel = image1.bitsPerPixel ;
-	 resultPanorama.bytesPerLine = TIFFScanlineSize(tiffFile);
-
-	 //The output image is generated a few lines at a time to make efficient use
-	 //of limited memory...compute a reasonable number of lines to process (must
-	 //be at least 1, but no more than output height)
-	 lines = 500000 / resultPanorama.bytesPerLine;
- 
-	 if (lines == 0)
-		lines = 1;
-
-	 //Don't process more lines than are available
-	 if (lines > (croppedOutput ? croppedHeight : resultPanorama.height) )
-		lines = (croppedOutput ? croppedHeight : resultPanorama.height);
-
-	 if ((resultPanorama.data  = (unsigned char**)mymalloc(lines * resultPanorama.bytesPerLine ) ) == NULL) {
-		PrintError("Not enough memory for output panorama buffer");
-		exit(0);
-	 }
-    //} 
-
+    resultPanorama.bitsPerPixel = image1.bitsPerPixel ;
+    resultPanorama.bytesPerLine = TIFFScanlineSize(tiffFile);
+    
+    //The output image is generated a few lines at a time to make efficient use
+    //of limited memory...compute a reasonable number of lines to process (must
+    //be at least 1, but no more than output height)
+    lines = 500000 / resultPanorama.bytesPerLine;
+    
+    if (lines == 0)
+      lines = 1;
+    
+    //Don't process more lines than are available
+    if (lines > (croppedOutput ? croppedHeight : resultPanorama.height) )
+      lines = (croppedOutput ? croppedHeight : resultPanorama.height);
+    
+    if ((resultPanorama.data  = (unsigned char**)mymalloc(lines * resultPanorama.bytesPerLine ) ) == NULL) {
+      PrintError("Not enough memory for output panorama buffer");
+      exit(0);
+    }
 	 //NB resultPanorama.selection.bottom is actually one pixel beyond last row with data.
     resultPanorama.selection.bottom   = resultPanorama.selection.top + lines;
     
@@ -2866,7 +2858,7 @@ int CreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles, fullPath
     //output image (or, in the case of a cropped file, the bottom of the 
     //output ROI).
     outputScanlineNumber = 0;
-    while (resultPanorama.selection.top < (croppedOutput ? ROIRect.bottom : resultPanorama.height) ) {
+    while (resultPanorama.selection.top < (croppedOutput ? ROIRect.bottom +1 : resultPanorama.height) ) {
   
       // Call the main pixel remapping routine...all the interpolation happens here
       MakePano(&transform, prefs);
@@ -2891,12 +2883,12 @@ int CreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles, fullPath
   
       if (ptQuietFlag == 0) {
 
-		  //Update progress bar
-		  if (croppedOutput)
-			 sprintf(tmpStr, "%d", (int)( (resultPanorama.selection.bottom-ROIRect.top)*100  / croppedHeight));
-		  else
-			 sprintf(tmpStr, "%d", (int)(resultPanorama.selection.bottom*100  / resultPanorama.height));
-
+	//Update progress bar
+	if (croppedOutput)
+	  sprintf(tmpStr, "%d", (int)( (resultPanorama.selection.bottom-ROIRect.top)*100  / croppedHeight));
+	else
+	  sprintf(tmpStr, "%d", (int)(resultPanorama.selection.bottom*100  / resultPanorama.height));
+	
         if (Progress(_setProgress, tmpStr) == 0) {
           // Cancelled by the user
           TIFFClose(tiffFile);
@@ -2911,8 +2903,8 @@ int CreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles, fullPath
       resultPanorama.selection.bottom = resultPanorama.selection.top + lines;
    
       //Be careful at boundary...end of image
-      if ( resultPanorama.selection.bottom > (croppedOutput ? ROIRect.bottom : resultPanorama.height) )
-        resultPanorama.selection.bottom = (croppedOutput ? ROIRect.bottom : resultPanorama.height);
+      if ( resultPanorama.selection.bottom > (croppedOutput ? ROIRect.bottom +1: resultPanorama.height) )
+        resultPanorama.selection.bottom = (croppedOutput ? ROIRect.bottom +1: resultPanorama.height);
     }
     
     TIFFClose(tiffFile);
