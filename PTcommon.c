@@ -40,6 +40,7 @@
 #include "panorama.h"
 
 #include "tiffio.h"
+#include "pttiff.h"
 
 #include "PTcommon.h"
 

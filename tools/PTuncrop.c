@@ -41,6 +41,7 @@
 #include "panorama.h"
 #include "filter.h"
 #include "PTcommon.h"
+#include "pttiff.h"
 
 int main(int argc,char *argv[])
 {

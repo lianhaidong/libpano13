@@ -186,3 +186,9 @@ EXPORTS
 			FlattenTIFF @179
 			CreatePSD @180
 			CreatePanorama @181
+			ptQuietFlag @182
+			ReplaceExt @183
+			ColourBrightness @184
+			TiffSetImageParameters @185
+			TiffGetImageParameters @186
+			getCropInformationFromTiff @187 

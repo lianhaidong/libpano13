@@ -17,7 +17,7 @@ EXPORTS
 			DispPrg	= DispPrg@16		@8
 			SetCPrefs = SetCPrefs@16		@9
 			SetWindowOwner	@10
-			SetLumOpt = SetLumOpt@16		@11	
+			SetLumOpt = SetLumOpt@16		@11
 			DLLInit = DLLInit@12			@12
 			SetRadOpt = SetRadOpt@16		@13
 			SetHorOpt = SetHorOpt@16		@15
@@ -34,7 +34,7 @@ EXPORTS
 			InfoPrg	= InfoPrg@16		@26
 			SetCutOpt = SetCutOpt@16		@27
 			SetPanOpt = SetPanOpt@16		@28
-			SetFrPrefs = SetFrPrefs@16	@29	
+			SetFrPrefs = SetFrPrefs@16	@29
 			writePSD		@30
 			addLayerToFile	@31
 			writePSDwithLayer	@32
@@ -133,11 +133,21 @@ EXPORTS
 			Java_pteditor_CExtract 	= Java_pteditor_CExtract@56 @125
 			Java_pteditor_CInsert = Java_pteditor_CInsert@48	@126
 			Progress	@127
+			TIFFOpen	@128
+			TIFFClose	@129
+			TIFFWriteDirectory	@130
+			TIFFWriteScanline	@131
+			TIFFSetField		@132
+			TIFFScanlineSize	@133
 			readAdjustLine		@134
 			MakePano		@135
 			addAlpha		@136
 			writePNG		@137
 			readtif			@138
+			TIFFReadDirectory	@140
+			TIFFGetField		@141
+			TIFFSetDirectory	@142
+			TIFFReadScanline	@143
 			ARGBtoRGBA	@144
 			RGBAtoARGB	@145
 			readTIFF	@146
@@ -159,7 +169,7 @@ EXPORTS
 			SetDestImage @162
 			HaveEqualSize @163
 			merge @164
-			SaveBufImage @165 
+			SaveBufImage @165
 			MyMakePano @166
 			queryFeatureCount @167
 			queryFeatures @168
@@ -168,5 +178,18 @@ EXPORTS
 			queryFeatureString @171
 			PT_setProgressFcn @172
 			PT_setInfoDlgFcn @173
-                        PT_setErrorFcn @174
-                        execute_stack_new @175
+			PT_setErrorFcn @174
+			execute_stack_new @175
+			InsertFileName @176
+			VerifyTiffsAreCompatible @177
+			AddStitchingMasks @178
+			FlattenTIFF @179
+			CreatePSD @180
+			CreatePanorama @181
+			ptQuietFlag @182
+			ReplaceExt @183
+			ColourBrightness @184
+			TiffSetImageParameters @185
+			TiffGetImageParameters @186
+			getCropInformationFromTiff @187
+			 
