@@ -2458,11 +2458,15 @@ int CheckParams( AlignInfo *g )
 	if( g->pano.width <=0 )		err = 8;
 	if( g->pano.height <=0 )		err = 9;
 	if( g->pano.format == _rectilinear && g->pano.hfov >= 180.0 )	err = 10;
-	if( g->pano.format != _rectilinear && g->pano.format != _panorama &&
-		    g->pano.format != _equirectangular ) err = 11;
 	
+	
+	if( g->pano.format != _rectilinear 		&& g->pano.format != _panorama &&
+		g->pano.format != _equirectangular 	&& g->pano.format != _fisheye_ff &&
+		g->pano.format != _stereographic 	&& g->pano.format != _mercator &&
+		g->pano.format != _trans_mercator 	&& g->pano.format != _sinusoidal) 
+		    	err=11;
+		    
 	// Check Control Points
-	
 	for( i=0; i<g->numPts; i++)
 	{
 // Joost: cp coordinates can be possible, no problem!  
