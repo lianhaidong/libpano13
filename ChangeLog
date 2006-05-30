@@ -1,3 +1,26 @@
+2006-05-29  Max Lyons <maxlyons@tawbaware.com>
+
+	* adjust.c: CheckParams: Allowing optimizer to work with new projections
+
+	* Moving uncrop logic from ptuncrop.c to ptcommon.c.  Creating 
+	uncropTiff function
+	
+	* Adding uncropTiff function declaration to pttiff.h
+	
+	* Making cropped TIFF the intermediate format for all processing, 
+	regardless of output format.  Uncropped TIFFs can be generated, if needed, 
+	from intermediate cropped TIFFs by calling new uncropTiff function.
+
+2006-05-29  Max Lyons <maxlyons@tawbaware.com>
+
+	Changes fix various compilation problems:
+
+	* Moved declaration of three functions from ptcommon.h to new ptttiff.h file.  
+	
+	* Updated includes in PTcommon.c and PTuncrop.c
+	
+	* Updated pano12.def and libpano12.def to  include the same, latest, exports
+
 2006-05-27  dmg  <dmgerman@uvic.ca>
 
 	* PTcommon.c (CreatePanorama): Removed some ugly formatting I
