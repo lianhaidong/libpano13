@@ -174,7 +174,94 @@ int TiffSetImageParameters(TIFF *tiffFile, pt_tiff_parms *tiffData)
   
 }
 
+/**
+ * Reads inputFile and "uncrops" the image by adding black space to pad
+ * image to its full size, saving the result as outputFile.  If an error
+ * is encountered messageBuffer is filled with the message, and a non-zero
+ * value is returned.  If success, zero is returned
+ */
+int uncropTiff(char *inputFile, char *outputFile, char *messageBuffer)
+{
 
+  TIFF *tiffInput, *tiffOutput;
+  pt_tiff_parms tiffInfo;
+  CropInfo cropInfo;
+  char *buffer;
+  int inputRow, outputRow;
+  
+  if ((tiffInput = TIFFOpen(inputFile, "r")) == NULL){
+    sprintf(messageBuffer, "Unable to open input file [%s]\n", inputFile);
+    return 10;
+  }
+
+  getCropInformationFromTiff(tiffInput, &cropInfo);
+
+  if (cropInfo.x_offset == 0 && cropInfo.y_offset == 0 ) {
+  	TIFFClose(tiffInput);
+    sprintf(messageBuffer, "Input file is not a cropped TIFF (but it is a tiff)\n");;
+    return 20;
+  }
+
+  if (!TiffGetImageParameters(tiffInput, &tiffInfo)) {
+    sprintf(messageBuffer, "Unable to get input file information\n");;
+    return 30;
+  }
+
+
+  if ((tiffOutput = TIFFOpen(outputFile, "w") )== NULL) {
+    sprintf(messageBuffer, "Unable to open output file [%s]\n", outputFile);
+    return 40;
+  }
+     
+  
+  tiffInfo.imageWidth = cropInfo.full_width;
+  tiffInfo.imageLength = cropInfo.full_height;
+
+  // Set output parameters 
+  if (!TiffSetImageParameters(tiffOutput, &tiffInfo)) {
+    sprintf(messageBuffer, "Unable to set output parameters\n");;
+    return 50;
+  }
+  
+  // Allocate buffer for line
+  buffer = malloc(cropInfo.full_width * tiffInfo.bitsPerPixel/8);
+  
+  if (buffer == NULL) {
+    sprintf(messageBuffer, "Unable to allocate memory for IO buffer\n");
+    return 60;
+  }
+
+  inputRow = 0;
+  // Read one line at a time and transfer to output file
+  for (outputRow = 0; outputRow < cropInfo.full_height; outputRow ++) {
+
+    //fill empty buffer with empty space (zeros)
+	memset(buffer, 0, cropInfo.full_width * tiffInfo.bitsPerPixel/8);
+	
+	//if inside ROI then read from input file
+	if (outputRow >= cropInfo.y_offset && outputRow < cropInfo.y_offset + cropInfo.cropped_height) {
+	  if (TIFFReadScanline(tiffInput, buffer + cropInfo.x_offset * tiffInfo.bitsPerPixel/8, inputRow, 0) != 1) {
+        sprintf(messageBuffer, "Unable to read scanline %d\n", inputRow);
+        return 70;
+	  }
+	  inputRow++;
+	}
+
+	//write buffer to outputfile
+	if (TIFFWriteScanline(tiffOutput,  buffer, outputRow, 0) != 1) {
+      sprintf(messageBuffer, "Unable to write scanline %d\n", outputRow);
+      return 80;	
+	}
+
+  }
+
+  free(buffer);
+
+  TIFFClose(tiffInput);
+  TIFFClose(tiffOutput);
+
+  return 0;
+}
 
 int VerifyTiffsAreCompatible(fullPath *tiffFiles, int numberImages)
 {
@@ -738,7 +825,8 @@ int CreateMaskMapFiles(fullPath *inputFiles, fullPath *maskFiles, int numberImag
 
 
 
-
+/*
+MRDL: ReplaceAlphaChannels doesn't seem to be used?
 static int  ReplaceAlphaChannels(fullPath *inputImagesNames, fullPath *masksNames, fullPath *outputNames, int numberImages,
 											pt_tiff_parms *imageDefaultParms)
 {
@@ -869,6 +957,7 @@ static int  ReplaceAlphaChannels(fullPath *inputImagesNames, fullPath *masksName
   return 1;
 
 }
+*/
 
 static int  ReplaceAlphaChannel(fullPath *inputImage, fullPath *mask, fullPath *output)
 {
@@ -1101,7 +1190,6 @@ static int CreateAlphaChannels(fullPath *masksNames, fullPath *alphaChannelNames
   TIFF **tiffAlphaChannels;
   unsigned char *imagesBuffer;
   unsigned char *ptrBuffer;
-  unsigned char *ptrPixel;
   int index;
   char tempString[24];
   
@@ -2361,6 +2449,7 @@ void getCropInformation(char *filename, CropInfo *c)
           
 }
  
+
 void setFullSizeImageParameters(pt_tiff_parms *imageParameters, CropInfo *crop_info)
 {
   // Update the imageParameters so that the dimensions reflect the
@@ -2384,14 +2473,13 @@ int CreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles, fullPath
   int lines;
   fullPath *fullPathImages;
   int  loopCounter;
-  char tmpStr48[8];
   char var40[8];
   char *tempString;        // It looks like a char *temp;          
-  char tmpStr28[512];
-  char var16[512];
+  char outputFileName[512];
   VRPanoOptions defaultVRPanoOptions;
 
   char           tmpStr[64];  // string
+  char           messageBuffer[512];
   fullPath       currentFullPath;
   fullPath       panoName;          // according to documention: QTVR, PNG, PICT, TIFF, etc plus options...*/
   fullPath       tempScriptFile ;
@@ -2411,7 +2499,8 @@ int CreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles, fullPath
 
   int ebx;
   
-  int croppedOutput = 1, croppedWidth = 0, croppedHeight = 0;
+  int croppedTIFFOutput, croppedTIFFIntermediate;
+  int croppedWidth = 0, croppedHeight = 0;
   PTRect ROIRect;
   unsigned int outputScanlineNumber = 0;
   
@@ -2574,14 +2663,19 @@ int CreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles, fullPath
     --tempString; /* nextWord does ++ before testing anything, this guarantess proper execution */
     nextWord(output_file_format, &tempString);
     
-    //New for PTMender...Use "cropped" TIFFs as intermediate file format when creating
-    //most flattened output images (e.g. PNG, JPG), as well as for layered
-    //PSD formats.  By default, PTMender works similarly to PTStitcher for 
-    //TIFF_m and TIFF_mask formats, using "full size" TIFFs as intermediate 
-    //(and output) format, unless the user explicitly requests cropped
-    //output by inlcluding "r:CROP" as part of the "p" line (e.g. n"TIFF_m r:CROP")
-    //This behavior is retained to maintain compatibility with PTStitcher, although
-    //it is clearly less efficient than producting cropped TIFFs as output.
+    //New for PTMender...PTMender uses "cropped" TIFFs as its intermediate file 
+    //format for all processing.  In contrast, PTStitcher used full-size TIFF
+    //images for all intermediate processing.  PTMender can still write "uncropped" 
+    //final as needed.
+    //
+    //To the end user, PTMender appears to behave similarly to PTStitcher for 
+    //TIFF_m and TIFF_mask formats, outputting a one "full-size" TIFF for each 
+    //layer.  However, the internal processing is done on cropped TIFFs which
+    //speeds things up considerably.
+    //
+    //An important improvement over PTStitcher is that the user can also explicitly 
+    //requests cropped output for multi layer TIFF output by inlcluding 
+    //"r:CROP" as part of the "p" line (e.g. n"TIFF_m r:CROP")
     //
     //Using cropped TIFF as the intermediate format significantly speeds up 
     //processing, with larger panos showing more dramatic increases in speed.  
@@ -2591,19 +2685,19 @@ int CreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles, fullPath
     //into memory at once.  Unless the PTMender is fed extremely large input 
     //images, all memory constraints should now be a thing of the past (MRDL - May 2006).
     
-    if ( (strstr(output_file_format, "TIFF_") && strstr(panoName.name, "r:CROP")) || 
-         strcmp(output_file_format, "PSD_nomask") == 0 ||
-         strcmp(output_file_format, "PSD_mask")   == 0 ||
-         strcmp(output_file_format, "PSD")        == 0 ||
-         strcmp(output_file_format, "JPEG")       == 0 ||
-         strcmp(output_file_format, "JPG")        == 0 ||
-         strcmp(output_file_format, "TIFF")       == 0 ||
-         strcmp(output_file_format, "TIF")        == 0 ||
-         strcmp(output_file_format, "PNG")        == 0)
-      croppedOutput = 1;
-    else
-      croppedOutput = 0;
-      
+    //croppedTIFFIntermediate determines if all intermediate processing is done
+    //with cropped or full size TIFF.  There probably isn't much of a reason
+    //to ever disable this feature, other than for testing/debugging purposes.
+    croppedTIFFIntermediate = 1;
+    
+    //If the output format is TIFF_m or TIFF_mask, croppedTIFFOutput controls
+    //whether the output files will be cropped or uncropped
+    croppedTIFFOutput       = 0;
+        
+	//only use "cropped" output for TIFF_m or TIFF_mask if the includes r:CROP in p line
+    if ( strstr(output_file_format, "TIFF_")!=NULL && strstr(panoName.name, "r:CROP")!=NULL )
+      croppedTIFFOutput = 1;
+
     transform.interpolator = prefs->interpolator;
     transform.gamma = prefs->gamma;
 
@@ -2668,7 +2762,7 @@ int CreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles, fullPath
 
 
     // Set output width/height for output file 
-    if (croppedOutput) {
+    if (croppedTIFFIntermediate) {
       getROI( &transform, prefs, &ROIRect);
       //Dimensions determine size of TIFF file
       croppedWidth = (ROIRect.right - ROIRect.left) + 1;
@@ -2747,13 +2841,13 @@ int CreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles, fullPath
     //the output files by subsequent blending/processing applications
     
     //PTStitcher code:
-    //TIFFSetField(tiffFile, TIFFTAG_ROWSPERSTRIP, (croppedOutput ? croppedHeight : resultPanorama.height) );
+    //TIFFSetField(tiffFile, TIFFTAG_ROWSPERSTRIP, (croppedTIFFIntermediate ? croppedHeight : resultPanorama.height) );
     
     //New-and-improved PTMender code:
     TIFFSetField(tiffFile, TIFFTAG_ROWSPERSTRIP, 1);
 
-    if (croppedOutput) {
-      //If writing cropped output, these tags write the postion offset (from top left)
+    if (croppedTIFFIntermediate) {
+      //If writing cropped TIFFs, these tags write the postion offset (from top left)
       //into TIFF metadata. 
       
       
@@ -2791,7 +2885,7 @@ int CreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles, fullPath
     //if cropped output is selected, then only the region of interest (ROI) into
     //which this input image will be mapped is processed...this significantly
     //speeds up processing
-    if (croppedOutput) {
+    if (croppedTIFFIntermediate) {
       resultPanorama.selection.left     = ROIRect.left;
       resultPanorama.selection.right    = ROIRect.right +1;  // the right edge is actually the pixel NOT in the pano
       resultPanorama.selection.top      = ROIRect.top;      
@@ -2813,8 +2907,8 @@ int CreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles, fullPath
       lines = 1;
     
     //Don't process more lines than are available
-    if (lines > (croppedOutput ? croppedHeight : resultPanorama.height) )
-      lines = (croppedOutput ? croppedHeight : resultPanorama.height);
+    if (lines > (croppedTIFFIntermediate ? croppedHeight : resultPanorama.height) )
+      lines = (croppedTIFFIntermediate ? croppedHeight : resultPanorama.height);
     
     if ((resultPanorama.data  = (unsigned char**)mymalloc(lines * resultPanorama.bytesPerLine ) ) == NULL) {
       PrintError("Not enough memory for output panorama buffer");
@@ -2824,7 +2918,7 @@ int CreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles, fullPath
     resultPanorama.selection.bottom   = resultPanorama.selection.top + lines;
     
     //    printf("bits per pixel %d\n", resultPanorama.bitsPerPixel);
-    //    printf("cropped %d\n", croppedOutput);
+    //    printf("cropped %d\n", croppedTIFFIntermediate);
 
     if (resultPanorama.bitsPerPixel != image1.bitsPerPixel) {
       PrintError("All source images must have the same number of bits per pixel.");
@@ -2859,7 +2953,7 @@ int CreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles, fullPath
     //output image (or, in the case of a cropped file, the bottom of the 
     //output ROI).
     outputScanlineNumber = 0;
-    while (resultPanorama.selection.top < (croppedOutput ? ROIRect.bottom +1 : resultPanorama.height) ) {
+    while (resultPanorama.selection.top < (croppedTIFFIntermediate ? ROIRect.bottom +1 : resultPanorama.height) ) {
   
       // Call the main pixel remapping routine...all the interpolation happens here
       MakePano(&transform, prefs);
@@ -2885,7 +2979,7 @@ int CreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles, fullPath
       if (ptQuietFlag == 0) {
 
 	//Update progress bar
-	if (croppedOutput)
+	if (croppedTIFFIntermediate)
 	  sprintf(tmpStr, "%d", (int)( (resultPanorama.selection.bottom-ROIRect.top)*100  / croppedHeight));
 	else
 	  sprintf(tmpStr, "%d", (int)(resultPanorama.selection.bottom*100  / resultPanorama.height));
@@ -2904,8 +2998,8 @@ int CreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles, fullPath
       resultPanorama.selection.bottom = resultPanorama.selection.top + lines;
    
       //Be careful at boundary...end of image
-      if ( resultPanorama.selection.bottom > (croppedOutput ? ROIRect.bottom +1: resultPanorama.height) )
-        resultPanorama.selection.bottom = (croppedOutput ? ROIRect.bottom +1: resultPanorama.height);
+      if ( resultPanorama.selection.bottom > (croppedTIFFIntermediate ? ROIRect.bottom +1: resultPanorama.height) )
+        resultPanorama.selection.bottom = (croppedTIFFIntermediate ? ROIRect.bottom +1: resultPanorama.height);
     }
     
     TIFFClose(tiffFile);
@@ -3012,18 +3106,48 @@ int CreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles, fullPath
   // and we are finished processing.
   if ( strcmp(output_file_format, "TIFF_m")==0 || strcmp(output_file_format, "TIFF_mask")==0 ) {
 
+    if (ptQuietFlag == 0)
+      Progress(_initProgress, "Writing Output Images");
+      
     for (loopCounter = 0; loopCounter < counterImageFiles; loopCounter ++ ) {
 
-      strcpy(var16, panoFileName->name);
+      if (ptQuietFlag == 0) {
+        sprintf(tmpStr, "%d", (100 * loopCounter)/counterImageFiles  );
+        if (Progress(_setProgress, tmpStr) == 0) {
+          return (1);
+        }
+      }
+		
+      strcpy(outputFileName, panoFileName->name);
       sprintf(var40, "%04d", loopCounter);
-      strcat(var16, var40);
-      ReplaceExt(var16, ".tif");
+      strcat(outputFileName, var40);
+      ReplaceExt(outputFileName, ".tif");
 
-      // This renames the currently morphed image to the new filename!
-      rename(fullPathImages[loopCounter].name, var16);
+      if ( (croppedTIFFIntermediate!=0 && croppedTIFFOutput!=0) || 
+           (croppedTIFFIntermediate==0 && croppedTIFFOutput==0)) {
+        // if intermediate and output formats are the same, then just rename and quit
+        rename(fullPathImages[loopCounter].name, outputFileName);
+      } else if (croppedTIFFIntermediate!=0 && croppedTIFFOutput==0) {
+        // if cropped intermediate, but we want uncropped output, then uncrop
+        if (uncropTiff(fullPathImages[loopCounter].name, outputFileName, messageBuffer) != 0) {
+			PrintError(messageBuffer);
+			return(1);
+        }
+      } else {
+        // only other option is to use uncropped files as intermediate, and want 
+        // cropped as output.  This is (a) a waste of time and (b) not supported.
+        // Show error, but be nice and rename existing images anyway
+        PrintError("Cropped output files cannot be created from uncropped intermediate files\n\nWriting uncropped output: %s", outputFileName);
+        rename(fullPathImages[loopCounter].name, outputFileName);
+      }
+      
 
     } // end of for loop
     free(fullPathImages);
+    
+    if (ptQuietFlag == 0) 
+    	Progress(_disposeProgress, "");
+    
     return(0);
   }
 

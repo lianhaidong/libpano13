@@ -46,18 +46,15 @@
 int main(int argc,char *argv[])
 {
   char opt;
-  int overwrite =0;
+  int overwrite = 0;
   int filesCount;
-  TIFF *tiffInput;
-  TIFF *tiffOutput;
-  pt_tiff_parms tiffInfo;
-  CropInfo cropInfo;
-  char * inputFile;
-  char *outputFile;
-  FILE *output;
-  char *buffer;
-  int row;
-  int outputRow ;
+  int retVal;
+  char *inputFile, *outputFile;
+  FILE *testFile;
+  
+  //Need enough space for a message to be returned if something goes wrong
+  char messageBuffer[1024];	
+  
   printf(PT_UNCROP_VERSION);
 
   while ((opt = getopt(argc, argv, "ohq")) != -1) {
@@ -87,92 +84,23 @@ int main(int argc,char *argv[])
     exit(0);
   }
 
-
   inputFile = argv[optind];
   outputFile = argv[optind+1];
 
   if (!overwrite) {
-    if ((output = fopen(outputFile, "r"))!= NULL) {
+    if ((testFile = fopen(outputFile, "r"))!= NULL) {
 	fprintf(stderr, "Output file already exists. Use -o to overwrite\n");
-	fclose(output);
+	fclose(testFile);
 	exit(1);
     }
   }
   
-  if ((tiffInput = TIFFOpen(inputFile, "r")) == NULL){
-    fprintf(stderr, "Unable to open input file [%s]\n", inputFile);
-    exit(1);
-  }
+  retVal = uncropTiff(inputFile, outputFile, messageBuffer);
+	
+  if (retVal != 0)
+    fprintf(stderr, messageBuffer);
 
-  getCropInformationFromTiff(tiffInput, &cropInfo);
-
-  if (cropInfo.x_offset == 0 && 
-      cropInfo.y_offset == 0 ) {
-    fprintf(stderr, "Input file is not a cropped TIFF (but it is a tiff)\n");;
-    exit(1);
-  }
-    
-  printf("After open\n");
-
-
-  if (!TiffGetImageParameters(tiffInput, &tiffInfo)) {
-    fprintf(stderr, "Unable to get input file information\n");;
-    exit(1);
-  }
-
-  printf("After get\n");
-
-  if ((tiffOutput = TIFFOpen(outputFile, "w") )== NULL) {
-    fprintf(stderr, "Unable to open output file [%s]\n", outputFile);
-    exit(1);
-  }
-     
-  
-  tiffInfo.imageWidth = cropInfo.full_width;
-  tiffInfo.imageLength = cropInfo.full_height;
-
-  // Set output parameters 
-  if (!TiffSetImageParameters(tiffOutput, &tiffInfo)) {
-    fprintf(stderr, "Unable to set output parameters\n");;
-    exit(1);
-  }
-  
-  // Allocate buffer for line
-  buffer = malloc(cropInfo.full_width * tiffInfo.bitsPerPixel/8);
-  
-  if (buffer == NULL) {
-    fprintf(stderr, "Unable to allocate memory for IO buffer\n");
-    exit(1);
-  }
-
-  // Read one line at a time
-
-
-  memset(buffer, 0, cropInfo.full_width * tiffInfo.bitsPerPixel/8);
-  for (outputRow = 0; outputRow < cropInfo.y_offset; outputRow ++) {
-    TIFFWriteScanline(tiffOutput,  buffer, outputRow, 0);
-  }
-
-  for (row = 0; row < cropInfo.cropped_height; row ++) {
-    memset(buffer, 0, cropInfo.full_width * tiffInfo.bitsPerPixel/8);
-    TIFFReadScanline(tiffInput, buffer + cropInfo.x_offset * tiffInfo.bitsPerPixel/8, row, 0);
-    TIFFWriteScanline(tiffOutput,  buffer, outputRow, 0);
-    outputRow++;
-  }
-
-  memset(buffer, 0, cropInfo.full_width * tiffInfo.bitsPerPixel/8);
-
-  for (outputRow = cropInfo.cropped_height + cropInfo.y_offset; outputRow < cropInfo.full_height; outputRow ++) {
-    TIFFWriteScanline(tiffOutput,  buffer, outputRow, 0);
-  }
-
-  free(buffer);
-
-  TIFFClose(tiffInput);
-  TIFFClose(tiffOutput);
-  
-
-  return 0;
+  exit(retVal);	
   
 }
 

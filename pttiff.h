@@ -36,4 +36,6 @@ void getCropInformationFromTiff(TIFF *tif, CropInfo *c);
 int TiffGetImageParameters(TIFF *tiffFile, pt_tiff_parms *tiffData);
 int TiffSetImageParameters(TIFF *tiffFile, pt_tiff_parms *tiffData);
 
+int uncropTiff(char *inputFile, char *outputFile, char *messageBuffer);
+
 #endif
