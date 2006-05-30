@@ -39,6 +39,28 @@ Copyright MJ Olesen, Queen's University at Kingston, 1995-97.
 See the file fftn.c for details.
 
 
+BUILD INSTRUCTIONS
+
+You need the gcc compiler, libgcj and various imaging libraries: libtiff,
+libjpeg and libpng.  Headers for these libraries are required, so you probably
+have to install libXXX-dev or libXXX-devel packages too.
+
+(Sun java is NOT required if you have libgcj)
+
+Compilation is straightforward:
+
+./configure
+make
+make install
+
+If you have downloaded from CVS, you will need to bootstrap the build system
+first:
+
+./bootstrap
+
+
+DEPRECATED BUILD INSTRUCTIONS
+
 Building the Library:
 
 The Java Development Kit  is required.
