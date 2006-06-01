@@ -2354,9 +2354,9 @@ void getROI( TrformStr *TrPtr, aPrefs *aP, PTRect *ROIRect )
   double             sh2 = (double) TrPtr->src->height  / 2.0 - 0.5;   //half source image height
 
   //Set initial values for ROI to be adjusted during this function
-  ROIRect->left         = TrPtr->dest->width;
+  ROIRect->left         = TrPtr->dest->width-1;
   ROIRect->right        = 0;
-  ROIRect->top          = TrPtr->dest->height; 
+  ROIRect->top          = TrPtr->dest->height-1; 
   ROIRect->bottom       = 0;
 
   //The "forward" transform (although not used here) allows us to map pixel
@@ -2386,19 +2386,24 @@ void getROI( TrformStr *TrPtr, aPrefs *aP, PTRect *ROIRect )
         
 		//Convert destination cartesian coordinate back to destination "screen" coordinates (i.e. origin at top left of image)
 		Dx += w2;
-		Dy =  h2 + Dy ;
+		Dy += h2;
          
-		if( (Dx < TrPtr->dest->width) && (Dy < TrPtr->dest->height) && (Dx >= 0) && (Dy >= 0) ) {
-		  //Update ROI if pixel is valid (i.e. inside the final panorama region)
-		  if ((int)Dx < ROIRect->left) ROIRect->left = (int)Dx;
-		  if ((int)Dx > ROIRect->right) ROIRect->right = (int)Dx;
-		  if ((int)Dy < ROIRect->top) ROIRect->top = (int)Dy;
-		  if ((int)Dy > ROIRect->bottom) ROIRect->bottom = (int)Dy;
-		}
+		//Expand ROI if necessary
+		if ((int)Dx < ROIRect->left) ROIRect->left = (int)Dx;
+		if ((int)Dx > ROIRect->right) ROIRect->right = (int)Dx;
+		if ((int)Dy < ROIRect->top) ROIRect->top = (int)Dy;
+		if ((int)Dy > ROIRect->bottom) ROIRect->bottom = (int)Dy;
 	 }
   }
 
-  //PrintError("ROI: %d,%d - %d, %d", ROIRect->left, ROIRect->top, ROIRect->right, ROIRect->bottom);
+  //Reduce ROI if it extends beyond boundaries of final panorama region
+  if (ROIRect->left    < 0) ROIRect->left =0;
+  if (ROIRect->top     < 0) ROIRect->top  =0;
+  
+  if (ROIRect->right   > (TrPtr->dest->width-1))  ROIRect->right    = TrPtr->dest->width-1;  
+  if (ROIRect->bottom  > (TrPtr->dest->height-1)) ROIRect->bottom   = TrPtr->dest->height-1;
+
+  //printf("ROI: %d,%d - %d, %d", ROIRect->left, ROIRect->top, ROIRect->right, ROIRect->bottom);
 }
 
 /**
