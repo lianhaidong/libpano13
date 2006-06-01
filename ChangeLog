@@ -1,3 +1,7 @@
+2006-05-31  Max Lyons <maxlyons@tawbaware.com>
+
+	* PTCommon.c: Fixed bug in getROI
+
 2006-05-29  Max Lyons <maxlyons@tawbaware.com>
 
 	* adjust.c: CheckParams: Allowing optimizer to work with new projections
