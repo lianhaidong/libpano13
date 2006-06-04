@@ -3014,12 +3014,14 @@ int CreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles, fullPath
       image1.data = NULL;   
     } 
     
+    // The memory for td and ts was allocated in morpher.c with malloc 
+    // (not myMalloc), so we need to use free (not myFree)
     if (prefs->td != NULL) {
-      myfree((void**)prefs->td);
+      free((void**)prefs->td);
     }
     
     if (prefs->ts != NULL)  {
-      myfree((void**)prefs->ts);
+      free((void**)prefs->ts);
     }
     free(prefs);
     
@@ -3028,7 +3030,7 @@ int CreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles, fullPath
       resultPanorama.data = NULL;
     }
     
-  }
+  }	//End of main image processing loop
 
   if (!ptQuietFlag) 
     Progress(_disposeProgress, "");
