@@ -1,3 +1,15 @@
+2006-06-04  Max Lyons <maxlyons@tawbaware.com>
+
+	* PTMender.c: Changed behavior for input file name parsing.  If the script 
+	is specified on the command line with a path (e.g. c:\some\path\myscript.txt), 
+	this path was prepended to all of the image names in the script, regardless 
+	of whether those image names were also specified with a full qualified path.  
+	This change adds a check so that the script path is only prepended to the 
+	image names if the image names don't already contain path information.
+
+	* PTCommon.c: Fixing bug with morph-to-fit.  Memory allocated with malloc 
+	was being incorrectly freed with myfree leading to random crashes.
+	
 2006-05-31  Max Lyons <maxlyons@tawbaware.com>
 
 	* PTCommon.c: Fixed bug in getROI
