@@ -35,6 +35,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/types.h>
 #include <dirent.h>
 #include <unistd.h>
@@ -56,6 +57,8 @@ int ptDebug = 0;
 #define PT_MENDER_VERSION  "PTmender Version " VERSION ", originally written by Helmut Dersch, rewritten by Daniel German\n"
 
 int sorting_function(const void *, const void *);
+int hasPathInfo(char *aName);
+
 
 int main(int argc,char *argv[])
 {
@@ -257,7 +260,17 @@ int main(int argc,char *argv[])
       	
       	//Iterate over input images and populate input filename array
       	for (ebx = 0; ebx < counter; ebx ++) {
-      	  strcpy(ptrImageFileNames[ebx].name, scriptFileName.name); //what does this do?!
+      	  //If the image filenames don't appear to have any path information, then 
+      	  //prepend the path to the script (if any) that was specified on the 
+      	  //command line (Note: this was the only behavior in the original 
+      	  //PTStitcher.  It has been moved into this conditional block because
+      	  //the script path could get prepended to an already fully qualified
+      	  //filename...not very useful.
+      	  if ( (hasPathInfo(alignInfo.im[ebx].name)) == 0 )
+            strcpy(ptrImageFileNames[ebx].name, scriptFileName.name);
+          else
+            strcpy(ptrImageFileNames[ebx].name, "");
+            
       	  InsertFileName(&ptrImageFileNames[ebx], alignInfo.im[ebx].name);
       	} // for (ebx = 0; ebx < counter; ebx ++)
       }//  if (counter != 0) 
@@ -320,8 +333,15 @@ int main(int argc,char *argv[])
       	  exit(0);
       	}
 	
-    	strcpy(ptrImageFileNames[inputFileCounter2].name, scriptFileName.name); //what does this do?
-    	InsertFileName(&ptrImageFileNames[inputFileCounter2], preferences->im.name);  //why are we doing this again?
+	
+		//Only prepend the path to the script to the filenames if the filenames
+		//don't already have path information
+        if ( (hasPathInfo(preferences->im.name)) == 0 )
+          strcpy(ptrImageFileNames[inputFileCounter2].name, scriptFileName.name);
+        else
+          strcpy(ptrImageFileNames[inputFileCounter2].name, "");
+    	
+    	InsertFileName(&ptrImageFileNames[inputFileCounter2], preferences->im.name);
 	
     	if (preferences->td != NULL)
     	  free(preferences->td);
@@ -375,3 +395,7 @@ int sorting_function(const void *p1, const void *p2)
 }
 
 
+int hasPathInfo(char *aName)
+{
+	return ((strchr(aName, PATH_SEP) == NULL) ? 0 : 1);
+}
