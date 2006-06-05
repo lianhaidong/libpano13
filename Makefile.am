@@ -93,13 +93,13 @@ pkginclude_HEADERS = $(STD_HDR) $(TOOL_HDR)
 
 noinst_HEADERS = $(INTERNAL_HDR) $(SYS_HDR) $(MAC_HDR)
 
-SUBDIRS=m4 . tools doc build
+SUBDIRS=m4 . tools doc build tests
 
 distdir=lib$(PACKAGE)-$(VERSION)
 
 dist-hook:
-	rm -rf `find $(distdir) $(distdir)/tools -name CVS`
-	rm -rf `find $(distdir) $(distdir)/tools -name .cvsignore`
+	rm -rf `find $(distdir) -name CVS`
+	rm -rf `find $(distdir) -name .cvsignore`
 
 EXTRA_DIST =  gpl.txt README.linux README.windows README.mac \
 	      makefile.linux makefile.mac makefile.osx makefile.win32 \
