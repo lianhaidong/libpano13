@@ -52,6 +52,18 @@ void setFullSizeImageParameters(pt_tiff_parms *imageParameters, CropInfo *crop_i
 
 int ptQuietFlag = 0;
 
+void InsertFileName( fullPath *fp, char *fname ){
+#ifdef __Mac__
+	strcpy( (char*)(fp->name), fname );
+	c2pstr( (char*)(fp->name));
+#else
+	char *c = strrchr((char*)(fp->name), PATH_SEP);
+	if(c != NULL) c++;
+	else c = fp->name;
+	strcpy( c, fname );
+#endif
+}	
+
 void tiffErrorHandler(const char* module, const char* fmt, va_list ap)
 {
   PrintError("Error in TIFF file (%s) ", module);

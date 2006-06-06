@@ -1,3 +1,9 @@
+2006-06-04  Pablo d'Angelo <pablo.dangelo@web.de>
+
+	* ptpicker.c, PTcommon.c: Moved InsertFileName from ptpicker.c to
+	PTcommon.c. This broke compilation of PTmender, when java support
+	was disabled.
+
 2006-06-04  Max Lyons <maxlyons@tawbaware.com>
 
 	* PTMender.c: Changed behavior for input file name parsing.  If the script 

@@ -11,7 +11,6 @@ void ReadMLine( char *script, char *m );
 int loadProject( fullPath *fspec );
 int writeProject( AlignInfo *g, fullPath *pFile);
 int jpathTofullPath( const char* jpath, fullPath *fp );
-void InsertFileName( fullPath *fp, char *fname );
 void BackUp();
 void Restore();
 void SetAlignInfoDefaults( AlignInfo *a);
@@ -974,18 +973,6 @@ int jpathTofullPath( const char* jpath, fullPath *fp ){
 	free( cpath );
 	return result;
 }
-
-void InsertFileName( fullPath *fp, char *fname ){
-#ifdef __Mac__
-	strcpy( (char*)(fp->name), fname );
-	c2pstr( (char*)(fp->name));
-#else
-	char *c = strrchr((char*)(fp->name), PATH_SEP);
-	if(c != NULL) c++;
-	else c = fp->name;
-	strcpy( c, fname );
-#endif
-}	
 
 void BackUp()
 {
