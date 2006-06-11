@@ -175,7 +175,9 @@ int readplanarTIFF(Image *im, TIFF* tif){
 
 }
 
-int writeTIFF(Image *im, fullPath *sfile){
+
+int writeCroppedTIFF(Image *im, fullPath *sfile, CropInfo *crop_info)
+{
 	char string[512];
 	TIFF *tif;
 	UCHAR* buf;
@@ -251,7 +253,10 @@ int writeTIFF(Image *im, fullPath *sfile){
 	TIFFSetField(tif, TIFFTAG_COMPRESSION, COMPRESSION_PACKBITS );	
 	TIFFSetField(tif, TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT );
 	TIFFSetField(tif, TIFFTAG_ROWSPERSTRIP, 1 );
-	
+
+	if (crop_info!=NULL)
+		setCropInformationInTiff(tif, crop_info);
+
 	bufsize = TIFFScanlineSize(tif);
 	if(bufsize < im->bytesPerLine) bufsize = im->bytesPerLine;
  	buf = (UCHAR*)malloc(bufsize);
@@ -271,6 +276,9 @@ int writeTIFF(Image *im, fullPath *sfile){
 
 }	
 
+int writeTIFF(Image *im, fullPath *sfile){
+	return writeCroppedTIFF(im, sfile, NULL);
+}
 
 
 

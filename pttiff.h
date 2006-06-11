@@ -32,6 +32,7 @@
 #include <tiffio.h>
 
 void getCropInformationFromTiff(TIFF *tif, CropInfo *c);
+void setCropInformationInTiff(TIFF *tiffFile, CropInfo *crop_info);
 
 int TiffGetImageParameters(TIFF *tiffFile, pt_tiff_parms *tiffData);
 int TiffSetImageParameters(TIFF *tiffFile, pt_tiff_parms *tiffData);

@@ -280,7 +280,11 @@ int VerifyTiffsAreCompatible(fullPath *tiffFiles, int numberImages)
   int currentImage;
   pt_tiff_parms firstFileParms;
   pt_tiff_parms otherFileParms;
-  char *errorMsg;
+  
+  CropInfo first_crop_info;
+  CropInfo other_crop_info;
+  
+  char errorMsg[512];
 
   //MRDL: Reluctantly commented these out...the calls to TIFFSetWarningHandler and 
   //TIFFSetErrorHandler cause to GCC to abort, with a series of errors like this:
@@ -297,7 +301,8 @@ int VerifyTiffsAreCompatible(fullPath *tiffFiles, int numberImages)
     PrintError("Unable to read tiff file");
     return 0;
   }
-
+  getCropInformation(tiffFiles[0].name, &first_crop_info);  
+  
   for (currentImage = 1;  currentImage < numberImages ; currentImage ++ ) {
     
     if (!TiffGetImageParametersFromPathName(&tiffFiles[currentImage], &otherFileParms)) {
@@ -305,19 +310,28 @@ int VerifyTiffsAreCompatible(fullPath *tiffFiles, int numberImages)
       return 0;
     }
     
-    errorMsg = NULL;
+    getCropInformation(tiffFiles[currentImage].name, &other_crop_info);
+    
+    sprintf(errorMsg, "");
+    /*
     if (firstFileParms.imageWidth != otherFileParms.imageWidth) {
       errorMsg = "Image 0 and %d do have the same width\n";
     } else if (firstFileParms.imageLength != otherFileParms.imageLength) {
       errorMsg = "Image 0 and %d do have the same length\n";
+    } else */
+
+    if (first_crop_info.full_width != other_crop_info.full_width) {
+      sprintf(errorMsg, "Image 0 and %d do have the same width: %d vs %d\n", currentImage, (int)first_crop_info.full_width, (int)other_crop_info.full_width);
+    } else if (first_crop_info.full_height != other_crop_info.full_height) {
+      sprintf(errorMsg, "Image 0 and %d do have the same length: %d vs %d\n", currentImage, (int)first_crop_info.full_height, (int)other_crop_info.full_height);
     } else if (firstFileParms.bitsPerPixel != otherFileParms.bitsPerPixel) {
-      errorMsg = "Image 0 and %d do have the same colour depth\n";
-    } else if (firstFileParms.bytesPerLine  != otherFileParms.bytesPerLine) {
-      errorMsg = "Image 0 and %d do have the same scan line size\n";
+      sprintf(errorMsg, "Image 0 and %d do have the same colour depth\n", currentImage);
+    } else if (firstFileParms.samplesPerPixel  != otherFileParms.samplesPerPixel) {
+      sprintf(errorMsg, "Image 0 and %d do have the same number of channels\n", currentImage);
     } else {
       ;
     }
-    if (errorMsg != NULL) {
+    if (strlen(errorMsg) > 0) {
       PrintError(errorMsg, currentImage);
       return 0;
     }
@@ -2467,6 +2481,42 @@ void getCropInformation(char *filename, CropInfo *c)
 }
  
 
+void setCropInformationInTiff(TIFF *tiffFile, CropInfo *crop_info) {
+    
+    float pixels_per_resolution_unit = 150.0;
+    
+    if (crop_info==NULL) return;
+    
+    //The X offset in ResolutionUnits of the left side of the image, with 
+    //respect to the left side of the page.
+    TIFFSetField(tiffFile, TIFFTAG_XPOSITION, (float)crop_info->x_offset / pixels_per_resolution_unit );
+    
+    //The Y offset in ResolutionUnits of the top of the image, with 
+    //respect to the top of the page.
+    TIFFSetField(tiffFile, TIFFTAG_YPOSITION, (float)crop_info->y_offset / pixels_per_resolution_unit );
+    
+    //The number of pixels per ResolutionUnit in the ImageWidth
+    TIFFSetField(tiffFile, TIFFTAG_XRESOLUTION, (float)pixels_per_resolution_unit);
+    
+    //The number of pixels per ResolutionUnit in the ImageLength (height)
+    TIFFSetField(tiffFile, TIFFTAG_YRESOLUTION, (float)pixels_per_resolution_unit);
+    
+    //The size of the picture represented by an image.  Note: 2 = Inches.  This
+    //is required so that the computation of pixel offset using XPOSITION/YPOSITION and
+    //XRESOLUTION/YRESOLUTION is valid (See tag description for XPOSITION/YPOSITION).
+    TIFFSetField(tiffFile, TIFFTAG_RESOLUTIONUNIT, (uint16_t)2);      
+    
+    // TIFFTAG_PIXAR_IMAGEFULLWIDTH and TIFFTAG_PIXAR_IMAGEFULLLENGTH
+    // are set when an image has been cropped out of a larger image.  
+    // They reflect the size of the original uncropped image.
+    // The TIFFTAG_XPOSITION and TIFFTAG_YPOSITION can be used
+    // to determine the position of the smaller image in the larger one.
+    TIFFSetField(tiffFile, TIFFTAG_PIXAR_IMAGEFULLWIDTH, crop_info->full_width);
+    TIFFSetField(tiffFile, TIFFTAG_PIXAR_IMAGEFULLLENGTH, crop_info->full_height);
+
+}
+
+
 void setFullSizeImageParameters(pt_tiff_parms *imageParameters, CropInfo *crop_info)
 {
   // Update the imageParameters so that the dimensions reflect the
@@ -2516,8 +2566,9 @@ int CreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles, fullPath
 
   int ebx;
   
-  int croppedTIFFOutput, croppedTIFFIntermediate;
+  int croppedTIFFOutput = 1, croppedTIFFIntermediate = 1;
   int croppedWidth = 0, croppedHeight = 0;
+  CropInfo crop_info;
   PTRect ROIRect;
   unsigned int outputScanlineNumber = 0;
   
@@ -2864,36 +2915,11 @@ int CreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles, fullPath
     TIFFSetField(tiffFile, TIFFTAG_ROWSPERSTRIP, 1);
 
     if (croppedTIFFIntermediate) {
-      //If writing cropped TIFFs, these tags write the postion offset (from top left)
-      //into TIFF metadata. 
-      
-      
-      //The X offset in ResolutionUnits of the left side of the image, with 
-      //respect to the left side of the page.
-      TIFFSetField(tiffFile, TIFFTAG_XPOSITION, (float)(ROIRect.left) / 150.0 );
-      
-      //The Y offset in ResolutionUnits of the top of the image, with 
-      //respect to the top of the page.
-      TIFFSetField(tiffFile, TIFFTAG_YPOSITION, (float)(ROIRect.top) / 150.0 );
-
-      //The number of pixels per ResolutionUnit in the ImageWidth
-      TIFFSetField(tiffFile, TIFFTAG_XRESOLUTION, (float)150.0);
-      
-      //The number of pixels per ResolutionUnit in the ImageLength (height)
-      TIFFSetField(tiffFile, TIFFTAG_YRESOLUTION, (float)150.0);
-      
-      //The size of the picture represented by an image.  Note: 2 = Inches.  This
-      //is required so that the computation of pixel offset using XPOSITION/YPOSITION and
-      //XRESOLUTION/YRESOLUTION is valid (See tag description for XPOSITION/YPOSITION).
-      TIFFSetField(tiffFile, TIFFTAG_RESOLUTIONUNIT, (uint16_t)2);      
-      
-      // TIFFTAG_PIXAR_IMAGEFULLWIDTH and TIFFTAG_PIXAR_IMAGEFULLLENGTH
-      // are set when an image has been cropped out of a larger image.  
-      // They reflect the size of the original uncropped image.
-      // The TIFFTAG_XPOSITION and TIFFTAG_YPOSITION can be used
-      // to determine the position of the smaller image in the larger one.
-      TIFFSetField(tiffFile, TIFFTAG_PIXAR_IMAGEFULLWIDTH, resultPanorama.width);
-      TIFFSetField(tiffFile, TIFFTAG_PIXAR_IMAGEFULLLENGTH, resultPanorama.height);      
+        crop_info.x_offset = (float)(ROIRect.left);
+        crop_info.y_offset = (float)(ROIRect.top);
+        crop_info.full_width = resultPanorama.width;
+        crop_info.full_height = resultPanorama.height;
+		setCropInformationInTiff(tiffFile, &crop_info);
     }
 
     //The resultPanorama.selection determines which region of the output image

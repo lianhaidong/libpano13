@@ -615,7 +615,8 @@ void 	writePrefs			(char* p, int selector );   			// Preferences, same selector 
 
 int	LoadBufImage		( Image *image, char *fname, int mode);
 int	SaveBufImage		( Image *image, char *fname );
-int	writeTIFF			( Image *im, fullPath* fname);			// On Mac: fname is FSSpec*				
+int writeCroppedTIFF    ( Image *im, fullPath *sfile, CropInfo *crop_info);
+int	writeTIFF			( Image *im, fullPath *fname);			// On Mac: fname is FSSpec*				
 void 	SaveOptions			( struct correct_Prefs * thePrefs );
 int 	LoadOptions			( struct correct_Prefs * thePrefs );
 void  	FindScript			( struct adjust_Prefs *thePrefs );

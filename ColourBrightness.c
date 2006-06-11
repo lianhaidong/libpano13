@@ -42,6 +42,8 @@
 #include "PTcommon.h"
 
 #include "ColourBrightness.h"
+#include "pttiff.h"
+
 
 FILE *debugFile;
 
@@ -323,16 +325,19 @@ void FreeHistograms(histograms_struct *ptrHistograms, int count)
 int CorrectFileColourBrightness(fullPath *inPath, fullPath *outPath, magnolia_struct *magnolia, int parm3)
 {
   Image image;
+  CropInfo crop_info;
   char tempString[512];
   if (readTIFF (&image, inPath) != 0) {
     sprintf(tempString, "Could not read TIFF file %s", inPath->name);
     PrintError(tempString);
     return -1;
   }   
+
+  getCropInformation(inPath->name, &crop_info);  
   
   CorrectImageColourBrigthness(&image, magnolia, parm3);
   
-  writeTIFF(&image, outPath);
+  writeCroppedTIFF(&image, outPath, &crop_info);
 
   myfree((void**)image.data);
   return(0);
@@ -732,6 +737,9 @@ histograms_struct *ReadHistograms (fullPath *fullPathImages, int numberImages)
   histograms_struct * currentHistogram;
   histograms_struct * saveReturnValue;
 
+  CropInfo *crop_info = NULL;
+  CropInfo *crop_info_array = NULL;
+    
   int temp;
 
   int i;
@@ -757,8 +765,9 @@ histograms_struct *ReadHistograms (fullPath *fullPathImages, int numberImages)
     return 0;
   
   ptrTIFFs = calloc(numberImages , sizeof(TIFF*));
+  crop_info_array = (CropInfo *)calloc(numberImages, sizeof(CropInfo));
   
-  if ( ptrTIFFs == NULL )
+  if ( ptrTIFFs == NULL || crop_info_array == NULL )
     return 0;
   
   currentImage = 0;
@@ -772,24 +781,30 @@ histograms_struct *ReadHistograms (fullPath *fullPathImages, int numberImages)
     }
     
     if ((ptrTIFFs[currentImage] = TIFFOpen(tempString, "r")) == NULL) {
-      sprintf(tempString2, "Coult not open TIFF file [%s]", tempString);
+      sprintf(tempString2, "Could not open TIFF file [%s]", tempString);
       PrintError(tempString2);
       return NULL;
     }
     
+    getCropInformationFromTiff(ptrTIFFs[currentImage], &(crop_info_array[currentImage]));
+    
   } // for loop
   
   // Set defaults for all images (assumes they have all the same
-  TIFFGetField(ptrTIFFs[0], TIFFTAG_IMAGEWIDTH, &imageWidth);
-  TIFFGetField(ptrTIFFs[0], TIFFTAG_IMAGELENGTH, &imageLength);
+  //TIFFGetField(ptrTIFFs[0], TIFFTAG_IMAGEWIDTH, &imageWidth);
+  //TIFFGetField(ptrTIFFs[0], TIFFTAG_IMAGELENGTH, &imageLength);
+  imageWidth  = crop_info_array[0].full_width;
+  imageLength = crop_info_array[0].full_height;
+  
   TIFFGetField(ptrTIFFs[0], TIFFTAG_BITSPERSAMPLE, &bitsPerSample);
   TIFFGetField(ptrTIFFs[0], TIFFTAG_SAMPLESPERPIXEL, &samplesPerPixel); // 0x11c
 
   bitsPerPixel = samplesPerPixel * bitsPerSample;
 
-  bytesPerLine = TIFFScanlineSize(ptrTIFFs[0]);
-
   bytesPerPixel = (bitsPerPixel + 7 ) / 8;
+
+  //bytesPerLine = TIFFScanlineSize(ptrTIFFs[0]);
+  bytesPerLine = imageWidth * bytesPerPixel;
 
   imagesDataBuffer = calloc(numberImages, bytesPerLine);
 
@@ -864,8 +879,16 @@ histograms_struct *ReadHistograms (fullPath *fullPathImages, int numberImages)
     // Read the current row from each image
     for (currentImage=0; currentImage < numberImages; currentImage++) {
       
-      TIFFReadScanline(ptrTIFFs[currentImage], ptrCurrentLineBuffer, currentRow, 0);
+      //fill buffer with empty space (zeros)
+      memset(ptrCurrentLineBuffer, 0, bytesPerLine);
       
+      //need to handle cropped tiffs carefully here...
+      crop_info = crop_info_array + currentImage;
+      
+      if (currentRow>=crop_info->y_offset && currentRow < crop_info->y_offset + crop_info->cropped_height) {
+        TIFFReadScanline(ptrTIFFs[currentImage], ptrCurrentLineBuffer + crop_info->x_offset * bytesPerPixel, currentRow - crop_info->y_offset, 0);
+      }
+          
       RGBAtoARGB(ptrCurrentLineBuffer, imageWidth, bitsPerPixel);
       
       ptrCurrentLineBuffer+= bytesPerLine;
