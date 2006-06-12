@@ -3175,9 +3175,10 @@ int CreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles, fullPath
       } else if (croppedTIFFIntermediate!=0 && croppedTIFFOutput==0) {
         // if cropped intermediate, but we want uncropped output, then uncrop
         if (uncropTiff(fullPathImages[loopCounter].name, outputFileName, messageBuffer) != 0) {
-			PrintError(messageBuffer);
-			return(1);
+          PrintError(messageBuffer);
+          return(1);
         }
+	remove(fullPathImages[loopCounter].name);
       } else {
         // only other option is to use uncropped files as intermediate, and want 
         // cropped as output.  This is (a) a waste of time and (b) not supported.
