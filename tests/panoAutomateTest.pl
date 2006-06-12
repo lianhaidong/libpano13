@@ -103,8 +103,8 @@ my %savedFile = (
 
 my $type;
 
-if ($outputFormat =~ /n"/) {
-    $outputFormat = $` ; #';
+if ($outputFormat =~ /n"/) { #"
+    $outputFormat = $` ; #`
 }
 
 
@@ -181,7 +181,7 @@ foreach $type (@toProcess) {
 	    printf("Output file reference/$savedFile{$type} was not created\n");
 	    $output = "fail";
 	  } else {	    
-	      if ($savedFile{$type} =~ /\.tiff/) {
+	      if ($savedFile{$type} =~ /\.tif/) {
 		  $output = `tiffcmp reference/$savedFile{$type} tests/`;	      
 	      } else {
 		  $output = `diff reference/$savedFile{$type} tests/`;	      
@@ -233,7 +233,11 @@ sub Compare_Images
 	}
 
 
-	$output .= `diff $fileName  $newFileName`;
+	if ($fileName =~ /\.tif$/) {
+	    $output .= `tiffcmp $fileName  $newFileName`;
+	} else {
+	    $output .= `diff $fileName  $newFileName`;
+	}
     }
     return $output;
 }
