@@ -120,7 +120,7 @@ int main(int argc,char *argv[])
       
     case 'h':
       PrintError("Usage: PTStitcher [options] file1 file2 ...");
-      exit(0);
+      exit(1);
       
     default:
       break;
@@ -166,7 +166,8 @@ int main(int argc,char *argv[])
             // if it not a text file then assume it is an image
             // Allocate one more slot
             if ((ptrImageFileNames = realloc(ptrImageFileNames, ++counter * 512)) == NULL) {
-              exit(0);
+	      PrintError("Not enough memory");
+              exit(1);
             }
             
             sort = 1;
@@ -183,8 +184,10 @@ int main(int argc,char *argv[])
     } else if (IsTextFile(currentParm) == 0) { // checks if the file does not have .txt extension
       // it is a assumed to be an image
       counter++;
-      if((ptrImageFileNames = realloc(ptrImageFileNames, counter * 512)) == NULL)
-      	exit(0);
+      if((ptrImageFileNames = realloc(ptrImageFileNames, counter * 512)) == NULL) {
+	PrintError("Not enough memory");
+      	exit(1);
+      }
 
       if (StringtoFullPath(&ptrImageFileNames[counter-1], currentParm) != 0) {
       	PrintError("Syntax error: Not a valid pathname");
@@ -222,8 +225,10 @@ int main(int argc,char *argv[])
   if (strlen(panoFileName.name) == 0) {
 
     // This is what todo if at this point we dont have a panorama filename
-    if (SaveFileAs(&panoFileName, "Save Panorama as... ", "pano") != 0)
-      exit(0);
+    if (SaveFileAs(&panoFileName, "Save Panorama as... ", "pano") != 0) {
+      PrintError("No filename provided");
+      exit(1);
+    }
 
     // So at this point we have script and panorama filenames
     if (counter != 0) {
@@ -245,7 +250,7 @@ int main(int argc,char *argv[])
     
     if (script == NULL) {
       PrintError("Could not load script.");
-      exit(0);
+      exit(1);
     }
     
 
@@ -255,7 +260,7 @@ int main(int argc,char *argv[])
       if (counter != 0) {
       	if ((ptrImageFileNames = malloc(512 * counter)) == NULL) {
       	  PrintError("Not enough memory");
-      	  exit(0);
+      	  exit(1);
       	}
       	
       	//Iterate over input images and populate input filename array
@@ -296,33 +301,33 @@ int main(int argc,char *argv[])
       
       if (counter == 0) {
       	PrintError("No Input Images");
-      	exit(0);
+      	exit(1);
       }
       
       strcpy(scriptPathName.name, scriptFileName.name);
       
       if (makeTempPath(&scriptPathName) != 0) {
       	PrintError("Could not make Tempfile");
-      	exit(0);
+      	exit(1);
       }
       
       if ((scriptFD = fopen(scriptPathName.name, "w")) == NULL) {
       	PrintError("Could not open temporary Scriptfile");
-      	exit(0);
+      	exit(1);
       }
       
       temp = fwrite(script, 1, strlen(script), scriptFD); 
       
       if (strlen(script) != temp) {
         PrintError("Could not write temporary Scriptfile");
-        exit(0);
+        exit(1);
       }
       
       fclose(scriptFD);
       
       if ((ptrImageFileNames = malloc(counter * 512)) == NULL) {
       	PrintError("Not enough memory\n");
-      	exit(0);
+      	exit(1);
       }
       
       for (inputFileCounter2 = 0; inputFileCounter2 < counter; inputFileCounter2++) {
@@ -330,7 +335,7 @@ int main(int argc,char *argv[])
       	
       	if ( (preferences = readAdjustLine(&scriptPathName)) == NULL) {
       	  PrintError("Could not read ScriptFile");
-      	  exit(0);
+      	  exit(1);
       	}
 	
 	
@@ -357,7 +362,7 @@ int main(int argc,char *argv[])
       
       if (counter == 0) {
       	PrintError("No Input Images");
-      	exit(0);
+      	exit(1);
       }
       
     } //    if (counter == 0)
@@ -368,9 +373,7 @@ int main(int argc,char *argv[])
   // By now we should have loaded up the input filename array, the output 
   // panorama name, and the name of the script file (copied to a temporary
   // directory).  Now we can create the output image.
-  CreatePanorama(ptrImageFileNames, counter, &panoFileName, &scriptFileName);
-
-  return (0);
+  return CreatePanorama(ptrImageFileNames, counter, &panoFileName, &scriptFileName);
 
 }
 

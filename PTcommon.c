@@ -2955,7 +2955,7 @@ int CreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles, fullPath
     
     if ((resultPanorama.data  = (unsigned char**)mymalloc(lines * resultPanorama.bytesPerLine ) ) == NULL) {
       PrintError("Not enough memory for output panorama buffer");
-      exit(0);
+      exit(1);
     }
 	 //NB resultPanorama.selection.bottom is actually one pixel beyond last row with data.
     resultPanorama.selection.bottom   = resultPanorama.selection.top + lines;
@@ -2965,7 +2965,7 @@ int CreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles, fullPath
 
     if (resultPanorama.bitsPerPixel != image1.bitsPerPixel) {
       PrintError("All source images must have the same number of bits per pixel.");
-      exit(0);
+      exit(1);
     }
 
     //Copy all position related data (yaw, pitch, roll, etc) for input image to currentImagePtr
