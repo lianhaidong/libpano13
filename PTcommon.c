@@ -3277,7 +3277,7 @@ int CreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles, fullPath
 
 
   if (strcmp(output_file_format, "PSD") == 0) {
-    ReplaceExt(panoFileName->name, ".PSD");
+    ReplaceExt(panoFileName->name, ".psd");
     return (writePSD(&resultPanorama, panoFileName));
 
   } 

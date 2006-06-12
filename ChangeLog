@@ -1,3 +1,8 @@
+2006-06-11    <dmgerman@uvic.ca>
+
+	* PTcommon.c (CreatePanorama): Change extension of generated PSD
+	from .PSD to .psd
+
 2006-06-11  Max Lyons <maxlyons@tawbaware.com>
 
 	* ColourBrightness.c, PTcommon.c, tiff.c, filter.h, pttiff.h, 
