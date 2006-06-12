@@ -181,7 +181,11 @@ foreach $type (@toProcess) {
 	    printf("Output file reference/$savedFile{$type} was not created\n");
 	    $output = "fail";
 	  } else {	    
-	    $output = `diff reference/$savedFile{$type} tests/`;
+	      if ($savedFile{$type} =~ /\.tiff/) {
+		  $output = `tiffcmp reference/$savedFile{$type} tests/`;	      
+	      } else {
+		  $output = `diff reference/$savedFile{$type} tests/`;	      
+	      }
 	  }
 	}
 	
