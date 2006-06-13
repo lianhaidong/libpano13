@@ -1049,6 +1049,7 @@ static int  ReplaceAlphaChannel(fullPath *inputImage, fullPath *mask, fullPath *
     PrintError("Unable to initialize TIFF file\n");
     return 0;
   }
+  setCropInformationInTiff(outputFile, &crop_info);
   
   // Processing one row at a time
   jumpBytes          = (croppedImageParms.bitsPerPixel == 32 ) ? 4 : 8;

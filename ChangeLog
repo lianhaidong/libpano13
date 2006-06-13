@@ -1,3 +1,10 @@
+2006-06-12  dmg  <dmgerman@uvic.ca>
+
+	* PTcommon.c (ReplaceAlphaChannel): The images created in this
+	routine were not labeled as cropped. This patch fixes the
+	problem. The test case did not catch this problem. We need a
+	360/180 one.
+
 2006-06-11  dmg  <dmgerman@uvic.ca>
 
 	* PTcommon.c: Improved the behaviour during errors. exit(-1) if
