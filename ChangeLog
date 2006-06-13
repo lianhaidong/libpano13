@@ -1,6 +1,6 @@
 2006-06-12  dmg  <dmgerman@uvic.ca>
 
-	* PTcommon.c (tiffErrorHandler): Typecaseted parameter to (char *) to
+	* PTcommon.c (tiffErrorHandler): Typecasted parameter to (char *) to
 	avoid warning.
 	(VerifyTiffsAreCompatible): changed sprintf to strcpy to avoid
 	compiler warning.
