@@ -1,5 +1,9 @@
 2006-06-12  dmg  <dmgerman@uvic.ca>
 
+	* Makefile.am (all): Undo the changes below... I decided instead
+	to remove the test directory from the make in the root
+	directory. Too bad CVS does not support transactions and rollbacks.
+
 	* README.txt: run "make test" to, you got it, run the test
 
 	* Makefile.am (all): Removed test from default Make. 

@@ -1,5 +1,7 @@
 2006-06-12  dmg  <dmgerman@uvic.ca>
 
+	* Makefile.am (SUBDIRS): Removed tests from the default make
+
 	* PTcommon.c (ReplaceAlphaChannel): The images created in this
 	routine were not labeled as cropped. This patch fixes the
 	problem. The test case did not catch this problem. We need a

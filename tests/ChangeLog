@@ -1,3 +1,7 @@
+2006-06-12  dmg  <dmgerman@uvic.ca>
+
+	* Added README.txt
+
 2006-06-11  dmg  <dmgerman@uvic.ca>
 
 	* panoAutomateTest.pl: Use tiffcmp instead of diff for tiff files.
