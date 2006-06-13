@@ -26,22 +26,14 @@
  * 
  */
 
-#include <assert.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/types.h>
-#include <dirent.h>
-#include <unistd.h>
-#include <stdint.h>
-#include <math.h>
+
+#include "filter.h"
+#include "PTcommon.h"
+#include "ColourBrightness.h"
 
 #include "tiffio.h"
-#include "filter.h"
-#include "panorama.h"
+#include <assert.h>
 
-#include "PTcommon.h"
-
-#include "ColourBrightness.h"
 #include "pttiff.h"
 
 

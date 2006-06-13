@@ -12,6 +12,8 @@ typedef unsigned short int        uint16_t;
 typedef unsigned int              uint32_t;
 /* no uint64_t */
 
+#define INT32_MAX _I32_MAX
+
 #  define vsnprintf _vsnprintf
 #  define snprintf _snprintf
 # else

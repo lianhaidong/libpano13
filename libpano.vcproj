@@ -22,9 +22,9 @@
 				Optimization="2"
 				InlineFunctionExpansion="0"
 				FavorSizeOrSpeed="0"
-				AdditionalIncludeDirectories="&quot;$WXWIDGETS_HOME\src\zlib&quot;;&quot;$WXWIDGETS_HOME\src\png&quot;;&quot;$WXWIDGETS_HOME\src\tiff&quot;;&quot;$WXWIDGETS_HOME\src&quot;;&quot;$WXWIDGETS_HOME\src\jpeg&quot;;&quot;$JDK_HOME\include&quot;;&quot;$JDK_HOME\include\win32&quot;"
+				AdditionalIncludeDirectories="&quot;$(WXWIDGETS_HOME)\src\zlib&quot;;&quot;$(WXWIDGETS_HOME)\src\png&quot;;&quot;$(WXWIDGETS_HOME)\src\tiff&quot;;&quot;$(WXWIDGETS_HOME)\src\jpeg&quot;;&quot;$(WXWIDGETS_HOME)\src&quot;;&quot;$(JDK_HOME)\include&quot;;&quot;$(JDK_HOME)\include\win32&quot;"
 				PreprocessorDefinitions="WIN32;__Win__;HasJava"
-				RuntimeLibrary="0"
+				RuntimeLibrary="2"
 				StructMemberAlignment="4"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="FALSE"
@@ -41,7 +41,7 @@
 				AdditionalDependencies="wxtiff.lib wxzlib.lib wxjpeg.lib wxpng.lib"
 				OutputFile="$(OutDir)/pano12.dll"
 				LinkIncremental="0"
-				AdditionalLibraryDirectories="&quot;..\..\wxWidgets\lib\vc_lib&quot;"
+				AdditionalLibraryDirectories="&quot;$(WXWIDGETS_HOME)\lib\vc_lib&quot;"
 				IgnoreAllDefaultLibraries="FALSE"
 				IgnoreDefaultLibraryNames=""
 				ModuleDefinitionFile="pano12vc.def"
@@ -80,9 +80,9 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(WXWIDGETS_HOME)\src\zlib&quot;;&quot;$(WXWIDGETS_HOME)\src\png&quot;;&quot;$(WXWIDGETS_HOME)\src\tiff&quot;;&quot;$(WXWIDGETS_HOME)\src&quot;;&quot;$(WXWIDGETS_HOME)\src\jpeg&quot;;&quot;$(JDK_HOME)\include&quot;;&quot;$(JDK_HOME)\include\win32&quot;"
+				AdditionalIncludeDirectories="&quot;$(WXWIDGETS_HOME)\src\zlib&quot;;&quot;$(WXWIDGETS_HOME)\src\png&quot;;&quot;$(WXWIDGETS_HOME)\src\tiff&quot;;&quot;$(WXWIDGETS_HOME)\src\jpeg&quot;;&quot;$(WXWIDGETS_HOME)\src&quot;;&quot;$(JDK_HOME)\include&quot;;&quot;$(JDK_HOME)\include\win32&quot;"
 				PreprocessorDefinitions="WIN32;__Win__;HasJava"
-				RuntimeLibrary="1"
+				RuntimeLibrary="3"
 				StructMemberAlignment="4"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="FALSE"
@@ -96,7 +96,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="wxtiffd.lib wxzlibd.lib wxjpegd.lib wxpngd.lib"
 				OutputFile="$(OutDir)/pano12d.dll"
-				AdditionalLibraryDirectories="&quot;..\..\wxWidgets\lib\vc_lib&quot;"
+				AdditionalLibraryDirectories="&quot;$(WXWIDGETS_HOME)\lib\vc_lib&quot;"
 				IgnoreAllDefaultLibraries="FALSE"
 				IgnoreDefaultLibraryNames=""
 				ModuleDefinitionFile="pano12vcd.def"
@@ -140,6 +140,9 @@
 			</File>
 			<File
 				RelativePath=".\bmp.c">
+			</File>
+			<File
+				RelativePath=".\ColourBrightness.c">
 			</File>
 			<File
 				RelativePath=".\correct.c">
@@ -190,6 +193,9 @@
 				RelativePath=".\png.c">
 			</File>
 			<File
+				RelativePath=".\PTcommon.c">
+			</File>
+			<File
 				RelativePath=".\PTDialogs.c">
 			</File>
 			<File
@@ -234,6 +240,9 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
 			<File
+				RelativePath=".\ColourBrightness.h">
+			</File>
+			<File
 				RelativePath=".\f2c.h">
 			</File>
 			<File
@@ -247,6 +256,9 @@
 			</File>
 			<File
 				RelativePath=".\pt_stdint.h">
+			</File>
+			<File
+				RelativePath=".\PTcommon.h">
 			</File>
 			<File
 				RelativePath=".\pteditor.h">

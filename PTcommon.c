@@ -27,22 +27,22 @@
  * 
  */
 
-#include <assert.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/types.h>
-#include <dirent.h>
-#include <unistd.h>
-#include <stdint.h>
-#include <math.h>
-
 #include "filter.h"
-#include "panorama.h"
+#include "PTcommon.h"
+#include "ColourBrightness.h"
 
 #include "tiffio.h"
 #include "pttiff.h"
+#include <assert.h>
 
-#include "PTcommon.h"
+//#include <stdio.h>
+//#include <stdlib.h>
+//#include <sys/types.h>
+//#include <dirent.h>
+//#include <unistd.h>
+//#include <stdint.h>
+//#include <math.h>
+
 
 
 //declare functions
@@ -1003,6 +1003,9 @@ static int  ReplaceAlphaChannel(fullPath *inputImage, fullPath *mask, fullPath *
   
   CropInfo crop_info;
   pt_tiff_parms croppedImageParms;
+
+  int jumpBytes;
+  int alphaChannelOffset;
   
   //   For each row
   //     Read row of image
@@ -1048,8 +1051,8 @@ static int  ReplaceAlphaChannel(fullPath *inputImage, fullPath *mask, fullPath *
   }
   
   // Processing one row at a time
-  int jumpBytes          = (croppedImageParms.bitsPerPixel == 32 ) ? 4 : 8;
-  int alphaChannelOffset = (croppedImageParms.bitsPerPixel == 32 ) ? 3 : 6;
+  jumpBytes          = (croppedImageParms.bitsPerPixel == 32 ) ? 4 : 8;
+  alphaChannelOffset = (croppedImageParms.bitsPerPixel == 32 ) ? 3 : 6;
   
   for (row = 0; row < croppedImageParms.imageLength; row ++) {
     
