@@ -22,7 +22,7 @@ And then the same combination with Cropped TIFFs
 
 To run the tests just type:
 
-  make
+  make test
 
 If you want to verify the output files again just type:
 

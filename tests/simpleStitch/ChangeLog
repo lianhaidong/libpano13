@@ -1,3 +1,9 @@
+2006-06-12  dmg  <dmgerman@uvic.ca>
+
+	* README.txt: run "make test" to, you got it, run the test
+
+	* Makefile.am (all): Removed test from default Make. 
+
 2006-06-11  dmg  <dmgerman@uvic.ca>
 
 	* Removed fast transform in the tests, recreated them.

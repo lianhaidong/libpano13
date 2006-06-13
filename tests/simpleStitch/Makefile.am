@@ -4,7 +4,7 @@ EXTRA_DIST = reference 051221_6054_750.jpg 051221_6055_750.jpg \
 MAINTAINERCLEANFILES = \
 	Makefile.in
 
-all: test
+all: 
 
 test:
 	perl ../panoAutomateTest.pl simple.txt
