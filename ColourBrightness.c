@@ -2255,19 +2255,4 @@ void Unknown41(double *sourceHistogram, double *targetHistogram, double *magnoli
 #endif
 
 
-/*
- * replace the extension in filename with
-   extension
-*/
-void ReplaceExt(char* filename, char *extension)
-{
-  char *temp;
-  temp = strrchr(filename, '.');
-  if (temp != NULL) {
-    strcpy(temp, extension);
-  } else {
-    strcat(filename, extension);
-  }
-  return;
-}
 

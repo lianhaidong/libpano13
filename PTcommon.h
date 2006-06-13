@@ -65,4 +65,6 @@ extern int quietFlag;
 int 	StringtoFullPath	(fullPath *path, char *filename);
 int CreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles, fullPath *panoFileName, fullPath *scriptFileName);
 
+void ReplaceExt(char* filename, char *extension);
+
 #endif

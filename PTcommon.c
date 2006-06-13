@@ -67,7 +67,7 @@ void InsertFileName( fullPath *fp, char *fname ){
 void tiffErrorHandler(const char* module, const char* fmt, va_list ap)
 {
   PrintError("Error in TIFF file (%s) ", module);
-  PrintError(fmt, ap);
+  PrintError((char*)fmt, ap);
 }
 
 
@@ -286,15 +286,16 @@ int VerifyTiffsAreCompatible(fullPath *tiffFiles, int numberImages)
   
   char errorMsg[512];
 
+#ifndef __Win__
   //MRDL: Reluctantly commented these out...the calls to TIFFSetWarningHandler and 
   //TIFFSetErrorHandler cause to GCC to abort, with a series of errors like this:
   //../../../LibTiff/tiff-v3.6.1/libtiff/libtiff.a(tif_unix.o)(.text+0x11a): In function `TIFFOpen':
   //../../../libtiff/tiff-v3.6.1/libtiff/../libtiff/tif_unix.c:144: multiple definition of `TIFFOpen'
   //../libpano12.a(dyces00121.o)(.text+0x0): first defined here
   // Make sure we have a tiff error handler
-  //TIFFSetWarningHandler(tiffErrorHandler);
-  //TIFFSetErrorHandler(tiffErrorHandler);
-  
+  TIFFSetWarningHandler(tiffErrorHandler);
+  TIFFSetErrorHandler(tiffErrorHandler);
+#endif  
   // Open TIFFs
 
   if (!TiffGetImageParametersFromPathName(&tiffFiles[0], &firstFileParms)) {
@@ -312,7 +313,7 @@ int VerifyTiffsAreCompatible(fullPath *tiffFiles, int numberImages)
     
     getCropInformation(tiffFiles[currentImage].name, &other_crop_info);
     
-    sprintf(errorMsg, "");
+    strcpy(errorMsg, "");
     /*
     if (firstFileParms.imageWidth != otherFileParms.imageWidth) {
       errorMsg = "Image 0 and %d do have the same width\n";
@@ -1295,7 +1296,7 @@ static int CreateAlphaChannels(fullPath *masksNames, fullPath *alphaChannelNames
 
     if ( ptQuietFlag == 0 ) {
       if ( fullSizeRowIndex== (fullSizeRowIndex/ 20) * 20 ) {
-        sprintf(tempString, "%lu", fullSizeRowIndex * 100/fullSizeImageParameters->imageLength);
+        sprintf(tempString, "%lu", (long unsigned)fullSizeRowIndex * 100/fullSizeImageParameters->imageLength);
         if (Progress(_setProgress, tempString) == 0) {
           for (index = 0 ; index < numberImages; index ++) {
 				TIFFClose(tiffMasks[index]);
@@ -1754,7 +1755,7 @@ void BlendLayers16Bit(unsigned char **imageDataBuffers, int counterImageFiles, c
 		  for (index = 0; index < 3; index ++) {
 			 colours[index] += (*(ptrPixel+index) * alphaContribution)/0xffff ; // 
 			 if (!(colours[index] >= 0 && colours[index] <= 0xffff)) {
-				printf("PPPPPPPPPPPPPPPPPanic %d index [%d]\n", colours[index], index);
+			   printf("PPPPPPPPPPPPPPPPPanic %lld index [%d]\n", colours[index], index);
 			 }
 			 assert(colours[index] >= 0 && colours[index] <= 0xffff);
 		  }
@@ -1820,7 +1821,6 @@ int FlattenTIFF(fullPath *fullPathImages, int counterImageFiles, fullPath *outpu
   
   fullPath tmpFullPath;
   char tmpFilename[512];
-  pt_tiff_parms otherFileParms;
   pt_tiff_parms imageParameters;
   CropInfo crop_info;
   TIFF *tiffFile;
@@ -3300,3 +3300,18 @@ int CreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles, fullPath
 
 }
 
+/*
+ * replace the extension in filename with
+   extension
+*/
+void ReplaceExt(char* filename, char *extension)
+{
+  char *temp;
+  temp = strrchr(filename, '.');
+  if (temp != NULL) {
+    strcpy(temp, extension);
+  } else {
+    strcat(filename, extension);
+  }
+  return;
+}

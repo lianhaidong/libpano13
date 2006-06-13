@@ -1,5 +1,21 @@
 2006-06-12  dmg  <dmgerman@uvic.ca>
 
+	* PTcommon.c (tiffErrorHandler): Typecaseted parameter to (char *) to
+	avoid warning.
+	(VerifyTiffsAreCompatible): changed sprintf to strcpy to avoid
+	compiler warning.
+	(CreateAlphaChannels): Added (long unsigned) to avoid compiler error.
+	(BlendLayers16Bit): Changed format specifier to match type of variable.
+	(FlattenTIFF): Removed unused variable.
+
+	* PTcommon.c (VerifyTiffsAreCompatible): Uncommented TIFF error
+	handlers (commented by Max few weeks ago). Wrapped it around with
+	ifndef to avoid windows compilation. I have the feeling this is a
+	windows issue, not a gcc.
+
+	* PTcommon.h (ReplaceExt): Declared function, moved it from
+	ColourBrightness.c to PTcommon.c
+
 	* Makefile.am (SUBDIRS): Removed tests from the default make
 
 	* PTcommon.c (ReplaceAlphaChannel): The images created in this
