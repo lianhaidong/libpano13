@@ -208,12 +208,6 @@ int uncropTiff(char *inputFile, char *outputFile, char *messageBuffer)
 
   getCropInformationFromTiff(tiffInput, &cropInfo);
 
-  if (cropInfo.x_offset == 0 && cropInfo.y_offset == 0 ) {
-  	TIFFClose(tiffInput);
-    sprintf(messageBuffer, "Input file is not a cropped TIFF (but it is a tiff)\n");;
-    return 20;
-  }
-
   if (!TiffGetImageParameters(tiffInput, &tiffInfo)) {
     sprintf(messageBuffer, "Unable to get input file information\n");;
     return 30;
@@ -2402,9 +2396,13 @@ void getROI( TrformStr *TrPtr, aPrefs *aP, PTRect *ROIRect )
   
   //iterate over edges of input image and compute left/right/top/bottom-most coordinate
   //in output image
+  //For equirectangular output projection covering 360/180, iterating over the 
+  //edges of each input image isn't sufficient to determine ROI because an 
+  //an interior point in an input image can be at the edge of ROI.  More research 
+  //needed here, but for now include some representative interior points as well.
   for (y = 0; y <= TrPtr->src->height; y += 1) {
       
-	 x_jump = (y==0 || y==TrPtr->src->height) ? 1 : TrPtr->src->width;
+	 x_jump = (y==0 || y==TrPtr->src->height) ? 1 : TrPtr->src->width/2;
         
 	 for (x = 0; x <= TrPtr->src->width; x += x_jump) {
 		//convert source coordinates to cartesian coordinates (i.e. origin at center of image)
@@ -2418,6 +2416,8 @@ void getROI( TrformStr *TrPtr, aPrefs *aP, PTRect *ROIRect )
 		Dx += w2;
 		Dy += h2;
          
+        //printf("  IN: %d,%d -> OUT: %d, %d\n", x, y, (int)Dx, (int)Dy);
+        
 		//Expand ROI if necessary
 		if ((int)Dx < ROIRect->left) ROIRect->left = (int)Dx;
 		if ((int)Dx > ROIRect->right) ROIRect->right = (int)Dx;
@@ -2433,7 +2433,7 @@ void getROI( TrformStr *TrPtr, aPrefs *aP, PTRect *ROIRect )
   if (ROIRect->right   > (TrPtr->dest->width-1))  ROIRect->right    = TrPtr->dest->width-1;  
   if (ROIRect->bottom  > (TrPtr->dest->height-1)) ROIRect->bottom   = TrPtr->dest->height-1;
 
-  //printf("ROI: %d,%d - %d, %d", ROIRect->left, ROIRect->top, ROIRect->right, ROIRect->bottom);
+  //printf("ROI: %d,%d - %d, %d\n", ROIRect->left, ROIRect->top, ROIRect->right, ROIRect->bottom);
 }
 
 /**
@@ -2486,38 +2486,44 @@ void getCropInformation(char *filename, CropInfo *c)
  
 
 void setCropInformationInTiff(TIFF *tiffFile, CropInfo *crop_info) {
-    
+    char *errMsg = "Could not set TIFF tag";
     float pixels_per_resolution_unit = 150.0;
     
+    //If crop_info==NULL then this isn't a "cropped TIFF", so don't include 
+    //cropped TIFF tags
     if (crop_info==NULL) return;
     
     //The X offset in ResolutionUnits of the left side of the image, with 
     //respect to the left side of the page.
-    TIFFSetField(tiffFile, TIFFTAG_XPOSITION, (float)crop_info->x_offset / pixels_per_resolution_unit );
-    
+    if (TIFFSetField(tiffFile, TIFFTAG_XPOSITION, (float)crop_info->x_offset / pixels_per_resolution_unit ) == 0)
+    	dieWithError(errMsg);
     //The Y offset in ResolutionUnits of the top of the image, with 
     //respect to the top of the page.
-    TIFFSetField(tiffFile, TIFFTAG_YPOSITION, (float)crop_info->y_offset / pixels_per_resolution_unit );
-    
+    if (TIFFSetField(tiffFile, TIFFTAG_YPOSITION, (float)crop_info->y_offset / pixels_per_resolution_unit ) == 0)
+    	dieWithError(errMsg);    
+
     //The number of pixels per ResolutionUnit in the ImageWidth
-    TIFFSetField(tiffFile, TIFFTAG_XRESOLUTION, (float)pixels_per_resolution_unit);
-    
+    if (TIFFSetField(tiffFile, TIFFTAG_XRESOLUTION, (float)pixels_per_resolution_unit) == 0)
+    	dieWithError(errMsg);    
     //The number of pixels per ResolutionUnit in the ImageLength (height)
-    TIFFSetField(tiffFile, TIFFTAG_YRESOLUTION, (float)pixels_per_resolution_unit);
-    
+    if (TIFFSetField(tiffFile, TIFFTAG_YRESOLUTION, (float)pixels_per_resolution_unit) == 0)
+    	dieWithError(errMsg);    
+
     //The size of the picture represented by an image.  Note: 2 = Inches.  This
     //is required so that the computation of pixel offset using XPOSITION/YPOSITION and
     //XRESOLUTION/YRESOLUTION is valid (See tag description for XPOSITION/YPOSITION).
-    TIFFSetField(tiffFile, TIFFTAG_RESOLUTIONUNIT, (uint16_t)2);      
-    
+    if (TIFFSetField(tiffFile, TIFFTAG_RESOLUTIONUNIT, (uint16_t)2) == 0)
+    	dieWithError(errMsg);    
+    	
     // TIFFTAG_PIXAR_IMAGEFULLWIDTH and TIFFTAG_PIXAR_IMAGEFULLLENGTH
     // are set when an image has been cropped out of a larger image.  
     // They reflect the size of the original uncropped image.
     // The TIFFTAG_XPOSITION and TIFFTAG_YPOSITION can be used
     // to determine the position of the smaller image in the larger one.
-    TIFFSetField(tiffFile, TIFFTAG_PIXAR_IMAGEFULLWIDTH, crop_info->full_width);
-    TIFFSetField(tiffFile, TIFFTAG_PIXAR_IMAGEFULLLENGTH, crop_info->full_height);
-
+    if (TIFFSetField(tiffFile, TIFFTAG_PIXAR_IMAGEFULLWIDTH, crop_info->full_width) == 0)
+    	dieWithError(errMsg);    
+    if (TIFFSetField(tiffFile, TIFFTAG_PIXAR_IMAGEFULLLENGTH, crop_info->full_height) == 0)
+    	dieWithError(errMsg);
 }
 
 
@@ -2588,7 +2594,7 @@ int CreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles, fullPath
   //TIFFSetWarningHandler(tiffErrorHandler);
   //TIFFSetErrorHandler(tiffErrorHandler);
   
-  
+
   if ((regFile = fopen(tempScriptFile.name, "w")) == NULL) {
     PrintError("Could not open temporary Scriptfile");
     goto mainError;
