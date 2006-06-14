@@ -1,3 +1,19 @@
+2006-06-13  Max Lyons <maxlyons@tawbaware.com>
+
+	* filter.h, sys_common.c, pano12.def, libpano12.def: Adding new dieWithError 
+	function to print error message and exit program with non-zero exit code
+
+	* PTCommon.c: Modifying getROI function to better calculate ROI for images 
+	in projects with 360/180 FOV.  Not sure if this completely eliminates 
+	problems, but is certainly a step in the right direction.
+
+	* PTCommon.c: Adding error checking to setCropInformationInTiff function.
+	
+	* PTCommon.c: Removing check for cropped TIFF in uncropTIFF...it is possible 
+	for a cropped TIFF to have x and y offset equal to zero, so this check could 
+	have caused problems.
+
+
 2006-06-12  dmg  <dmgerman@uvic.ca>
 
 	* PTcommon.c (tiffErrorHandler): Typecasted parameter to (char *) to
