@@ -52,6 +52,25 @@ void PT_setInfoDlgFcn(int (*ptr)(int, char *))
     g_infoDlgFcn = ptr;
 }
 
+/**
+ * Print an error message and then exit program
+ */
+void dieWithError(char*fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+
+    if (g_printErrorFcn == NULL) {
+        PrintErrorIntern(fmt, ap);
+    } else {
+        (*g_printErrorFcn)(fmt, ap);
+    }
+
+    va_end(ap);
+
+    exit(1);
+}
+
 void PrintError(char*fmt, ...)
 {
     va_list ap;

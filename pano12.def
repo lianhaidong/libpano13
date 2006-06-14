@@ -194,4 +194,4 @@ EXPORTS
 			getCropInformationFromTiff @187 
 			setCropInformationInTiff @188 
 			writeCroppedTIFF @ 189
-			
+			dieWithError @190
