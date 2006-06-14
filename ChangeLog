@@ -1,3 +1,8 @@
+2006-06-14  Bruno Postle <bruno@postle.net>
+
+	* Makefile.am, tests/simpleStitch/Makefile.am: put tests in tarball,
+	but only run them with 'make check'.
+
 2006-06-13  Max Lyons <maxlyons@tawbaware.com>
 
 	* filter.h, sys_common.c, pano12.def, libpano12.def: Adding new dieWithError 

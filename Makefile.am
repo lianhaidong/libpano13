@@ -93,7 +93,7 @@ pkginclude_HEADERS = $(STD_HDR) $(TOOL_HDR)
 
 noinst_HEADERS = $(INTERNAL_HDR) $(SYS_HDR) $(MAC_HDR)
 
-SUBDIRS=m4 . tools doc build 
+SUBDIRS=m4 . tools doc build tests
 
 distdir=lib$(PACKAGE)-$(VERSION)
 
