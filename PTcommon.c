@@ -3070,7 +3070,7 @@ int CreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles, fullPath
   
   //If we are dealing with an output format that is not TIFF_m or PSD_nomask,
   //then we have to add "masks" to the images before finishing...
-  if ( strcmp(output_file_format, "TIFF_m") != 0 && strcmp(output_file_format, "PSD_nomask") != 0 ) {
+  if ( strcmp(output_file_format, "TIFF_m") != 0 && strcmp(output_file_format, "PSD_mask") != 0 ) {
     // There is no point in adding stitching masks for just one image 
     if (counterImageFiles > 1) {
       if (AddStitchingMasks(fullPathImages, fullPathImages, counterImageFiles, prefs->sBuf.feather)!=0) {
