@@ -1,5 +1,7 @@
 2006-06-15  dmg  <dmgerman@uvic.ca>
 
+	* PTcommon.c: Major reindent, removed tabs.
+
 	* ppm.c (makeTempPath): Added zeroes to temp files, so they are
 	nicely sorted when listed.
 
