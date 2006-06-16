@@ -1,3 +1,15 @@
+2006-06-15  dmg  <dmgerman@uvic.ca>
+
+	* ppm.c (makeTempPath): Added zeroes to temp files, so they are
+	nicely sorted when listed.
+
+	* panorama.h: Added crop info to Image data structure.
+
+	* tiff.c (writeTIFF): Added cropInformation parameter to function
+	call.
+	(setCropInformationInTiff, getCropInformationFromTiff): Moved
+	functions to this file from PTcommon.c
+
 2006-06-14  Bruno Postle <bruno@postle.net>
 
 	* Makefile.am, tests/simpleStitch/Makefile.am: put tests in tarball,

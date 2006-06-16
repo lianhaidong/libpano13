@@ -265,6 +265,7 @@ struct Image{
 		cPrefs			cP;				// How to correct the image
 		char			name[256];
 		PTRect			selection;
+                   CropInfo                     cropInformation;
 	};
 		
 typedef struct Image Image;

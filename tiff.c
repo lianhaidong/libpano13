@@ -101,6 +101,80 @@ int readtif(Image *im, TIFF* tif){
  	return 0;
 }
 
+/**
+ * Populates the CropInfo struct with data about cropping of 
+ * the TIFF file specified by filename
+ */
+void getCropInformationFromTiff(TIFF *tif, CropInfo *c)
+{
+  float x_position, x_resolution, y_position, y_resolution;
+   
+  //these are the actual, physical dimensions of the TIFF file
+  TIFFGetField(tif, TIFFTAG_IMAGEWIDTH, &(c->cropped_width));
+  TIFFGetField(tif, TIFFTAG_IMAGELENGTH, &(c->cropped_height));
+
+  //If nothing is stored in these tags, then this must be an "uncropped" TIFF 
+  //file, in which case, the "full size" width/height is the same as the 
+  //"cropped" width and height
+  if (TIFFGetField(tif, TIFFTAG_PIXAR_IMAGEFULLWIDTH, &(c->full_width))==0)   (c->full_width = c->cropped_width);
+  if (TIFFGetField(tif, TIFFTAG_PIXAR_IMAGEFULLLENGTH, &(c->full_height))==0) (c->full_height = c->cropped_height);
+   
+  if (TIFFGetField(tif, TIFFTAG_XPOSITION, &x_position)==0) x_position = 0;
+  if (TIFFGetField(tif, TIFFTAG_XRESOLUTION, &x_resolution) == 0) x_resolution = 0;
+  if (TIFFGetField(tif, TIFFTAG_YPOSITION, &y_position)==0) y_position = 0;
+  if (TIFFGetField(tif, TIFFTAG_YRESOLUTION, &y_resolution) == 0) y_resolution = 0;
+
+  //offset in pixels of "cropped" image from top left corner of 
+  //full image (rounded to nearest integer)
+  c->x_offset = (uint32)((x_position * x_resolution) + 0.49);
+  c->y_offset = (uint32)((y_position * y_resolution) + 0.49);
+    
+  //printf("%s: %dx%d  @ %d,%d", filename, c->cropped_width, c->cropped_height, c->x_offset, c->y_offset);
+}
+
+
+void setCropInformationInTiff(TIFF *tiffFile, CropInfo *crop_info) 
+{
+    char *errMsg = "Could not set TIFF tag";
+    float pixels_per_resolution_unit = 150.0;
+    
+    //If crop_info==NULL then this isn't a "cropped TIFF", so don't include 
+    //cropped TIFF tags
+    if (crop_info==NULL) return;
+    
+    //The X offset in ResolutionUnits of the left side of the image, with 
+    //respect to the left side of the page.
+    if (TIFFSetField(tiffFile, TIFFTAG_XPOSITION, (float)crop_info->x_offset / pixels_per_resolution_unit ) == 0)
+    	dieWithError(errMsg);
+    //The Y offset in ResolutionUnits of the top of the image, with 
+    //respect to the top of the page.
+    if (TIFFSetField(tiffFile, TIFFTAG_YPOSITION, (float)crop_info->y_offset / pixels_per_resolution_unit ) == 0)
+    	dieWithError(errMsg);    
+
+    //The number of pixels per ResolutionUnit in the ImageWidth
+    if (TIFFSetField(tiffFile, TIFFTAG_XRESOLUTION, (float)pixels_per_resolution_unit) == 0)
+    	dieWithError(errMsg);    
+    //The number of pixels per ResolutionUnit in the ImageLength (height)
+    if (TIFFSetField(tiffFile, TIFFTAG_YRESOLUTION, (float)pixels_per_resolution_unit) == 0)
+    	dieWithError(errMsg);    
+
+    //The size of the picture represented by an image.  Note: 2 = Inches.  This
+    //is required so that the computation of pixel offset using XPOSITION/YPOSITION and
+    //XRESOLUTION/YRESOLUTION is valid (See tag description for XPOSITION/YPOSITION).
+    if (TIFFSetField(tiffFile, TIFFTAG_RESOLUTIONUNIT, (uint16_t)2) == 0)
+    	dieWithError(errMsg);    
+    	
+    // TIFFTAG_PIXAR_IMAGEFULLWIDTH and TIFFTAG_PIXAR_IMAGEFULLLENGTH
+    // are set when an image has been cropped out of a larger image.  
+    // They reflect the size of the original uncropped image.
+    // The TIFFTAG_XPOSITION and TIFFTAG_YPOSITION can be used
+    // to determine the position of the smaller image in the larger one.
+    if (TIFFSetField(tiffFile, TIFFTAG_PIXAR_IMAGEFULLWIDTH, crop_info->full_width) == 0)
+    	dieWithError(errMsg);    
+    if (TIFFSetField(tiffFile, TIFFTAG_PIXAR_IMAGEFULLLENGTH, crop_info->full_height) == 0)
+    	dieWithError(errMsg);
+}
+
 	
 
 int readTIFF(Image *im, fullPath *sfile){
@@ -140,6 +214,8 @@ int readTIFF(Image *im, fullPath *sfile){
 	
 	//Store name of TIFF file
 	strncpy(im->name, filename, 255);
+
+	getCropInformationFromTiff(tif, &(im->cropInformation));
 	
 	TIFFClose(tif);
 	return result;
@@ -276,8 +352,9 @@ int writeCroppedTIFF(Image *im, fullPath *sfile, CropInfo *crop_info)
 
 }	
 
-int writeTIFF(Image *im, fullPath *sfile){
-	return writeCroppedTIFF(im, sfile, NULL);
+int writeTIFF(Image *im, fullPath *sfile)
+{
+  return writeCroppedTIFF(im, sfile, &(im->cropInformation));
 }
 
 

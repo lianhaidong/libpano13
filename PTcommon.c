@@ -831,7 +831,6 @@ int CreateMaskMapFiles(fullPath *inputFiles, fullPath *maskFiles, int numberImag
 
   } // for (index...
 
-    
     // Do progress
 
   if (!ptQuietFlag)
@@ -1165,8 +1164,8 @@ static void SetBestAlphaChannel8bits(unsigned char *imagesBuffer, int numberImag
 
       if (*ptrCount > maskValue) {
 
-		  best = j;
-		  maskValue = *ptrCount;
+	best = j;
+	maskValue = *ptrCount;
       
       }
     } // for j
@@ -1322,7 +1321,6 @@ static int CreateAlphaChannels(fullPath *masksNames, fullPath *alphaChannelNames
       RGBAtoARGB(ptrBuffer, fullSizeImageParameters->imageWidth, fullSizeImageParameters->bitsPerPixel);      
       
     }
-
 	 //calculate the alpha channel for this row in all images
     CalculateAlphaChannel(imagesBuffer, numberImages, fullSizeImageParameters);
 
@@ -1345,7 +1343,6 @@ static int CreateAlphaChannels(fullPath *masksNames, fullPath *alphaChannelNames
     }
 
   } //for fullSizeRowIndex
-
   returnValue = 1;
   
  end:
@@ -1446,7 +1443,6 @@ int AddStitchingMasks(fullPath *inputFiles, fullPath *outputFiles, int numberIma
     PrintError("Could not create the stitching masks");
     return -1;
   }
-  //  exit(1);
 
   // Get TIFF information from 0th image in input list
   if (!TiffGetImageParametersFromPathName(&inputFiles[0], &imageParameters)) {
@@ -2436,36 +2432,6 @@ void getROI( TrformStr *TrPtr, aPrefs *aP, PTRect *ROIRect )
   //printf("ROI: %d,%d - %d, %d\n", ROIRect->left, ROIRect->top, ROIRect->right, ROIRect->bottom);
 }
 
-/**
- * Populates the CropInfo struct with data about cropping of 
- * the TIFF file specified by filename
- */
-void getCropInformationFromTiff(TIFF *tif, CropInfo *c)
-{
-  float x_position, x_resolution, y_position, y_resolution;
-   
-  //these are the actual, physical dimensions of the TIFF file
-  TIFFGetField(tif, TIFFTAG_IMAGEWIDTH, &(c->cropped_width));
-  TIFFGetField(tif, TIFFTAG_IMAGELENGTH, &(c->cropped_height));
-
-  //If nothing is stored in these tags, then this must be an "uncropped" TIFF 
-  //file, in which case, the "full size" width/height is the same as the 
-  //"cropped" width and height
-  if (TIFFGetField(tif, TIFFTAG_PIXAR_IMAGEFULLWIDTH, &(c->full_width))==0)   (c->full_width = c->cropped_width);
-  if (TIFFGetField(tif, TIFFTAG_PIXAR_IMAGEFULLLENGTH, &(c->full_height))==0) (c->full_height = c->cropped_height);
-   
-  if (TIFFGetField(tif, TIFFTAG_XPOSITION, &x_position)==0) x_position = 0;
-  if (TIFFGetField(tif, TIFFTAG_XRESOLUTION, &x_resolution) == 0) x_resolution = 0;
-  if (TIFFGetField(tif, TIFFTAG_YPOSITION, &y_position)==0) y_position = 0;
-  if (TIFFGetField(tif, TIFFTAG_YRESOLUTION, &y_resolution) == 0) y_resolution = 0;
-
-  //offset in pixels of "cropped" image from top left corner of 
-  //full image (rounded to nearest integer)
-  c->x_offset = (uint32)((x_position * x_resolution) + 0.49);
-  c->y_offset = (uint32)((y_position * y_resolution) + 0.49);
-    
-  //printf("%s: %dx%d  @ %d,%d", filename, c->cropped_width, c->cropped_height, c->x_offset, c->y_offset);
-}
 
 /**
  * Populates the CropInfo struct with data about cropping of 
@@ -2484,47 +2450,6 @@ void getCropInformation(char *filename, CropInfo *c)
           
 }
  
-
-void setCropInformationInTiff(TIFF *tiffFile, CropInfo *crop_info) {
-    char *errMsg = "Could not set TIFF tag";
-    float pixels_per_resolution_unit = 150.0;
-    
-    //If crop_info==NULL then this isn't a "cropped TIFF", so don't include 
-    //cropped TIFF tags
-    if (crop_info==NULL) return;
-    
-    //The X offset in ResolutionUnits of the left side of the image, with 
-    //respect to the left side of the page.
-    if (TIFFSetField(tiffFile, TIFFTAG_XPOSITION, (float)crop_info->x_offset / pixels_per_resolution_unit ) == 0)
-    	dieWithError(errMsg);
-    //The Y offset in ResolutionUnits of the top of the image, with 
-    //respect to the top of the page.
-    if (TIFFSetField(tiffFile, TIFFTAG_YPOSITION, (float)crop_info->y_offset / pixels_per_resolution_unit ) == 0)
-    	dieWithError(errMsg);    
-
-    //The number of pixels per ResolutionUnit in the ImageWidth
-    if (TIFFSetField(tiffFile, TIFFTAG_XRESOLUTION, (float)pixels_per_resolution_unit) == 0)
-    	dieWithError(errMsg);    
-    //The number of pixels per ResolutionUnit in the ImageLength (height)
-    if (TIFFSetField(tiffFile, TIFFTAG_YRESOLUTION, (float)pixels_per_resolution_unit) == 0)
-    	dieWithError(errMsg);    
-
-    //The size of the picture represented by an image.  Note: 2 = Inches.  This
-    //is required so that the computation of pixel offset using XPOSITION/YPOSITION and
-    //XRESOLUTION/YRESOLUTION is valid (See tag description for XPOSITION/YPOSITION).
-    if (TIFFSetField(tiffFile, TIFFTAG_RESOLUTIONUNIT, (uint16_t)2) == 0)
-    	dieWithError(errMsg);    
-    	
-    // TIFFTAG_PIXAR_IMAGEFULLWIDTH and TIFFTAG_PIXAR_IMAGEFULLLENGTH
-    // are set when an image has been cropped out of a larger image.  
-    // They reflect the size of the original uncropped image.
-    // The TIFFTAG_XPOSITION and TIFFTAG_YPOSITION can be used
-    // to determine the position of the smaller image in the larger one.
-    if (TIFFSetField(tiffFile, TIFFTAG_PIXAR_IMAGEFULLWIDTH, crop_info->full_width) == 0)
-    	dieWithError(errMsg);    
-    if (TIFFSetField(tiffFile, TIFFTAG_PIXAR_IMAGEFULLLENGTH, crop_info->full_height) == 0)
-    	dieWithError(errMsg);
-}
 
 
 void setFullSizeImageParameters(pt_tiff_parms *imageParameters, CropInfo *crop_info)
