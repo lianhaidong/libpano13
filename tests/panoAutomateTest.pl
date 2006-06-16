@@ -78,6 +78,7 @@ my %formats = (
     'tiff_m_cropped'   => "TIFF_m r:CROP",
     'psd' => "PSD",
     'psd_nomask' => "PSD_nomask",
+    'psd_mask' => "PSD_mask",
 
 #    "xinvalid" => 'invalid',
 );
@@ -89,11 +90,13 @@ my %outputFile = (
     'tiff_deflate' => "output.tif",   
     'psd' => "output.psd",
     'psd_nomask' => "output.psd",
+    'psd_mask' => "output.psd",
     );
 
 my %savedFile = (
     "jpeg"        => "jpeg.jpg",
     "psd_nomask"  => "psd_no_mask.psd",
+    'psd_mask' => "psd_mask.psd",
     "psd"         => "psd.psd",
     "tiff_none"    => "tiff_none.tif",
     "tiff_lzw"     => "tiff_lzw.tif",

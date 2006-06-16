@@ -1,3 +1,7 @@
+2006-06-16  dmg  <dmgerman@uvic.ca>
+
+	* panoAutomateTest.pl: Added PSD_mask to the tests.
+
 2006-06-12  dmg  <dmgerman@uvic.ca>
 
 	* Added README.txt
