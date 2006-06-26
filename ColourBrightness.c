@@ -147,10 +147,143 @@ void DisplayHistogramsError(int numberHistograms,   histograms_struct * ptrHisto
   
 } 
 
+int OutputPhotoshopCurve(FILE *output, int size, double *curve) 
+{
+  uint16_t shortValue;
+  int i;
+
+  // so far we only support size == 0xff
+
+  //  fprintf(stderr, "size %d\n", size);
+
+  assert(size == 256);
+
+  // I am not sure why I can't write more than 14 points to the curves file.
+  // it might have to do with the way  a spline is computed
+  // The algorithm currently writes the first point, 12, and the last point
+
+
+  shortValue = (uint16_t) 14;
+
+  if (fwrite(&shortValue, 2, 1, output) != 1) {
+    goto error;
+  }
+
+  
+  //  for (i = 0; i< size; i+=16) {
+  for (i = 0; i< size; i+=20) {
+    int temp;
+    uint16_t y;
+    uint16_t x;
+
+    //    fprintf(stderr, "value of curve %i: %10.5f\n", i, curve[i]);
+    
+    temp = round(curve[i]);
+    
+    // be paranoic
+    assert(temp >= 0 && temp <= 255);
+
+    y = (uint16_t) temp;
+    x = (uint16_t) i;
+
+    // For some reason y is first in the output
+    if (fwrite(&y, 2, 1, output) != 1 ||
+	fwrite(&x, 2, 1, output) != 1 ) {
+      goto error;
+    }
+  }
+
+  // Write the very last point
+  uint16_t x=255;
+  if (fwrite(&x, 2, 1, output) != 1 ||
+      fwrite(&x, 2, 1, output) != 1 ) {
+    goto error;
+  }
+
+  return 1;
+
+ error:
+  PrintError("Error writing to curves file");
+  return 0;
+
+}
+
+int OutputEmptyPhotoshopCurve(FILE *output) 
+{
+  // The empty curve is 2 entries: 0,0, and 255,255
+  // It is easier to write it in one go
+
+#define EMPTY_CURVE "\x00\x02\x00\x00\x00\x00\x00\xff\x00\xff"
+#define LENGTH_EMPTY_CURVE_DATA 10
+
+  // Make sure it is the right size
+  // Remember that strings are padded with \0 at the end
+
+  if (fwrite(EMPTY_CURVE, LENGTH_EMPTY_CURVE_DATA, 1, output) != 1) {
+    PrintError("Error writing to curves file");
+    return 0;
+  }
+
+  return 1;
+}
+
+int OutputCurves(int index, magnolia_struct *curves, int typeOfCorrection,
+			     fullPath *panoFileName)
+{
+  char outputFileName[512];
+  char temp[12];
+  int i;
+  FILE *output;
+
+#define PHOTOSHOP_CURVES_MAGIC_NUMBER   "\x00\x04\x00\x05"
+
+  // TODO: panotool usually creates a temp file, and then renames it to the 
+  // actual name. This is not done yet
+
+  strncpy(outputFileName, panoFileName->name, 500);
+  sprintf(temp, "%04d", index);
+  strcat(outputFileName, temp);
+  ReplaceExt(outputFileName, ".acv");
+
+  //  fprintf(stderr, "Creating output file %s\n", outputFileName);
+
+  if ((output = fopen(outputFileName, "w+")) == NULL) {
+    PrintError("Unable to create output curves file %s", outputFileName);
+    return 0;
+  }
+
+  
+  if (fwrite(PHOTOSHOP_CURVES_MAGIC_NUMBER, 4, 1, output) != 1) {
+    PrintError("Unable to write to  output curves file %s", outputFileName);
+    return 0;
+  }
+
+  // Output main curve
+  if (OutputEmptyPhotoshopCurve(output) == 0) {
+    PrintError("Unable to create  output curves file %s", outputFileName);
+    return 0;
+  }
+  // Output Red, Green and Blue Channels
+  for (i=0;i<3;i++) {
+    if (OutputPhotoshopCurve(output, curves->components, curves->fieldx04[i]) == 0) {
+      PrintError("Unable to create  output curves file %s", outputFileName);
+      return 0;
+    }
+  }
+  // it needs an empty curve at the end, and I donot know why
+  if (OutputEmptyPhotoshopCurve(output) == 0) {
+    PrintError("Unable to create  output curves file %s", outputFileName);
+    return 0;
+  }
+
+  fclose(output);
+  return 1;
+}
+			     
 
 
 void ColourBrightness(  fullPath *fullPathImages,  fullPath *outputFullPathImages, 
-			 int counterImages, int indexReferenceImage, int parm3)
+			int counterImages, int indexReferenceImage, int parm3, int createCurves)
 {
 
   histograms_struct * ptrHistograms;
@@ -199,6 +332,15 @@ void ColourBrightness(  fullPath *fullPathImages,  fullPath *outputFullPathImage
     return ;
 
   fprintf(debugFile, "\nResults of Optimization:");
+
+  if (createCurves) {
+    for (index=0;  index < counterImages; index++ ) {
+      if (OutputCurves(index, &(calla.magnolia[index]), parm3, &(outputFullPathImages[index])) == 0) {
+	PrintError("Error creating curves files");
+	return ;
+      }
+    }
+  }
 
   for (index=0;  index < counterImages; index++ ) {
     int edi;
@@ -268,8 +410,11 @@ void ColourBrightness(  fullPath *fullPathImages,  fullPath *outputFullPathImage
       // or if it is not the reference image
       
       if (CorrectFileColourBrightness(&fullPathImages[index], &outputFullPathImages[index],
-				      &calla.magnolia[index], parm3) != 0)
+				      &calla.magnolia[index], parm3) != 0) {
+	
+	PrintError("Error creating colour corrected file\n");
 	return;
+      }
     }  
   } //  for (index = 0;  index <counterImages; index++ ) {
   

@@ -50,6 +50,7 @@
 			 "\t-k <index>\tIndex to image to use as a reference (0-based)\n"\
                          "\t-f <filename>\t\tFlatten images to single TIFF file\n"\
 			 "\t-q\t\tQuiet run\n\t-h\t\tShow this message\n"\
+			 "\t-c\t\tOutput curves\n\t-h\t\tOutput a photoshop curve per each corrected file\n"\
                          "\n"
 
 #define PT_BLENDER_VERSION "PTblender Version " VERSION ", originally written by Helmut Dersch, rewritten by Daniel M German\n"
@@ -73,6 +74,7 @@ int main(int argc,char *argv[])
   int i;
   int base = 0;
   int flattenFlag =0;
+  int outputCurves = 0; // if 1 => create Photoshop curve files (.acv)
 
   ptrInputFiles = NULL;
   counter = 0;
@@ -115,6 +117,9 @@ int main(int argc,char *argv[])
       break;
     case 'q':
       ptQuietFlag = 1;
+      break;
+    case 'c':
+      outputCurves = 1;
       break;
     case 'h':
       printf(PT_BLENDER_USAGE);
@@ -191,7 +196,7 @@ int main(int argc,char *argv[])
 
   if (referenceImage >= 0) {
     printf("Colour correcting photo using %d as a base\n", referenceImage);
-    ColourBrightness(ptrInputFiles, ptrOutputFiles, filesCount, referenceImage, 0);
+    ColourBrightness(ptrInputFiles, ptrOutputFiles, filesCount, referenceImage, 0, outputCurves);
   }
 
   if (flattenFlag) {

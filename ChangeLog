@@ -1,3 +1,16 @@
+2006-06-25  dmg  <dmgerman@uvic.ca>
+	
+	* ColourBrightness.c (OutputPhotoshopCurve)
+	(OutputEmptyPhotoshopCurve, OutputCurves, ColourBrightness):
+	Implemented the ability to output a photoshop .acv file that can
+	be loaded into a curves layer. It required to add an extra
+	parameter to ColourBrightness
+
+	* ColourBrightness.h: Updated prototype. 
+	
+	* PTcommon.c (CreatePanorama): 	Updated call to ColourBrightness
+	
+	
 2006-06-16  dmg  <dmgerman@uvic.ca>
 
 	* PTcommon.c (CreatePanorama): The process for creating PSD_mask

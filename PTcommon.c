@@ -3036,15 +3036,15 @@ int CreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles, fullPath
   // software like Enblend) as when Desrch first added these (MRDL).
   
   if (var00 != 0) {
-    ColourBrightness(fullPathImages,fullPathImages, counterImageFiles, var00 -1, 1);
+    ColourBrightness(fullPathImages,fullPathImages, counterImageFiles, var00 -1, 1, 0);
   }
   
   if (var01 != 0) { //
-    ColourBrightness(fullPathImages, fullPathImages, counterImageFiles, var01 - 1, 2);
+    ColourBrightness(fullPathImages, fullPathImages, counterImageFiles, var01 - 1, 2, 0);
   } // 
   
   if (colourCorrection != 0) {
-    ColourBrightness(fullPathImages, fullPathImages, counterImageFiles, (colourCorrection / 4) - 1, 0);
+    ColourBrightness(fullPathImages, fullPathImages, counterImageFiles, (colourCorrection / 4) - 1, 0, 0);
   }
   
   SetVRPanoOptionsDefaults(&defaultVRPanoOptions);

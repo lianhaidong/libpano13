@@ -72,7 +72,7 @@ int               CorrectFileColourBrightness(fullPath *inPath, fullPath *outPat
 int               FindNextCandidate(int candidates[], calla_struct *calla);
 
 magnolia_struct   *InitializeMagnolia(int numberImages, int size, calla_function parm2);
-void              ColourBrightness(  fullPath *fullPathImages, fullPath *outFullPathImages, int counterImages, int indexReferenceImage, int parm3);
+void              ColourBrightness(  fullPath *fullPathImages, fullPath *outFullPathImages, int counterImages, int indexReferenceImage, int parm3,int createCurves);
 void              CorrectImageColourBrigthness(Image *image, magnolia_struct *magnolia, int parm3);
 void              FreeHistograms(histograms_struct *ptrHistograms, int count);
 void              RemapHistogram(int *histogram, double *array, magnolia_struct *magnolia, int channel);
