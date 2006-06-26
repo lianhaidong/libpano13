@@ -208,6 +208,53 @@ int OutputPhotoshopCurve(FILE *output, int size, double *curve)
 
 }
 
+int OutputPhotoshopFlatArbitraryMap(FILE *output) 
+{
+  unsigned int i;
+  for (i = 0; i< 256; i++) {
+    unsigned char c;
+    c = i;
+    if (fputc(c, output) != c) {
+      PrintError("Error writing to curves file");
+      return 0;
+    }
+  }
+  return 1;
+}
+
+int OutputPhotoshopArbitraryMap(FILE *output, int size, double *curve) 
+{
+  uint16_t shortValue;
+  int i;
+
+  // so far we only support size == 0xff
+
+  assert(size == 256);
+
+  //  for (i = 0; i< size; i+=16) {
+  for (i = 0; i< size; i++) {
+    unsigned int temp;
+    unsigned int value;
+
+    //    fprintf(stderr, "value of curve %i: %10.5f\n", i, curve[i]);
+    
+    temp = round(curve[i]);
+    
+    // be paranoic
+    assert(temp >= 0 && temp <= 255);
+    value = temp;
+
+    // For some reason y is first in the output
+    if (fputc(value, output) != value) {
+      PrintError("Error writing to curves file");
+      return 0;
+    }
+  }
+
+  return 1;
+}
+
+
 int OutputEmptyPhotoshopCurve(FILE *output) 
 {
   // The empty curve is 2 entries: 0,0, and 255,255
@@ -228,12 +275,15 @@ int OutputEmptyPhotoshopCurve(FILE *output)
 }
 
 int OutputCurves(int index, magnolia_struct *curves, int typeOfCorrection,
-			     fullPath *panoFileName)
+		 fullPath *panoFileName, int curveType)
 {
   char outputFileName[512];
   char temp[12];
   int i;
   FILE *output;
+  char *curveExtension[2] = {
+    ".acv",
+    ".amp"};
 
 #define PHOTOSHOP_CURVES_MAGIC_NUMBER   "\x00\x04\x00\x05"
 
@@ -243,7 +293,8 @@ int OutputCurves(int index, magnolia_struct *curves, int typeOfCorrection,
   strncpy(outputFileName, panoFileName->name, 500);
   sprintf(temp, "%04d", index);
   strcat(outputFileName, temp);
-  ReplaceExt(outputFileName, ".acv");
+
+  ReplaceExt(outputFileName, curveExtension[curveType]); 
 
   //  fprintf(stderr, "Creating output file %s\n", outputFileName);
 
@@ -251,39 +302,53 @@ int OutputCurves(int index, magnolia_struct *curves, int typeOfCorrection,
     PrintError("Unable to create output curves file %s", outputFileName);
     return 0;
   }
-
   
-  if (fwrite(PHOTOSHOP_CURVES_MAGIC_NUMBER, 4, 1, output) != 1) {
-    PrintError("Unable to write to  output curves file %s", outputFileName);
-    return 0;
-  }
+  switch (curveType) {
+  case CB_OUTPUT_CURVE_SMOOTH:
+    if (fwrite(PHOTOSHOP_CURVES_MAGIC_NUMBER, 4, 1, output) != 1) 
+      goto error;
+    
+    // Output main curve
+    if (OutputEmptyPhotoshopCurve(output) == 0) 
+      goto error;
 
-  // Output main curve
-  if (OutputEmptyPhotoshopCurve(output) == 0) {
-    PrintError("Unable to create  output curves file %s", outputFileName);
-    return 0;
-  }
-  // Output Red, Green and Blue Channels
-  for (i=0;i<3;i++) {
-    if (OutputPhotoshopCurve(output, curves->components, curves->fieldx04[i]) == 0) {
+
+    // Output Red, Green and Blue Channels
+    for (i=0;i<3;i++) {
+      if (OutputPhotoshopCurve(output, curves->components, curves->fieldx04[i]) == 0) 
+	goto error;
+    }
+    // it needs an empty curve at the end, and I donot know why
+    if (OutputEmptyPhotoshopCurve(output) == 0) {
       PrintError("Unable to create  output curves file %s", outputFileName);
       return 0;
     }
-  }
-  // it needs an empty curve at the end, and I donot know why
-  if (OutputEmptyPhotoshopCurve(output) == 0) {
-    PrintError("Unable to create  output curves file %s", outputFileName);
-    return 0;
-  }
+    break;
+  case CB_OUTPUT_CURVE_ARBITRARY:
+    if (OutputPhotoshopFlatArbitraryMap(output) == 0) 
+      goto error;
 
+    // Output Red, Green and Blue Channels
+    for (i=0;i<3;i++) {
+      if (OutputPhotoshopArbitraryMap(output, curves->components, curves->fieldx04[i]) == 0) 
+	goto error;
+    }
+    break;
+  }
+  
   fclose(output);
   return 1;
+  
+
+ error:
+  PrintError("Unable to output curves file %s", outputFileName);
+  return 0;
 }
 			     
 
 
 void ColourBrightness(  fullPath *fullPathImages,  fullPath *outputFullPathImages, 
-			int counterImages, int indexReferenceImage, int parm3, int createCurves)
+			int counterImages, int indexReferenceImage, int parm3, int createCurvesType)
 {
 
   histograms_struct * ptrHistograms;
@@ -333,13 +398,14 @@ void ColourBrightness(  fullPath *fullPathImages,  fullPath *outputFullPathImage
 
   fprintf(debugFile, "\nResults of Optimization:");
 
-  if (createCurves) {
+  if (createCurvesType !=0) {
     for (index=0;  index < counterImages; index++ ) {
-      if (OutputCurves(index, &(calla.magnolia[index]), parm3, &(outputFullPathImages[index])) == 0) {
+      if (OutputCurves(index, &(calla.magnolia[index]), parm3, &(outputFullPathImages[index]), createCurvesType) == 0) {
 	PrintError("Error creating curves files");
 	return ;
       }
     }
+    return ;
   }
 
   for (index=0;  index < counterImages; index++ ) {

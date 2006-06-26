@@ -1,4 +1,13 @@
 2006-06-25  dmg  <dmgerman@uvic.ca>
+
+	* ColourBrightness.c (ColourBrightness, OutputCurves,
+	OutputPhotoshopArbitraryMap, OutputPhotoshopCurve): Implemented
+	Photoshop arbitrary map .amp.
+	
+	* ColourBrightness.h: Last parameter to ColourBrightness specifies
+	the type of format to output (.amp or .acv)
+
+2006-06-25  dmg  <dmgerman@uvic.ca>
 	
 	* ColourBrightness.c (OutputPhotoshopCurve)
 	(OutputEmptyPhotoshopCurve, OutputCurves, ColourBrightness):

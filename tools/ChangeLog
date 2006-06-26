@@ -1,9 +1,15 @@
 2006-06-25  dmg  <dmgerman@uvic.ca>
 
+	* PTblender.c: Implemented the ability to write a .amp file
+	(photoshop arbitrary map format)
+
+2006-06-25  dmg  <dmgerman@uvic.ca>
+
 	* PTblender.c: Implemented the ability to write a .acv file
 	(photoshop curve layer format) that be loaded as a layer in
 	photoshop. This file will contain the curves used to match one
 	photo to the other.
+
 
 2006-06-12  dmg  <dmgerman@uvic.ca>
 

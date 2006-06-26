@@ -72,7 +72,7 @@ int               CorrectFileColourBrightness(fullPath *inPath, fullPath *outPat
 int               FindNextCandidate(int candidates[], calla_struct *calla);
 
 magnolia_struct   *InitializeMagnolia(int numberImages, int size, calla_function parm2);
-void              ColourBrightness(  fullPath *fullPathImages, fullPath *outFullPathImages, int counterImages, int indexReferenceImage, int parm3,int createCurves);
+void              ColourBrightness(  fullPath *fullPathImages, fullPath *outFullPathImages, int counterImages, int indexReferenceImage, int parm3,int createCurvesType);
 void              CorrectImageColourBrigthness(Image *image, magnolia_struct *magnolia, int parm3);
 void              FreeHistograms(histograms_struct *ptrHistograms, int count);
 void              RemapHistogram(int *histogram, double *array, magnolia_struct *magnolia, int channel);
@@ -88,8 +88,12 @@ unsigned char Peach (unsigned char parm0, unsigned char parm1, unsigned char par
 unsigned char Cherry (unsigned char parm0, unsigned char parm1, unsigned char parm2);
 unsigned char Apple (unsigned char parm0, unsigned char parm1, unsigned char parm2);
 
+/* The parameter createCurvesType indicates the type of output format: arbitrary map (.amp) or smooth map (.acv).
+   if zero no map is output
+*/
 
-
+#define CB_OUTPUT_CURVE_ARBITRARY 1
+#define CB_OUTPUT_CURVE_SMOOTH    2
 
 
 #endif
