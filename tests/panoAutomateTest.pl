@@ -178,10 +178,10 @@ foreach $type (@toProcess) {
 	  defined $savedFile{$type} || die "\$savedFile{$type} is not defined";
 	  
 	  if (! -f "reference/$savedFile{$type}") {
-	    printf("Reference file reference/$savedFile{$type} does not exist\n");
+	    printf("Reference file 'reference/$savedFile{$type}' does not exist\n");
 	    $output = "fail";
 	  } elsif (! -f "tests/$savedFile{$type}") {
-	    printf("Output file reference/$savedFile{$type} was not created\n");
+	    printf("Output file tests/$savedFile{$type} was not created\n");
 	    $output = "fail";
 	  } else {	    
 	      if ($savedFile{$type} =~ /\.tif/) {

@@ -15,5 +15,5 @@ verify:
 	perl ../panoAutomateTest.pl -t simple.txt
 
 clean:
-	rm -f testOutput* _PTSti*
+	rm -f testOutput* _PTSti* tests/*.*
 

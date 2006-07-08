@@ -1,3 +1,7 @@
+2006-07-08  dmg  <dmgerman@uvic.ca>
+
+	* Updated reference files to include ResolutionUnits in TIFFs
+
 2006-06-16  dmg  <dmgerman@uvic.ca>
 
 	* Updated reference files to reflect fixed bug "psd_mask"

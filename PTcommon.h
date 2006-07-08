@@ -35,6 +35,7 @@
 #include "pt_stdint.h"
 
 
+
 typedef struct {
   uint16_t samplesPerPixel;
   uint16_t bitsPerSample;
@@ -50,21 +51,25 @@ typedef struct {
 
 extern int ptQuietFlag;
 
-int VerifyTiffsAreCompatible(fullPath *tiffFiles, int filesCount);
-int AddStitchingMasks(fullPath *inputFiles, fullPath *outputFiles, int numberImages, int featherSize);
+int panoVerifyTiffsAreCompatible(fullPath *tiffFiles, int filesCount, int optionalCheck);
+int panoAddStitchingMasks(fullPath *inputFiles, fullPath *outputFiles, int numberImages, int featherSize);
 
 /*  defined in ptpicker.c, but never exported */
-void InsertFileName( fullPath *fp, char *fname );
 
-int FlattenTIFF(fullPath *fullPathImages, int counterImageFiles, fullPath *outputFileName, int removeOriginals);
-int  CreatePSD(  fullPath *fullPathImages, int, fullPath*);
+int panoFlattenTIFF(fullPath *fullPathImages, int counterImageFiles, fullPath *outputFileName, int removeOriginals);
+int  panoCreatePSD(  fullPath *fullPathImages, int, fullPath*);
 
 
 extern int quietFlag;
 	
-int 	StringtoFullPath	(fullPath *path, char *filename);
-int CreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles, fullPath *panoFileName, fullPath *scriptFileName);
+int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles, fullPath *panoFileName, fullPath *scriptFileName);
 
-void ReplaceExt(char* filename, char *extension);
+void panoReplaceExt(char* filename, char *extension);
+int panoUnCropTiff(char *inputFile, char *outputFile);
+
+
+int 	StringtoFullPath	(fullPath *path, char *filename);
+void InsertFileName( fullPath *fp, char *fname );
+
 
 #endif

@@ -1,3 +1,11 @@
+2006-07-08  dmg  <dmgerman@uvic.ca>
+
+	* PTcommon.c, PTcommon.h: Major refactoring of the TIFF logic. I
+	have tried to encapsulate all the metadata of TIFFs including
+	cropped logic. I also renamed a lot of the functions.
+
+	* PTcommon.h, ColourBrightness.c: Updated files accordingly.
+
 2006-06-30    <dmgerman@uvic.ca>
 
 	* This entry marks the first commit using subversion

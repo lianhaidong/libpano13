@@ -188,16 +188,16 @@ int main(int argc,char *argv[])
       PrintError("Syntax error: Not a valid pathname");
       return(-1);
     }
-    ReplaceExt(ptrOutputFiles[i].name, ".tif");
+    panoReplaceExt(ptrOutputFiles[i].name, ".tif");
     
     //    fprintf(stderr, "Output filename [%s]\n", ptrOutputFiles[i].name);
   }
 
-  if (!VerifyTiffsAreCompatible(ptrInputFiles, filesCount)) {
+  if (!panoVerifyTiffsAreCompatible(ptrInputFiles, filesCount, TRUE)) {
     PrintError("TIFFs are not compatible");
     return -1;
   }
-
+  printf("Continuing\n");
   if (referenceImage >= 0) {
     printf("Colour correcting photo using %d as a base\n", referenceImage);
     ColourBrightness(ptrInputFiles, ptrOutputFiles, filesCount, referenceImage, 0, outputCurvesType);
@@ -213,9 +213,9 @@ int main(int argc,char *argv[])
       PrintError("Syntax error: Not a valid pathname");
       return(-1);
     }
-    ReplaceExt(pathName.name, ".tif");
+    panoReplaceExt(pathName.name, ".tif");
 
-    if (FlattenTIFF(ptrInputFiles, filesCount, &pathName, FALSE) != 0) { 
+    if (!panoFlattenTIFF(ptrInputFiles, filesCount, &pathName, FALSE)) { 
       PrintError("Error while flattening TIFF-image");
       return -1;
     }

@@ -1,3 +1,7 @@
+2006-07-08  dmg  <dmgerman@uvic.ca>
+
+	* panoAutomateTest.pl: Fixed a wrong error message
+
 2006-06-16  dmg  <dmgerman@uvic.ca>
 
 	* panoAutomateTest.pl: Added PSD_mask to the tests.

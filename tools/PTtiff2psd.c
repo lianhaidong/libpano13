@@ -156,7 +156,7 @@ int main(int argc,char *argv[])
 
   // Check that all files are compatible
 
-  if (!VerifyTiffsAreCompatible(ptrInputFiles, filesCount)) {
+  if (!panoVerifyTiffsAreCompatible(ptrInputFiles, filesCount, TRUE)) {
     PrintError("TIFFs are not compatible");
     return -1;
   }
@@ -183,7 +183,7 @@ int main(int argc,char *argv[])
 	return -1;
       }
     }
-    if (AddStitchingMasks(ptrInputFiles, tempFiles, filesCount, featherSize) != 0) {
+    if (panoAddStitchingMasks(ptrInputFiles, tempFiles, filesCount, featherSize) != 0) {
       PrintError("Unable to add stitching masks");
       return -1;
     }
@@ -200,7 +200,7 @@ int main(int argc,char *argv[])
     Progress(_initProgress, tempString);
   }
 
-  if (CreatePSD(ptrInputFiles, filesCount, &outputFilename ) != 0) {
+  if (panoCreatePSD(ptrInputFiles, filesCount, &outputFilename ) != 0) {
     PrintError("Error while creating PSD file");
     return -1;
   }

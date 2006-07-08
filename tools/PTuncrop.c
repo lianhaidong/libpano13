@@ -53,7 +53,6 @@ int main(int argc,char *argv[])
   FILE *testFile;
   
   //Need enough space for a message to be returned if something goes wrong
-  char messageBuffer[1024];	
   
   printf(PT_UNCROP_VERSION);
 
@@ -95,11 +94,9 @@ int main(int argc,char *argv[])
     }
   }
   
-  retVal = uncropTiff(inputFile, outputFile, messageBuffer);
+  retVal = panoUnCropTiff(inputFile, outputFile);
 	
-  if (retVal != 0)
-    fprintf(stderr, messageBuffer);
-
+  
   exit(retVal);	
   
 }

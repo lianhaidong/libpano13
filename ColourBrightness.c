@@ -294,7 +294,7 @@ int OutputCurves(int index, magnolia_struct *curves, int typeOfCorrection,
   sprintf(temp, "%04d", index);
   strcat(outputFileName, temp);
 
-  ReplaceExt(outputFileName, curveExtension[curveType]); 
+  panoReplaceExt(outputFileName, curveExtension[curveType]); 
 
   //  fprintf(stderr, "Creating output file %s\n", outputFileName);
 

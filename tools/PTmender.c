@@ -373,7 +373,7 @@ int main(int argc,char *argv[])
   // By now we should have loaded up the input filename array, the output 
   // panorama name, and the name of the script file (copied to a temporary
   // directory).  Now we can create the output image.
-  return CreatePanorama(ptrImageFileNames, counter, &panoFileName, &scriptFileName);
+  return panoCreatePanorama(ptrImageFileNames, counter, &panoFileName, &scriptFileName);
 
 }
 

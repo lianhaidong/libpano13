@@ -1,3 +1,8 @@
+2006-07-08  dmg  <dmgerman@uvic.ca>
+
+	* PTBlender.c, PTmender.c, PTtiff2psd.c, PTuncrop.c: updated
+	function call according to refactoring in PTcommon.c.
+
 2006-06-25  dmg  <dmgerman@uvic.ca>
 
 	* PTblender.c: Implemented the ability to write a .amp file
