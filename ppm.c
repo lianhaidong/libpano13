@@ -23,286 +23,314 @@
 #include "filter.h"
 
 
-static int readPPMFileHeader(file_spec src, Image *im);
+static int readPPMFileHeader(file_spec src, Image * im);
 
 
 // image is allocated, but not image data
 
-int readPPM(Image *im, fullPath *sfile)
+int readPPM(Image * im, fullPath * sfile)
 {
-	file_spec	src;
-	size_t		count;
-	
-	if( myopen( sfile, read_bin, src ) )
-	{	
-		PrintError("Error Opening Image File");
-		return -1;
-	}
-	
+    file_spec src;
+    size_t count;
 
-	if( readPPMFileHeader(src, im) != 0 )
-	{
-		PrintError("Error Reading File Header");
-		myclose( src );
-		return -1;
-	}
+    if (myopen(sfile, read_bin, src))
+    {
+        PrintError("Error Opening Image File");
+        return -1;
+    }
 
-	im->bitsPerPixel	= 24;	
-	im->bytesPerLine 	= im->width * 3;
-	im->dataSize		= im->bytesPerLine * im->height;
-	
-	im->data			= (unsigned char**) mymalloc( (size_t)(im->width * im->height * 4) );
-	if ( im->data == NULL )
-	{
-		PrintError("Not enough memory");
-		myclose( src );
-		return -1;
-	}
-	
-	count = (size_t)(im->width * im->height * 3);
-	
-	myread(src,count,*(im->data));
-	
-	if( count != im->width * im->height * 3 )
-	{
-		PrintError("Error Reading Image Data");
-		myclose( src );
-		return -1;
-	}
 
-	myclose( src );
-	ThreeToFourBPP( im );
-	return 0;
-}
-	
+    if (readPPMFileHeader(src, im) != 0)
+    {
+        PrintError("Error Reading File Header");
+        myclose(src);
+        return -1;
+    }
 
-static int readPPMFileHeader(file_spec src, Image *im)
-{
-	int 			i;
-	char 			smallBuf[32], c;
-	size_t 			count = 1;
-	
-	/* read the file header (including height and width) */
+    im->bitsPerPixel = 24;
+    im->bytesPerLine = im->width * 3;
+    im->dataSize = im->bytesPerLine * im->height;
 
-	im->height = -1;
-	while(im->height == -1)
-	{
-		myread(src,count,&c); 
-		if( count != 1 ) return 1;
-		switch(c)
-		{
-			case '#':
-				/* comment line -- skip it */
-				while(c != 0x0A	&& c != 0x0D && count == 1)
-					myread(src,count,&c); 
-				break;
-			case ' ': case '\012': case '\t': case '\015':
-				/* random whitespace... just ignore it. */
-				break;
-			case 'P':
-				/* magic number */
-				myread(src,count,&c); 
-				if(c != '6' )
-				{
-					PrintError("Bad magic number in input file");
-					return(-1);
-				}
-				/* there should be one whitespace character */
-				break;
-			case '0': case '1': case '2': case '3': case '4':
-			case '5': case '6': case '7': case '8': case '9':
-				/* read width */
-				for(i=0;isdigit(c) && (i+1 < sizeof(smallBuf));i++)
-				{
-					smallBuf[i] = c;
-					myread(src,count,&c); 
-					if( count != 1 ) return  -1;
-				}
-				if(!isspace(c))
-				{
-					PrintError("Bad input file format");
-					return -1;
-				}
-				smallBuf[i] = 0;
-				im->width = atoi(smallBuf);
-				/* read height */
-				myread(src,count,&c); 
-				if( count != 1 ) return  -1;
-				for(i=0;isdigit(c) && (i+1 < sizeof(smallBuf));i++)
-				{
-					smallBuf[i] = c;
-					myread(src,count,&c); 
-					if( count != 1 ) return  -1;
-				}
-				if(!isspace(c))
-				{
-					PrintError("Bad input file format");
-					return -1;
-				}
-				smallBuf[i] = 0;
-				im->height = atoi(smallBuf);
-				/* read numColors */
-				myread(src,count,&c); 
-				if( count != 1 ) return  -1;
-				for(i=0;isdigit(c) && (i+1 < sizeof(smallBuf));i++)
-				{
-					smallBuf[i] = c;
-					myread(src,count,&c); 
-					if( count != 1 ) return  -1;
-				}
-				if(!isspace(c))
-				{
-					PrintError("Bad input file format");
-					return -1;
-				}
-				smallBuf[i] = 0;
-				if(atoi(smallBuf) != 255)
-					PrintError("Warning: Wrong Colordepth!");
-				break;
-			default:
-					PrintError("Bad input file format");
-					return(-1);
-				break;
-		}
-	}
-			
-	/* the header has been taken care of.  The rest of the file is just image data. */	
-	return(0);
+    im->data =
+        (unsigned char **) mymalloc((size_t) (im->width * im->height * 4));
+    if (im->data == NULL)
+    {
+        PrintError("Not enough memory");
+        myclose(src);
+        return -1;
+    }
+
+    count = (size_t) (im->width * im->height * 3);
+
+    myread(src, count, *(im->data));
+
+    if (count != im->width * im->height * 3)
+    {
+        PrintError("Error Reading Image Data");
+        myclose(src);
+        return -1;
+    }
+
+    myclose(src);
+    ThreeToFourBPP(im);
+    return 0;
 }
 
 
-
-int writePPM( Image *im, fullPath *sfile )
+static int readPPMFileHeader(file_spec src, Image * im)
 {
-	char header[30];
-	size_t count;
-	file_spec	fnum;
-	int y, cy, cpy;
-	unsigned char* data;
+    int i;
+    char smallBuf[32], c;
+    size_t count = 1;
 
+    /* read the file header (including height and width) */
 
+    im->height = -1;
+    while (im->height == -1)
+    {
+        myread(src, count, &c);
+        if (count != 1)
+            return 1;
+        switch (c)
+        {
+        case '#':
+            /* comment line -- skip it */
+            while (c != 0x0A && c != 0x0D && count == 1)
+                myread(src, count, &c);
+            break;
+        case ' ':
+        case '\012':
+        case '\t':
+        case '\015':
+            /* random whitespace... just ignore it. */
+            break;
+        case 'P':
+            /* magic number */
+            myread(src, count, &c);
+            if (c != '6')
+            {
+                PrintError("Bad magic number in input file");
+                return (-1);
+            }
+            /* there should be one whitespace character */
+            break;
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+            /* read width */
+            for (i = 0; isdigit(c) && (i + 1 < sizeof(smallBuf)); i++)
+            {
+                smallBuf[i] = c;
+                myread(src, count, &c);
+                if (count != 1)
+                    return -1;
+            }
+            if (!isspace(c))
+            {
+                PrintError("Bad input file format");
+                return -1;
+            }
+            smallBuf[i] = 0;
+            im->width = atoi(smallBuf);
+            /* read height */
+            myread(src, count, &c);
+            if (count != 1)
+                return -1;
+            for (i = 0; isdigit(c) && (i + 1 < sizeof(smallBuf)); i++)
+            {
+                smallBuf[i] = c;
+                myread(src, count, &c);
+                if (count != 1)
+                    return -1;
+            }
+            if (!isspace(c))
+            {
+                PrintError("Bad input file format");
+                return -1;
+            }
+            smallBuf[i] = 0;
+            im->height = atoi(smallBuf);
+            /* read numColors */
+            myread(src, count, &c);
+            if (count != 1)
+                return -1;
+            for (i = 0; isdigit(c) && (i + 1 < sizeof(smallBuf)); i++)
+            {
+                smallBuf[i] = c;
+                myread(src, count, &c);
+                if (count != 1)
+                    return -1;
+            }
+            if (!isspace(c))
+            {
+                PrintError("Bad input file format");
+                return -1;
+            }
+            smallBuf[i] = 0;
+            if (atoi(smallBuf) != 255)
+                PrintError("Warning: Wrong Colordepth!");
+            break;
+        default:
+            PrintError("Bad input file format");
+            return (-1);
+            break;
+        }
+    }
 
-	if(  myopen( sfile, write_bin, fnum )   )
-	{	
-		PrintError("Error Writing Image File");
-		return -1;
-	}
-
-	if( im->bitsPerPixel == 32 )
-		FourToThreeBPP	( im );
-		
-	if( im->bytesPerLine != im->width * 3 ) 	// Eliminate Pad bytes
-	{
-		data = *(im->data);
-		for(y=0; y<im->height; y++)
-		{
-			cy = im->height * im->bytesPerLine;
-			cpy = im->height * im->width * 3;
-
-			memcpy( data+cpy, data+cy, (size_t)(im->width * 3));
-		}
-		im->bytesPerLine = im->width * 3;
-		im->dataSize = im->height * im->bytesPerLine;
-	}
-					
-
-	sprintf( header, "P6\n"FMT_INT32" "FMT_INT32"\n%ld\n", im->width, im->height, 255L);
-
-	count = strlen( header );
-	mywrite( fnum, count, header );
-	
-	if( count != strlen( header ))
-	{
-		PrintError("Error writing file header");
-		return -1;
-	}
-	
-	count = im->dataSize;
-	mywrite( fnum, count, *(im->data) );
-	
-	if( count != im->dataSize )
-	{
-		PrintError("Error writing image data");
-		return -1;
-	}
-	
-	myclose( fnum );
-	return 0;
+    /* the header has been taken care of.  The rest of the file is just image data. */
+    return (0);
 }
 
-int makeTempPath( fullPath *path ){
-	file_spec fnum;
-	char *dir;
-	static int try = 0;
-	int i;
-	char fname[24];
 
 
-	dir = strrchr( path->name, '/' );
-	if( dir == NULL ){
-		dir = path->name;
-	}else{
-		dir++;
-	}
+int writePPM(Image * im, fullPath * sfile)
+{
+    char header[30];
+    size_t count;
+    file_spec fnum;
+    int y, cy, cpy;
+    unsigned char *data;
 
-	
+
+
+    if (myopen(sfile, write_bin, fnum))
+    {
+        PrintError("Error Writing Image File");
+        return -1;
+    }
+
+    if (im->bitsPerPixel == 32)
+        FourToThreeBPP(im);
+
+    if (im->bytesPerLine != im->width * 3)      // Eliminate Pad bytes
+    {
+        data = *(im->data);
+        for (y = 0; y < im->height; y++)
+        {
+            cy = im->height * im->bytesPerLine;
+            cpy = im->height * im->width * 3;
+
+            memcpy(data + cpy, data + cy, (size_t) (im->width * 3));
+        }
+        im->bytesPerLine = im->width * 3;
+        im->dataSize = im->height * im->bytesPerLine;
+    }
+
+
+    sprintf(header, "P6\n" FMT_INT32 " " FMT_INT32 "\n%ld\n", im->width,
+            im->height, 255L);
+
+    count = strlen(header);
+    mywrite(fnum, count, header);
+
+    if (count != strlen(header))
+    {
+        PrintError("Error writing file header");
+        return -1;
+    }
+
+    count = im->dataSize;
+    mywrite(fnum, count, *(im->data));
+
+    if (count != im->dataSize)
+    {
+        PrintError("Error writing image data");
+        return -1;
+    }
+
+    myclose(fnum);
+    return 0;
+}
+
+int makeTempPath(fullPath * path)
+{
+    file_spec fnum;
+    char *dir;
+    static int try = 0;
+    int i;
+    char fname[24];
+
+
+    dir = strrchr(path->name, '/');
+    if (dir == NULL)
+    {
+        dir = path->name;
+    }
+    else
+    {
+        dir++;
+    }
+
+
 #define MAX_TEMP_TRY	1000
-	
-	try++;
-	
-	for(i=0; i < MAX_TEMP_TRY; try++,i++){
-		sprintf( fname, "_PTStitcher_tmp_%03d", try );
-		if( strlen( fname ) + 2 < sizeof(path->name) - (strlen(path->name)-strlen(dir)) ){
-			sprintf( dir, "%s", fname );
-			if( myopen( path, read_bin, fnum ))
-				break;
-			myclose( fnum );
-		}else{
-			PrintError("Path too long");
-			return -1;
-		}
-	}
-	if( try < MAX_TEMP_TRY )
-		return 0;
-	else
-		return -1;
-	
+
+    try++;
+
+    for (i = 0; i < MAX_TEMP_TRY; try++, i++)
+    {
+        sprintf(fname, "_PTStitcher_tmp_%03d", try);
+        if (strlen(fname) + 2 <
+            sizeof(path->name) - (strlen(path->name) - strlen(dir)))
+        {
+            sprintf(dir, "%s", fname);
+            if (myopen(path, read_bin, fnum))
+                break;
+            myclose(fnum);
+        }
+        else
+        {
+            PrintError("Path too long");
+            return -1;
+        }
+    }
+    if (try < MAX_TEMP_TRY)
+        return 0;
+    else
+        return -1;
+
 }
 
 
-int readImage( Image *im, fullPath *sfile )
+int readImage(Image * im, fullPath * sfile)
 {
-	char *ext,extension[4];
-	int i;
-	
-	
-	ext = strrchr( sfile->name, '.' );
-	if( ext == NULL || strlen(ext) != 4 )
-	{
-		PrintError("Unsupported File Format: Must be JPEG, TIF or PPM");
-		return -1;
-	}
-	ext++;
-	strcpy( extension, ext );
-	for(i=0; i<3; i++)
-		extension[i] = tolower(extension[i]);
+    char *ext, extension[4];
+    int i;
 
-	
-	if( strcmp( extension, "ppm" ) == 0 )
-		return readPPM(  im, sfile );
-	else if( strcmp( extension, "jpg" ) == 0 )
-		return readJPEG(im, sfile );
-	else if( strcmp( extension, "tif" ) == 0 )
-		return readTIFF(im, sfile );
-	else{
-		PrintError("Unsupported File Format: Must be JPEG, TIF or PPM");
-		return -1;
-	}
-}
-		
 
-int writeImage( Image *im, fullPath *sfile ){
-	return writePPM( im, sfile );
+    ext = strrchr(sfile->name, '.');
+    if (ext == NULL || strlen(ext) != 4)
+    {
+        PrintError("Unsupported File Format: Must be JPEG, TIF or PPM");
+        return -1;
+    }
+    ext++;
+    strcpy(extension, ext);
+    for (i = 0; i < 3; i++)
+        extension[i] = tolower(extension[i]);
+
+
+    if (strcmp(extension, "ppm") == 0)
+        return readPPM(im, sfile);
+    else if (strcmp(extension, "jpg") == 0)
+        return readJPEG(im, sfile);
+    else if (strcmp(extension, "tif") == 0)
+        return readTIFF(im, sfile);
+    else
+    {
+        PrintError("Unsupported File Format: Must be JPEG, TIF or PPM");
+        return -1;
+    }
 }
 
 
+int writeImage(Image * im, fullPath * sfile)
+{
+    return writePPM(im, sfile);
+}
