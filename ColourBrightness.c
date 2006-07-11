@@ -224,7 +224,6 @@ int OutputPhotoshopFlatArbitraryMap(FILE *output)
 
 int OutputPhotoshopArbitraryMap(FILE *output, int size, double *curve) 
 {
-  uint16_t shortValue;
   int i;
 
   // so far we only support size == 0xff

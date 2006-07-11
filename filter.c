@@ -30,6 +30,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <tiff.h>
+#include <assert.h>
+
 
 
 
@@ -811,6 +814,27 @@ void TwoToOneByte( Image *im ){
 
 
 
+
+static void panoSetMetadataDefaults(pano_ImageMetadata *m)
+{
+
+    bzero(m, sizeof(*m));
+
+    // These are "meaningful defaults 
+
+    m->xPixelsPerResolution = PANO_DEFAULT_PIXELS_PER_RESOLUTION;
+    m->yPixelsPerResolution = PANO_DEFAULT_PIXELS_PER_RESOLUTION;
+    m->resolutionUnits = PANO_DEFAULT_TIFF_RESOLUTION_UNITS;
+
+
+    m->rowsPerStrip =1; // THis will speed up processing of TIFFs as only one line
+                        // at a time needs to be read
+
+    m->compression.type = PANO_DEFAULT_TIFF_COMPRESSION; 
+
+}
+
+
 void SetImageDefaults(Image *im){
 	im->data 		= NULL;
 	im->bytesPerLine	= 0;
@@ -830,6 +854,7 @@ void SetImageDefaults(Image *im){
 	im->selection.bottom    = 0;
 	im->selection.left	= 0;
 	im->selection.right	= 0;
+        panoSetMetadataDefaults(&im->metadata);
 }
 
 // Copy all position  related data
@@ -986,7 +1011,271 @@ int CropImage(Image *im, PTRect *r){
 }
 		
 		
+// Are we inside the ROI
+int panoROIRowInside(pano_CropInfo * cropInfo, int row)
+{
+    // We are in the ROI if the row is bigger than the yoffset
+    // and the row is less or equal to the offset + height
+    assert(cropInfo != NULL);
+    assert(row >= 0);
+
+    return
+        row >= cropInfo->yOffset &&
+        row < cropInfo->yOffset + cropInfo->croppedHeight;
+
+}
 
 	
 
 
+
+void panoMetadataFree(pano_ImageMetadata * metadata)
+{
+    // Free any parts of metadata that are dynamically allocated
+
+    if (metadata->iccProfile.size != 0) {
+        assert(metadata->iccProfile.data != NULL);
+	printf("+++++++++++++++++++++++++++++++++++++Freeing ICC profile %x\n",
+	       (int)(metadata->iccProfile.data));
+
+	free(metadata->iccProfile.data);
+	metadata->iccProfile.data = NULL;
+        metadata->iccProfile.size = 0;
+    }
+
+    if (metadata->copyright!=NULL) 
+	free(metadata->copyright);
+
+    if (metadata->artist!=NULL) 
+	free(metadata->artist);
+
+    if (metadata->datetime!=NULL) 
+	free(metadata->datetime);
+
+    if (metadata->imageDescription!=NULL) 
+	free(metadata->imageDescription);
+    
+}
+
+// Allocate a block of memory, copy it and return it
+int panoAllocAndCopy(char **pTo, char *from, int size)
+{
+    char *temp;
+    // Make it easy for the caller
+
+    printf("TO allocandcopy\n");
+
+    if (size == 0 ||
+	from == NULL) 
+    {
+	*pTo = NULL;
+	return TRUE;
+    }
+
+    temp = calloc(size, 1);
+    if (temp == NULL) 
+    {
+	PrintError("Not enough memory");
+	return FALSE;
+    }	
+    printf("To copy to pointer 1\n");
+    memcpy(temp, from, size);
+
+    printf("To copy to pointer 2\n");
+    *pTo = temp;
+
+    printf("End of allocandcopy\n");
+
+    return TRUE;
+}
+
+// Allocate a block of memory, copy it and return it
+int panoAllocAndCopyString(char **pTo, char *from)
+{
+    if (from == NULL) 
+    {
+	*pTo = NULL;
+	return TRUE;
+    }
+
+    return panoAllocAndCopy(pTo, from, strlen(from)+1);
+}
+
+
+int panoMetadataCopy(pano_ImageMetadata * to, pano_ImageMetadata * from)
+{
+    /* 
+       Copy the metadata, allocate memory as needed
+     */
+    int result;
+    char *temp;
+    printf("begin of copy\n");
+
+
+
+    assert(from != NULL);
+    assert(to != NULL);
+
+    // clear the destination
+    bzero(to, sizeof(*to));
+    // most of the data can be copied this way
+    memcpy(to, from, sizeof(*to));
+
+    // Allocate memory for dynamic areas
+
+    //these fields can't be mem copied 
+    to->iccProfile.data = NULL;
+    to->copyright = NULL;
+    to->datetime = NULL;
+    to->imageDescription = NULL;
+    to->artist = NULL;
+
+
+    printf("begin of copy 2\n");
+
+
+    //    result = panoAllocAndCopy(&(to->iccProfile.data),
+    result = panoAllocAndCopy(&temp,
+			      from->iccProfile.data,
+			      (int)from->iccProfile.size);
+
+    to->iccProfile.data  = temp;
+
+    panoDumpMetadata(to, "----------------->Copy");
+
+#define pano_COPY_STRING(a) (panoAllocAndCopyString(&(to->a), from->a))
+
+    result = result && 
+	pano_COPY_STRING(copyright) &&
+	pano_COPY_STRING(datetime) &&
+	pano_COPY_STRING(imageDescription) &&
+	pano_COPY_STRING(artist);
+
+#undef pano_COPY_STRING
+
+    panoDumpMetadata(to, "----------------->Copy after");
+
+    printf("End of copy result %d\n", result);
+
+    return result;
+}
+
+
+
+void panoMetadataSetCompression(pano_ImageMetadata * metadata, char *compressionName)
+{
+    //Packbits compression was used by original PTStitcher and is retained
+    //as the default...the option to use the more efficient LZW compression
+    //is also provided
+    if (strstr(compressionName, "c:LZW") != NULL)
+    {
+	metadata->compression.type = COMPRESSION_LZW;
+	metadata->compression.predictor = 2;
+    }
+    else if (strstr(compressionName, "c:NONE") != NULL) 
+    {
+	metadata->compression.type = COMPRESSION_NONE;
+    }
+    else if (strstr(compressionName, "c:DEFLATE") != NULL)
+    {
+	metadata->compression.type = COMPRESSION_DEFLATE;
+    }
+    else 
+    {                  // Default is PACKBITS
+	// TODO
+	// dmg: I am not very happy with this type of compression
+	// DEFLATE is better
+	metadata->compression.type = COMPRESSION_PACKBITS;
+    }
+}
+
+// We need sometimes to reuse metadata but change its size.
+// This function does that
+void panoMetadataResetSize(pano_ImageMetadata * metadata, 
+			   int width, int height)
+{
+    metadata->imageWidth = width;
+    metadata->imageHeight = height;
+    metadata->bytesPerLine = metadata->imageWidth * metadata->bytesPerPixel;
+
+    metadata->isCropped = FALSE;
+    
+}
+
+void panoMetadataSetAsCropped(pano_ImageMetadata * metadata, 
+			      int croppedWidth, 
+			      int croppedHeight,
+			      int roiLeft, 
+			      int roiTop)
+{
+    // Set crop structure
+
+    metadata->cropInfo.fullWidth = metadata->imageWidth;
+    metadata->cropInfo.fullHeight = metadata->imageHeight;
+
+    metadata->cropInfo.xOffset = roiLeft;
+    metadata->cropInfo.yOffset = roiTop;
+
+    metadata->cropInfo.croppedWidth = croppedWidth;
+    metadata->cropInfo.croppedHeight = croppedHeight;
+
+    // Set main metadata fields
+
+    metadata->imageWidth = croppedWidth;
+    metadata->imageHeight = croppedHeight;
+    metadata->bytesPerLine = metadata->imageWidth * metadata->bytesPerPixel;
+
+    // And of course the most important
+    metadata->isCropped = TRUE;
+
+
+}
+
+#ifdef panoDumpMetadata
+#undef panoDumpMetadata
+#endif
+
+void panoDumpMetadata(pano_ImageMetadata * metadata, char *message)
+{
+    printf("**Metadata***%s\n", message);
+    printf("  Size %dx%d ",     metadata->imageWidth,     metadata->imageHeight);
+    printf("  is cropped %d\n", metadata->isCropped);
+    if (metadata->isCropped) 
+    {
+	printf("  Cropped size %dx%d offset %d,%d Full size %dx%d\n",
+	       (int)metadata->cropInfo.croppedWidth,
+	       (int)metadata->cropInfo.croppedHeight,
+	       (int)metadata->cropInfo.xOffset,
+	       (int)metadata->cropInfo.yOffset,
+	       (int)metadata->cropInfo.fullWidth,
+	       (int)metadata->cropInfo.fullHeight);
+    }
+    printf("  REsolution %f, %f units %d ",metadata->xPixelsPerResolution,
+	   metadata->yPixelsPerResolution, metadata->resolutionUnits);
+    printf("  Samplesperpixel %d, bitsPerSample %d ",
+	   metadata->samplesPerPixel, metadata->bitsPerSample);
+
+    printf("  bytesPerLine %d ", metadata->bytesPerLine);
+
+    printf("  rows per strip %d ", metadata->rowsPerStrip);
+
+    printf("  compression %d %d ", metadata->compression.type,
+	   metadata->compression.predictor);
+
+    printf("  bytesPerPixel %d bitsPerPixel %d\n", metadata->bytesPerPixel,
+	   (int)metadata->bitsPerPixel);
+
+    if (metadata->copyright != NULL)
+	printf("Copyright [%s]\n", metadata->copyright);
+
+    if (metadata->artist != NULL)
+	printf("Artist [%s]\n", metadata->artist);
+
+    if (metadata->datetime != NULL)
+	printf("datetime [%s]\n", metadata->datetime);
+
+    if (metadata->imageDescription != NULL)
+	printf("Artist [%s]\n", metadata->imageDescription);
+
+    printf("**EndMetadata***%s\n", message);
+}

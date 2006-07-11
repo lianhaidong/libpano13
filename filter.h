@@ -934,6 +934,35 @@ extern sPrefs			*gsPrPtr;
 #endif
 
 
+#define PANO_DEFAULT_PIXELS_PER_RESOLUTION  150.0
+#define PANO_DEFAULT_TIFF_RESOLUTION_UNITS  RESUNIT_INCH
+// this is the best compression available in all systems
+// better than PACKBITS
+#define PANO_DEFAULT_TIFF_COMPRESSION       COMPRESSION_DEFLATE
+
+void panoMetadataFree(pano_ImageMetadata * metadata);
+int panoMetadataCopy(pano_ImageMetadata * to, pano_ImageMetadata * from);
+int panoROIRowInside(pano_CropInfo * cropInfo, int row);
+void panoMetadataSetCompression(pano_ImageMetadata * metadata, char *compressionName);
+int panoMetadataCopy(pano_ImageMetadata * to, pano_ImageMetadata * from);
+void panoMetadataFree(pano_ImageMetadata * metadata);
+
+void panoMetadataSetAsCropped(pano_ImageMetadata * metadata, 
+			      int croppedWidth, 
+			      int croppedHeight,
+			      int roiLeft, 
+			      int roiRight);
+
+void panoMetadataResetSize(pano_ImageMetadata * metadata, 
+			   int width, int height);
+
+int panoReadJPEG(Image * im, fullPath * sfile);
+
+#ifndef PAN_DEBUG_METADATA
+void panoDumpMetadata(pano_ImageMetadata * metadata, char *message);
+#else 
+#define panoDumpMetadata(a,b)  ;
+#endif
 
 
 #endif

@@ -22,7 +22,7 @@
 #ifndef PANORAMA_H
 #define PANORAMA_H
 
-
+#include "pt_stdint.h"
 #include "version.h"
 #include "panotypes.h"
 
@@ -85,8 +85,7 @@ typedef struct
 #endif
 
 
-
-
+// Some important defaults (perhaps to be moved somewhere else later
 
 // Enumerates for TrFormStr.tool
 
@@ -260,6 +259,64 @@ typedef struct
     pt_int32 y_offset;
 } CropInfo;
 
+typedef struct
+{
+    pt_int32 fullWidth;
+    pt_int32 fullHeight;
+    pt_int32 croppedWidth;
+    pt_int32 croppedHeight;
+    pt_int32 xOffset;
+    pt_int32 yOffset;
+} pano_CropInfo;
+
+typedef struct
+{
+    uint16_t type;
+    uint16_t predictor;
+} pano_TiffCompression;
+
+typedef struct
+{
+    pt_int32 size;
+    char *data;
+} pano_ICCProfile;
+
+typedef struct
+{
+    // Full size of image
+    uint32_t imageWidth;
+    uint32_t imageHeight;
+
+    int isCropped;
+
+    float xPixelsPerResolution;
+    float yPixelsPerResolution;
+    uint16_t resolutionUnits;
+
+
+    uint16_t samplesPerPixel;
+    uint16_t bitsPerSample;
+    int bytesPerLine;           // Equal to the scanlinesize
+
+    uint32_t rowsPerStrip;
+
+    pano_TiffCompression compression;
+
+    pano_ICCProfile iccProfile;
+    pano_CropInfo cropInfo;
+
+    // other metadata
+    char *copyright;
+    char *datetime;
+    char *imageDescription;
+    char *artist;
+
+    // These fields are computed
+    int bytesPerPixel;          // This is a common value to use
+    int bitsPerPixel;           // This is a common value to use
+} pano_ImageMetadata;
+
+#define PANO_PATH_LEN 255
 
 struct Image
 {
@@ -268,7 +325,7 @@ struct Image
     pt_int32 height;
     pt_int32 bytesPerLine;
     pt_int32 bitsPerPixel;      // Must be 24 or 32
-    pt_uint32 dataSize;
+    size_t dataSize;
     unsigned char **data;
     pt_int32 dataformat;        // rgb, Lab etc
     pt_int32 format;            // Projection: rectilinear etc
@@ -277,13 +334,14 @@ struct Image
     double pitch;
     double roll;
     cPrefs cP;                  // How to correct the image
-    char name[256];
+    char name[PANO_PATH_LEN+1];
     PTRect selection;
-    CropInfo cropInformation;
+    CropInfo cropInformation; // TO BE DEPRECATED
+
+    pano_ImageMetadata metadata;
 };
 
 typedef struct Image Image;
-
 
 
 

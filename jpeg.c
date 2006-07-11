@@ -225,3 +225,33 @@ int readJPEG(Image * im, fullPath * sfile)
 
 
 }
+
+// this function is very likely to change
+// so it should be considered a hack until 
+// we are able to read all the JPEG metadata
+
+int panoUpdateMetadataFromJPEG(Image *im) 
+{
+    im->metadata.imageWidth = im->width;
+    im->metadata.imageHeight = im->height;
+    im->metadata.bytesPerLine = im->bytesPerLine;
+    im->metadata.bitsPerSample = im->bitsPerPixel / 4;
+    im->metadata.samplesPerPixel = 4;
+    im->metadata.bytesPerPixel = im->bitsPerPixel/8;
+    im->metadata.bitsPerPixel = im->bitsPerPixel;
+
+    panoDumpMetadata(&(im->metadata),"Updating metadata from JPEG");
+    
+    return TRUE;
+}
+
+int panoReadJPEG(Image * im, fullPath * sfile)
+{
+  if ( readJPEG(im, sfile) == 0) 
+  {
+      return panoUpdateMetadataFromJPEG(im);
+  } else
+      return FALSE;
+
+
+}

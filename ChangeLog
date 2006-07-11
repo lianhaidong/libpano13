@@ -1,5 +1,17 @@
 2006-07-09  dmg  <dmgerman@uvic.ca>
 
+	* panorama.h, PTcommon.c, pttiff.h, filter.c, tiff.c, filter.h,
+	jpeg.c, ppm.c: Panotool is now able to preserve some metadata from
+	beginning to end of the process. Only TIFF is currently
+	supported. PPM is not yet supported.
+	
+	* ColourBrightness.c (OutputPhotoshopArbitraryMap): Removed unused variable.
+
+	* filter.c: Set defaults for image.metadata.
+	(panoSetMetadataDefaults): Added fuction that sets defauls for
+	Image. Changed compression default from PACKBITS to DEFLATE
+	(which creates smaller TIFFs)
+
 	* tiff.c, jpeg.c, ppm.c, panorama.h, PTcommon.c: Reindented using
 	Apache's code style.
 
