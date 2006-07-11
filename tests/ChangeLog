@@ -1,3 +1,7 @@
+2006-07-10  dmg  <dmgerman@uvic.ca>
+
+	* Makefile.am (SUBDIRS): Added simpleTiff16 directory
+
 2006-07-08  dmg  <dmgerman@uvic.ca>
 
 	* panoAutomateTest.pl: Fixed a wrong error message
