@@ -1,3 +1,8 @@
+2006-07-28  dmg  <dmg@hydrogen.dmg>
+
+	* Makefile.am (EXTRA_DIST): Updated. It had incorrect files.
+
+
 2006-07-10  dmg  <dmgerman@uvic.ca>
 
 	* Added test. The LZW test needs to be created.

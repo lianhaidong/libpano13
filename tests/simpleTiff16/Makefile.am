@@ -1,5 +1,5 @@
-EXTRA_DIST = reference 051221_6054_750.jpg 051221_6055_750.jpg \
-             ChangeLog README.txt simple.pto simple.txt
+EXTRA_DIST = reference 060520_3398.TIF \
+             ChangeLog simple.txt
 
 MAINTAINERCLEANFILES = \
 	Makefile.in
