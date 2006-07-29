@@ -185,7 +185,7 @@ foreach $type (@toProcess) {
 	    $output = "fail";
 	  } else {	    
 	      if ($savedFile{$type} =~ /\.tif/) {
-		  $output = `tiffcmp reference/$savedFile{$type} tests/`;	      
+		  $output = `tiffcmp reference/$savedFile{$type} tests/ | grep -v 'Created by Panotools'`;	      
 	      } else {
 		  $output = `diff reference/$savedFile{$type} tests/`;	      
 	      }
@@ -237,7 +237,7 @@ sub Compare_Images
 
 
 	if ($fileName =~ /\.tif$/) {
-	    $output .= `tiffcmp $fileName  $newFileName`;
+	    $output .= `tiffcmp $fileName  $newFileName | grep -v 'Created by Panotools'`;
 	} else {
 	    $output .= `diff $fileName  $newFileName`;
 	}
