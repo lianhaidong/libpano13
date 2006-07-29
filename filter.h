@@ -968,3 +968,6 @@ void panoDumpMetadata(pano_ImageMetadata * metadata, char *message);
 #endif
 
 
+// number of different temporary files
+#define MAX_TEMP_TRY    1000000
+

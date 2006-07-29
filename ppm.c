@@ -269,8 +269,6 @@ int makeTempPath(fullPath * path)
     }
 
 
-#define MAX_TEMP_TRY    1000
-
     try++;
 
     for (i = 0; i < MAX_TEMP_TRY; try++, i++)
