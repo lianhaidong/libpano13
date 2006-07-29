@@ -1,5 +1,9 @@
 2006-07-28  dmg  <dmg@hydrogen.dmg>
 
+	* pict.c (makeTempPath), ppm.c (makeTempPath), bmp.c
+	(makeTempPath): libpano can now create more than 1000 temporal
+	files. Bug 
+
 	* ppm.c (panoUpdateMetadataFromPPM): Updated PPM support for new
 	metadata processing.
 

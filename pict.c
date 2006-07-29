@@ -474,7 +474,7 @@ int makeTempPath( fullPath *path )
 	for(i=0; i < MAX_TEMP_TRY; try++,i++)
 	{
 		
-		sprintf( (char*)path->name, "_PTStitcher_tmp_%d", try );
+		sprintf( (char*)path->name, "_PTStitcher_tmp_%6d", try );
 		c2pstr( (char*)path->name );
 		if( myopen( path, read_bin, fnum ))
 			break;

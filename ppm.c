@@ -275,7 +275,7 @@ int makeTempPath(fullPath * path)
 
     for (i = 0; i < MAX_TEMP_TRY; try++, i++)
     {
-        sprintf(fname, "_PTStitcher_tmp_%03d", try);
+        sprintf(fname, "_PTStitcher_tmp_%06d", try);
         if (strlen(fname) + 2 <
             sizeof(path->name) - (strlen(path->name) - strlen(dir)))
         {
