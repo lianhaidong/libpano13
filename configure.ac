@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.5)
-AC_INIT([pano12], [2.8.4], BUG-REPORT-ADDRESS)
+AC_INIT([pano13], [2.8.5pre1], BUG-REPORT-ADDRESS)
 AC_CONFIG_SRCDIR([PTDialogs.c])
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_HEADER([config.h])
@@ -51,12 +51,12 @@ case "${target_os}" in
     HCPU="${target_cpu}"
     ;;
   *mingw32*)
-    PANO_WIN32_RESOURCE=pano12.lo
+    PANO_WIN32_RESOURCE=pano13.lo
     HSYS=mingw32
     HCPU="${target_cpu}"
     ;;
   *cygwin*)
-    PANO_WIN32_RESOURCE=pano12.lo
+    PANO_WIN32_RESOURCE=pano13.lo
     CFLAGS="-mno-cygwin $CFLAGS"
     CPPFLAGS="-mno-cygwin $CPPFLAGS"
     CXXFLAGS="-mno-cygwin $CXXFLAGS"

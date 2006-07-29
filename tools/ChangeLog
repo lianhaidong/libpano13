@@ -1,3 +1,7 @@
+2006-07-28  dmg  <dmg@hydrogen.dmg>
+
+	* Makefile.am: changed name of the library to pano13
+
 2006-07-08  dmg  <dmgerman@uvic.ca>
 
 	* PTBlender.c, PTmender.c, PTtiff2psd.c, PTuncrop.c: updated

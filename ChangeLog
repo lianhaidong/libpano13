@@ -1,5 +1,13 @@
 2006-07-28  dmg  <dmg@hydrogen.dmg>
 
+
+	* configure.ac: Added tests/simpleTiff16/Makefile
+
+	* PTcommon.c (CreateAlphaChannels): Fixed bug (I never
+	initialized a variable with the length of hte line)
+
+	* configure.ac,	version.h: Bumped version to 2.8.5pre1 
+
 	* pict.c (makeTempPath), ppm.c (makeTempPath), bmp.c
 	(makeTempPath): libpano can now create more than 1000 temporal
 	files. 

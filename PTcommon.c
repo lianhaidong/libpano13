@@ -1283,9 +1283,14 @@ static int CreateAlphaChannels(fullPath * masksNames,
     fullImageWidth = panoTiffFullImageWidth(tiffMasks[0]);
     fullImageHeight = panoTiffFullImageHeight(tiffMasks[0]);
     bitsPerPixel = panoTiffBitsPerPixel(tiffMasks[0]);
-
+	bytesPerLine = panoTiffBytesPerLine(tiffMasks[0]);
     // The imagesBuffer contains as many rows as we have input images, and 
     // each row is as wide as the final output image
+
+	//	printf("Fulls ize %d %d bytesPerLine %d bitsPerPixel %d\n", numberImages,
+	//		   bytesPerLine,
+	//		   bytesPerLine, bitsPerPixel);
+
     imagesBuffer =
         calloc(numberImages,
                fullImageWidth * panoTiffBytesPerPixel(tiffMasks[0]));

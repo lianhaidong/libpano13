@@ -82,12 +82,12 @@ endif
 
 AM_CPPFLAGS = $(JAVA_FLAGS) $(JPEG_FLAGS) $(PNG_FLAGS) $(TIFF_FLAGS) $(ZLIB_FLAGS) $(WIN_DEFS) $(LIN_DEFS) $(DAR_DEFS) $(ENDIAN_FLAG)
 
-lib_LTLIBRARIES = libpano12.la
+lib_LTLIBRARIES = libpano13.la
 
-libpano12_la_SOURCES = $(STD_SRC) $(JAVA_SRC) $(X11_SRC) $(WIN_SRC) $(MAC_SRC) $(LIN_SRC) $(DAR_SRC)
-libpano12_la_LIBADD = $(LIB_JPEG) $(LIB_PNG) $(LIB_TIFF) $(LIB_ZLIB) @PANO_WIN32_RESOURCE@
-libpano12_la_LDFLAGS = $(LIN_LDFS) $(WIN_LDFS) $(DAR_LDFS)
-libpano12_la_DEPENDENCIES = @PANO_WIN32_RESOURCE@
+libpano13_la_SOURCES = $(STD_SRC) $(JAVA_SRC) $(X11_SRC) $(WIN_SRC) $(MAC_SRC) $(LIN_SRC) $(DAR_SRC)
+libpano13_la_LIBADD = $(LIB_JPEG) $(LIB_PNG) $(LIB_TIFF) $(LIB_ZLIB) @PANO_WIN32_RESOURCE@
+libpano13_la_LDFLAGS = $(LIN_LDFS) $(WIN_LDFS) $(DAR_LDFS)
+libpano13_la_DEPENDENCIES = @PANO_WIN32_RESOURCE@
 
 pkginclude_HEADERS = $(STD_HDR) $(TOOL_HDR)
 
@@ -121,6 +121,6 @@ maintainer-clean-local:
 	rm -rf config
 
 # I know this is wrong!!!
-darwin: libpano12.la filter.r
+darwin: libpano13.la filter.r
 	echo "FIXME: What should this be on osx??"
-	/Developer/Tools/Rez -t APPL -o libpano12.dynlib filter.r
+	/Developer/Tools/Rez -t APPL -o libpano13.dynlib filter.r

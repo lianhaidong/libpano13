@@ -744,6 +744,8 @@ int panoTiffReadScanLineFullSize(pano_Tiff * file, void *buffer, int row)
 
     bytesPerLine = panoTiffFullImageWidth(file) * bytesPerPixel;
 
+	//printf("Bytes per line %d %d\n", bytesPerLine, panoTiffFullImageWidth(file));
+
     assert(panoTiffIsCropped(file) ||
            panoTiffFullImageWidth(file) == panoTiffImageWidth(file));
 

@@ -2,7 +2,7 @@
 DEFAULT_INCLUDES="-I."
 INCLUDES    = -I${top_srcdir}
 
-COPTIONS="-Wall"
+PANOLIB=pano13
 
 if HAVE_CYGWIN
 WIN_SRC =  panoinfo.c
@@ -38,22 +38,22 @@ AM_LDFLAGS  = -L${top_builddir}
 bin_PROGRAMS = panoinfo PTOptimizer PTmender PTblender PTtiff2psd PTuncrop
 
 PTblender_SOURCES = PTblender.c 
-PTblender_LDADD = -lpano12 -ltiff
+PTblender_LDADD = -l${PANOLIB} -ltiff
 
 PTmender_SOURCES = PTmender.c PTmender.h 
-PTmender_LDADD   = -lpano12 -ljpeg -ltiff
+PTmender_LDADD   = -l${PANOLIB} -ljpeg -ltiff
 
 PTtiff2psd_SOURCES = PTtiff2psd.c 
-PTtiff2psd_LDADD   = -lpano12 -ljpeg -ltiff
+PTtiff2psd_LDADD   = -l${PANOLIB} -ljpeg -ltiff
 
 PTuncrop_SOURCES = PTuncrop.c
-PTuncrop_LDADD   = -lpano12 -ljpeg -ltiff
+PTuncrop_LDADD   = -l${PANOLIB} -ljpeg -ltiff
 
 PTOptimizer_SOURCES = PTOptimizer.c
-PTOptimizer_LDADD   = -lpano12
+PTOptimizer_LDADD   = -l${PANOLIB}
 
 panoinfo_SOURCES    = $(WIN_SRC) $(LIN_SRC) $(DAR_SRC)
-panoinfo_LDADD      = -lpano12
+panoinfo_LDADD      = -l${PANOLIB}
 
 EXTRA_DIST = makefile.panoinfo.win32 makefile.ptoptimizer.win32 \
              README.PTmender PTStitcher.cpp PTStitcher.vcproj \

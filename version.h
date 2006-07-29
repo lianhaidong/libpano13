@@ -27,7 +27,7 @@
 
 //version of preferences file, used to verify data
 #ifndef VERSION
-#define VERSION "2.8.4 "
+#define VERSION "2.8.5pre1 "
 #endif
 
 #ifndef PTVERSION_NAME_LONG
@@ -38,7 +38,7 @@
 #endif
 
 #ifndef PTVERSION_FILEVERSIONNUMBER
-#define PTVERSION_FILEVERSIONNUMBER 2,8,4,0
+#define PTVERSION_FILEVERSIONNUMBER 2,8,5,-1
 #endif
 
 #ifndef PTVERSION_NAME_FILEVERSION
@@ -56,7 +56,7 @@
 #define PTVERSION_NAME_LEGALCOPYRIGHT "LegalCopyright"
 #endif
 #ifndef PTVERSION_LEGALCOPYRIGHT 
-#define PTVERSION_LEGALCOPYRIGHT "Copyright © 1999, 2000, 2001 Helmut Dersch\0"
+#define PTVERSION_LEGALCOPYRIGHT "Copyright © 1999, 2000, 2001, 2005, 2006 Helmut Dersch\0"
 #endif
 
 #ifndef PTVERSION_NAME_COMMENT
