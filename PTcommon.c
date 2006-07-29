@@ -54,17 +54,12 @@ int ptQuietFlag = 0;
 
 void InsertFileName(fullPath * fp, char *fname)
 {
-#ifdef __Mac__
-    strcpy((char *) (fp->name), fname);
-    c2pstr((char *) (fp->name));
-#else
     char *c = strrchr((char *) (fp->name), PATH_SEP);
     if (c != NULL)
         c++;
     else
         c = fp->name;
     strcpy(c, fname);
-#endif
 }
 
 void tiffErrorHandler(const char *module, const char *fmt, va_list ap)
@@ -72,31 +67,6 @@ void tiffErrorHandler(const char *module, const char *fmt, va_list ap)
     PrintError("Error in TIFF file (%s) ", module);
     PrintError((char *) fmt, ap);
 }
-
-#ifdef adfasdf
-int pano_getImageMetadata(fullPath * filename, pt_tiff_parms * tiffData)
-{
-    pano_Tiff *file;
-    int returnValue;
-
-    assert(filename != NULL);
-    assert(tiffData != NULL);
-    file = OpenTiffFromFullPath(filename, "r");
-    if (file == NULL) {
-        PrintError("Could not open TIFF file %s", filename->name);
-        return 0;
-    }
-    returnValue = TiffGetImageParameters(file, tiffData);
-    TIFFClose(file);
-
-    return returnValue;
-}
-#endif
-
-
-
-
-
 
 /**
  * Reads inputFile and "uncrops" the image by adding black space to pad
@@ -134,7 +104,7 @@ int panoUnCropTiff(char *inputFile, char *outputFile)
     }
 
     metadata = &tiffOutput->metadata;
-    printf("***Size of line %d\n", metadata->bytesPerLine);
+    //printf("***Size of line %d\n", metadata->bytesPerLine);
 
     // Allocate buffer for line
     buffer = calloc(metadata->bytesPerLine, 1);
@@ -177,7 +147,7 @@ int panoUnCropTiff(char *inputFile, char *outputFile)
 
     }
 
-    printf("Finished\n");
+    //printf("Finished\n");
 
     free(buffer);
     panoTiffClose(tiffInput);
@@ -283,7 +253,7 @@ int panoVerifyTiffsAreCompatible(fullPath * tiffFiles, int numberImages,
                        currentImage);
             return 0;
         }
-        printf("compatible 1\n");
+        //printf("compatible 1\n");
         // THey should have the same number of channels per pixel
         if (panoTiffSamplesPerPixel(firstFile) !=
             panoTiffSamplesPerPixel(otherFile)) {
@@ -318,7 +288,7 @@ int panoVerifyTiffsAreCompatible(fullPath * tiffFiles, int numberImages,
     }                           // for loop
 
     panoTiffClose(firstFile);
-    printf("THe files are compatible\n");
+    //printf("THe files are compatible\n");
 
     return TRUE;
 
@@ -1261,7 +1231,7 @@ static int CreateAlphaChannels(fullPath * masksNames,
     assert(masksNames != NULL);
     assert(alphaChannelNames != NULL);
 
-    printf("CreateAlpha %d\n", numberImages);
+    //printf("CreateAlpha %d\n", numberImages);
 
     // Allocate arrays of TIFF* for the input and output
     // images. process is one row at a time, with all images
@@ -1472,13 +1442,12 @@ int panoAddStitchingMasks(fullPath * inputFiles, fullPath * outputFiles,
         return 0;
     }
 
-    printf("-1 add stitch...\n");
+
     SetImageDefaults(&image);
-    printf("-0.5 add stitch...\n");
+
     maskFiles = calloc(numberImages, sizeof(fullPath));
     alphaChannelFiles = calloc(numberImages, sizeof(fullPath));
 
-    printf("0 add stitch...\n");
 
     if (maskFiles == NULL || alphaChannelFiles == NULL) {
         PrintError("Not enough memory");
@@ -1491,7 +1460,6 @@ int panoAddStitchingMasks(fullPath * inputFiles, fullPath * outputFiles,
         return -1;
     }
 
-    printf("1\n");
     if (!CreateAlphaChannels(maskFiles, alphaChannelFiles, numberImages)) {
         PrintError("Could not create alpha channels");
         return -1;
@@ -1499,7 +1467,6 @@ int panoAddStitchingMasks(fullPath * inputFiles, fullPath * outputFiles,
 
     // From this point on we do not need to process all files at once. This will save temporary disk space
 
-    printf("2\n");
     for (i = 0; i < numberImages; i++) {
         fullPath withAlphaChannel;
 
@@ -1512,7 +1479,6 @@ int panoAddStitchingMasks(fullPath * inputFiles, fullPath * outputFiles,
             }
         }
 
-        printf("3\n");
         // We no longer need the mask files
         remove(maskFiles[i].name);
 
@@ -1657,6 +1623,7 @@ void BlendLayers8Bit(unsigned char **imageDataBuffers, int counterImageFiles,
 
                 for (index = 0; index < 3; index++) {
                     colours[index] += (*(ptrPixel + index) * alphaContribution) / 0xff; // 
+
                     if (!(colours[index] >= 0 && colours[index] <= 0xff)) {
                         printf("PPPPPPPPPPPPPPPPPanic %d index [%d]\n",
                                colours[index], index);
@@ -1959,7 +1926,7 @@ void Clear_Area_Outside_Selected_Region(Image * image)
         bytesPerPixel = 8;
     }
     else {
-        assert(0);              // it should not reach here 
+      
         exit(0);
     }
 
@@ -2355,7 +2322,7 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
         PrintError("Could not write temporary script");
         goto mainError;
     }
-
+    
     fclose(regFile);
     free(regScript);
 
@@ -2392,12 +2359,12 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
         // This is a strange value:
         // colourCorrection == (i & 3) + (i+1)*4;
         // where i is the number of the reference image
-
+        
         assert(colourCorrection >= 0
                && colourCorrection < (counterImageFiles + 1) * 4);
         if (prefs->pano.cP.radial != 0) {
             assert(0);          // I really don't want to execute this code yet
-
+            
             // correct_Prefs
             //...
             //  3 colors x (4 coeffic. for 3rd order polys + correction radius)
@@ -2458,12 +2425,12 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
         // Copy output pano name to panoName
         memcpy(&panoName, &prefs->pano.name, sizeof(fullPath));
         //memcpy(&global5640, &prefs->sBuf, sizeof(stBuf));
-
+        
         //panoName.name contains the n"XXX" value from the script "p" lines (e.g. n"TIFF_m" or n"QTVR w400 h300 c1")
         tempString = panoName.name;
         --tempString;           /* nextWord does ++ before testing anything, this guarantess proper execution */
         nextWord(output_file_format, &tempString);
-
+        
         //New for PTMender...PTMender uses "cropped" TIFFs as its intermediate file 
         //format for all processing.  In contrast, PTStitcher used full-size TIFF
         //images for all intermediate processing.  PTMender can still write "uncropped" 
@@ -2502,7 +2469,7 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
 
         transform.interpolator = prefs->interpolator;
         transform.gamma = prefs->gamma;
-
+        
         if (ptQuietFlag == 0) {
             sprintf(tmpStr, "Converting Image %d / %d", (loopCounter + 1),
                     counterImageFiles);
@@ -2515,7 +2482,7 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
             goto mainError;
         }
 
-	printf("Ended reading INPUT image\n");
+        //      printf("Ended reading INPUT image\n");
 
         //This "masks" the input image so that some pixels are excluded from 
         //transformation routine during pixel remapping/interpolation 
@@ -2536,7 +2503,7 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
         //specified as part of input (Do this only when processing first image in script)
         if (loopCounter == 0) {
 
-	    feather = prefs->sBuf.feather;
+            feather = prefs->sBuf.feather;
             if (prefs->pano.width == 0) {
                 // if the pano did not set the width, then try to set it
                 if (prefs->im.hfov != 0.0) {
@@ -2549,51 +2516,43 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
 
             if (prefs->pano.height == 0)
                 prefs->pano.height = prefs->pano.width / 2;
-
+            
             resultPanorama.height = prefs->pano.height;
             resultPanorama.width = prefs->pano.width;
-
+            
             if (resultPanorama.height == 0 || resultPanorama.width == 0) {
                 PrintError("Please set Panorama width/height");
                 goto mainError;
             }
         }                       //End attempt at setting reasonable values for pano width/height
+        
+        
+        //printf("to set metadata\n");
+        
+        //////////////////////////////////////////////////////////////////////
+        // Set metadata for output file
 
-
-	printf("to set metadata\n");
-
-	//////////////////////////////////////////////////////////////////////
-	// Set metadata for output file
-
-	panoDumpMetadata(&image1.metadata, "1");
-
-	panoMetadataCopy(&metadata, &image1.metadata);
-
-	panoDumpMetadata(&metadata, "2");
-
-
-	// The size of the image will change, so we have to update all the
-	// fields accordingly.
-	panoMetadataResetSize(&metadata,
-			      resultPanorama.width,
-			      resultPanorama.height);
-
-	panoDumpMetadata(&metadata, "3");
-
+        panoMetadataCopy(&metadata, &image1.metadata);
+        
+        // The size of the image will change, so we have to update all the
+        // fields accordingly.
+        panoMetadataResetSize(&metadata,
+                              resultPanorama.width,
+                              resultPanorama.height);
+        
+        
         // Set output width/height for output file 
         if (croppedTIFFIntermediate) {
             getROI(&transform, prefs, &ROIRect);
             //Dimensions determine size of TIFF file
             croppedWidth = (ROIRect.right - ROIRect.left) + 1;
             croppedHeight = (ROIRect.bottom - ROIRect.top) + 1;
-
-	    panoMetadataSetAsCropped(&metadata, 
-				     croppedWidth, croppedHeight,
-				     ROIRect.left, ROIRect.top);
+            
+            panoMetadataSetAsCropped(&metadata, 
+                                     croppedWidth, croppedHeight,
+                                     ROIRect.left, ROIRect.top);
         }
-
-	panoDumpMetadata(&metadata, "after cropped");
-
+        
         panoMetadataSetCompression(&metadata, prefs->pano.name);
 
         //The resultPanorama.selection determines which region of the output image
@@ -2616,19 +2575,11 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
         resultPanorama.bitsPerPixel = image1.bitsPerPixel;
         resultPanorama.bytesPerLine = metadata.bytesPerLine;
 
-	printf("TO COPY resultPanorama\n");
-	panoMetadataCopy(&resultPanorama.metadata, &metadata);
-	printf("AFTER COPY resultPanorama\n");
-
-	panoMetadataFree(&metadata);
-
-	printf("end set metadata\n");
-
-	panoDumpMetadata(&resultPanorama.metadata, "last resultPanorama.metadata");
-
-	//////End of set metadata
-
-	printf("to create file\n");
+        panoMetadataCopy(&resultPanorama.metadata, &metadata);
+        
+        panoMetadataFree(&metadata);
+        
+        //////End of set metadata
 
 
         ///  CREATE OUTPUT FILE
@@ -2648,12 +2599,10 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
         // Open up output file for writing...data will be written in TIFF format
 
         if ((tiffFile = panoTiffCreate(currentFullPath.name, 
-				       &resultPanorama.metadata)) == 0) {
+                       &resultPanorama.metadata)) == 0) {
             PrintError("Could not open %s for writing", currentFullPath.name);
             goto mainError;
         }
-
-	printf("file created\n");
 
         if (ptQuietFlag == 0) {
             if (Progress(_setProgress, "5") == 0) {
@@ -2662,10 +2611,6 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
                 return (-1);
             }
         }
-
-
-	printf("file created\n");
-
 
         //The output image is generated a few lines at a time to make efficient use
         //of limited memory...compute a reasonable number of lines to process (must
@@ -2751,8 +2696,8 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
                  resultPanorama.selection.bottom -
                  resultPanorama.selection.top; ebx++) {
                 if (TIFFWriteScanline(tiffFile->tiff, 
-				      *resultPanorama.data + (resultPanorama.bytesPerLine * ebx),
-				      outputScanlineNumber, 1) != 1) {
+                      *resultPanorama.data + (resultPanorama.bytesPerLine * ebx),
+                      outputScanlineNumber, 1) != 1) {
                     PrintError("Unable to write to TIFF file\n");
                     return -1;
                 }
@@ -2795,19 +2740,16 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
                      1 : resultPanorama.height);
         }
 
-	printf("FILE TO BE CLOSED\n");
-
         panoTiffClose(tiffFile);
-	printf("FILE CLOSED\n");
 
-//////////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////////
 
         if (image1.data != NULL) {
             myfree((void **) image1.data);
             image1.data = NULL;
-	    printf("FREE image1\n");
-	    panoMetadataFree(&image1.metadata);
-	    printf("After FREE image1\n");
+            
+            panoMetadataFree(&image1.metadata);
+            
         }
 
         // The memory for td and ts was allocated in morpher.c with malloc 
@@ -2824,21 +2766,14 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
         if (resultPanorama.data != NULL) {
             myfree((void **) resultPanorama.data);
             resultPanorama.data = NULL;
-
-	    printf("FREE resultPanorama\n");
-	    panoMetadataFree(&resultPanorama.metadata);
-	    printf("After FREE resultPanorama\n");
+            panoMetadataFree(&resultPanorama.metadata);
         }
-	printf("END OF PASS\n");
-
-
+        
+        
     }                           //End of main image processing loop
-    printf("END OF LOOP\n");
-
+    
     if (!ptQuietFlag)
         Progress(_disposeProgress, "");
-
-    printf("0\n");
 
     // This is the end of the pixel remapping for all input images.
     // At this point we should have a collection of TIFF files containing
@@ -2847,18 +2782,13 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
 
     //----------------------------------------------------------------------
 
-    printf("0 %s\n", tempScriptFile.name);
     remove(tempScriptFile.name);
-
-    printf("1\n");
 
     if (resultPanorama.data != NULL)
         myfree((void **) resultPanorama.data);
 
     if (image1.data != NULL)
         myfree((void **) image1.data);
-
-    printf("2\n");
 
     // These functions are to correct and/or brightness.  They are not required for 
     // panoramas that do not need any brightness adjustments.  Moreover, Dersch
@@ -2871,8 +2801,6 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
     // circumstances...perhaps an area for future improvement, but probably not 
     // as important a feature (now that we have multi-resolution splining 
     // software like Enblend) as when Desrch first added these (MRDL).
-
-    printf("3\n");
 
     if (var00 != 0) {
         ColourBrightness(fullPathImages, fullPathImages, counterImageFiles,
@@ -2909,8 +2837,6 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
 
     getVRPanoOptions(&defaultVRPanoOptions, tempString);
 
-    printf("%s\n", output_file_format);
-
     //If we are dealing with an output format that is not TIFF_m or PSD_nomask,
     //then we have to add "masks" to the images before finishing...
     if (strcmp(output_file_format, "TIFF_m") != 0
@@ -2926,7 +2852,7 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
             }
         }
     }
-    printf("Output formats\n");
+
   /************ OUTPUT FORMATS: Multiple TIFF ***************/
     // TIFF_m and TIFF_mask...just rename the intermediate files 
     // that we've already computed with numbers (e.g. img0000.tif, img0001.tif, etc.) 
@@ -2938,7 +2864,7 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
             Progress(_initProgress, "Writing Output Images");
 
         for (loopCounter = 0; loopCounter < counterImageFiles; loopCounter++) {
-
+            
             if (ptQuietFlag == 0) {
                 sprintf(tmpStr, "%d",
                         (100 * loopCounter) / counterImageFiles);
@@ -2979,13 +2905,14 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
         }                       // end of for loop
         free(fullPathImages);
 
-        if (ptQuietFlag == 0)
+        if (ptQuietFlag == 0) {
+            Progress(_setProgress, "100%");
             Progress(_disposeProgress, "");
-
+        }
         return (0);
     }
 
-    printf("To start creating the output files\n");
+    //printf("To start creating the output files\n");
     
   /************ OUTPUT FORMATS: Layered PSD ***************/
     // Layered PSD is less simple...we need to assemble the existing
@@ -2993,9 +2920,8 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
     if (strcmp(output_file_format, "PSD_nomask") == 0
         || strcmp(output_file_format, "PSD_mask") == 0) {
         panoReplaceExt(panoFileName->name, ".psd");
-
-        if (panoCreatePSD(fullPathImages, counterImageFiles, panoFileName) !=
-            0) {
+        
+        if (panoCreatePSD(fullPathImages, counterImageFiles, panoFileName) != 0) {
             PrintError("Error creating PSD file");
             return (-1);
         }
@@ -3016,14 +2942,12 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
     if (counterImageFiles > 1) 
     {
 
-	printf("To start flattening files\n");
-	if (!panoFlattenTIFF
-	    (fullPathImages, counterImageFiles, &fullPathImages[0], TRUE)) 
+    if (!panoFlattenTIFF
+        (fullPathImages, counterImageFiles, &fullPathImages[0], TRUE)) 
         {
-	    PrintError("Error while flattening TIFF-image");
-	    goto mainError;
-	}
-	printf(" Flattenned\n");
+        PrintError("Error while flattening TIFF-image");
+        goto mainError;
+    }
 
     }
     panoReplaceExt(panoFileName->name, ".tif");
@@ -3072,9 +2996,13 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
     if (strcmp(output_file_format, "JPEG") == 0
         || strcmp(output_file_format, "JPG") == 0) {
         if (!ptQuietFlag) {
-            printf("Creating JPEG (quality %d jpegProgressive %d)\n",
-                   defaultVRPanoOptions.cquality,
-                   defaultVRPanoOptions.progressive);
+            char temp[100];
+            
+            sprintf(temp, "Creating JPEG (quality %d jpegProgressive %d)\n",
+                    defaultVRPanoOptions.cquality,
+                    defaultVRPanoOptions.progressive);
+                    
+            Progress(_initProgress, temp);
         }
         panoReplaceExt(panoFileName->name, ".jpg");
         return writeJPEG(&resultPanorama, panoFileName,
@@ -3194,7 +3122,6 @@ int panoFlattenTIFF(fullPath * fullPathImages, int counterImageFiles,
 
     }
 
-    printf("1\n");
 //////////////////////////////////////////////////////////////////////
 
 
@@ -3327,7 +3254,6 @@ int panoFlattenTIFF(fullPath * fullPathImages, int counterImageFiles,
                 return 0;
         }
 
-        printf("4\n");
         // FlattenImageSection
         panoBlendLayers(imageDataBuffers, counterImageFiles, resultBuffer,
                         linesToRead, outputMetadata->imageWidth,

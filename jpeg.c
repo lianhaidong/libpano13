@@ -240,15 +240,12 @@ int panoUpdateMetadataFromJPEG(Image *im)
     im->metadata.bytesPerPixel = im->bitsPerPixel/8;
     im->metadata.bitsPerPixel = im->bitsPerPixel;
 
-    panoDumpMetadata(&(im->metadata),"Updating metadata from JPEG");
-    
     return TRUE;
 }
 
 int panoReadJPEG(Image * im, fullPath * sfile)
 {
-  if ( readJPEG(im, sfile) == 0) 
-  {
+  if ( readJPEG(im, sfile) == 0) {
       return panoUpdateMetadataFromJPEG(im);
   } else
       return FALSE;

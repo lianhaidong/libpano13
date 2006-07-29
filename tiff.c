@@ -608,6 +608,7 @@ int panoTiffGetCropInformation(pano_Tiff * file)
     else {
         file->metadata.isCropped = TRUE;
     }
+
     if (TIFFGetField
         (file->tiff, TIFFTAG_PIXAR_IMAGEFULLLENGTH, &(c->fullHeight)) == 0) {
         c->fullHeight = c->croppedHeight;
@@ -633,16 +634,17 @@ int panoTiffGetCropInformation(pano_Tiff * file)
 
     //printf("%s: %dx%d  @ %d,%d", filename, c->cropped_width, c->cropped_height, c->x_offset, c->y_offset);
 
-    printf("get 3 width %d length %d\n", (int) c->croppedWidth,
-           (int) c->croppedHeight);
-    printf("get 3 full %d length %d\n", (int) c->fullWidth,
-           (int) c->fullHeight);
-    printf("cropped %d\n", (int) file->metadata.isCropped);
+    //printf("get 3 width %d length %d\n", (int) c->croppedWidth,
+    //(int) c->croppedHeight);
+    //printf("get 3 full %d length %d\n", (int) c->fullWidth,
+    //           (int) c->fullHeight);
+    //printf("cropped %d\n", (int) file->metadata.isCropped);
 
     return TRUE;
 
 }
 
+// checks if an "absolute" row is inside the ROI
 int panoTiffRowInsideROI(pano_Tiff * image, int row)
 {
     // We are in the ROI if the row is bigger than the yoffset
@@ -848,8 +850,7 @@ int panoTiffSetCropInformation(pano_Tiff * file)
                      cropInfo->fullWidth)
         && TIFFSetField(tiffFile, TIFFTAG_PIXAR_IMAGEFULLLENGTH,
                         cropInfo->fullHeight);
-    if (!result) 
-    {
+    if (!result) {
         PrintError("Unable to set metadata of output tiff file");
         return FALSE;
     }
@@ -861,17 +862,18 @@ char *panoTiffGetString(pano_Tiff *tiffFile, ttag_t tiffTag)
     char *temp;
     char *returnValue;
     if (TIFFGetField(tiffFile->tiff, tiffTag, &temp) == 0) {
-	// If the tag does not exist just return
-	return NULL;
-    } else 
-    {
-	// Allocate its memory
-	returnValue = calloc(strlen(temp) + 1, 1);
-	if (returnValue == NULL) 
-   	    return NULL;
-	// copy to the new location and return
-	strcpy(returnValue, temp);
-	return returnValue;
+    // If the tag does not exist just return
+        return NULL;
+    } 
+    else {
+    // Allocate its memory
+    returnValue = calloc(strlen(temp) + 1, 1);
+
+    if (returnValue == NULL) 
+        return NULL;
+    // copy to the new location and return
+    strcpy(returnValue, temp);
+    return returnValue;
     }
 }
 
@@ -895,10 +897,9 @@ int panoTiffGetImageProperties(pano_Tiff * tiff)
 
     assert(tiffFile != NULL);
 
-    printf("get\n");
+    //printf("get\n");
 
-    if (!panoTiffGetCropInformation(tiff)) 
-    {
+    if (!panoTiffGetCropInformation(tiff)) {
         goto error;
     }
 
@@ -940,14 +941,13 @@ int panoTiffGetImageProperties(pano_Tiff * tiff)
     
 
     if (TIFFGetField(tiffFile, TIFFTAG_ICCPROFILE, &(metadata->iccProfile.size),
-		     &ptr)) {
+             &ptr)) {
 
-	if ((metadata->iccProfile.data = calloc(metadata->iccProfile.size, 1)) == NULL)
-        {
-	    PrintError("Not enough memory");
-	    return 0;
-	}
-	memcpy(metadata->iccProfile.data, ptr, metadata->iccProfile.size);
+        if ((metadata->iccProfile.data = calloc(metadata->iccProfile.size, 1)) == NULL) {
+            PrintError("Not enough memory");
+            return 0;
+        }
+        memcpy(metadata->iccProfile.data, ptr, metadata->iccProfile.size);
     }
 
     tiff->metadata.copyright = panoTiffGetString(tiff, TIFFTAG_COPYRIGHT);
@@ -956,8 +956,8 @@ int panoTiffGetImageProperties(pano_Tiff * tiff)
     tiff->metadata.artist = panoTiffGetString(tiff, TIFFTAG_ARTIST);
     
 
-    printf("...........................REad and allocate ICC Profile %d %x\n",
-	   (int)(metadata->iccProfile.size), (int)(metadata->iccProfile.data));
+    //printf("...........................REad and allocate ICC Profile %d %x\n",
+    //(int)(metadata->iccProfile.size), (int)(metadata->iccProfile.data));
 
     if (TIFFGetField
         (tiffFile, TIFFTAG_RESOLUTIONUNIT, &(metadata->resolutionUnits)) == 0)
@@ -982,9 +982,9 @@ int panoTiffGetImageProperties(pano_Tiff * tiff)
         (metadata->samplesPerPixel * metadata->bitsPerSample) / 8;
     metadata->bitsPerPixel = metadata->bytesPerPixel * 8;
 
-    printf("get2 bits per sample %d\n", metadata->bitsPerSample);
-    printf("get2 bits per pixel  %d\n", metadata->bitsPerPixel);
-    printf("get2 bytes per pixel %d\n", metadata->bytesPerPixel);
+    //printf("get2 bits per sample %d\n", metadata->bitsPerSample);
+    //    printf("get2 bits per pixel  %d\n", metadata->bitsPerPixel);
+    //printf("get2 bytes per pixel %d\n", metadata->bytesPerPixel);
 
     return 1;
 
@@ -1011,9 +1011,9 @@ int panoTiffSetImageProperties(pano_Tiff * file)
 
     // Each of the invocations below returns 1 if ok, 0 if error. 
 
-    printf("samples per pixel %d\n", (int) metadata->samplesPerPixel);
-    printf("samples width %d\n", (int) metadata->imageWidth);
-    printf("compression %d\n", (int) metadata->compression.type);
+    //printf("samples per pixel %d\n", (int) metadata->samplesPerPixel);
+    //printf("samples width %d\n", (int) metadata->imageWidth);
+    //printf("compression %d\n", (int) metadata->compression.type);
     returnValue =
         TIFFSetField(tiffFile, TIFFTAG_IMAGEWIDTH, metadata->imageWidth)
         && TIFFSetField(tiffFile, TIFFTAG_IMAGELENGTH, metadata->imageHeight)
@@ -1037,19 +1037,18 @@ int panoTiffSetImageProperties(pano_Tiff * file)
 
     if (returnValue && metadata->bitsPerSample == 32)
     {
-	// If it is 96 or 128 it is  floatint point
-	returnValue = TIFFSetField(tiffFile, TIFFTAG_SAMPLEFORMAT, SAMPLEFORMAT_IEEEFP);
+    // If it is 96 or 128 it is  floatint point
+        returnValue = TIFFSetField(tiffFile, TIFFTAG_SAMPLEFORMAT, SAMPLEFORMAT_IEEEFP);
     }
     // Take care of special cases
 
     // Only set ICCprofile if size > 0
-    if (returnValue && metadata->iccProfile.size > 0) 
-    {
+    if (returnValue && metadata->iccProfile.size > 0) {
         returnValue =
             TIFFSetField(tiffFile, TIFFTAG_ICCPROFILE,
-			 (uint32)metadata->iccProfile.size,
-			 (void*)(metadata->iccProfile.data));
-			 //100, data);
+             (uint32)metadata->iccProfile.size,
+             (void*)(metadata->iccProfile.data));
+             //100, data);
     }
 
     if (returnValue && metadata->compression.type == COMPRESSION_LZW) {
@@ -1059,29 +1058,27 @@ int panoTiffSetImageProperties(pano_Tiff * file)
     }
 
     // String fields
-    printf("TO set tricky fields\n");
+    //printf("TO set tricky fields\n");
 
     if (returnValue && metadata->copyright != NULL)
         returnValue = TIFFSetField(tiffFile, TIFFTAG_COPYRIGHT, metadata->copyright);
 
     if (returnValue && metadata->artist != NULL)
-	returnValue = TIFFSetField(tiffFile, TIFFTAG_ARTIST, metadata->artist);
+        returnValue = TIFFSetField(tiffFile, TIFFTAG_ARTIST, metadata->artist);
 
     if (returnValue && metadata->datetime!=NULL)
-	returnValue = TIFFSetField(tiffFile, TIFFTAG_DATETIME, metadata->datetime);
+        returnValue = TIFFSetField(tiffFile, TIFFTAG_DATETIME, metadata->datetime);
 
     if (returnValue && metadata->imageDescription != NULL)
-	returnValue = TIFFSetField(tiffFile, TIFFTAG_IMAGEDESCRIPTION, metadata->imageDescription);
-	
-	
+        returnValue = TIFFSetField(tiffFile, TIFFTAG_IMAGEDESCRIPTION, metadata->imageDescription);
+    
+    
     returnValue = returnValue &&
-	TIFFSetField(tiffFile, TIFFTAG_SOFTWARE, "Created by Panotools version " VERSION);
-	
-
-
-    printf("TO set crop\n");
+        TIFFSetField(tiffFile, TIFFTAG_SOFTWARE, "Created by Panotools version " VERSION);
+    
+    //    printf("TO set crop\n");
     if (returnValue && panoTiffIsCropped(file)) {
-	printf("TO set crop 2\n");
+      //printf("TO set crop 2\n");
         returnValue = panoTiffSetCropInformation(file);
     }
 
@@ -1113,19 +1110,16 @@ int panoTiffReadPlannar(Image * im, pano_Tiff * tif)
     bytesRead = panoTiffBytesPerLine(tif);
     bitsPerPixel = panoTiffBitsPerPixel(tif);
 
-    printf("9 Bytes per line %d (im %d) %d %d\n", panoTiffBytesPerLine(tif),
-	   im->bytesPerLine, im->bitsPerPixel, panoTiffBitsPerPixel(tif));
+    //    printf("9 Bytes per line %d (im %d) %d %d\n", panoTiffBytesPerLine(tif),
+    //     im->bytesPerLine, im->bitsPerPixel, panoTiffBitsPerPixel(tif));
     buf = calloc(bytesRead, 1);
-    if (buf == NULL)
-    {
+    if (buf == NULL) {
         PrintError("Not enough memory");
         return 0;
     }
 
-    for (row = 0; row < im->height; row++)
-    {
-        if (TIFFReadScanline(tif->tiff, buf, row, 0) != 1) 
-        {
+    for (row = 0; row < im->height; row++) {
+        if (TIFFReadScanline(tif->tiff, buf, row, 0) != 1) {
             PrintError("Error reading TIFF file");
             goto error;
         }
@@ -1136,7 +1130,7 @@ int panoTiffReadPlannar(Image * im, pano_Tiff * tif)
                (size_t) bytesRead);
     }
 
-    printf("10\n");
+    // If we don't have an alpha channel we need to rebuild it
     if (samplesPerPixel == 3) {
         ThreeToFourBPP(im);
     }
@@ -1160,6 +1154,8 @@ void panoTiffClose(pano_Tiff * file)
     free(file);
 }
 
+// Sometimes we need to convert an image from cropped to uncropped. This function 
+// takes care of setting the metadata accordingly
 void panoUnCropMetadata(pano_ImageMetadata * metadata)
 {
     metadata->imageWidth = metadata->cropInfo.fullWidth;
@@ -1169,6 +1165,7 @@ void panoUnCropMetadata(pano_ImageMetadata * metadata)
 }
 
 
+// create the tiff according to most of the needed data
 pano_Tiff *panoTiffCreateGeneral(char *fileName,
                                  pano_ImageMetadata * metadata, int uncropped)
 {
@@ -1187,7 +1184,7 @@ pano_Tiff *panoTiffCreateGeneral(char *fileName,
         return NULL;
     }
 
-    printf("Copy metadata from %d\n", (int) metadata->cropInfo.fullWidth);
+    //printf("Copy metadata from %d\n", (int) metadata->cropInfo.fullWidth);
     if (!panoMetadataCopy(&panoTiff->metadata, metadata)) {
         panoTiffClose(panoTiff);
         return NULL;
@@ -1197,12 +1194,12 @@ pano_Tiff *panoTiffCreateGeneral(char *fileName,
         panoUnCropMetadata(&panoTiff->metadata);
     }
 
-    printf("Copy metadata %d\n", (int) panoTiff->metadata.cropInfo.fullWidth);
+    //printf("Copy metadata %d\n", (int) panoTiff->metadata.cropInfo.fullWidth);
     if (!panoTiffSetImageProperties(panoTiff)) {
         panoTiffClose(panoTiff);
         return NULL;
     }
-    printf("After set image properties\n");
+    //printf("After set image properties\n");
 
     // return value
     return panoTiff;
@@ -1265,32 +1262,23 @@ int panoTiffReadData(Image * im, pano_Tiff * tif)
 
     // Set general parameters. The width and height are of the data
 
-
-    printf("5\n");
-
-    if ((im->data = (unsigned char **) mymalloc( im->dataSize) ) == NULL) 
-    {
+    if ((im->data = (unsigned char **) mymalloc( im->dataSize) ) == NULL) {
         PrintError("Not enough memory");
         return 0;
     }
         
-    printf("5.1\n");
-
-    if (tPhotoMetric == PHOTOMETRIC_RGB && config == PLANARCONFIG_CONTIG)
-    {
+    if (tPhotoMetric == PHOTOMETRIC_RGB && config == PLANARCONFIG_CONTIG) {
         if (!panoTiffReadPlannar(im, tif))
             goto error;
-	return TRUE;
+    return TRUE;
     }
 
     // I changed the stopOnError to 1 so the function reports an error
     // as soon as it happens
 
-    printf("6\n");
     if (TIFFReadRGBAImage(tif->tiff, (uint32) panoTiffImageWidth(tif), 
                           (uint32) panoTiffImageHeight(tif), 
-                          (uint32 *) * (im->data), 1))
-    {
+                          (uint32 *) * (im->data), 1)) {
         // Convert agbr to argb; flip image vertically
 
         unsigned char *cline, *ct, *cb;
@@ -1309,23 +1297,20 @@ int panoTiffReadData(Image * im, pano_Tiff * tif)
         cb = *im->data + (im->height - 1) * im->bytesPerLine;
 
         for (y = 0; y < h2;
-             y++, ct += im->bytesPerLine, cb -= im->bytesPerLine)
-        {
+             y++, ct += im->bytesPerLine, cb -= im->bytesPerLine) {
             RGBAtoARGB(ct, im->width, im->bitsPerPixel);
             RGBAtoARGB(cb, im->width, im->bitsPerPixel);
             memcpy(cline, ct, localBytesPerLine);
             memcpy(ct, cb, localBytesPerLine);
             memcpy(cb, cline, localBytesPerLine);
         }
-        if (im->height != 2 * h2)
-        {                       // odd number of scanlines
+        if (im->height != 2 * h2) {                       // odd number of scanlines
             RGBAtoARGB(*im->data + y * im->bytesPerLine, im->width,
                        im->bitsPerPixel);
         }
         free(cline);
     }
-    else
-    {
+    else {
         PrintError("Could not read tiff-data");
         goto error;
     }
@@ -1339,6 +1324,7 @@ int panoTiffReadData(Image * im, pano_Tiff * tif)
 
 
 
+// Output an image to a file
 int panoTiffWrite(Image * im, char *fileName)
 {
     pano_Tiff *tif = NULL;
@@ -1348,28 +1334,27 @@ int panoTiffWrite(Image * im, char *fileName)
 
     // Make sure that the metadata is there...
     assert(im->metadata.imageWidth != 0 &&
-	   im->metadata.imageHeight != 0);
+       im->metadata.imageHeight != 0);
     
 
     // first verify the value of some of the metadata fields
     
     assert(im->bitsPerPixel != 0);
 
-    switch (im->bitsPerPixel)
-    {
+    switch (im->bitsPerPixel) {
     case 96:
     case 24:
     case 48:
-	im->metadata.samplesPerPixel = 3;
+        im->metadata.samplesPerPixel = 3;
         break;
     case 32:
     case 64:
     case 128:
-	im->metadata.samplesPerPixel = 4;
+        im->metadata.samplesPerPixel = 4;
         break;
     default:
-	PrintError("Illegal value for bits per pixel in TIFF image to write %s", fileName);
-	return FALSE;
+        PrintError("Illegal value for bits per pixel in TIFF image to write %s", fileName);
+        return FALSE;
     }
     im->metadata.bitsPerSample = im->bitsPerPixel/im->metadata.samplesPerPixel;
 
@@ -1377,15 +1362,13 @@ int panoTiffWrite(Image * im, char *fileName)
     tif = panoTiffCreate(fileName, &im->metadata);
 
 
-    if (!tif)
-    {
+    if (!tif) {
         PrintError("Could not create TIFF-file");
         return 0;
     }
 
     // Rik's mask-from-focus hacking
-    if (ZCombSeeImage(im, fileName))
-    {
+    if (ZCombSeeImage(im, fileName)) {
         PrintError("failed ZCombSeeImage");
     }
     // end Rik's mask-from-focus hacking (for the moment...)
@@ -1396,33 +1379,31 @@ int panoTiffWrite(Image * im, char *fileName)
         bufsize = im->bytesPerLine;
 
     buf = calloc(bufsize, 0);
-    if (buf == NULL)
-    {
+    if (buf == NULL) {
         PrintError("Not enough memory");
-	goto error;
+        goto error;
     }
 
-    for (y = 0; y < im->height; y++)
-    {
+    for (y = 0; y < im->height; y++) {
         memcpy(buf, *(im->data) + y * im->bytesPerLine,
                (size_t) im->bytesPerLine);
         ARGBtoRGBA(buf, im->width, im->bitsPerPixel);
         if (TIFFWriteScanline(tif->tiff, buf, y, 1) != 1) {
-	    PrintError("Unable to write to TIFF");
-	    goto error;
-	}
+            PrintError("Unable to write to TIFF");
+            goto error;
+        }
     }
     panoTiffClose(tif);
     free(buf);
     return 1;
-
+    
  error:
     if (buf != NULL) 
         free(buf);
-
+    
     if (tif != NULL)
         panoTiffClose(tif);
-
+    
     return 0;
 }
 
@@ -1430,17 +1411,12 @@ int panoTiffWrite(Image * im, char *fileName)
 int panoUpdateMetadataFromTiff(Image *im, pano_Tiff *tiff) 
 {
     int bytesPerLine;
-
-    panoDumpMetadata(&tiff->metadata,"before metadata copy");
-
+    
     if (!panoMetadataCopy(&im->metadata, &tiff->metadata)) {
         return FALSE;
     }
-    
-    panoDumpMetadata(&im->metadata,"After metadata copy");
-
     //    printf("IMage width %d %d\n",im->width, panoTiffImageWidth(tiff));
-    printf("Bites per pixel %d\n",(int)im->bitsPerPixel);
+    //printf("Bites per pixel %d\n",(int)im->bitsPerPixel);
 
     im->width = panoTiffImageWidth(tiff);
     im->height = panoTiffImageHeight(tiff);
@@ -1455,31 +1431,31 @@ int panoUpdateMetadataFromTiff(Image *im, pano_Tiff *tiff)
     switch (panoTiffSamplesPerPixel(tiff))
     {
     case 3:
-	bytesPerLine = panoTiffBytesPerLine(tiff) * 4 / 3;
-
-	im->metadata.bytesPerLine = bytesPerLine;
-
-	im->metadata.bitsPerPixel = im->bitsPerPixel * 4/ 3;
-	im->metadata.samplesPerPixel = 4;
-	im->metadata.bytesPerPixel =
-	    (4 * im->metadata.bitsPerSample) / 8;
-	break;
+        bytesPerLine = panoTiffBytesPerLine(tiff) * 4 / 3;
+        
+        im->metadata.bytesPerLine = bytesPerLine;
+        
+        im->metadata.bitsPerPixel = im->bitsPerPixel * 4/ 3;
+        im->metadata.samplesPerPixel = 4;
+        im->metadata.bytesPerPixel =
+            (4 * im->metadata.bitsPerSample) / 8;
+        break;
     case 4:
-	bytesPerLine = panoTiffBytesPerLine(tiff);
-	break;
+        bytesPerLine = panoTiffBytesPerLine(tiff);
+        break;
     default:
-	PrintError("We only support 3 or 4 samples per pixel");
-	return 0;
+        PrintError("We only support 3 or 4 samples per pixel");
+        return 0;
     }
-
+    
     im->dataSize = bytesPerLine * im->height;
-
+    
     // compute how much space we need
-    printf("Data size %d bytesperline %d width %d height %d\n",  
-	   (int)im->dataSize,
-	   (int)im->bytesPerLine, (int)im->width,(int)im->height
-	   );
-
+    //printf("Data size %d bytesperline %d width %d height %d\n",  
+    //(int)im->dataSize,
+    //       (int)im->bytesPerLine, (int)im->width,(int)im->height
+    //);
+    
     return TRUE;
 }
 
@@ -1493,44 +1469,40 @@ int panoTiffRead(Image * im, char *fileName)
 {
     pano_Tiff *tiff;
     int result = FALSE;
-
+    
     SetImageDefaults(im);
-
-    printf("Reading tiff\n");
-    if ((tiff = panoTiffOpen(fileName)) == NULL)
-    {
+    
+    //printf("Reading tiff\n");
+    if ((tiff = panoTiffOpen(fileName)) == NULL) {
         PrintError("Could not open tiff-file %s", fileName);
         goto end;
     }
-    panoDumpMetadata(&tiff->metadata,"After open");
-
-    printf("to update metadata tiff\n");
+    //printf("to update metadata tiff\n");
 
     // Update metadata in the image
     if (!panoUpdateMetadataFromTiff(im, tiff)) {
         goto end;
     }
-    panoDumpMetadata(&im->metadata,"After the update");
-
-    printf("to read data\n");
-
+    
+    //printf("to read data\n");
+    
     if (!panoTiffReadData(im, tiff)) {
         PrintError("Unable to read data from TIFF file %s", fileName);
         goto end;
     }
-    panoDumpMetadata(&im->metadata,"After read data");
+
     //Store name of TIFF file
     strncpy(im->name, fileName, PANO_PATH_LEN);
 
 
-    printf("after update metadata tiff\n");
+    //printf("after update metadata tiff\n");
     result = TRUE;
    
  end:
 
-    printf("ENd of Reading tiff\n");
+    //printf("ENd of Reading tiff\n");
 
-    panoDumpMetadata(&im->metadata,"Read metadata");
+    //panoDumpMetadata(&im->metadata,"Read metadata");
 
     panoTiffClose(tiff);
     return result;

@@ -1,4 +1,4 @@
-/* Panorama_Tools	-	Generate, Edit and Convert Panoramic Images
+/* Panorama_Tools       -       Generate, Edit and Convert Panoramic Images
    Copyright (C) 1998,1999 - Helmut Dersch  der@fh-furtwangen.de
    
    This program is free software; you can redistribute it and/or modify
@@ -269,7 +269,7 @@ int makeTempPath(fullPath * path)
     }
 
 
-#define MAX_TEMP_TRY	1000
+#define MAX_TEMP_TRY    1000
 
     try++;
 
@@ -318,25 +318,25 @@ int readImage(Image * im, fullPath * sfile)
 
     if (strcmp(extension, "ppm") == 0)
     {
-	// THIS NEEDS TO BE IMPLEMENTED
+        // THIS NEEDS TO BE IMPLEMENTED
 
-	PrintError("PPM input images not currently supported\n");
-	exit(1);
+        PrintError("PPM input images not currently supported\n");
+        exit(1);
         return readPPM(im, sfile);
     }
     else if (strcmp(extension, "jpg") == 0) 
     {
         if (panoReadJPEG(im, sfile))
-	    return 0; 
+            return 0; 
         else
-	    return -1;
+            return -1;
     }
     else if (strcmp(extension, "tif") == 0)
     {
-	if (panoTiffRead(im, sfile->name)) 
-	    return 0;
-	else
-	    return -1;
+        if (panoTiffRead(im, sfile->name)) 
+            return 0;
+        else
+            return -1;
     }
     else
     {
@@ -349,4 +349,25 @@ int readImage(Image * im, fullPath * sfile)
 int writeImage(Image * im, fullPath * sfile)
 {
     return writePPM(im, sfile);
+}
+
+static int panoUpdateMetadataFromPPM(Image *im) 
+{
+    im->metadata.imageWidth = im->width;
+    im->metadata.imageHeight = im->height;
+    im->metadata.bytesPerLine = im->bytesPerLine;
+    im->metadata.bitsPerSample = im->bitsPerPixel / 4;
+    im->metadata.samplesPerPixel = 4;
+    im->metadata.bytesPerPixel = im->bitsPerPixel/8;
+    im->metadata.bitsPerPixel = im->bitsPerPixel;
+    return TRUE;
+}
+
+
+int panoReadPPM(Image * im, fullPath * sfile)
+{
+  if ( readPPM(im, sfile) == 0) {
+      return panoUpdateMetadataFromPPM(im);
+  } else
+      return FALSE;
 }

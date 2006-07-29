@@ -1,3 +1,14 @@
+2006-07-28  dmg  <dmg@hydrogen.dmg>
+
+	* ppm.c (panoUpdateMetadataFromPPM): Updated PPM support for new
+	metadata processing.
+
+	* PTcommon.c: Improved output of progress indicators (fixed some
+	minor mistakes)
+
+	* jpeg.c, tiff.c, PTcommon.c, filter.c: Updated indentation according to
+	new standard, and I removed debug messages.
+
 2006-07-09  dmg  <dmgerman@uvic.ca>
 
 	* panorama.h, PTcommon.c, pttiff.h, filter.c, tiff.c, filter.h,

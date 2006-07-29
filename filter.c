@@ -1035,8 +1035,8 @@ void panoMetadataFree(pano_ImageMetadata * metadata)
 
     if (metadata->iccProfile.size != 0) {
         assert(metadata->iccProfile.data != NULL);
-	printf("+++++++++++++++++++++++++++++++++++++Freeing ICC profile %x\n",
-	       (int)(metadata->iccProfile.data));
+	//	printf("+++++++++++++++++++++++++++++++++++++Freeing ICC profile %x\n",
+	//	       (int)(metadata->iccProfile.data));
 
 	free(metadata->iccProfile.data);
 	metadata->iccProfile.data = NULL;
@@ -1063,8 +1063,6 @@ int panoAllocAndCopy(char **pTo, char *from, int size)
     char *temp;
     // Make it easy for the caller
 
-    printf("TO allocandcopy\n");
-
     if (size == 0 ||
 	from == NULL) 
     {
@@ -1078,14 +1076,9 @@ int panoAllocAndCopy(char **pTo, char *from, int size)
 	PrintError("Not enough memory");
 	return FALSE;
     }	
-    printf("To copy to pointer 1\n");
     memcpy(temp, from, size);
 
-    printf("To copy to pointer 2\n");
     *pTo = temp;
-
-    printf("End of allocandcopy\n");
-
     return TRUE;
 }
 
@@ -1109,9 +1102,6 @@ int panoMetadataCopy(pano_ImageMetadata * to, pano_ImageMetadata * from)
      */
     int result;
     char *temp;
-    printf("begin of copy\n");
-
-
 
     assert(from != NULL);
     assert(to != NULL);
@@ -1130,10 +1120,6 @@ int panoMetadataCopy(pano_ImageMetadata * to, pano_ImageMetadata * from)
     to->imageDescription = NULL;
     to->artist = NULL;
 
-
-    printf("begin of copy 2\n");
-
-
     //    result = panoAllocAndCopy(&(to->iccProfile.data),
     result = panoAllocAndCopy(&temp,
 			      from->iccProfile.data,
@@ -1141,7 +1127,7 @@ int panoMetadataCopy(pano_ImageMetadata * to, pano_ImageMetadata * from)
 
     to->iccProfile.data  = temp;
 
-    panoDumpMetadata(to, "----------------->Copy");
+    //panoDumpMetadata(to, "----------------->Copy");
 
 #define pano_COPY_STRING(a) (panoAllocAndCopyString(&(to->a), from->a))
 
@@ -1153,9 +1139,9 @@ int panoMetadataCopy(pano_ImageMetadata * to, pano_ImageMetadata * from)
 
 #undef pano_COPY_STRING
 
-    panoDumpMetadata(to, "----------------->Copy after");
+    //panoDumpMetadata(to, "----------------->Copy after");
 
-    printf("End of copy result %d\n", result);
+    //printf("End of copy result %d\n", result);
 
     return result;
 }
