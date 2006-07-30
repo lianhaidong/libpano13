@@ -1,4 +1,5 @@
 #include "filter.h"
+#include "file.h"
 
 static int lastCurTriangle = 0;
 
@@ -245,7 +246,7 @@ int MorphImageFile( fullPath *sfile, fullPath *dfile, AlignInfo *g,int nIm )
 	double s = g->pano.cP.vertical_params[0];
 
 
-	if( readImage( &src, sfile ) )
+	if( panoImageRead( &src, sfile ) == 0)
 	{
 		PrintError("Could not read image");
 		return -1;
@@ -366,7 +367,7 @@ int InterpolateImageFile( fullPath *sfile, fullPath *dfile, AlignInfo *g,int nIm
 	double s = g->pano.cP.vertical_params[0];
 
 
-	if( readImage( &src, sfile ) )
+	if( panoImageRead( &src, sfile ) == 0 )
 	{
 		PrintError("Could not read image");
 		return -1;

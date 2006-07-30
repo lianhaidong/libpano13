@@ -34,8 +34,6 @@
 #include "panorama.h"
 #include "pt_stdint.h"
 
-
-
 typedef struct {
   uint16_t samplesPerPixel;
   uint16_t bitsPerSample;

@@ -2,7 +2,8 @@
 #include "jpeglib.h"
 #define __NO_SYSTEM__
 #include "filter.h"
-
+#include "metadata.h"
+#include "file.h"
 
 
 
@@ -230,23 +231,10 @@ int readJPEG(Image * im, fullPath * sfile)
 // so it should be considered a hack until 
 // we are able to read all the JPEG metadata
 
-int panoUpdateMetadataFromJPEG(Image *im) 
-{
-    im->metadata.imageWidth = im->width;
-    im->metadata.imageHeight = im->height;
-    im->metadata.bytesPerLine = im->bytesPerLine;
-    im->metadata.bitsPerSample = im->bitsPerPixel / 4;
-    im->metadata.samplesPerPixel = 4;
-    im->metadata.bytesPerPixel = im->bitsPerPixel/8;
-    im->metadata.bitsPerPixel = im->bitsPerPixel;
-
-    return TRUE;
-}
-
-int panoReadJPEG(Image * im, fullPath * sfile)
+int panoJPEGRead(Image * im, fullPath * sfile)
 {
   if ( readJPEG(im, sfile) == 0) {
-      return panoUpdateMetadataFromJPEG(im);
+      return panoMetadataUpdateFromImage(im);
   } else
       return FALSE;
 

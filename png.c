@@ -1,6 +1,6 @@
 #include "filter.h"
 #include "png.h"
-
+#include "file.h"
 
 
 int writePNG( Image *im, fullPath *sfile )
@@ -300,3 +300,10 @@ int readPNG	( Image *im, fullPath *sfile )
 
 
 
+int panoPNGRead(Image *im, fullPath *sfile )
+{
+    if (readPNG(im, sfile) == 0) {
+	return panoMetadataUpdateFromImage(im);
+    } else
+	return FALSE;
+}

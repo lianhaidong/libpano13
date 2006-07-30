@@ -275,7 +275,7 @@ JNIEXPORT void JNICALL Java_ptutils_CLoadImage
 	
 	SetImageDefaults(&im);
 	
-	if( readImage( &im, &fp ) != 0 ){
+	if( panoImageRead( &im, &fp ) != 0 ){
 		PrintError("Could not read image");
 		return;
 	}

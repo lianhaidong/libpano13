@@ -32,7 +32,8 @@
 #include "ColourBrightness.h"
 
 #include "pttiff.h"
-#include "pttiff.h"
+#include "file.h"
+
 #include <assert.h>
 
 //#include <stdio.h>
@@ -60,12 +61,6 @@ void InsertFileName(fullPath * fp, char *fname)
     else
         c = fp->name;
     strcpy(c, fname);
-}
-
-void tiffErrorHandler(const char *module, const char *fmt, va_list ap)
-{
-    PrintError("Error in TIFF file (%s) ", module);
-    PrintError((char *) fmt, ap);
 }
 
 /**
@@ -172,128 +167,6 @@ int panoUnCropTiff(char *inputFile, char *outputFile)
     return 0;
 }
 
-/* panotools is only able to operate on images that have the same size and same depth.
-   if the colour profiles exist they should be the same too
-
-   Some checksk are optional
-
-*/
-int panoVerifyTiffsAreCompatible(fullPath * tiffFiles, int numberImages,
-                                 int optionalCheck)
-{
-    int currentImage;
-    pano_Tiff *firstFile;
-    pano_Tiff *otherFile;
-
-    pano_CropInfo *firstCropInfo;
-    pano_CropInfo *otherCropInfo;
-
-    assert(tiffFiles != NULL);
-    assert(numberImages > 1);
-
-
-
-#ifndef __Win__
-    //MRDL: Reluctantly commented these out...the calls to TIFFSetWarningHandler and 
-    //TIFFSetErrorHandler cause to GCC to abort, with a series of errors like this:
-    //../../../LibTiff/tiff-v3.6.1/libtiff/libtiff.a(tif_unix.o)(.text+0x11a): In function `TIFFOpen':
-    //../../../libtiff/tiff-v3.6.1/libtiff/../libtiff/tif_unix.c:144: multiple definition of `TIFFOpen'
-    //../libpano12.a(dyces00121.o)(.text+0x0): first defined here
-    // Make sure we have a tiff error handler
-    TIFFSetWarningHandler(tiffErrorHandler);
-    TIFFSetErrorHandler(tiffErrorHandler);
-#endif
-    // Open TIFFs
-
-    firstFile = panoTiffOpen(tiffFiles[0].name);
-    firstCropInfo = &firstFile->metadata.cropInfo;
-
-
-    if (firstFile == NULL) {
-        PrintError("Unable to read tiff file %s", tiffFiles[0].name);
-        return 0;
-    }
-
-    // Compare the metadata of the current file with each of the other ones
-    for (currentImage = 1; currentImage < numberImages; currentImage++) {
-
-        otherFile = panoTiffOpen(tiffFiles[currentImage].name);
-
-        if (otherFile == NULL) {
-            PrintError("Unable to read tiff file %s",
-                       tiffFiles[currentImage].name);
-            return 0;
-        }
-
-
-        // THey should have the same width
-        if (panoTiffFullImageWidth(firstFile) !=
-            panoTiffFullImageWidth(otherFile)) {
-            PrintError
-                ("Image 0 and %d do not have the same width: %d vs %d\n",
-                 currentImage, (int) firstCropInfo->fullWidth,
-                 (int) otherCropInfo->fullWidth);
-            return 0;
-        }
-
-        // THey should have the same height
-        if (panoTiffFullImageHeight(firstFile) !=
-            panoTiffFullImageHeight(otherFile)) {
-            PrintError
-                ("Image 0 and %d do not have the same length: %d vs %d\n",
-                 currentImage, (int) firstCropInfo->fullHeight,
-                 (int) otherCropInfo->fullHeight);
-            return 0;
-        }
-
-        // THey should have the same colour depth
-        if (panoTiffBytesPerPixel(firstFile) !=
-            panoTiffBytesPerPixel(otherFile)) {
-            PrintError("Image 0 and %d do not have the same colour depth\n",
-                       currentImage);
-            return 0;
-        }
-        //printf("compatible 1\n");
-        // THey should have the same number of channels per pixel
-        if (panoTiffSamplesPerPixel(firstFile) !=
-            panoTiffSamplesPerPixel(otherFile)) {
-            PrintError
-                ("Image 0 and %d do not have the same number of channels per pixel\n",
-                 currentImage);
-            return 0;
-        }
-
-        if (optionalCheck) {
-
-            otherCropInfo = &otherFile->metadata.cropInfo;
-            // Compare profiles
-
-            if (firstFile->metadata.iccProfile.size > 0) {
-
-                //  They should be the same size and have the same contents
-                if (firstFile->metadata.iccProfile.size !=
-                    otherFile->metadata.iccProfile.size
-                    || memcmp(firstFile->metadata.iccProfile.data,
-                              otherFile->metadata.iccProfile.data,
-                              firstFile->metadata.iccProfile.size) != 0) {
-                    PrintError
-                        ("Image 0 and %d have different colour profiles\n",
-                         currentImage);
-                    return 0;
-                }
-            }
-        }
-        panoTiffClose(otherFile);
-
-    }                           // for loop
-
-    panoTiffClose(firstFile);
-    //printf("THe files are compatible\n");
-
-    return TRUE;
-
-}
-
 int panoCreatePSD(fullPath * fullPathImages, int numberImages,
                   fullPath * outputFileName)
 {
@@ -379,7 +252,7 @@ int panoCreatePSD(fullPath * fullPathImages, int numberImages,
 
         strcpy(tempFile.name, outputFileName->name);
 
-        if (makeTempPath(&tempFile) != 0) {
+        if (panoFileMakeTemp(&tempFile) == 0) {
             PrintError("Could not make Tempfile");
             return -1;
 
@@ -791,7 +664,7 @@ int CreateMaskMapFiles(fullPath * inputFiles, fullPath * maskFiles,
 
         strcpy(maskFiles[index].name, inputFiles[0].name);
 
-        if (makeTempPath(&maskFiles[index]) != 0) {
+        if (panoFileMakeTemp(&maskFiles[index]) == 0) {
             PrintError("Could not make Tempfile");
             return -1;
         }
@@ -1214,7 +1087,7 @@ static int CreateAlphaChannels(fullPath * masksNames,
 {
     pano_Tiff **tiffMasks;
     pano_Tiff **tiffAlphaChannels;
-    unsigned char *imagesBuffer;
+    unsigned char *imagesBuffer = NULL;
     unsigned char *ptrBuffer;
     int index;
     char tempString[24];
@@ -1263,7 +1136,7 @@ static int CreateAlphaChannels(fullPath * masksNames,
 
         strcpy(alphaChannelNames[index].name, masksNames[0].name);
 
-        if (makeTempPath(&alphaChannelNames[index]) != 0) {
+        if (panoFileMakeTemp(&alphaChannelNames[index]) == 0) {
             PrintError("Could not make Tempfile");
             goto end;
         }
@@ -2256,7 +2129,7 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
     int var01;
     int var00;
     int colourCorrection;
-    int panoProjection;
+    int panoProjection = 0;
 
     int lines;
     fullPath *fullPathImages;
@@ -2279,7 +2152,7 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
     unsigned int regLen;
     unsigned int regWritten;
 
-    int feather;
+    int feather = 0;
 
 
     pano_Tiff *tiffFile;             //Output file...will be written during this function
@@ -2301,11 +2174,12 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
 
     //Copy script line for line into a new temporary file
     memcpy(&tempScriptFile, scriptFileName, sizeof(fullPath));
-    makeTempPath(&tempScriptFile);
+    if (panoFileMakeTemp(&tempScriptFile) == 0) {
+		PrintError("Unable to create temporary file");
+		goto mainError;
+	}
 
-    //TIFFSetWarningHandler(tiffErrorHandler);
-    //TIFFSetErrorHandler(tiffErrorHandler);
-
+	panoTiffSetErrorHandler();
 
     if ((regFile = fopen(tempScriptFile.name, "w")) == NULL) {
         PrintError("Could not open temporary Scriptfile");
@@ -2482,7 +2356,7 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
         }
 
         //Read input image into transform.src
-        if (readImage(currentImagePtr, &ptrImageFileNames[loopCounter]) != 0) {
+        if (panoImageRead(currentImagePtr, &ptrImageFileNames[loopCounter]) == 0) {
             PrintError("Could not read input image %s", ptrImageFileNames[loopCounter].name);
             goto mainError;
         }
@@ -2593,7 +2467,7 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
         memcpy(&fullPathImages[loopCounter], &panoFileName, sizeof(fullPath));
 
         // Create temporary file where output data wil be written
-        if (makeTempPath(&fullPathImages[loopCounter]) != 0) {
+        if (panoFileMakeTemp(&fullPathImages[loopCounter]) == 0) {
             PrintError("Could not make Tempfile");
             goto mainError;
         }
@@ -2967,7 +2841,7 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
 
 
     //Read back in again so we can convert to final desired format
-    if (readImage(&resultPanorama, panoFileName) != 0) {
+    if (panoImageRead(&resultPanorama, panoFileName) == 0) {
         PrintError("Could not read result image %s", panoFileName->name);
         goto mainError;
     }
@@ -3131,7 +3005,7 @@ int panoFlattenTIFF(fullPath * fullPathImages, int counterImageFiles,
 
 
     //modify "tmpFullPath" to contain the name of a new, empty temp file
-    if (makeTempPath(&tmpFullPath) != 0) {
+    if (panoFileMakeTemp(&tmpFullPath) == 0) {
         PrintError("Could not make Tempfile");
         return 0;
     }

@@ -69,7 +69,6 @@ int panoTiffSetCropInformation(pano_Tiff * file);
 int panoTiffGetImageProperties(pano_Tiff * tiff);
 int panoTiffSetImageProperties(pano_Tiff * file);
 void panoTiffClose(pano_Tiff * file);
-void panoUnCropMetadata(pano_ImageMetadata * metadata);
 pano_Tiff *panoTiffCreateUnCropped(char *fileName,
                                    pano_ImageMetadata * metadata);
 pano_Tiff *panoTiffCreate(char *fileName, pano_ImageMetadata * metadata);
@@ -77,6 +76,12 @@ pano_Tiff *panoTiffOpen(char *fileName);
 int panoTiffReadData(Image * im, pano_Tiff * tif);
 int panoTiffWrite(Image * im, char *fileName);
 int panoTiffRead(Image * im, char *fileName);
+int panoTiffVerifysAreCompatible(fullPath * tiffFiles, int numberImages,
+                                 int optionalCheck);
+
+void panoTiffSetErrorHandler(void);
+int panoTiffVerifyAreCompatible(fullPath * tiffFiles, int numberImages,
+				int optionalCheck);
 
 
 

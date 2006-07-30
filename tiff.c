@@ -32,6 +32,7 @@
 
 
 #include "pttiff.h"
+#include "metadata.h"
 
 
 int readplanarTIFF(Image * im, TIFF * tif);
@@ -1156,16 +1157,6 @@ void panoTiffClose(pano_Tiff * file)
     free(file);
 }
 
-// Sometimes we need to convert an image from cropped to uncropped. This function 
-// takes care of setting the metadata accordingly
-void panoUnCropMetadata(pano_ImageMetadata * metadata)
-{
-    metadata->imageWidth = metadata->cropInfo.fullWidth;
-    metadata->imageHeight = metadata->cropInfo.fullHeight;
-    metadata->isCropped = FALSE;
-    metadata->bytesPerLine = metadata->imageWidth * metadata->bytesPerPixel;
-}
-
 
 // create the tiff according to most of the needed data
 pano_Tiff *panoTiffCreateGeneral(char *fileName,
@@ -1512,4 +1503,143 @@ int panoTiffRead(Image * im, char *fileName)
 
 
 
+void panoTiffErrorHandler(const char *module, const char *fmt, va_list ap)
+{
+    PrintError("Error in TIFF file (%s) ", module);
+    PrintError((char *) fmt, ap);
+}
+
+void panoTiffSetErrorHandler(void)
+{
+  // TODO
+  // This routines need to be properly implemented. Currently it does nothing
+
+    //MRDL: Reluctantly commented these out...the calls to TIFFSetWarningHandler and 
+    //TIFFSetErrorHandler cause to GCC to abort, with a series of errors like this:
+    //../../../LibTiff/tiff-v3.6.1/libtiff/libtiff.a(tif_unix.o)(.text+0x11a): In function `TIFFOpen':
+    //../../../libtiff/tiff-v3.6.1/libtiff/../libtiff/tif_unix.c:144: multiple definition of `TIFFOpen'
+    //../libpano12.a(dyces00121.o)(.text+0x0): first defined here
+    // Make sure we have a tiff error handler
+
+#ifdef TOBEIMPLEMENTED
+
+    TIFFSetWarningHandler(panoTiffErrorHandler);
+    TIFFSetErrorHandler(panoTiffErrorHandler);
+
+#endif
+}
+
+
+/* panotools is only able to operate on images that have the same size and same depth.
+   if the colour profiles exist they should be the same too
+
+   Some checksk are optional
+
+*/
+int panoTiffVerifyAreCompatible(fullPath * tiffFiles, int numberImages,
+                                 int optionalCheck)
+{
+    int currentImage;
+    pano_Tiff *firstFile;
+    pano_Tiff *otherFile;
+
+    pano_CropInfo *firstCropInfo = NULL;
+    pano_CropInfo *otherCropInfo = NULL;
+
+    assert(tiffFiles != NULL);
+    assert(numberImages > 1);
+
+
+    panoTiffSetErrorHandler();
+
+    // Open TIFFs
+
+    firstFile = panoTiffOpen(tiffFiles[0].name);
+    firstCropInfo = &firstFile->metadata.cropInfo;
+
+
+    if (firstFile == NULL) {
+        PrintError("Unable to read tiff file %s", tiffFiles[0].name);
+        return FALSE;
+    }
+
+    // Compare the metadata of the current file with each of the other ones
+    for (currentImage = 1; currentImage < numberImages; currentImage++) {
+
+        otherFile = panoTiffOpen(tiffFiles[currentImage].name);
+	otherCropInfo = &otherFile->metadata.cropInfo;
+
+        if (otherFile == NULL) {
+            PrintError("Unable to read tiff file %s",
+                       tiffFiles[currentImage].name);
+            return FALSE;
+        }
+
+
+        // THey should have the same width
+        if (panoTiffFullImageWidth(firstFile) !=
+            panoTiffFullImageWidth(otherFile)) {
+            PrintError
+                ("Image 0 and %d do not have the same width: %d vs %d\n",
+                 currentImage, (int) firstCropInfo->fullWidth,
+                 (int) otherCropInfo->fullWidth);
+            return FALSE;
+        }
+
+        // THey should have the same height
+        if (panoTiffFullImageHeight(firstFile) !=
+            panoTiffFullImageHeight(otherFile)) {
+            PrintError
+                ("Image 0 and %d do not have the same length: %d vs %d\n",
+                 currentImage, (int) firstCropInfo->fullHeight,
+                 (int) otherCropInfo->fullHeight);
+            return FALSE;
+        }
+
+        // THey should have the same colour depth
+        if (panoTiffBytesPerPixel(firstFile) !=
+            panoTiffBytesPerPixel(otherFile)) {
+            PrintError("Image 0 and %d do not have the same colour depth\n",
+                       currentImage);
+            return FALSE;
+        }
+        //printf("compatible 1\n");
+        // THey should have the same number of channels per pixel
+        if (panoTiffSamplesPerPixel(firstFile) !=
+            panoTiffSamplesPerPixel(otherFile)) {
+            PrintError
+                ("Image 0 and %d do not have the same number of channels per pixel\n",
+                 currentImage);
+            return FALSE;
+        }
+
+        if (optionalCheck) {
+
+            // Compare profiles
+
+            if (firstFile->metadata.iccProfile.size > 0) {
+
+                //  They should be the same size and have the same contents
+                if (firstFile->metadata.iccProfile.size !=
+                    otherFile->metadata.iccProfile.size
+                    || memcmp(firstFile->metadata.iccProfile.data,
+                              otherFile->metadata.iccProfile.data,
+                              firstFile->metadata.iccProfile.size) != 0) {
+                    PrintError
+                        ("Image 0 and %d have different colour profiles\n",
+                         currentImage);
+                    return FALSE;
+                }
+            }
+        }
+        panoTiffClose(otherFile);
+
+    }                           // for loop
+
+    panoTiffClose(firstFile);
+    //printf("THe files are compatible\n");
+
+    return TRUE;
+
+}
 

@@ -45,7 +45,7 @@
 
 #define PT_TIFF2PSD_USAGE "PTtiff2psd [options] <tiffFiles>+\n\n"\
                          "Options:\n"\
-			 "\t-o <filename>\tOutput filename (default merged.psd)\n"\
+                         "\t-o <filename>\tOutput filename (default merged.psd)\n"\
                          "\t-m\t\tAdd stitching mask"\
                          "\t-q\t\tQuiet run\n"\
                          "\t-r\t\tReverse layers\n"\
@@ -93,8 +93,8 @@ int main(int argc,char *argv[])
     switch(opt) {  // fhoqs        f: 102 h:104  111 113 115  o:f:hsq
     case 'o':
       if (StringtoFullPath(&outputFilename, optarg) !=0) { // success
-	PrintError("Not a valid pathname for output filename");
-	return(-1);
+        PrintError("Not a valid pathname for output filename");
+        return(-1);
       }
       break;
     case 'm':
@@ -156,7 +156,7 @@ int main(int argc,char *argv[])
 
   // Check that all files are compatible
 
-  if (!panoVerifyTiffsAreCompatible(ptrInputFiles, filesCount, TRUE)) {
+  if (!panoTiffVerifyAreCompatible(ptrInputFiles, filesCount, TRUE)) {
     PrintError("TIFFs are not compatible");
     return -1;
   }
@@ -178,9 +178,9 @@ int main(int argc,char *argv[])
     }
     for (i=0;i<filesCount;i++) {
       strcpy(tempFiles[i].name, ptrInputFiles[0].name);
-      if (makeTempPath(&tempFiles[i]) != 0) {
-	PrintError("Could not make Tempfile");
-	return -1;
+      if (panoFileMakeTemp(&tempFiles[i]) == 0) {
+        PrintError("Could not make Tempfile");
+        return -1;
       }
     }
     if (panoAddStitchingMasks(ptrInputFiles, tempFiles, filesCount, featherSize) != 0) {

@@ -38,7 +38,7 @@ JNIEXPORT void JNICALL Java_pteditor_CLoadImage
 	
 	SetImageDefaults(pano);
 
-	if( readImage( pano, &fp ) != 0 ){
+	if( panoImageRead( pano, &fp ) == 0 ){
 		PrintError("Could not read image");
 		return;
 	}
@@ -240,7 +240,7 @@ JNIEXPORT void JNICALL Java_pteditor_CInsert
 	}
 	(*env)->ReleaseStringUTFChars(env, path, jpath);
 
-	if( readImage( &src, &fp ) != 0 ){
+	if( panoImageRead( &src, &fp ) == 0 ){
 		PrintError("Could not read image");
 		return;
 	}

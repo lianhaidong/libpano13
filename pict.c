@@ -335,7 +335,9 @@ static int PICTtoImage( Image *im, PicHandle pic )
 
 
 
+#ifdef __DONOTCOMPILE__
 
+These functions should no longer be used.. ready to be deleted. see file.c
 
 int readImage( Image *im, fullPath *sfile )
 {
@@ -485,3 +487,4 @@ int makeTempPath( fullPath *path )
 	
 }
 
+#endif

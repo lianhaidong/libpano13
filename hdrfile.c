@@ -11,7 +11,7 @@ int writeHDR( Image *im, fullPath *sfile)
 	FILE * outfile;
 	char filename[512];
 	unsigned char *data;
-	float *fdata;
+	float *fdata = NULL;
 	int i;
 
 
@@ -167,4 +167,12 @@ int readHDR ( Image *im, fullPath *sfile )
 	fclose( infile );
 
 	return 0;
+}
+
+int panoHDRRead(Image *im, fullPath *sfile )
+{
+    if (readHDR(im, sfile) == 0) {
+	return panoMetadataUpdateFromImage(im);
+    } else
+	return FALSE;
 }

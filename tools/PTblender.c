@@ -46,12 +46,12 @@
 
 #define PT_BLENDER_USAGE "PTblender [options] <tiffFiles>+\n\n"\
                          "Options:\n"\
-			 "\t-o <prefix>\tPrefix for output filename\n"\
-			 "\t-k <index>\tIndex to image to use as a reference (0-based)\n"\
+                         "\t-o <prefix>\tPrefix for output filename\n"\
+                         "\t-k <index>\tIndex to image to use as a reference (0-based)\n"\
                          "\t-f <filename>\t\tFlatten images to single TIFF file\n"\
-			 "\t-q\t\tQuiet run\n\t-h\t\tShow this message\n"\
-			 "\t-c\t\tOutput curves smooth\n\t-h\t\tOutput a photoshop curve per each corrected file\n"\
-			 "\t-m\t\tOutput curves arbitrary map\n\t-h\t\tOutput a photoshop curve per each corrected file\n"\
+                         "\t-q\t\tQuiet run\n\t-h\t\tShow this message\n"\
+                         "\t-c\t\tOutput curves smooth\n\t-h\t\tOutput a photoshop curve per each corrected file\n"\
+                         "\t-m\t\tOutput curves arbitrary map\n\t-h\t\tOutput a photoshop curve per each corrected file\n"\
                          "\n"
 
 #define PT_BLENDER_VERSION "PTblender Version " VERSION ", originally written by Helmut Dersch, rewritten by Daniel M German\n"
@@ -95,23 +95,23 @@ int main(int argc,char *argv[])
     switch(opt) {  // fhoqs        f: 102 h:104  111 113 115  o:f:hsq
     case 'o':
       if (strlen(optarg) < MAX_PATH_LENGTH) {
-	strcpy(outputPrefix, optarg);
+        strcpy(outputPrefix, optarg);
       } else {
-	PrintError("Illegal length for output prefix");
+        PrintError("Illegal length for output prefix");
       }
       break;
     case 'k':
       referenceImage = strtol(optarg, &endPtr, 10);
       if (errno != 0) {
-	PrintError("Invalid integer in -k option");
-	return -1;
+        PrintError("Invalid integer in -k option");
+        return -1;
       }
     case 'f':
       flattenFlag = 1;
       if (strlen(optarg) < MAX_PATH_LENGTH) {
-	strcpy(flatOutputFileName, optarg);
+        strcpy(flatOutputFileName, optarg);
       } else {
-	PrintError("Illegal length for flat output prefix");
+        PrintError("Illegal length for flat output prefix");
       }
       break;
 
@@ -161,7 +161,7 @@ int main(int argc,char *argv[])
 
   if (referenceImage <-1 || referenceImage >= filesCount) {
     sprintf(tempString, "Illegal reference image number %d. It should be between 0 and %d\n", 
-	    referenceImage, filesCount-1);
+            referenceImage, filesCount-1);
     PrintError(tempString);
     return -1;
   }
@@ -193,7 +193,7 @@ int main(int argc,char *argv[])
     //    fprintf(stderr, "Output filename [%s]\n", ptrOutputFiles[i].name);
   }
 
-  if (!panoVerifyTiffsAreCompatible(ptrInputFiles, filesCount, TRUE)) {
+  if (!panoTiffVerifyAreCompatible(ptrInputFiles, filesCount, TRUE)) {
     PrintError("TIFFs are not compatible");
     return -1;
   }

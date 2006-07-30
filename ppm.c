@@ -21,7 +21,8 @@
 
 
 #include "filter.h"
-#include "pttiff.h"
+#include "metadata.h"
+#include "file.h"
 
 static int readPPMFileHeader(file_spec src, Image * im);
 
@@ -249,117 +250,11 @@ int writePPM(Image * im, fullPath * sfile)
     return 0;
 }
 
-int makeTempPath(fullPath * path)
+
+int panoPPMRead(Image * im, fullPath * sfile)
 {
-    file_spec fnum;
-    char *dir;
-    static int try = 0;
-    int i;
-    char fname[24];
-
-
-    dir = strrchr(path->name, '/');
-    if (dir == NULL)
-    {
-        dir = path->name;
-    }
-    else
-    {
-        dir++;
-    }
-
-
-    try++;
-
-    for (i = 0; i < MAX_TEMP_TRY; try++, i++)
-    {
-        sprintf(fname, "_PTStitcher_tmp_%06d", try);
-        if (strlen(fname) + 2 <
-            sizeof(path->name) - (strlen(path->name) - strlen(dir)))
-        {
-            sprintf(dir, "%s", fname);
-            if (myopen(path, read_bin, fnum))
-                break;
-            myclose(fnum);
-        }
-        else
-        {
-            PrintError("Path too long");
-            return -1;
-        }
-    }
-    if (try < MAX_TEMP_TRY)
-        return 0;
-    else
-        return -1;
-
-}
-
-
-int readImage(Image * im, fullPath * sfile)
-{
-    char *ext, extension[4];
-    int i;
-
-
-    ext = strrchr(sfile->name, '.');
-    if (ext == NULL || strlen(ext) != 4) {
-        PrintError("Unsupported File Format [%s]: Must be JPEG, TIF or PPM", sfile);
-        return -1;
-    }
-    ext++;
-    strcpy(extension, ext);
-    for (i = 0; i < 3; i++)
-        extension[i] = tolower(extension[i]);
-
-
-    if (strcmp(extension, "ppm") == 0) {
-        if (panoReadPPM(im, sfile))
-            return 0; 
-        else
-            return -1;
-    } 
-    else if (strcmp(extension, "jpg") == 0) {
-        if (panoReadJPEG(im, sfile))
-            return 0; 
-        else
-            return -1;
-    } 
-    else if (strcmp(extension, "tif") == 0) {
-        if (panoTiffRead(im, sfile->name)) 
-            return 0;
-        else
-            return -1;
-    } 
-    else {
-        PrintError("Unsupported File Format for file [%s]: Must be JPEG, TIF or PPM", sfile);
-        return -1;
-    }
-}
-
-
-int writeImage(Image * im, fullPath * sfile)
-{
-    return writePPM(im, sfile);
-}
-
-static int panoUpdateMetadataFromPPM(Image *im) 
-{
-    im->metadata.imageWidth = im->width;
-    im->metadata.imageHeight = im->height;
-    im->metadata.bytesPerLine = im->bytesPerLine;
-    im->metadata.bitsPerSample = im->bitsPerPixel / 4;
-    im->metadata.samplesPerPixel = 4;
-    im->metadata.bytesPerPixel = im->bitsPerPixel/8;
-    im->metadata.bitsPerPixel = im->bitsPerPixel;
-    return TRUE;
-}
-
-
-int panoReadPPM(Image * im, fullPath * sfile)
-{
-  if ( readPPM(im, sfile) == 0) {
-      return panoUpdateMetadataFromPPM(im);
+  if (readPPM(im, sfile) == 0) {
+      return panoMetadataUpdateFromImage(im);
   } else
       return FALSE;
 }

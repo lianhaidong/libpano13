@@ -1,8 +1,37 @@
 2006-07-30  dmg  <dmgerman@uvic.ca>
 
+	* Makefile.am: Updated it with the new files (metadata.*
+	
+	* pteditor.c, morpher.c, PTpano.c, PTcommon.c, tiff.c: Replaced
+	calls to readImage with calls to panoReadImage and makeTempPath to
+	panoFileMakeTemp.
+
+	* tiff.c, pttiff.h: moved panoCreatePanorama, Enabled tifferror
+	handlers again for non windows.
+
+	* jpeg.c (panoJPEGRead): Renamed it from panoReadJPEG to be consistent.
+
+	* tiff.c: moved panoUnCropMetadata out of it
+	
+	* metadata.c, metadata.h: Added file with metadata only functions.
+	(panoUnCropMetadata): Moved this function from tiff.c
+
+	* hdrfile.c (panoHDRRead): Added function to support metadata
+
+	* png.c (panoPNGRead): Added function to support metadata
+
+	* bmp.c (panoReadBMP): Added function to support metadata
+
+	* file.c: unified imageRead and makeTempPath into panoImageRead,
+	panoMakeTempPath and moved them into this file (there exist one
+	version for windows and one for unix)
+	
+
+2006-07-30  dmg  <dmgerman@uvic.ca>
+
 	* ppm.c (readImage): I forgot to enable the PPM functions.
 
-2006-07-28  dmg  <dmg@hydrogen.dmg>
+2006-07-28  dmg  <dmgerman@uvic.ca>
 
 
 	* configure.ac: Added tests/simpleTiff16/Makefile

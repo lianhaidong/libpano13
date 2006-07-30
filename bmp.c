@@ -1,5 +1,7 @@
 #include "filter.h"
 #include "sys_win.h"
+#include "metadata.h"
+#include "file.h"
 
 static int readBMPFileHeader(Image *im, file_spec input);
 
@@ -311,111 +313,13 @@ static int readBMPFileHeader(Image *im, file_spec input)
 }
 
 
-
-int makeTempPath( fullPath *path )
+int panoBMPRead( Image *im, fullPath *sfile )
 {
-	file_spec fnum;
-	char *dir;
-	static int try = 0;
-	int i;
-	char fname[24];
-
-
-	dir = strrchr( path->name, '\\' );
-	if( dir == NULL )
-	{
-		dir = path->name;
-	}
-	else
-	{
-		dir++;
-	}
-
-	
-	try++;
-	
-	for(i=0; i < MAX_TEMP_TRY; try++,i++)
-	{
-		sprintf( fname, "_PTStitcher_tmp_%06d", try );
-		if( strlen( fname ) + 2 < sizeof(path->name) - (strlen(path->name)-strlen(dir)) )
-		{
-			sprintf( dir, "%s", fname );
-			if( myopen( path, read_bin, fnum ))
-				break;
-			myclose( fnum );
-		}
-		else
-		{
-			PrintError("Path too long");
-			return -1;
-		}
-	}
-	if( try < MAX_TEMP_TRY )
-		return 0;
-	else
-		return -1;
-	
-}
-
-
-int readImage( Image *im, fullPath *sfile )
-{
-	char *ext,extension[4];
-	int i;
-	
-	ext = strrchr( sfile->name, '.' );
-	if( ext == NULL || strlen(ext) != 4 )
-	{
-		PrintError("File must have extension JPG, PNG, TIF, BMP or HDR");
-		return -1;
-	}
-	ext++;
-	strcpy( extension, ext );
-	for(i=0; i<3; i++)
-		extension[i] = tolower(extension[i]);
-
-	
-	if( strcmp( extension, "bmp" ) == 0 )
-		return readBMP(  im, sfile );
-	else if( strcmp( extension, "jpg" ) == 0 )
-		return readJPEG(im, sfile );
-	else if( strcmp( extension, "tif" ) == 0 )
-		return readTIFF(im, sfile );
-	else if( strcmp( extension, "png" ) == 0 )
-		return readPNG(im, sfile );
-	else if( strcmp( extension, "hdr" ) == 0 )
-		return readHDR(im, sfile );
-	else
-	{
-		PrintError("Unsupported File Format: Must be JPEG, PNG, TIFF, BMP or HDR");
-		return -1;
-	}
-}
-		
-
-int writeImage( Image *im, fullPath *sfile )
-{
-	char *ext,extension[4];
-	int i;
-	
-	ext = strrchr( sfile->name, '.' );
-	ext++;
-	strcpy( extension, ext );
-	for(i=0; i<3; i++)
-		extension[i] = tolower(extension[i]);
-
-	
-	if( strcmp( extension, "jpg" ) == 0 )
-		return writeJPEG(im, sfile, 90, 0 );
-	else if( strcmp( extension, "tif" ) == 0 )
-		return writeTIFF(im, sfile );
-	else if( strcmp( extension, "png" ) == 0 )
-		return writePNG(im, sfile );
-	else if( strcmp( extension, "hdr" ) == 0 )
-		return writeHDR(im, sfile );
-	else {
-	return writeBMP( im, sfile );
-	}
+  if (readBMP(im, sfile) == 0) {
+    return panoMetadataUpdateFromImage(im);
+  } 
+  else 
+    return FALSE;
 }
 
 

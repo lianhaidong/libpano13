@@ -95,15 +95,15 @@ int main(int argc,char *argv[])
       
     case 'o':   // specifies output file name
       if (StringtoFullPath(&panoFileName, optarg) != 0) { 
-      	PrintError("Syntax error: Not a valid pathname");
-      	return(-1);
+        PrintError("Syntax error: Not a valid pathname");
+        return(-1);
       }
       break;
 
     case 'f':   // specifies script name
       if (StringtoFullPath(&scriptFileName,optarg) != 0) { 
-      	PrintError("Syntax error: Not a valid pathname");
-      	return(-1);
+        PrintError("Syntax error: Not a valid pathname");
+        return(-1);
       }
       break;
 
@@ -166,7 +166,7 @@ int main(int argc,char *argv[])
             // if it not a text file then assume it is an image
             // Allocate one more slot
             if ((ptrImageFileNames = realloc(ptrImageFileNames, ++counter * 512)) == NULL) {
-	      PrintError("Not enough memory");
+          PrintError("Not enough memory");
               exit(1);
             }
             
@@ -185,18 +185,18 @@ int main(int argc,char *argv[])
       // it is a assumed to be an image
       counter++;
       if((ptrImageFileNames = realloc(ptrImageFileNames, counter * 512)) == NULL) {
-	PrintError("Not enough memory");
-      	exit(1);
+    PrintError("Not enough memory");
+        exit(1);
       }
 
       if (StringtoFullPath(&ptrImageFileNames[counter-1], currentParm) != 0) {
-      	PrintError("Syntax error: Not a valid pathname");
-      	return(-1);
+        PrintError("Syntax error: Not a valid pathname");
+        return(-1);
       }
     } else { //It has to be textfile
       if (StringtoFullPath(&scriptFileName, currentParm) !=0) { // success
-      	PrintError("Syntax error: Not a valid pathname");
-      	return(-1);
+        PrintError("Syntax error: Not a valid pathname");
+        return(-1);
       }
     }
   } // end of while loop  while (optind < argc  ) {
@@ -258,26 +258,26 @@ int main(int argc,char *argv[])
     if (ParseScript(script, &alignInfo) == 0) {
       counter = alignInfo.numIm;
       if (counter != 0) {
-      	if ((ptrImageFileNames = malloc(512 * counter)) == NULL) {
-      	  PrintError("Not enough memory");
-      	  exit(1);
-      	}
-      	
-      	//Iterate over input images and populate input filename array
-      	for (ebx = 0; ebx < counter; ebx ++) {
-      	  //If the image filenames don't appear to have any path information, then 
-      	  //prepend the path to the script (if any) that was specified on the 
-      	  //command line (Note: this was the only behavior in the original 
-      	  //PTStitcher.  It has been moved into this conditional block because
-      	  //the script path could get prepended to an already fully qualified
-      	  //filename...not very useful.
-      	  if ( (hasPathInfo(alignInfo.im[ebx].name)) == 0 )
+        if ((ptrImageFileNames = malloc(512 * counter)) == NULL) {
+          PrintError("Not enough memory");
+          exit(1);
+        }
+        
+        //Iterate over input images and populate input filename array
+        for (ebx = 0; ebx < counter; ebx ++) {
+          //If the image filenames don't appear to have any path information, then 
+          //prepend the path to the script (if any) that was specified on the 
+          //command line (Note: this was the only behavior in the original 
+          //PTStitcher.  It has been moved into this conditional block because
+          //the script path could get prepended to an already fully qualified
+          //filename...not very useful.
+          if ( (hasPathInfo(alignInfo.im[ebx].name)) == 0 )
             strcpy(ptrImageFileNames[ebx].name, scriptFileName.name);
           else
             strcpy(ptrImageFileNames[ebx].name, "");
             
-      	  InsertFileName(&ptrImageFileNames[ebx], alignInfo.im[ebx].name);
-      	} // for (ebx = 0; ebx < counter; ebx ++)
+          InsertFileName(&ptrImageFileNames[ebx], alignInfo.im[ebx].name);
+        } // for (ebx = 0; ebx < counter; ebx ++)
       }//  if (counter != 0) 
       
       DisposeAlignInfo(&alignInfo);
@@ -300,20 +300,20 @@ int main(int argc,char *argv[])
       counter = numLines(script, 'o');
       
       if (counter == 0) {
-      	PrintError("No Input Images");
-      	exit(1);
+        PrintError("No Input Images");
+        exit(1);
       }
       
       strcpy(scriptPathName.name, scriptFileName.name);
       
-      if (makeTempPath(&scriptPathName) != 0) {
-      	PrintError("Could not make Tempfile");
-      	exit(1);
+      if (panoFileMakeTemp(&scriptPathName) == 0) {
+        PrintError("Could not make Tempfile");
+        exit(1);
       }
       
       if ((scriptFD = fopen(scriptPathName.name, "w")) == NULL) {
-      	PrintError("Could not open temporary Scriptfile");
-      	exit(1);
+        PrintError("Could not open temporary Scriptfile");
+        exit(1);
       }
       
       temp = fwrite(script, 1, strlen(script), scriptFD); 
@@ -326,43 +326,43 @@ int main(int argc,char *argv[])
       fclose(scriptFD);
       
       if ((ptrImageFileNames = malloc(counter * 512)) == NULL) {
-      	PrintError("Not enough memory\n");
-      	exit(1);
+        PrintError("Not enough memory\n");
+        exit(1);
       }
       
       for (inputFileCounter2 = 0; inputFileCounter2 < counter; inputFileCounter2++) {
-      	aPrefs* preferences;
-      	
-      	if ( (preferences = readAdjustLine(&scriptPathName)) == NULL) {
-      	  PrintError("Could not read ScriptFile");
-      	  exit(1);
-      	}
-	
-	
-		//Only prepend the path to the script to the filenames if the filenames
-		//don't already have path information
+        aPrefs* preferences;
+        
+        if ( (preferences = readAdjustLine(&scriptPathName)) == NULL) {
+          PrintError("Could not read ScriptFile");
+          exit(1);
+        }
+    
+    
+        //Only prepend the path to the script to the filenames if the filenames
+        //don't already have path information
         if ( (hasPathInfo(preferences->im.name)) == 0 )
           strcpy(ptrImageFileNames[inputFileCounter2].name, scriptFileName.name);
         else
           strcpy(ptrImageFileNames[inputFileCounter2].name, "");
-    	
-    	InsertFileName(&ptrImageFileNames[inputFileCounter2], preferences->im.name);
-	
-    	if (preferences->td != NULL)
-    	  free(preferences->td);
-    	
-    	if (preferences->ts != NULL)
-    	  free(preferences->ts);
+        
+        InsertFileName(&ptrImageFileNames[inputFileCounter2], preferences->im.name);
+    
+        if (preferences->td != NULL)
+          free(preferences->td);
+        
+        if (preferences->ts != NULL)
+          free(preferences->ts);
 
-    	free(preferences);
-	
+        free(preferences);
+    
       } // end of for (inputFileCounter2 = 0; inputFileCounter2 < counter; inputFileCounter2++) {
       
       remove(scriptPathName.name);
       
       if (counter == 0) {
-      	PrintError("No Input Images");
-      	exit(1);
+        PrintError("No Input Images");
+        exit(1);
       }
       
     } //    if (counter == 0)
@@ -400,5 +400,5 @@ int sorting_function(const void *p1, const void *p2)
 
 int hasPathInfo(char *aName)
 {
-	return ((strchr(aName, PATH_SEP) == NULL) ? 0 : 1);
+    return ((strchr(aName, PATH_SEP) == NULL) ? 0 : 1);
 }
