@@ -1,3 +1,7 @@
+2006-07-30  dmg  <dmgerman@uvic.ca>
+
+	* ppm.c (readImage): I forgot to enable the PPM functions.
+
 2006-07-28  dmg  <dmg@hydrogen.dmg>
 
 

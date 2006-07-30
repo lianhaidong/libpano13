@@ -303,8 +303,7 @@ int readImage(Image * im, fullPath * sfile)
 
 
     ext = strrchr(sfile->name, '.');
-    if (ext == NULL || strlen(ext) != 4)
-    {
+    if (ext == NULL || strlen(ext) != 4) {
         PrintError("Unsupported File Format [%s]: Must be JPEG, TIF or PPM", sfile);
         return -1;
     }
@@ -314,30 +313,25 @@ int readImage(Image * im, fullPath * sfile)
         extension[i] = tolower(extension[i]);
 
 
-    if (strcmp(extension, "ppm") == 0)
-    {
-        // THIS NEEDS TO BE IMPLEMENTED
-
-        PrintError("PPM input images not currently supported\n");
-        exit(1);
-        return readPPM(im, sfile);
-    }
-    else if (strcmp(extension, "jpg") == 0) 
-    {
+    if (strcmp(extension, "ppm") == 0) {
+        if (panoReadPPM(im, sfile))
+            return 0; 
+        else
+            return -1;
+    } 
+    else if (strcmp(extension, "jpg") == 0) {
         if (panoReadJPEG(im, sfile))
             return 0; 
         else
             return -1;
-    }
-    else if (strcmp(extension, "tif") == 0)
-    {
+    } 
+    else if (strcmp(extension, "tif") == 0) {
         if (panoTiffRead(im, sfile->name)) 
             return 0;
         else
             return -1;
-    }
-    else
-    {
+    } 
+    else {
         PrintError("Unsupported File Format for file [%s]: Must be JPEG, TIF or PPM", sfile);
         return -1;
     }
