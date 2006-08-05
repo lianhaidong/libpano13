@@ -1,3 +1,13 @@
+2006-08-05  dmg  <dmgerman@uvic.ca>
+
+	* jpeg.c: Implemented reading and writing ICC profile data.
+
+	* jpegicc.c, jpegicc.h, Makefile.am: I incorporated these two
+	files from the LCMS project. Marti Maria, the original author, has
+	granted us permission to change the license from MIT to GPL. These
+	routines implement reading and writing of JPEG ICC profiles.
+
+
 2006-07-30  dmg  <dmgerman@uvic.ca>
 
 	* Makefile.am: Updated it with the new files (metadata.*

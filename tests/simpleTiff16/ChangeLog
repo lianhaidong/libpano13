@@ -1,3 +1,7 @@
+2006-08-05  dmg  <dmgerman@uvic.ca>
+
+	* Updated JPEG test to include the ICC profile data
+
 2006-07-28  dmg  <dmg@hydrogen.dmg>
 
 	* Makefile.am (EXTRA_DIST): Updated. It had incorrect files.

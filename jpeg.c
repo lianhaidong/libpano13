@@ -1,10 +1,11 @@
 #include <stdio.h>
-#include "jpeglib.h"
+#include <jpeglib.h>
 #define __NO_SYSTEM__
 #include "filter.h"
 #include "metadata.h"
 #include "file.h"
 
+#include "jpegicc.h"
 
 
 int writeJPEG(Image * im, fullPath * sfile, int quality, int progressive)
@@ -74,6 +75,14 @@ int writeJPEG(Image * im, fullPath * sfile, int quality, int progressive)
 
     jpeg_start_compress(&cinfo, TRUE);
 
+    // Write ICC Profile if it exists
+
+    if (im->metadata.iccProfile.size > 0) {
+        jpegICCWriteProfile(&cinfo, 
+                           (JOCTET *)im->metadata.iccProfile.data,
+                           im->metadata.iccProfile.size);
+    }
+
     scanlines_written = 0;
     data = *(im->data);
     buf = (unsigned char *) malloc((size_t) im->bytesPerLine);
@@ -129,6 +138,10 @@ int readJPEG(Image * im, fullPath * sfile)
     unsigned int i, scanheight;
     unsigned char *data;
     JSAMPARRAY sarray;
+    JOCTET *ptr = NULL;
+    unsigned int size  = 0; 
+
+
 
 #ifdef __Mac__
     unsigned char the_pcUnixFilePath[256];      // added by Kekus Digital
@@ -143,6 +156,9 @@ int readJPEG(Image * im, fullPath * sfile)
     cinfo.err = jpeg_std_error(&jerr);
     jpeg_create_decompress(&cinfo);
 
+    // Prepare the library for reading the ICC profile, see its source code
+    // for further information
+    jpegICCSetupReadICCProfile(&cinfo);
 
     if (GetFullPath(sfile, filename))
         return -1;
@@ -162,8 +178,7 @@ int readJPEG(Image * im, fullPath * sfile)
     strcpy(filename, the_pcUnixFilePath);       //till here
 #endif
 
-    if ((infile = fopen(filename, "rb")) == NULL)
-    {
+    if ((infile = fopen(filename, "rb")) == NULL) {
         PrintError("can't open %s", filename);
         return -1;
     }
@@ -214,11 +229,21 @@ int readJPEG(Image * im, fullPath * sfile)
         scan_lines_to_be_read -= scan_lines_read;
         data += scan_lines_read * im->bytesPerLine;
     }
+
+    // read ICC profile 
+    
+    if (jpegICCReadProfile(&cinfo, &ptr, &size)) {
+        
+        im->metadata.iccProfile.size = size;        
+        im->metadata.iccProfile.data = (char*) ptr;
+    }
+
     jpeg_finish_decompress(&cinfo);
     jpeg_destroy_decompress(&cinfo);
 
     ThreeToFourBPP(im);
     free(sarray);
+
 
     fclose(infile);
 
