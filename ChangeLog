@@ -1,5 +1,7 @@
 2006-08-05  dmg  <dmgerman@uvic.ca>
 
+	* version.h, configure.ac: Updated version to 2.8.5pre2
+
 	* jpeg.c: Implemented reading and writing ICC profile data.
 
 	* jpegicc.c, jpegicc.h, Makefile.am: I incorporated these two
