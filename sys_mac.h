@@ -49,7 +49,9 @@
 #include <Fonts.h>
 */			// till here
 
+#ifndef MAC_OS_X_VERSION_10_4
 #define c2pstr(x)  MyCtoPStr(x) // added by Kekus Digital
+#endif
 
 
 

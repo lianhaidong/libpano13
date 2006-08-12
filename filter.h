@@ -927,9 +927,15 @@ extern sPrefs			*gsPrPtr;
 	#define		read_bin			"rb"
 	#define		read_write_text			"rw"
 	#define		append_bin			"ab"
-	#define		p2cstr( x )	
-	#define		c2pstr( x )
-															
+    
+    // Ippei hack. OSX with GCC+ANSI mode.
+    #ifdef MAC_OS_X_VERSION_10_4
+        // MacOSX 10.4 has those functions predefined in Carbon API.
+        #include <Carbon/Carbon.h> // CoreServices/TextUtils.h
+    #else
+        #define		p2cstr( x )	
+        #define		c2pstr( x )
+    #endif
 
 #endif
 

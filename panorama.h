@@ -51,7 +51,16 @@
 #endif
 #endif
 
-
+#ifndef __Mac_OSX__
+    #if defined(__APPLE_CC__)
+        #define __Mac_OSX__			1
+        #if (defined(__ppc__) || defined(__ppc64__))
+            #define PT_BIGENDIAN		1
+        #elif defined(__i386__)
+            #undef PT_BIGENDIAN
+        #endif
+    #endif
+#endif
 
 // Use FSSpec on Macs as Path-specifyers, else strings
 #define PATH_SEP							'/'
