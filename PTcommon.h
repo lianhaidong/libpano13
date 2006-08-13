@@ -68,6 +68,8 @@ int panoUnCropTiff(char *inputFile, char *outputFile);
 
 int 	StringtoFullPath	(fullPath *path, char *filename);
 void InsertFileName( fullPath *fp, char *fname );
+int ApplyFeather(fullPath * inputFile, fullPath * outputFile,
+		 int featherSize);
 
 
 #endif

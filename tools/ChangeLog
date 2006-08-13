@@ -1,3 +1,8 @@
+2006-08-12  dmg  <dmg@iridium.dmg>
+
+	* PTtiff2psd.c (main): Updated call to functions now in
+	ptstitch.h. Added include.
+
 2006-07-30  dmg  <dmg@hydrogen.dmg>
 
 	* PTmender.c, PTtiff2psd.c: Replaced calls to makeTempPath with

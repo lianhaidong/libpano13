@@ -41,7 +41,9 @@
 #include "panorama.h"
 #include "PTcommon.h"
 #include "ColourBrightness.h"
-
+#include "ptstitch.h"
+#include "pttiff.h"
+#include "file.h"
 
 #define PT_TIFF2PSD_USAGE "PTtiff2psd [options] <tiffFiles>+\n\n"\
                          "Options:\n"\
@@ -183,7 +185,7 @@ int main(int argc,char *argv[])
         return -1;
       }
     }
-    if (panoAddStitchingMasks(ptrInputFiles, tempFiles, filesCount, featherSize) != 0) {
+    if (panoStitchReplaceMasks(ptrInputFiles, tempFiles, filesCount, featherSize) != 0) {
       PrintError("Unable to add stitching masks");
       return -1;
     }

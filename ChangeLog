@@ -1,3 +1,9 @@
+2006-08-12  dmg  <dmg@iridium.dmg>
+
+	* ptstitch.c, ptstitch.h, PTcommon.c: moved all the functions
+	related to stitching into the ptstich files. Renamed the functions
+	according to new standard
+
 2006-08-05  dmg  <dmgerman@uvic.ca>
 
 	* version.h, configure.ac: Updated version to 2.8.5pre2
