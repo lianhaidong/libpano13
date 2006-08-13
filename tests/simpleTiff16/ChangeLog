@@ -1,3 +1,7 @@
+2006-08-12  dmg  <dmg@iridium.dmg>
+
+	* I finally added the TIFF_LZW reference file
+
 2006-08-05  dmg  <dmgerman@uvic.ca>
 
 	* Updated JPEG test to include the ICC profile data
