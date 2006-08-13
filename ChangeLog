@@ -3,6 +3,10 @@
 	* ptstitch.c, ptstitch.h, PTcommon.c: moved all the functions
 	related to stitching into the ptstich files. Renamed the functions
 	according to new standard
+	(panoStitchComputeMaskMap): Unified 8bit and 16bit versions into 1
+	function, and refactored most of the code to improve readability
+	and maintainability. In the process I found a major bug that was
+	probably affecting spherical panoramas.
 
 2006-08-05  dmg  <dmgerman@uvic.ca>
 
