@@ -1,3 +1,7 @@
+2006-08-30  dmg  <dmg@uvic.ca>
+
+	* updated PSD files according to changes in file.c
+
 2006-07-28  dmg  <dmg@hydrogen.dmg>
 
 	* panoAutomateTest.pl: Remove the software tiff TAG from tests,
