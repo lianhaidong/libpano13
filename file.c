@@ -93,6 +93,121 @@ static int              writeTransparentAlpha   ( Image *im, file_spec fnum, PTR
 
 #define PSDHLENGTH 26
 
+int panoPSDResourceWrite(file_spec fnum, pt_uint16 resource, pt_uint16 len)
+{
+  unsigned char  ch;
+  size_t  count;
+  short   svar;
+  char    data[12], *d;
+  pt_uint32   var;
+   WRITEUCHAR( '8' );
+   WRITEUCHAR( 'B' );
+   WRITEUCHAR( 'I' );
+   WRITEUCHAR( 'M' );
+   WRITESHORT(resource);
+   WRITEINT32(0); // Null string
+   WRITESHORT(len); //size of the record
+
+}
+
+int panoPSDPICTResourceWrite(file_spec fnum, unsigned char resource, unsigned char record, pt_uint16 len)
+{
+  // See IPTC Information Intercharge Model Exchange Version 4.
+
+  unsigned char  ch;
+  size_t  count;
+  short   svar;
+  char    data[12], *d;
+  pt_uint32   var;
+
+  WRITEUCHAR( 0x1c );
+  WRITEUCHAR( resource );
+  WRITEUCHAR( record );
+  WRITESHORT( len ); //length
+}
+
+#define CREATED_BY_PSD "PTmender " VERSION
+#define IPTC_VERSION_ID 0
+#define IPTC_ORIGINATING_PROGRAM_ID 0x41
+#define IPTC_DESCRIPTION_WRITER_ID  0x7a
+
+int panoPSDResourcesBlockWrite(Image *im, file_spec   fnum)
+{
+  char    data[12], *d;
+  short   svar;
+  size_t  count;
+  pt_uint32   var;
+  unsigned char  ch;
+  pt_uint16  shorty;  
+  pt_uint32  len = 0; 
+  pt_uint16  fileInfoLength = 0;
+
+  // Write the length
+  
+  // if we have profile...
+  if (im->metadata.iccProfile.size > 0)
+    len  += im->metadata.iccProfile.size + 12; // To include record data
+  // + Write file info...
+  
+  // compute length of fileinfo record
+  // each record is 5 bytes + data
+  // We will write the following records
+
+  // originating program: 0x41 "Ptmender (32 bytes max)
+  
+  assert(strlen(CREATED_BY_PSD) <= 32);
+
+  shorty = strlen(CREATED_BY_PSD) + 1 // size of originating program, len + 1 as it is pascal type
+    + 7 // size of version record
+    + 5 * 1 // 5 * number of records other than version
+    ;
+
+  len += shorty + 12; // size of fileinfo records + 12 overhead
+
+  WRITEINT32( len );            // Image Resources size
+
+  // Write FILEinfo
+  panoPSDResourceWrite(fnum, 0x0404, shorty);
+
+  // write version
+  
+  panoPSDPICTResourceWrite(fnum, 0x02, IPTC_VERSION_ID, 2);
+  WRITEUCHAR( 00 );
+  WRITEUCHAR( 02 );
+
+  // write originating program
+
+  panoPSDPICTResourceWrite(fnum, 0x02, IPTC_DESCRIPTION_WRITER_ID, strlen(CREATED_BY_PSD) + 1);
+
+  WRITEUCHAR(strlen(CREATED_BY_PSD));
+
+  len = strlen(CREATED_BY_PSD);
+  mywrite( fnum, len, CREATED_BY_PSD);
+
+  // TODO:
+  // caption abstract:    0x78 "script... (2000 bytes max)
+  // if we have them: 
+  // copyright
+  // Set the time that PTmender runs
+  // imagedescription
+  // artist               0x80 (32 max)
+
+  if (im->metadata.iccProfile.size != 0) {
+    
+    // Currently we only include ICC profile if it exists
+    
+    // We need to write an image Resources block
+    // Write Image resources header
+    // Write ICC Profile block
+    panoPSDResourceWrite(fnum, 0x040f, im->metadata.iccProfile.size);
+
+    mywrite( fnum, im->metadata.iccProfile.size, im->metadata.iccProfile.data );
+    
+  } 
+  
+}
+
+
 // Save image as single layer PSD file
 // Image is background
 int writePSD(Image *im, fullPath *sfile )
@@ -139,10 +254,11 @@ int writePSD(Image *im, fullPath *sfile )
                     break;
         default:    WRITESHORT( 3 );            
     }
+
     WRITEINT32( 0 );                // Color Mode
-    WRITEINT32( 0 );            // Image Resources
-            
-        
+
+    panoPSDResourcesBlockWrite(im, fnum);
+                    
     WRITEINT32( 0 );            // Layer & Mask 
     
     // Image data 
@@ -212,8 +328,9 @@ int writePSDwithLayer(Image *im, fullPath *sfile )
         default:    WRITESHORT( 3 );            
     }
     WRITEINT32( 0 );                // Color Mode
-    WRITEINT32( 0 );            // Image Resources
-            
+
+    panoPSDResourcesBlockWrite(im, fnum);
+
     writeLayerAndMask( im, &crop_info, fnum );
 
     writeWhiteBackground( im->width * BitsPerChannel/8, im->height, fnum );

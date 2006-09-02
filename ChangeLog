@@ -1,3 +1,10 @@
+2006-08-30  dmg  <dmg@uvic.ca>
+
+	* file.c: Added code to start to include metadata in PSD file. So
+	far only 2 bits of information are added: ICC Profile and creator
+	software. Photoshop does not display the IPTC originating program,
+	hence I resorted to use the "Source IPTC" tag.
+
 2006-08-12  dmg  <dmg@iridium.dmg>
 
 	* ptstitch.c, ptstitch.h, PTcommon.c: moved all the functions
