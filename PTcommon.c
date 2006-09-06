@@ -1584,14 +1584,21 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
 }
 
 
-
-
+/*
+ * Because this function can be called with a directory name with a period
+ * inside it (e.g. "c:\dir\another.dir\filewithoutextension") then we need to 
+ * make sure that the . happens after the last \ otherwise we'd truncate 
+ * the directory name rather than replacing the extension
+ */
 void panoReplaceExt(char *filename, char *extension)
 {
-    char *temp;
-    temp = strrchr(filename, '.');
-    if (temp != NULL) {
-        strcpy(temp, extension);
+    char *dot_pos = strrchr(filename, '.');
+    char *path_sep_win = strrchr(filename, '\\');
+    char *path_sep_unix = strrchr(filename, '/');
+	char *path_sep = (path_sep_unix == NULL ? path_sep_win : path_sep_unix );
+
+    if (dot_pos != NULL && (path_sep == NULL || dot_pos>path_sep)) {
+        strcpy(dot_pos, extension);
     }
     else {
         strcat(filename, extension);
