@@ -40,6 +40,10 @@
 	#define FALSE 0
 #endif
 
+#ifndef bzero
+	#define bzero(dest, len)   memset((dest), 0, (len))
+#endif
+
 
 //---------------------- Types ---------------------------------------------
 
