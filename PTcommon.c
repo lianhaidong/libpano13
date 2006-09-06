@@ -719,48 +719,46 @@ void getROI(TrformStr * TrPtr, aPrefs * aP, PTRect * ROIRect)
     //an interior point in an input image can be at the edge of ROI.  More research 
     //needed here, but for now include some representative interior points as well.
     for (y = 0; y <= TrPtr->src->height; y += 1) {
-
-        x_jump = (y == 0
-                  || y == TrPtr->src->height) ? 1 : TrPtr->src->width / 2;
-
-        for (x = 0; x <= TrPtr->src->width; x += x_jump) {
-            //convert source coordinates to cartesian coordinates (i.e. origin at center of image)
-            x_d = (double) x - sw2;
-            y_d = (double) y - sh2;
-
-            //Map the source image cartesian coordinate to the destination image cartesian coordinate
-            finvD.func(x_d, y_d, &Dx, &Dy, finvD.param);
-
-            //Convert destination cartesian coordinate back to destination "screen" coordinates (i.e. origin at top left of image)
-            Dx += w2;
-            Dy += h2;
-
-            //printf("  IN: %d,%d -> OUT: %d, %d\n", x, y, (int)Dx, (int)Dy);
-
-            //Expand ROI if necessary
-            if ((int) Dx < ROIRect->left)
-                ROIRect->left = (int) Dx;
-            if ((int) Dx > ROIRect->right)
-                ROIRect->right = (int) Dx;
-            if ((int) Dy < ROIRect->top)
-                ROIRect->top = (int) Dy;
-            if ((int) Dy > ROIRect->bottom)
-                ROIRect->bottom = (int) Dy;
-        }
-    }
-
-    //Reduce ROI if it extends beyond boundaries of final panorama region
-    if (ROIRect->left < 0)
-        ROIRect->left = 0;
-    if (ROIRect->top < 0)
-        ROIRect->top = 0;
-
-    if (ROIRect->right > (TrPtr->dest->width - 1))
-        ROIRect->right = TrPtr->dest->width - 1;
-    if (ROIRect->bottom > (TrPtr->dest->height - 1))
-        ROIRect->bottom = TrPtr->dest->height - 1;
-
-    //printf("ROI: %d,%d - %d, %d\n", ROIRect->left, ROIRect->top, ROIRect->right, ROIRect->bottom);
+	
+		x_jump = (y==0 || y==TrPtr->src->height) ? 1 : TrPtr->src->width/2;
+		
+		for (x = 0; x <= TrPtr->src->width; x += x_jump) {
+			//convert source coordinates to cartesian coordinates (i.e. origin at center of image)
+			x_d = (double) x - sw2 ;
+			y_d = (double) y - sh2 ;
+			
+			//Map the source image cartesian coordinate to the destination image cartesian coordinate
+			finvD.func( x_d, y_d, &Dx, &Dy, finvD.param);
+			
+			//Convert destination cartesian coordinate back to destination "screen" coordinates (i.e. origin at top left of image)
+			Dx += w2;
+			Dy += h2;
+			
+			//printf("  IN: %d,%d -> OUT: %f, %f   (%d, %d)\n", x, y, Dx, Dy, (int)Dx, (int)Dy);
+			
+			//Expand ROI if necessary
+			//I've observed that in some cases, the mapping function returns
+			//a value of "-1.#IND00".  This is not a number, and probably indicates
+			//a divide by zero error somewhere in the mapping function.  This should
+			//be solved, but, for now, discard this value and keep going
+			if (!_isnan(Dx)) {
+				if ((int)Dx < ROIRect->left) ROIRect->left = (int)Dx;
+				if ((int)Dx > ROIRect->right) ROIRect->right = (int)Dx;
+			}
+			if (!_isnan(Dy)){		
+				if ((int)Dy < ROIRect->top) ROIRect->top = (int)Dy;
+				if ((int)Dy > ROIRect->bottom) ROIRect->bottom = (int)Dy;
+			}
+		}
+	}
+	
+	//Reduce ROI if it extends beyond boundaries of final panorama region
+	if (ROIRect->left    < 0) ROIRect->left =0;
+	if (ROIRect->top     < 0) ROIRect->top  =0;
+	if (ROIRect->right   > (TrPtr->dest->width-1))  ROIRect->right    = TrPtr->dest->width-1;  
+	if (ROIRect->bottom  > (TrPtr->dest->height-1)) ROIRect->bottom   = TrPtr->dest->height-1;
+	
+	//printf("ROI: %d,%d - %d, %d\n", ROIRect->left, ROIRect->top, ROIRect->right, ROIRect->bottom);
 }
 
 
