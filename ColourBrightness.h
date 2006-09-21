@@ -82,11 +82,12 @@ unsigned char Unknown48(unsigned char parm0, unsigned char parm1, unsigned char 
 unsigned char Unknown49(unsigned char parm0, unsigned char parm1, unsigned char parm2);
 
 double            MapFunction(double p[], double x, int n);
-int               Unknown40(int value, double mapTable[]) ;
+int               RemapPoint(int value, double mapTable[]) ;
 
-unsigned char Peach (unsigned char parm0, unsigned char parm1, unsigned char parm2);
-unsigned char Cherry (unsigned char parm0, unsigned char parm1, unsigned char parm2);
-unsigned char Apple (unsigned char parm0, unsigned char parm1, unsigned char parm2);
+unsigned char panoColourComputeHue(unsigned char red, unsigned char green, unsigned char blue);
+unsigned char panoColourComputeIntensity(unsigned char red, unsigned char green, unsigned char blue);
+unsigned char panoColourComputeSaturation (unsigned char red, unsigned char green, unsigned char blue);
+
 
 /* The parameter createCurvesType indicates the type of output format: arbitrary map (.amp) or smooth map (.acv).
    if zero no map is output

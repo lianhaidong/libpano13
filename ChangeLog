@@ -1,5 +1,13 @@
 2006-09-21  dmg  <dmg@uvic.ca>
 
+	* version.h (VERSION), configure.ac: Upgraded to version 2.8.5pre3
+
+	* ColourBrightness.c, PTcommon.c: added support for
+	saturation-only and brightness-only correction. I also fixed some
+	small rounding problems in the old code.
+
+2006-09-21  dmg  <dmg@uvic.ca>
+
 	* bootstrap (have_autoconf): Added support for autoconf 2.6
 
 	* PTcommon.c (getROI): Replace calls to _nan() with nan()

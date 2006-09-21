@@ -916,7 +916,6 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
         assert(colourCorrection >= 0
                && colourCorrection < (counterImageFiles + 1) * 4);
         if (prefs->pano.cP.radial != 0) {
-            assert(0);          // I really don't want to execute this code yet
             
             // correct_Prefs
             //...
@@ -932,7 +931,8 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
 
             var00 = prefs->pano.cP.radial_params[0][2]; // what is this for, I have NO idea.
             var00++;
-#ifdef asdfasdf
+
+#if 0
             /*
                I AM NOT TOTALLY SURE ABOUT THIS
                804a01d:   dd 82 d4 06 00 00       fldl   0x6d4(%edx)            // loads address into FL
@@ -952,9 +952,12 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
 
 
         if (prefs->pano.cP.horizontal != 0) {
-            assert(0);          // I really don't want to see this code executed yet
+
+          // Colour correction in color only, not brightness
 
             var01 = prefs->pano.cP.horizontal_params[0];        // 0x75c //[3] 3 colours x horizontal shift value
+            // at this point var01 contains the index to the image to use as anchor fo
+
             var01++;
 
 #ifdef adsfasdf
@@ -1361,11 +1364,13 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
     }
 
     if (var01 != 0) {           //
+      //      fprintf(stderr, "This type of correction... 1\n");
         ColourBrightness(fullPathImages, fullPathImages, counterImageFiles,
                          var01 - 1, 2, 0);
     }                           // 
 
     if (colourCorrection != 0) {
+      //      fprintf(stderr, "This type of correction... 2\n");
         ColourBrightness(fullPathImages, fullPathImages, counterImageFiles,
                          (colourCorrection / 4) - 1, 0, 0);
     }

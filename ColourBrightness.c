@@ -45,6 +45,14 @@ FILE *debugFile;
 #endif
 
 
+#define IDX_RED        0
+#define IDX_GREEN      1
+#define IDX_BLUE       2
+#define IDX_INTENSITY  3
+#define IDX_SATURATION 4
+#define IDX_HUE        5
+
+
 magnolia_struct *InitializeMagnolia(int numberImages, int size, calla_function parm2)
 {
   int j;
@@ -74,15 +82,15 @@ magnolia_struct *InitializeMagnolia(int numberImages, int size, calla_function p
     for (j=0; j<6 ; j++) { 
 
       if ((ptrDouble = calloc(size, sizeof(double))) == NULL) {
-	return NULL;
+        return NULL;
       }
 
       assert( magnolia[i].components == size);
 
       for (ecx = 0;  ecx < size; ecx ++) {
-	
-	ptrDouble[ecx] = ecx * var16;
-	
+        
+        ptrDouble[ecx] = ecx * var16;
+        
       } // if 
 
       magnolia[i].fieldx04[j] = ptrDouble;
@@ -94,6 +102,207 @@ magnolia_struct *InitializeMagnolia(int numberImages, int size, calla_function p
   return magnolia;
 
 }
+
+int RemapPoint(int value, double mapTable[]) 
+{
+  
+  double delta;
+
+  double deltaPrev;
+  double deltaNext;
+
+  double var48;
+  int var44;
+
+  double tablePrevValue;
+  double tableNextValue;
+  int tempInt;
+  int nextValueInt;
+  int prevValueInt;
+
+  int edx;
+
+  // Find previous and next. Extrapolate if necessary
+#if 0
+  int i;
+  printf("Colour map\n");
+  for (i=0;i < 255; i++) {
+    printf("%d: %7.3f ", i, mapTable[i]);
+  }
+#endif
+  if ( value == 0 ) {
+
+    tablePrevValue = 2* mapTable[0]  - mapTable[1]; // XXXXXXXXXXXXXXXXX This just looks backwards!
+
+  } else {
+    
+    tablePrevValue = mapTable[value-1];
+
+  }
+
+  if ( value == 0xff ) {
+
+    tableNextValue = 2 * mapTable[255] - mapTable[254];
+
+
+  } else {
+
+    tableNextValue = mapTable[value+1];
+    
+  }
+
+  if (fabs(tableNextValue - tablePrevValue) <= 2.0) {
+    // if the difference |f(value - 1)  -f(value+1) is too small
+
+    tempInt =  (int)mapTable[value];
+
+    if ((int)mapTable[value] == 0xff ) {
+      return 0xff;
+    }
+
+    delta = mapTable[value] - (int)mapTable[value];
+
+    //  chance of being one colour or the next. 
+    // of n points, n * delta = base and n(1-*delta) will be base + 1
+    // this guarantees that the distribution is faithfull. clever.
+
+    if ( delta * RAND_MAX < rand() ) {
+      //      if (C0 == 1)
+      return (int)mapTable[value];
+
+    } else {
+    
+      return ((int)mapTable[value]) + 1;
+    
+    }
+    assert(0); // nothing should reach here
+
+  } //  if (value ... 2.0) {
+
+  // THIS CASE IS WHEN THE TANGENT is > 1
+
+
+  nextValueInt = (int)tableNextValue;
+
+  if ( (int)tableNextValue > 0xff ) {
+
+    nextValueInt = 0xff;
+
+  }
+
+  prevValueInt = (int)tablePrevValue;
+
+  if ( (int)tablePrevValue < tablePrevValue ) {
+    prevValueInt ++;
+  }
+
+  // prevValueInt == ceiling(tablePrevValue)
+
+  if ( prevValueInt < 0 ) {
+    prevValueInt = 0;
+  }
+
+
+  deltaPrev =  mapTable[value] - tablePrevValue;
+  deltaNext = tableNextValue - mapTable[value];
+
+  edx = prevValueInt;
+
+  var48 = 0;
+  var44 = 0;
+
+  //  if ( %edx > %nextValueInt ) /// [(int)tablePrevValue] > [(int)tableNextValue] 
+  while ( edx <= nextValueInt ) { /// [(int)tablePrevValue] > [(int)tableNextValue] 
+
+    if (edx < mapTable[value]) {
+      var48 += (edx - tablePrevValue)/deltaPrev;
+    } else {
+      var48 += (tableNextValue - edx)/deltaNext;
+    }
+    edx ++;
+  } // while...
+
+  // where did edx = ebx go?
+
+  var48 = (rand() * var48) / RAND_MAX;
+
+  edx = prevValueInt;
+
+  while ( edx <= nextValueInt ) {
+
+    if (edx < mapTable[value]) {
+      var48 -= (edx - tablePrevValue) / deltaPrev;
+    } else { //    if ( %ah == 0x1 ) {
+      var48 -= (tableNextValue - edx) / deltaNext;
+    }  //   if ( %ah == 0x1 ) 
+
+    if ( var48 < 0 ) {
+      return edx;
+    }
+    edx ++;
+
+  } // while ( %edx <= %nextValueInt ) 
+
+  return nextValueInt;
+
+}
+
+
+double RemapDouble(double value, double mapTable[]) 
+{
+  
+  double delta, deltaY, tableNextValue;
+  int valueInt;
+
+  if (!(value >=0.0 && value <= 255.0)) {
+    printf("Wrong value %f\n", value);
+  }
+
+  assert(value >=0.0 && value <= 255.0);
+
+
+  valueInt = (int)value;
+
+  assert(valueInt >=0 && valueInt <= 255);
+
+  if ( value == 0xff ) {
+    tableNextValue = 2 * mapTable[255] - mapTable[254];
+  } else {
+    tableNextValue = mapTable[valueInt+1];
+  }
+  deltaY = tableNextValue - mapTable[valueInt];
+  assert(deltaY>=0);
+
+  delta = (value - valueInt) * deltaY;
+
+  return mapTable[valueInt] + delta;
+
+}
+
+
+
+unsigned char Unknown47(unsigned char parm0, unsigned char parm1, unsigned char parm2)
+{
+
+  int eax = parm1;
+  int edx = parm2;
+  int ecx = parm0;
+
+
+  ecx = ecx * 3;
+  ecx = ecx + 2 * eax - 256;
+  ecx = (ecx + 2 * edx - 256) * 2 /3;
+
+  if (ecx >= 0) {
+    if (ecx > 0xff) 
+      return 0xff;
+    else
+      return ecx;
+  } else {
+    return 0;
+  }
+}
+
 
 
 void DisplayHistogramsError(int numberHistograms,   histograms_struct * ptrHistograms)
@@ -111,33 +320,33 @@ void DisplayHistogramsError(int numberHistograms,   histograms_struct * ptrHisto
     if ( ptrHistograms[index].overlappingPixels  > 999 ) {
       
       fprintf(debugFile, "Histogram %d Images %d %d, %d Pixels: ", index , 
-	      ptrHistograms[index].baseImageNumber, 
-	      ptrHistograms[index].otherImageNumber,
-	      ptrHistograms[index].overlappingPixels);
+              ptrHistograms[index].baseImageNumber, 
+              ptrHistograms[index].otherImageNumber,
+              ptrHistograms[index].overlappingPixels);
       
       ptrBaseHistograms = &(ptrHistograms[index].ptrBaseHistograms); 
       ptrOtherHistograms = &(ptrHistograms[index].ptrOtherHistograms);
       
-      for (currentColour = 0; currentColour < 3; currentColour++) {
-	
-	double sum = 0;
-	int *var192;
-	int *var200;
-	
-	var192 = (*ptrBaseHistograms)[currentColour];
-	
-	var200 = (*ptrOtherHistograms)[currentColour];
-	
-	for (i =0; i < 0x100; i++) {
-	  
-	  int diff = var192[i] - var200[i];
-	  
-	  sum += diff * diff;
-	  
-	} 
-	
-	fprintf(debugFile, "  %g", sum * 1.0 /ptrHistograms[index].overlappingPixels);
-	
+      for (currentColour = 0; currentColour < 6; currentColour++) {
+        
+        double sum = 0;
+        int *var192;
+        int *var200;
+        
+        var192 = (*ptrBaseHistograms)[currentColour];
+        
+        var200 = (*ptrOtherHistograms)[currentColour];
+        
+        for (i =0; i < 0x100; i++) {
+          
+          int diff = var192[i] - var200[i];
+          
+          sum += diff * diff;
+          
+        } 
+        
+        fprintf(debugFile, "  %g", sum * 1.0 /ptrHistograms[index].overlappingPixels);
+        
       } //for (currentColour = 0; currentColour < 3; currentColour++ {
       
       fprintf(debugFile, "\n");
@@ -188,7 +397,7 @@ int OutputPhotoshopCurve(FILE *output, int size, double *curve)
 
     // For some reason y is first in the output
     if (fwrite(&y, 2, 1, output) != 1 ||
-	fwrite(&x, 2, 1, output) != 1 ) {
+        fwrite(&x, 2, 1, output) != 1 ) {
       goto error;
     }
   }
@@ -274,7 +483,7 @@ int OutputEmptyPhotoshopCurve(FILE *output)
 }
 
 int OutputCurves(int index, magnolia_struct *curves, int typeOfCorrection,
-		 fullPath *panoFileName, int curveType)
+                 fullPath *panoFileName, int curveType)
 {
   char outputFileName[512];
   char temp[12];
@@ -315,7 +524,7 @@ int OutputCurves(int index, magnolia_struct *curves, int typeOfCorrection,
     // Output Red, Green and Blue Channels
     for (i=0;i<3;i++) {
       if (OutputPhotoshopCurve(output, curves->components, curves->fieldx04[i]) == 0) 
-	goto error;
+        goto error;
     }
     // it needs an empty curve at the end, and I donot know why
     if (OutputEmptyPhotoshopCurve(output) == 0) {
@@ -330,7 +539,7 @@ int OutputCurves(int index, magnolia_struct *curves, int typeOfCorrection,
     // Output Red, Green and Blue Channels
     for (i=0;i<3;i++) {
       if (OutputPhotoshopArbitraryMap(output, curves->components, curves->fieldx04[i]) == 0) 
-	goto error;
+        goto error;
     }
     break;
   }
@@ -343,11 +552,11 @@ int OutputCurves(int index, magnolia_struct *curves, int typeOfCorrection,
   PrintError("Unable to output curves file %s", outputFileName);
   return 0;
 }
-			     
+                             
 
 
 void ColourBrightness(  fullPath *fullPathImages,  fullPath *outputFullPathImages, 
-			int counterImages, int indexReferenceImage, int parm3, int createCurvesType)
+                        int counterImages, int indexReferenceImage, int parm3, int createCurvesType)
 {
 
   histograms_struct * ptrHistograms;
@@ -364,7 +573,7 @@ void ColourBrightness(  fullPath *fullPathImages,  fullPath *outputFullPathImage
   debugFile = fopen("Debug.txt", "w");
   //  debugFile = stderr;
 
-  fprintf(debugFile, "Entering function \"Colour_Brightness\" with %d images, nfix =%d\n", counterImages, indexReferenceImage);
+  fprintf(debugFile, "Entering function \"colourbrightness\" with %d images, nfix =%d\n", counterImages, indexReferenceImage);
 
   calla.ptrHistograms = ReadHistograms(fullPathImages, counterImages);
 
@@ -374,6 +583,8 @@ void ColourBrightness(  fullPath *fullPathImages,  fullPath *outputFullPathImage
   ptrHistograms = calla.ptrHistograms;
 
   fprintf(debugFile, "\nQuality before optimization:\n");
+
+  //  printf("\nQuality before optimization:\n");
 
   index = 0;
 
@@ -398,61 +609,78 @@ void ColourBrightness(  fullPath *fullPathImages,  fullPath *outputFullPathImage
   fprintf(debugFile, "\nResults of Optimization:");
 
   if (createCurvesType !=0) {
+    fprintf(debugFile, "\nResults of Optimization:");
+
     for (index=0;  index < counterImages; index++ ) {
       if (OutputCurves(index, &(calla.magnolia[index]), parm3, &(outputFullPathImages[index]), createCurvesType) == 0) {
-	PrintError("Error creating curves files");
-	return ;
+        PrintError("Error creating curves files");
+        return ;
       }
     }
     return ;
   }
 
-  for (index=0;  index < counterImages; index++ ) {
-    int edi;
-    magnolia_struct *magnolias;
+  //  printf("\nQuality before optimization: 12 3\n");
 
-    fprintf(debugFile, "\nImage %d:\nRed Channel:   ", index);
+  for (index=0;  index < counterImages; index++ ) {
+    int i;
+    int histo;
+    magnolia_struct *magnolias;
 
     magnolias = calla.magnolia; // ecx
 
-    for (edi = 0;  edi < magnolias[index].components; edi++)  {
-
-      double *array;
-
-      array = magnolias[index].fieldx04[0];
-
-      fprintf(debugFile, "%g ", array[edi]);
-
-    } //    while (( %edi < (%ecx+ebx) ) {
-
-    fprintf(debugFile, "\nGreen Channel: ");
+    for (histo = 0; histo< 6; histo++) {
+      switch (histo) {
+      case 0:
+        fprintf(debugFile, "\nImage %d:\nRed Channel:   ", index);
+        break;
+      case 1:
+        fprintf(debugFile, "\nImage %d:\nGreen Channel:   ", index);
+        break;
+      case 2:
+        fprintf(debugFile, "\nImage %d:\nBlue Channel:   ", index);
+        break;
+      case IDX_INTENSITY:
+        fprintf(debugFile, "\nImage %d:\nIntensity:   ", index);
+        break;
+      case IDX_SATURATION:
+        fprintf(debugFile, "\nImage %d:\nSauration:   ", index);
+        break;
+      case IDX_HUE:
+        fprintf(debugFile, "\nImage %d:\nHue:   ", index);
+        break;
+      default:
+        assert(0);
+      }
     
-
-    for (edi = 0; edi < magnolias[index].components; edi++) {
-      
-      double *array;
-      array = magnolias[index].fieldx04[1];
-
-      fprintf(debugFile, "%g ", array[edi]);
-    }
-
-    fprintf(debugFile, "\nBlue Channel:  ");
-
-    for (edi = 0; edi < magnolias[index].components; edi++) {
-      
-      double *array;
-      array = magnolias[index].fieldx04[2];
-
-      fprintf(debugFile, "%g ", array[edi]);
+      for (i = 0;  i < magnolias[index].components; i++)  {
+        
+        double *array;
+        
+        array = magnolias[index].fieldx04[histo];
+        
+        fprintf(debugFile, "%g ", array[i]);
+        
+      } //    while (( %edi < (%ecx+ebx) ) {
     }
 
   } //  for (index=0;  index < counterImages; index++ ) {
 
-
-  if ( ptQuietFlag == 0 )
-
-    Progress(_initProgress, "Adjusting Colour and Brightness");
-  
+  if ( ptQuietFlag == 0 ) {
+    switch (parm3) { 
+    case 0:
+      Progress(_initProgress, "Adjusting Colour and Brightness");
+      break;
+    case 1:
+      Progress(_initProgress, "Adjusting Brightness");
+      break;
+    case 2:
+      Progress(_initProgress, "Adjusting Saturation");
+      break;
+    default:
+      assert(0);
+    }
+  }
   index = 0;
 
   for (index = 0;  index <counterImages; index++ ) {
@@ -462,37 +690,39 @@ void ColourBrightness(  fullPath *fullPathImages,  fullPath *outputFullPathImage
     if ( ptQuietFlag == 0 ) {
 
       if (Progress(_setProgress, string) == 0) 
-	return ;
+        return ;
       
     } //if ( ptQuietFlag == $0x0 )
     
-    
+
     if (strcmp(fullPathImages[index].name,
-	       outputFullPathImages[index].name) != 0  ||
-	index != indexReferenceImage ) {
+               outputFullPathImages[index].name) != 0  ||
+        index != indexReferenceImage ) {
+
 
       // Do the correction if the input and output filename are different
       // or if it is not the reference image
-      
+
+      /// Due to laiziness we are processing the reference image in order to copy it from input to output
+      // We should avoid it, but it is not a big deal
+
+      //printf("To correct index %d %d indexReferenceImage\n", index, indexReferenceImage);
       if (CorrectFileColourBrightness(&fullPathImages[index], &outputFullPathImages[index],
-				      &calla.magnolia[index], parm3) != 0) {
-	
-	PrintError("Error creating colour corrected file\n");
-	return;
+                                      &calla.magnolia[index], parm3) != 0) {
+        
+        PrintError("Error creating colour corrected file\n");
+        return;
       }
     }  
   } //  for (index = 0;  index <counterImages; index++ ) {
   
   
-  ptrHistograms2 = ReadHistograms(fullPathImages, counterImages);
-    ////////////////////////////
+  ptrHistograms2 = ReadHistograms(outputFullPathImages, counterImages);
   
-  fprintf(debugFile, "\nQuality after optimization:");
+  fprintf(debugFile, "\nQuality after optimization:\n");
   
   DisplayHistogramsError(numberHistograms, ptrHistograms2);
 
-  ////////////////////////////////////
-  
   FreeHistograms(calla.ptrHistograms, numberHistograms);
   FreeHistograms(ptrHistograms2, numberHistograms);
   
@@ -535,6 +765,9 @@ int CorrectFileColourBrightness(fullPath *inPath, fullPath *outPath, magnolia_st
     return -1;
   }   
 
+  // TODO: add error checking to the write
+
+
   getCropInformation(inPath->name, &crop_info);  
   
   CorrectImageColourBrigthness(&image, magnolia, parm3);
@@ -551,7 +784,8 @@ int CorrectFileColourBrightness(fullPath *inPath, fullPath *outPath, magnolia_st
 int FindNextCandidate(int candidates[], calla_struct *calla)
 {
 
-  // Find  image with maximum overlap not yet corrected.
+  // Find image not yet corrected with the maximum overlap over the
+  // corrected area
 
   // The algorithm is simple.
 
@@ -573,6 +807,10 @@ int FindNextCandidate(int candidates[], calla_struct *calla)
 
   histograms_struct *ptrHistograms;
 
+  // Candidates is an array of boolean. If true the image has been processed
+
+  // A daisy exists for each pair of images
+  // It contains information about their ovelap
 
   numberDaisies = calla->numberImages * (calla->numberImages -1)/2;
 
@@ -583,6 +821,7 @@ int FindNextCandidate(int candidates[], calla_struct *calla)
 
   for (i = 0; i < calla->numberImages; i++) {
 
+    // Number of pixels ovelapping for this image with corrected area
     overlapping[i] = 0;
 
   } //  for (i = 0; i < calla->numberImages; i++) {
@@ -592,6 +831,7 @@ int FindNextCandidate(int candidates[], calla_struct *calla)
 
     ptrHistograms = calla->ptrHistograms;
 
+    // How many pixels overlap
     overlappingPixels = ptrHistograms[i].overlappingPixels;
     baseImage = ptrHistograms[i].baseImageNumber;
     otherImage = ptrHistograms[i].otherImageNumber;
@@ -602,43 +842,46 @@ int FindNextCandidate(int candidates[], calla_struct *calla)
     assert(otherImage >= 0);
     assert(baseImage != otherImage);
 
+    //    fprintf(stderr, "Overlap %2d:%2d:%7d\n", baseImage, otherImage, overlappingPixels);
+
     if ( overlappingPixels > 1000 ) {
 
+      // WE ONLY Process images with an overlap of at least 1000 pixels
       
       if (candidates[baseImage] == 0 ||
-	  candidates[otherImage] != 0 ) {
-	
-	// baseImageNumber not in OR  other in
+          candidates[otherImage] != 0 ) {
+        
+        // baseImageNumber not in OR  other in
 
-	// Here we have four alternatives:
+        // Here we have four alternatives:
 
-	// 1. baseImageNumber not AND  other not      <- we need to skip this case
-	// 2. baseImageNumber not AND  other in   
+        // 1. baseImageNumber not AND  other not      <- we need to skip this case
+        // 2. baseImageNumber not AND  other in   
 
-	// 3. baseImageNumber in AND other in         <- we need to skip this case
-	// 4. baseImageNumber not AND other in
+        // 3. baseImageNumber in AND other in         <- we need to skip this case
+        // 4. baseImageNumber not AND other in
 
 
-	// so the condition is: not baseImageNumber and otherIn
+        // so the condition is: not baseImageNumber and otherIn
 
-	
-	if (candidates[otherImage] != 0  &&
-	    candidates[baseImage] == 0) {
+        
+        if (candidates[otherImage] != 0  &&
+            candidates[baseImage] == 0) {
 
-	  overlapping[baseImage]+=overlappingPixels;
-	}
-	
+          overlapping[baseImage]+=overlappingPixels;
+        }
+        
       } else {
       
-	// This code is executed if:
-	
-	// NOT (baseImageNumber == 0 OR otherImageNumber == 1) =>
-	// NOT (baseImageNumber == 0 ) AND NOT (otherImageNumber == 1) =>
-	// baseImageNumber in AND otherImageNumber is not in
+        // This code is executed if:
+        
+        // NOT (baseImageNumber == 0 OR otherImageNumber == 1) =>
+        // NOT (baseImageNumber == 0 ) AND NOT (otherImageNumber == 1) =>
+        // baseImageNumber in AND otherImageNumber is not in
 
-	// if the base is in, AND not the other, then add it to the other
+        // if the base is in, AND not the other, then add it to the other
 
-	overlapping[otherImage]+=overlappingPixels;
+        overlapping[otherImage]+=overlappingPixels;
 
       }
       
@@ -654,6 +897,8 @@ int FindNextCandidate(int candidates[], calla_struct *calla)
   max = 0;
   for (i =0; i < calla->numberImages ; i++ ) {
   
+    //    fprintf(stderr, "Overlap Image %2d:%7d\n", i, overlapping[i]);
+
     if ( overlapping[i] > max ) {
 
       max = overlapping[i];
@@ -700,16 +945,18 @@ int ComputeColourBrightnessCorrection(calla_struct *calla)
   int *array;
   int i;
 
+  // How many overlaps do we expect
+
   numberIntersections = ((calla->numberImages - 1) * calla->numberImages)/2;
 
+  // Keep an array of booleans that keeps track of what we have done
   processedImages = calloc(calla->numberImages, sizeof(int));
 
-
+  // Histograms for source and to correct
   accumToCorrectHistogram = malloc(0x100 * sizeof(double));
-
   accumSourceHistogram = malloc(0x100 * sizeof(double));
 
-
+  // Histogram of the to-correct when it has been remapped
   remappedSourceHistogram = malloc(0x100 * sizeof(double));
 
 
@@ -728,26 +975,31 @@ int ComputeColourBrightnessCorrection(calla_struct *calla)
   // Mark starting image as done
   processedImages[calla->indexReferenceImage] = 1;
 
+  // We keep repeating this loop while there are "candidates"
+  // A candidate is the image with the largest overlap with the already corrected image
+
   while ((currentImageNumber = FindNextCandidate(processedImages, calla)) != -1) {
 
     // We have a candidate image: currentImageNumber
 
+    //    fprintf(stderr, "We are processing image %d\n", currentImageNumber);
+
+    // make sure it is a valid image number and it has not been processed
     assert(currentImageNumber >= 0);
     assert(currentImageNumber < calla->numberImages);
     assert(processedImages[currentImageNumber] == 0);
 
     // For every channel it does the correction independently.
-    // clean the accum histograms
     
     for (channel = 0; channel < 6; channel++) {
 
       int currentIntersection;
       
+    // clean the accum histograms
       for (i =0; i <= 0xff;  i ++) {
-	
-	accumSourceHistogram[i] = 0;
-	
-	accumToCorrectHistogram[i] = 0;
+        
+        accumSourceHistogram[i] = 0;
+        accumToCorrectHistogram[i] = 0;
 
       }
 
@@ -755,131 +1007,131 @@ int ComputeColourBrightnessCorrection(calla_struct *calla)
 
       for (currentIntersection = 0;   currentIntersection < numberIntersections ; currentIntersection++) {
 
-	currentHistogram = &(calla->ptrHistograms[currentIntersection]);
+        currentHistogram = &(calla->ptrHistograms[currentIntersection]);
 
 
-	// DO it only if the overlap is bigger than 1k pixels
+        // DO it only if the overlap is bigger than 1k pixels
 
-	if ( currentHistogram->overlappingPixels > 1000 ) { // it is not consistent XXX
-	
-	  if ( currentHistogram->baseImageNumber == currentImageNumber && 
-	       processedImages[currentHistogram->otherImageNumber] != 0 ) {
+        if ( currentHistogram->overlappingPixels > 1000 ) { // it is not consistent XXX
+        
+          if ( currentHistogram->baseImageNumber == currentImageNumber && 
+               processedImages[currentHistogram->otherImageNumber] != 0 ) {
 
-	    // this means the otherImage has been already processed
-	    // but not baseImageNumber
-	    
-	    // REMAP histogram according to current mapping function
+            // this means the otherImage has been already processed
+            // but not baseImageNumber
+            
+            // REMAP histogram according to current mapping function
 
-	    //	    fprintf(stderr, "Original histogram Channel %d [%d,Base %d]: \n", channel, currentImageNumber, currentHistogram->otherImageNumber);
-	    //	    for (j = 0; j<0x100; j++) {
-	    //	      fprintf(stderr, " %d:%d", j, currentHistogram->ptrOtherHistograms[channel][j]);
-	    //	    }
-	    //	    fprintf(stderr, "\n");
+            //      fprintf(stderr, "Original histogram Channel %d [%d,Base %d]: \n", channel, currentImageNumber, currentHistogram->otherImageNumber);
+            //      for (j = 0; j<0x100; j++) {
+            //        fprintf(stderr, " %d:%d", j, currentHistogram->ptrOtherHistograms[channel][j]);
+            //      }
+            //      fprintf(stderr, "\n");
 
 
 
-	    // Remap histogram of other image
+            // Remap histogram of other image
 
-	    RemapHistogram(currentHistogram->ptrOtherHistograms[channel],
-			   remappedSourceHistogram,  
-			   &(calla->magnolia[currentHistogram->otherImageNumber]), channel);
+            RemapHistogram(currentHistogram->ptrOtherHistograms[channel],
+                           remappedSourceHistogram,  
+                           &(calla->magnolia[currentHistogram->otherImageNumber]), channel);
 
-	    //	    fprintf(stderr, "\n");
+            //      fprintf(stderr, "\n");
 
-	    //	    fprintf(stderr, "Remapped histogram :\n");
+            //      fprintf(stderr, "Remapped histogram :\n");
 
-	    //for (j = 0; j<0x100; j++) {
-	    //fprintf(stderr, " %d:%g", j, remappedSourceHistogram[j]);
-	    //}
-	    //fprintf(stderr, "\n");
+            //for (j = 0; j<0x100; j++) {
+            //fprintf(stderr, " %d:%g", j, remappedSourceHistogram[j]);
+            //}
+            //fprintf(stderr, "\n");
 
-	    // Add source Histogram to the Accumulated
+            // Add source Histogram to the Accumulated
 
-	    for (j = 0; ( j <= 0xff ); j ++) {
+            for (j = 0; ( j <= 0xff ); j ++) {
   
-	      accumSourceHistogram[j] += remappedSourceHistogram[j];
+              accumSourceHistogram[j] += remappedSourceHistogram[j];
 
-	    }
+            }
 
-	    // Add target histogram to its accumulated
-	    // This guarantees that both accum histograms have the same total
-	    // number of points
+            // Add target histogram to its accumulated
+            // This guarantees that both accum histograms have the same total
+            // number of points
 
 
-	    ptrHistogram = calla->ptrHistograms[currentIntersection].ptrBaseHistograms;
+            ptrHistogram = calla->ptrHistograms[currentIntersection].ptrBaseHistograms;
   
-	    for (j = 0; j <= 0xff; j ++) {
+            for (j = 0; j <= 0xff; j ++) {
   
-	      array = ptrHistogram[channel];
-	      accumToCorrectHistogram[j] += array[j];
+              array = ptrHistogram[channel];
+              accumToCorrectHistogram[j] += array[j];
 
-	    }
+            }
 
-	    continue;
+            continue;
 
   
-	  } else { //	
+          } else { //   
 
-	    assert(currentHistogram == &calla->ptrHistograms[currentIntersection]);
+            assert(currentHistogram == &calla->ptrHistograms[currentIntersection]);
 
-	    if (currentHistogram->otherImageNumber == currentImageNumber  &&
-		processedImages[currentHistogram->baseImageNumber] != 0 ) {
+            if (currentHistogram->otherImageNumber == currentImageNumber  &&
+                processedImages[currentHistogram->baseImageNumber] != 0 ) {
 
-	      // MIRROR version of the code above.
-	      // In this case baseImageNumber is done
-	      // and otherImageNumber is to be done
+              // MIRROR version of the code above.
+              // In this case baseImageNumber is done
+              // and otherImageNumber is to be done
 
-	      //fprintf(stderr, "Original histogram Channel %d [Base %d,%d]: \n", channel, currentImageNumber, currentHistogram->baseImageNumber);
-	      
-	      //for (j = 0; j<0x100; j++) {
-	      //fprintf(stderr, " %d:%d", j, currentHistogram->ptrBaseHistograms[channel][j]);
-	      //}
-	      //fprintf(stderr, "\n");
-	      
-	      // Remap source histogram
-	      RemapHistogram(currentHistogram->ptrBaseHistograms[channel],
-			     remappedSourceHistogram,
-			     &(calla->magnolia[currentHistogram->baseImageNumber]), 
-			     channel);
-	      
-	      //fprintf(stderr, "Remapped histogram: \n");
-	      
-	      //for (j = 0; j<0x100; j++) {
-	      //	fprintf(stderr, " %d:%g", j, remappedSourceHistogram[j]);
-	      //}
-	      //fprintf(stderr, "\n");
-	      
-	      // Add it to the accumulated
-	      for (j = 0; j <= 0xff; j ++) {
-		
-		accumSourceHistogram[j] += remappedSourceHistogram[j];
-		
-	      } //      for (j = 0; j <= 0xff; j ++) {
-	      
-	      ptrHistogram = currentHistogram->ptrOtherHistograms;
-	      
-	      
-	      // add target histogram to its accumulated
-	      // This guarantees that both accum histograms have the same total
-	      // number of points
-	      for (j = 0; j <= 0xff; j ++) {
-		
-		array = ptrHistogram[channel];
-		accumToCorrectHistogram[j] += array[j];
-		
-	      } // for (j = 0; j <= 0xff; j ++) {
-	      
-	    } // end of if
+              //fprintf(stderr, "Original histogram Channel %d [Base %d,%d]: \n", channel, currentImageNumber, currentHistogram->baseImageNumber);
+              
+              //for (j = 0; j<0x100; j++) {
+              //fprintf(stderr, " %d:%d", j, currentHistogram->ptrBaseHistograms[channel][j]);
+              //}
+              //fprintf(stderr, "\n");
+              
+              // Remap source histogram
+              RemapHistogram(currentHistogram->ptrBaseHistograms[channel],
+                             remappedSourceHistogram,
+                             &(calla->magnolia[currentHistogram->baseImageNumber]), 
+                             channel);
+              
+              //fprintf(stderr, "Remapped histogram: \n");
+              
+              //for (j = 0; j<0x100; j++) {
+              //        fprintf(stderr, " %d:%g", j, remappedSourceHistogram[j]);
+              //}
+              //fprintf(stderr, "\n");
+              
+              // Add it to the accumulated
+              for (j = 0; j <= 0xff; j ++) {
+                
+                accumSourceHistogram[j] += remappedSourceHistogram[j];
+                
+              } //      for (j = 0; j <= 0xff; j ++) {
+              
+              ptrHistogram = currentHistogram->ptrOtherHistograms;
+              
+              
+              // add target histogram to its accumulated
+              // This guarantees that both accum histograms have the same total
+              // number of points
+              for (j = 0; j <= 0xff; j ++) {
+                
+                array = ptrHistogram[channel];
+                accumToCorrectHistogram[j] += array[j];
+                
+              } // for (j = 0; j <= 0xff; j ++) {
+              
+            } // end of if
 
-	  } // end of else
-	} // end of if 
-	  
+          } // end of else
+        } // end of if 
+          
       } //    for (currentIntersection = 0;   %currentIntersection < numberIntersections ; currentIntersection++) {
 
   
       ComputeAdjustmentCurve(accumToCorrectHistogram,
-			     accumSourceHistogram,
-			     (calla->magnolia[currentImageNumber].fieldx04)[channel]);
+                             accumSourceHistogram,
+                             (calla->magnolia[currentImageNumber].fieldx04)[channel]);
       
     } //    for (channel = 0; var < 6; var++) {
 
@@ -1038,7 +1290,7 @@ histograms_struct *ReadHistograms (fullPath *fullPathImages, int numberImages)
       for (i = 0 ;  i < 6 ; i++) {
         
         if ((currentHistogram->ptrBaseHistograms[i] = calloc(currentHistogram->numberDifferentValues, sizeof(int))) == NULL)
-	  return 0;
+          return 0;
         
         if ((currentHistogram->ptrOtherHistograms[i] = calloc(currentHistogram->numberDifferentValues,sizeof(int))) == NULL)
           return 0;
@@ -1120,88 +1372,88 @@ histograms_struct *ReadHistograms (fullPath *fullPathImages, int numberImages)
       // for each pixel of each line of each image...
       for (currentImage = 0; currentImage < numberImages ; currentImage++, ptrPixel+= bytesPerLine) {
 
-	assert(ptrPixel < imagesDataBuffer + numberImages * bytesPerLine);
+        assert(ptrPixel < imagesDataBuffer + numberImages * bytesPerLine);
 
-	ptrOtherPixel = ptrPixel + bytesPerLine;
+        ptrOtherPixel = ptrPixel + bytesPerLine;
 
-	// for each pixel of each line of each current image, and images 'above' the current
+        // for each pixel of each line of each current image, and images 'above' the current
 
-	for (otherImage = currentImage + 1;  otherImage < numberImages; otherImage++, ptrOtherPixel += bytesPerLine) {
+        for (otherImage = currentImage + 1;  otherImage < numberImages; otherImage++, ptrOtherPixel += bytesPerLine) {
 
-	  assert(ptrOtherPixel < imagesDataBuffer + numberImages * bytesPerLine);
+          assert(ptrOtherPixel < imagesDataBuffer + numberImages * bytesPerLine);
 
-	  assert(ptrPixel < ptrOtherPixel);
-	  assert(((int)(ptrOtherPixel - ptrPixel)) % bytesPerLine == 0);
+          assert(ptrPixel < ptrOtherPixel);
+          assert(((int)(ptrOtherPixel - ptrPixel)) % bytesPerLine == 0);
 
-	  /* Only process if the alpha channel is not zero in both pixels*/
+          /* Only process if the alpha channel is not zero in both pixels*/
 
-	  if (0 != ptrPixel[0]  &&  0 != ptrOtherPixel[0] ) {
+          if (0 != ptrPixel[0]  &&  0 != ptrOtherPixel[0] ) {
 
-	    totalPixels ++;
-	    currentHistogram->overlappingPixels++;
-	      
-	    // esi == ptrPixel
-	    // ebx == ptrOtherPixel
-
-
-	    // This seems to record the frequency of every pixels of every channel one of 3 channels of every image
-	    for (i = 0;  i < 3; i++) {
-	      
-	      // First byte is alpha channel
-
-	      value  = (unsigned char)ptrPixel[i+1];
-	      assert(value >= 0 && value <= 0xff);
-
-	      ptrInt = currentHistogram->ptrBaseHistograms[i];
-		
-	      ptrInt[value] ++;
-	      
-	      value = (unsigned char)ptrOtherPixel[i + 1];
-	      assert(value >= 0 && value <= 0xff);
-
-	      ptrInt = currentHistogram->ptrOtherHistograms[i] ; // eax = ptrInt
-	      
-	      ptrInt[value] ++;
-	      
-	    } 
-
-	    // compute the other 6 histograms	      
-	    temp = Cherry(ptrPixel[1], ptrPixel[2], ptrPixel[3]);
-	    assert(temp >= 0 && temp <= 0xff);
-	    ptrInt = currentHistogram->ptrBaseHistograms[3];
-	    ptrInt[temp] ++;
-
-	    temp = Cherry(ptrOtherPixel[1], ptrOtherPixel[2], ptrOtherPixel[3]);
-	    assert(temp >= 0 && temp <= 0xff);
-	    ptrInt = currentHistogram->ptrOtherHistograms[3];
-	    ptrInt[temp] ++;
-
-	    temp = Apple(ptrPixel[1], ptrPixel[2], ptrPixel[3]);
-	    assert(temp >= 0 && temp <= 0xff);
-	    ptrInt = currentHistogram->ptrBaseHistograms[4];
-	    ptrInt[temp] ++;
-
-	    temp = Apple(ptrOtherPixel[1], ptrOtherPixel[2], ptrOtherPixel[3]);
-	    assert(temp >= 0 && temp <= 0xff);
-	    ptrInt = currentHistogram->ptrOtherHistograms[4];
-	    ptrInt[temp] ++;
-
-	    temp = Peach(ptrPixel[1], ptrPixel[2], ptrPixel[3]);
-	    assert(temp >= 0 && temp <= 0xff);
-	    ptrInt = currentHistogram->ptrBaseHistograms[5];
-	    ptrInt[temp] ++;
-
-	    temp = Peach(ptrOtherPixel[1], ptrOtherPixel[2], ptrOtherPixel[3]);
-	    assert(temp >= 0 && temp <= 0xff);
-	    ptrInt = currentHistogram->ptrOtherHistograms[5];
-	    ptrInt[temp] ++;
-
-	  } // if ( 0 != *ptrPixel  and  0 != *ptrOtherPixel ) {
+            totalPixels ++;
+            currentHistogram->overlappingPixels++;
+              
+            // esi == ptrPixel
+            // ebx == ptrOtherPixel
 
 
-	  currentHistogram++;  //edi = edi + 0x44; //68 ?? again, this should be edi ++;
-	  
-	}  //	for (otherImage = currentImage + 1;  otherImage < numberImages; otherImage++ ) {
+            // This seems to record the frequency of every pixels of every channel one of 3 channels of every image
+            for (i = 0;  i < 3; i++) {
+              
+              // First byte is alpha channel
+
+              value  = (unsigned char)ptrPixel[i+1];
+              assert(value >= 0 && value <= 0xff);
+
+              ptrInt = currentHistogram->ptrBaseHistograms[i];
+                
+              ptrInt[value] ++;
+              
+              value = (unsigned char)ptrOtherPixel[i + 1];
+              assert(value >= 0 && value <= 0xff);
+
+              ptrInt = currentHistogram->ptrOtherHistograms[i] ; // eax = ptrInt
+              
+              ptrInt[value] ++;
+              
+            } 
+
+            // compute the other 6 histograms         
+            temp = panoColourComputeIntensity(ptrPixel[1], ptrPixel[2], ptrPixel[3]);
+            assert(temp >= 0 && temp <= 0xff);
+            ptrInt = currentHistogram->ptrBaseHistograms[IDX_INTENSITY];
+            ptrInt[temp] ++;
+
+            temp = panoColourComputeIntensity(ptrOtherPixel[1], ptrOtherPixel[2], ptrOtherPixel[3]);
+            assert(temp >= 0 && temp <= 0xff);
+            ptrInt = currentHistogram->ptrOtherHistograms[IDX_INTENSITY];
+            ptrInt[temp] ++;
+
+            temp = panoColourComputeSaturation(ptrPixel[1], ptrPixel[2], ptrPixel[3]);
+            assert(temp >= 0 && temp <= 0xff);
+            ptrInt = currentHistogram->ptrBaseHistograms[IDX_SATURATION];
+            ptrInt[temp] ++;
+
+            temp = panoColourComputeSaturation(ptrOtherPixel[1], ptrOtherPixel[2], ptrOtherPixel[3]);
+            assert(temp >= 0 && temp <= 0xff);
+            ptrInt = currentHistogram->ptrOtherHistograms[IDX_SATURATION];
+            ptrInt[temp] ++;
+
+            temp = panoColourComputeHue(ptrPixel[1], ptrPixel[2], ptrPixel[3]);
+            assert(temp >= 0 && temp <= 0xff);
+            ptrInt = currentHistogram->ptrBaseHistograms[IDX_HUE];
+            ptrInt[temp] ++;
+
+            temp = panoColourComputeHue(ptrOtherPixel[1], ptrOtherPixel[2], ptrOtherPixel[3]);
+            assert(temp >= 0 && temp <= 0xff);
+            ptrInt = currentHistogram->ptrOtherHistograms[IDX_HUE];
+            ptrInt[temp] ++;
+
+          } // if ( 0 != *ptrPixel  and  0 != *ptrOtherPixel ) {
+
+
+          currentHistogram++;  //edi = edi + 0x44; //68 ?? again, this should be edi ++;
+          
+        }  //   for (otherImage = currentImage + 1;  otherImage < numberImages; otherImage++ ) {
 
       }//      for (currentImage = 0; currentImage >=numberImages ;... 
       
@@ -1212,9 +1464,9 @@ histograms_struct *ReadHistograms (fullPath *fullPathImages, int numberImages)
   
   //  for (i = 0; i< numberImages * (numberImages-1)/2; i++) {
   //    fprintf(stderr, "Histogram %d Images %d %d, %d Pixels\n", i , 
-  //	    ptrHistograms[i].baseImageNumber, 
-  //	    ptrHistograms[i].otherImageNumber,
-  //	    ptrHistograms[i].overlappingPixels);
+  //        ptrHistograms[i].baseImageNumber, 
+  //        ptrHistograms[i].otherImageNumber,
+  //        ptrHistograms[i].overlappingPixels);
   //    totalPixels2 += ptrHistograms[i].overlappingPixels;
   //  }
 
@@ -1232,46 +1484,190 @@ histograms_struct *ReadHistograms (fullPath *fullPathImages, int numberImages)
   return(saveReturnValue);
 }
 
-unsigned char Cherry (unsigned char parm0, unsigned char parm1, unsigned char parm2)
+
+double MinDouble(double a, double b, double c)
+{
+  double min = 0;
+  if (a < b) {
+    min = a;
+  } else {
+    min = b;
+  }
+  if (c < min)
+    return c;
+  else
+    return min;
+}
+
+double MaxDouble(double a, double b, double c)
+{
+  double max = 0;
+  if (a > b) {
+    max = a;
+  } else {
+    max = b;
+  }
+  if (c > max)
+    return c;
+  else
+    return max;
+}
+
+void panoColourRGBtoHSV(int R, int G, int B, double *pH,  double *pS, double *pV)
+{
+  double r = ( R / 255.0 );                    
+  double g = ( G / 255.0 );
+  double b = ( B / 255.0 );
+  double V, H,S;
+
+  double min, max, delta;
+  
+  min = MinDouble( r, g, b );
+  max = MaxDouble( r, g, b );
+  V = max;                              // v
+  
+  delta = max - min;
+  
+
+  if( max != 0 )
+    S = delta / max;            // s
+  else {
+    // r = g = b = 0            // s = 0, v is undefined
+    S = 0;
+    H = 0;
+
+    *pH = H;
+    *pS = S;
+    *pV = V;
+    return;
+  }
+  
+  if (delta == 0) {
+    H = 0;
+  } else {
+
+    if( r == max )
+      H = ( g - b ) / delta;            // between yellow & magenta
+    else if( g == max )
+      H = 2 + ( b - r ) / delta;        // between cyan & yellow
+    else
+      H = 4 + ( r - g ) / delta;        // between magenta & cyan
+    
+    H *= 60;                            // degrees
+    if( H < 0 )
+      H += 360;
+  }
+  *pH = H;
+  *pS = S;
+  *pV = V;
+}
+
+void panoColourHSVtoRGB(double H,  double S, double V, int *pR, int *pG, int *pB)
 {
 
-  unsigned temp = (parm0 + parm1 + parm2)/3;
+  int i;
+  double f, p, q, t;
+  double R, G, B;
+
+  if( fabs(S) < 0.000001 ) {
+    // achromatic (grey)
+    *pR = *pG = *pB = V * 255;
+    return;
+  }
+
+  H /= 60;                      // sector 0 to 5
+  i = (int)H;
+
+
+  f = H - i;                    // factorial part of h
+  p = V * ( 1 - S );
+  q = V * ( 1 - S * f );
+  t = V * ( 1 - S * ( 1 - f ) );
+  
+  switch( i ) {
+  case 0:
+    R = V;
+    G = t;
+    B = p;
+    break;
+  case 1:
+    R = q;
+    G = V;
+    B = p;
+    break;
+  case 2:
+    R = p;
+    G = V;
+    B = t;
+    break;
+  case 3:
+    R = p;
+    G = q;
+    B = V;
+    break;
+  case 4:
+    R = t;
+    G = p;
+    B = V;
+    break;
+  default:              // case 5:
+    R = V;
+    G = p;
+    B = q;
+    break;
+  }
+  *pR = R * 255;
+  *pG = G *255;
+  *pB = B *255;
+}
+
+
+
+
+unsigned char panoColourComputeHue (unsigned char red, unsigned char green, unsigned char blue)
+{
+  // Compute Hue
+  double H, S, V;
+  int h;
+  unsigned temp;
+
+  panoColourRGBtoHSV(red, green, blue, &H, &S, &V);
+
+  // Normalize to 0..255 because the mapping tables are configured that way...
+
+  H = H * (255.0/ 360);
+  h = (int)H;
+  assert(h >=0 && h <= 255);
+
+  return h;
+}
+
+
+unsigned char panoColourComputeIntensity (unsigned char red, unsigned char green, unsigned char blue)
+{
+
+  unsigned temp = (red + green + blue)/3;
 
   assert(temp >= 0 && temp <= 255);
   
   return temp;
 }
 
-unsigned char Peach (unsigned char parm0, unsigned char parm1, unsigned char parm2)
+unsigned char panoColourComputeSaturation (unsigned char red, unsigned char green, unsigned char blue)
 {
+  double H, S, V;
+  int h;
   unsigned temp;
 
-  temp =  ((parm0 - parm2) + 0x100)/2;
+  panoColourRGBtoHSV(red, green, blue, &H, &S, &V);
 
-  if (temp < 0) {
-    return 0;
-  }
-  if (temp > 0xff ) {
-    return 0xff;
-  }
-  return temp;
-}
+  // Normalize to 0..255 because the mapping tables are configured that way...
 
+  S = S * 255.0;
+  h = (int)S;
+  assert(h >=0 && h <= 255);
 
-unsigned char Apple (unsigned char parm0, unsigned char parm1, unsigned char parm2)
-{
-  int temp;
-
-  temp = ((parm0 - parm1) + 0x100)/2;
-  if (temp < 0) {
-    return(0);
-  }
-  
-  if (temp > 0xff) {
-    return(0xff);
-  }
-  return temp;
-    
+  return h;
 }
 
 
@@ -1331,8 +1727,8 @@ unsigned char Apple (unsigned char parm0, unsigned char parm1, unsigned char par
 //
 //      for (ecx =0; ecx < 0xff;  ecx ++) {
 //
-//	edi[ecx] = 0;
-//	var24[ecx] = 0;
+//      edi[ecx] = 0;
+//      var24[ecx] = 0;
 //
 //      }
 //
@@ -1340,89 +1736,89 @@ unsigned char Apple (unsigned char parm0, unsigned char parm1, unsigned char par
 //      // for each daisy records (histograms)
 //      for (esi = 0;   esi < numberIntersections ; esi++) {
 //
-//	currentHistogram = &calla->ptrHistograms[esi];
+//      currentHistogram = &calla->ptrHistograms[esi];
 //
 //      
-//	if ( currentHistogram->overlappingPixels > 1000 ) { // it is not consistent XXX
-//	
-//	  if ( currentHistogram->baseImageNumber == currentImageNumber && 
+//      if ( currentHistogram->overlappingPixels > 1000 ) { // it is not consistent XXX
+//      
+//        if ( currentHistogram->baseImageNumber == currentImageNumber && 
 //
-//	       correctedImages[currentHistogram->otherImageNumber] != 0 ) {
-//
-//
-//	    // Do something with the already corrected histogram
-//	    Unknown37(currentHistogram->ptrOtherHistograms[channel],
-//		      var28,  
-//		      calla->magnolia[currentHistogram->otherImageNumber], channel);
+//             correctedImages[currentHistogram->otherImageNumber] != 0 ) {
 //
 //
-//	    for (ecx = 0; ( %ecx <= $0xff ); ecx ++) {
+//          // Do something with the already corrected histogram
+//          Unknown37(currentHistogram->ptrOtherHistograms[channel],
+//                    var28,  
+//                    calla->magnolia[currentHistogram->otherImageNumber], channel);
+//
+//
+//          for (ecx = 0; ( %ecx <= $0xff ); ecx ++) {
 //  
-//	      edi[ecx] += var28[ecx];
+//            edi[ecx] += var28[ecx];
 //  
-//	    }
+//          }
 //
-//	    // Now process the current histogram
+//          // Now process the current histogram
 //
-//	    ptrHistogram = calla->ptrHistograms[esi].ptrBaseHistograms;
+//          ptrHistogram = calla->ptrHistograms[esi].ptrBaseHistograms;
 //  
-//	    for (ecx = 0; ecx <= 0xff; ecx ++) {
+//          for (ecx = 0; ecx <= 0xff; ecx ++) {
 //  
-//	      array = ptrHistogram[channel];
-//	      var24[ecx] += array[ecx];
+//            array = ptrHistogram[channel];
+//            var24[ecx] += array[ecx];
 //
-//	    }
-//	    
-//	  } else { //	if ( 0xc(%ecx, edx, 1) == %ebx ) {
-//
-//
-//	    currentHistogram = &calla->ptrHistograms[esi];
+//          }
+//          
+//        } else { //   if ( 0xc(%ecx, edx, 1) == %ebx ) {
 //
 //
-//	    if (currentHistogram->otherImageNumber == currentImageNumber ) { 
+//          currentHistogram = &calla->ptrHistograms[esi];
+//
+//
+//          if (currentHistogram->otherImageNumber == currentImageNumber ) { 
 //  
-//	      if ( correctedImages[currentHistogram->baseImageNumber] != 0 ) {
+//            if ( correctedImages[currentHistogram->baseImageNumber] != 0 ) {
 //
-//		Unknown37(currentHistogram->ptrBaseHistograms[channel],
-//			  var28,
-//			  calla->magnolia[currentHistogram->baseImageNumber], channel);
+//              Unknown37(currentHistogram->ptrBaseHistograms[channel],
+//                        var28,
+//                        calla->magnolia[currentHistogram->baseImageNumber], channel);
 //
-//		for (ecx = 0; ecx <= 0xff; ecx ++) {
+//              for (ecx = 0; ecx <= 0xff; ecx ++) {
 //
-//		  edi[ecx] += var28[ecx];
-//
-//  
-//		} //      for (ecx = 0; ecx <= 0xff; ecx ++) {
-//
-//		
-//		currentHistogram = calla->ptrHistograms[esi];
-//		
-//		ptrHistogram = currentHistogram->ptrOtherHistogram;
+//                edi[ecx] += var28[ecx];
 //
 //  
-//		for (ecx = 0; ecx <= 0xff; ecx ++) {
+//              } //      for (ecx = 0; ecx <= 0xff; ecx ++) {
 //
-//		  array = ptrHistogram[channel];
+//              
+//              currentHistogram = calla->ptrHistograms[esi];
+//              
+//              ptrHistogram = currentHistogram->ptrOtherHistogram;
 //
-//		  var24[ecx] += array[ecx];
+//  
+//              for (ecx = 0; ecx <= 0xff; ecx ++) {
+//
+//                array = ptrHistogram[channel];
+//
+//                var24[ecx] += array[ecx];
 //
 //
-//		} //      for (ecx = 0; ecx <= 0xff; ecx ++) {
+//              } //      for (ecx = 0; ecx <= 0xff; ecx ++) {
 //
-//	      } //	  if ( (%ebx,eax,4) != 0 ) {
+//            } //        if ( (%ebx,eax,4) != 0 ) {
 //
-//	    } //	if ( 0x10(%ecx,edx,1) == %ebx ) {
-//	  } // end of else
-//	} //if ( (%ecx, edx, 1) > $0x3e8 ) {  
-//	  
+//          } //        if ( 0x10(%ecx,edx,1) == %ebx ) {
+//        } // end of else
+//      } //if ( (%ecx, edx, 1) > $0x3e8 ) {  
+//        
 //      } //    for (esi = 0;   %esi < numberIntersections ; esi++) {
 //
 //      // This should be responsible for updating the current correction table
 //      // for the currentimage
 //      
 //      Unknown41(var24,
-//		edi,
-//		(calla->magnolia[currentImageNumber].fieldx04)[channel]);
+//              edi,
+//              (calla->magnolia[currentImageNumber].fieldx04)[channel]);
 //
 //
 //
@@ -1453,6 +1849,16 @@ unsigned char Apple (unsigned char parm0, unsigned char parm1, unsigned char par
 //
 //
 
+void AssertEqualCurves(double *first, double *second, int size)
+{
+  int i;
+  for (i=0;i<size;i++)  {
+    assert(first[i] == second[i]);
+  }
+}
+
+
+
 
 void CorrectImageColourBrigthness(Image *image, magnolia_struct *magnolia, int parm3)
 {
@@ -1476,6 +1882,9 @@ void CorrectImageColourBrigthness(Image *image, magnolia_struct *magnolia, int p
     
   } 
   
+
+  //  fprintf(stderr, "Colour correcting image\n");
+
   edi = 0;
   
   for (level = 0; level < 0x100; level++) {
@@ -1499,7 +1908,7 @@ void CorrectImageColourBrigthness(Image *image, magnolia_struct *magnolia, int p
 
   case 1:
     
-    assert(0);
+    printf("**************************Bright\n");
 
     currentRow = 0;
     
@@ -1512,51 +1921,84 @@ void CorrectImageColourBrigthness(Image *image, magnolia_struct *magnolia, int p
       ptrPixel = pixel;
       
       while ( currentPixel < image->width ) {
-	
-	
-	if (*ptrPixel != 0 ) {
-	  
-	  int ebx,ecx;
+        
+        
+        if (*ptrPixel != 0 ) {
+          
+          int ebx,ecx;
 
-	  ebx = Cherry(ptrPixel[1], ptrPixel[2], ptrPixel[3]); // adds three channels and averages
-	  
-	  edx = (char)Unknown40(ebx, mappingCurves[4]) - ebx;
+          int R, G, B;
+          double H, S, I;
 
-	  ecx = ptrPixel[1] + edx;
+          R = ptrPixel[1];
+          G = ptrPixel[2];
+          B = ptrPixel[3];
 
-	  if (ecx < 0) {
-	    ptrPixel[1] = 0;
-	  }  else if (ecx > 0xff) {
-	    ptrPixel[1] = 0xff;
-	  }  else {
-	    ptrPixel[1] = ecx;
-	  }
-	  
-	  ecx = ptrPixel[2] + edx;
-	  
-	  if (ecx < 0) {
-	    ptrPixel[2] = 0;
-	  }  else if (ecx > 0xff) {
-	    ptrPixel[2] = 0xff;
-	  }  else {
-	    ptrPixel[2] = ecx;
-	  }
-	  
-	  ecx = ptrPixel[3] + edx;
-	  
-	  if (ecx < 0) {
-	    ptrPixel[3] = 0;
-	  }  else if (ecx > 0xff) {
-	    ptrPixel[3] = 0xff;
-	  }  else {
-	    ptrPixel[3] = ecx;
-	  }
+          panoColourRGBtoHSV(R, G, B, &H, &S, &I);
 
-	}
+          assert(H >= 0.0 && H<=360.0);
+          assert(S >= 0.0 && S<=1.0);
+          assert(I >= 0.0 && I<=1.0);
 
-	currentPixel++;
-	ptrPixel+=4; // advance an entire pixel
-	
+          // Now remap the intensity
+
+
+          I = RemapDouble(I * 255.0, mappingCurves[IDX_INTENSITY]) / 255.0;
+          
+          panoColourHSVtoRGB(H, S, I, &R, &G, &B);
+          
+          if (R < 0 || R > 255 || G < 0 || G > 255 || B < 0 || B > 255) {
+            printf("Value of R G B %d % %d\n", R, G, B);
+            assert(0);
+          }
+          //assert(R >= 0 && R <= 255);
+          //assert(G >= 0 && G <= 255);
+          //assert(B >= 0 && B <= 255);
+
+          ptrPixel[1] = R;
+          ptrPixel[2] = G;
+          ptrPixel[3] = B;
+
+
+#if 0     
+
+
+          ecx = ptrPixel[1] + edx;
+
+          if (ecx < 0) {
+            ptrPixel[1] = 0;
+          }  else if (ecx > 0xff) {
+            ptrPixel[1] = 0xff;
+          }  else {
+            ptrPixel[1] = ecx;
+          }
+          
+          ecx = ptrPixel[2] + edx;
+          
+          if (ecx < 0) {
+            ptrPixel[2] = 0;
+          }  else if (ecx > 0xff) {
+            ptrPixel[2] = 0xff;
+          }  else {
+            ptrPixel[2] = ecx;
+          }
+          
+          ecx = ptrPixel[3] + edx;
+          
+          if (ecx < 0) {
+            ptrPixel[3] = 0;
+          }  else if (ecx > 0xff) {
+            ptrPixel[3] = 0xff;
+          }  else {
+            ptrPixel[3] = ecx;
+          }
+#endif
+
+        }
+
+        currentPixel++;
+        ptrPixel+=4; // advance an entire pixel
+        
       } // while ( currentPixel < image->width )
       
       currentRow++;
@@ -1569,67 +2011,120 @@ void CorrectImageColourBrigthness(Image *image, magnolia_struct *magnolia, int p
     
   case 0: //case of switch
       
+    // Normal colour correction: hue + intensity
+
     ptrPixel = *(image->data);
 
     for (currentRow = 0;  currentRow < image->height; currentRow++)  {
       
       for (currentPixel = 0 ; currentPixel < image->width ; currentPixel++) {
-	
-	if ( ptrPixel[0] != 0 ) {
-	  
-	  for (channel = 0; channel < 3 ; channel ++) {
-	    
-	    ptrPixel[channel+1] = Unknown40(ptrPixel[channel+1], mappingCurves[channel]);
+        
+        if ( ptrPixel[0] != 0 ) {
+          
+          // If we have data... do each of the channels
 
-	  }
-	  
-	} //      if ( (ptrPixel) != 0 ) {
 
-	ptrPixel +=4;
-	
+          for (channel = 0; channel < 3 ; channel ++) {
+            
+            ptrPixel[channel+1] = RemapPoint(ptrPixel[channel+1], mappingCurves[channel]);
+
+          }
+
+        } //      if ( (ptrPixel) != 0 ) {
+
+        ptrPixel +=4;
+        
       } //      for (currentPixel = 0 ; currentPixel < imageWidth ; currentPixel++) {
     }
     break;
     
   case 2: // case of switch parm3
     
-    assert(0);
+    // Colour-only correction: saturation
 
     currentRow = 0;
+    ptrPixel = *(image->data);
     
     for (currentRow = 0; currentRow < image->height; currentRow++) {
 
-      ptrPixel = pixel;
-    
       for (currentPixel = 0; currentPixel < image->width; currentPixel++) {
 
-	if (ptrPixel[0] != 0) {
+        if (ptrPixel[0] != 0) {
 
-	  int ebx, var49, var56, esi;
+          int R, G, B;
+          double H, S, I;
 
-	  ebx =  Cherry(ptrPixel[1], ptrPixel[2], ptrPixel[3]);	  
-	  
-	  var49 = Unknown40( Apple(ptrPixel[1], ptrPixel[2], ptrPixel[3]), 
-				    mappingCurves[5]); //var08
-	  
-	  var56 = Unknown40(Peach(ptrPixel[1], ptrPixel[2], ptrPixel[3]), 
-				   mappingCurves[6]); // var04
-	  esi = var49;
+          R = ptrPixel[1];
+          G = ptrPixel[2];
+          B = ptrPixel[3];
 
-	  ptrPixel[1] = Unknown47(ebx, var49, var56);
-	  
-	  ptrPixel[2] = Unknown48(ebx, var49, var56);
-	  
-	  ptrPixel[3] = Unknown49(ebx, var49, var56);
+          panoColourRGBtoHSV(R, G, B, &H, &S, &I);
 
-	} //	if (ptrPixel[0] != 0) {
+          assert(H >= 0.0 && H<=360.0);
+          assert(S >= 0.0 && S<=1.0);
+          assert(I >= 0.0 && I<=1.0);
 
-	ptrPixel += 4;
+          // Now remap the intensity
+
+          // First normalize it to 255
+          H /= 360.0;
+          H *= 255.0;
+
+          // I find that changing hue is not a very good idea. it tends to create a very strong colour cast
+
+          //H = RemapDouble(H, mappingCurves[IDX_HUE]);
+          
+          H /= 255.0;
+          H *= 360.0;
+
+          S = RemapPoint(S * 255.0, mappingCurves[IDX_SATURATION]) / 255.0;
+
+          assert(S >= 0.0 && S <= 1.0);
+          assert(H >= 0.0 && S <= 360);
+
+          panoColourHSVtoRGB(H, S, I, &R, &G, &B);
+          
+          assert(R >= 0 && R <= 255);
+          assert(G >= 0 && G <= 255);
+          assert(B >= 0 && B <= 255);
+
+          ptrPixel[1] = R;
+          ptrPixel[2] = G;
+          ptrPixel[3] = B;
+
+#if 0
+
+          // THIS IS THE OLD CODE
+
+          int ebx,ecx;
+
+          int ebx, var49, var56, esi;
+
+          ebx =  panoColourComputeIntensity(ptrPixel[1], ptrPixel[2], ptrPixel[3]);       
+          
+          var49 = RemapPoint( panoColourComputeSaturation(ptrPixel[1], ptrPixel[2], ptrPixel[3]), 
+                                    mappingCurves[IDX_SATURATION]); //var08
+          
+          var56 = RemapPoint(panoColourComputeHue(ptrPixel[1], ptrPixel[2], ptrPixel[3]), 
+                                   mappingCurves[IDX_HUE]); // var04
+          esi = var49;
+
+          ptrPixel[1] = Unknown47(ebx, var49, var56);
+          
+          ptrPixel[2] = Unknown48(ebx, var49, var56);
+          
+          ptrPixel[3] = Unknown49(ebx, var49, var56);
+
+#endif
+
+        } //    if (ptrPixel[0] != 0) {
+
+        ptrPixel += 4;
 
       } //      for (currentPixel = 0; currentPixel < image->width; currentPixel++) {
-      pixel += image->bytesPerLine;
 
     } //    for (currentRow = 0; currentRow < image->height; currentRow++) {
+
     break;
 
   }
@@ -1721,166 +2216,6 @@ double MapFunction(double parm[], double x, int n)
 
 
 
-int Unknown40(int value, double mapTable[]) 
-{
-  
-  double delta;
-
-  double deltaPrev;
-  double deltaNext;
-
-  double var48;
-  int var44;
-
-  double tablePrevValue;
-  double tableNextValue;
-  int tempInt;
-  int nextValueInt;
-  int prevValueInt;
-
-  int edx;
-
-  // Find previous and next. Extrapolate if necessary
-
-  if ( value == 0 ) {
-
-    tablePrevValue = 2* mapTable[0]  - mapTable[1]; // XXXXXXXXXXXXXXXXX This just looks backwards!
-
-  } else {
-    
-    tablePrevValue = mapTable[value-1];
-
-  }
-
-  if ( value == 0xff ) {
-
-    tableNextValue = 2 * mapTable[255] - mapTable[254];
-
-
-  } else {
-
-    tableNextValue = mapTable[value+1];
-    
-  }
-
-  if (abs(tableNextValue - tablePrevValue) <= 2.0) {
-    // if the difference |f(value - 1)  -f(value+1) is too small
-
-    tempInt =  (int)mapTable[value];
-
-    if ((int)mapTable[value] == 0xff ) {
-      return 0xff;
-    }
-
-    delta = mapTable[value] - (int)mapTable[value];
-
-    //  chance of being one colour or the next. 
-    // of n points, n * delta = base and n(1-*delta) will be base + 1
-    // this guarantees that the distribution is faithfull. clever.
-
-    if ( delta * INT32_MAX < rand() ) {
-      //      if (C0 == 1)
-      return (int)mapTable[value];
-
-    } else {
-    
-      return ((int)mapTable[value]) + 1;
-    
-    }
-    assert(0); // nothing should reach here
-
-  } //  if (value ... 2.0) {
-
-  // THIS CASE IS WHEN THE TANGENT is > 1
-
-  nextValueInt = (int)tableNextValue;
-
-  if ( (int)tableNextValue > 0xff ) {
-
-    nextValueInt = 0xff;
-
-  }
-
-  prevValueInt = (int)tablePrevValue;
-
-  if ( (int)tablePrevValue < tablePrevValue ) {
-    prevValueInt ++;
-  }
-
-  // prevValueInt == ceiling(tablePrevValue)
-
-  if ( prevValueInt < 0 ) {
-    prevValueInt = 0;
-  }
-
-
-  deltaPrev =  mapTable[value] - tablePrevValue;
-  deltaNext = tableNextValue - mapTable[value];
-
-  edx = prevValueInt;
-
-  var48 = 0;
-  var44 = 0;
-
-  //  if ( %edx > %nextValueInt ) /// [(int)tablePrevValue] > [(int)tableNextValue] 
-  while ( edx <= nextValueInt ) { /// [(int)tablePrevValue] > [(int)tableNextValue] 
-
-    if (edx < mapTable[value]) {
-      var48 += (edx - tablePrevValue)/deltaPrev;
-    } else {
-      var48 += (tableNextValue - edx)/deltaNext;
-    }
-    edx ++;
-  } // while...
-
-  // where did edx = ebx go?
-
-  var48 = rand() * var48 / INT32_MAX;
-
-  edx = prevValueInt;
-
-  while ( edx <= nextValueInt ) {
-
-    if (edx < mapTable[value]) {
-      var48 -= (edx - tablePrevValue) / deltaPrev;
-    } else { //    if ( %ah == 0x1 ) {
-      var48 -= (tableNextValue - edx) / deltaNext;
-    }  //   if ( %ah == 0x1 ) 
-
-    if ( var48 < 0 ) {
-      return edx;
-    }
-    edx ++;
-
-  } // while ( %edx <= %nextValueInt ) 
-
-  return nextValueInt;
-
-}
-
-
-unsigned char Unknown47(unsigned char parm0, unsigned char parm1, unsigned char parm2)
-{
-
-  int eax = parm1;
-  int edx = parm2;
-  int ecx = parm0;
-
-
-  ecx = ecx * 3;
-  ecx = ecx + 2 * eax - 256;
-  ecx = (ecx + 2 * edx - 256) * 2 /3;
-
-  if (ecx >= 0) {
-    if (ecx > 0xff) 
-      return 0xff;
-    else
-      return ecx;
-  } else {
-    return 0;
-  }
-}
-
 
 
 unsigned char Unknown48(unsigned char parm0, unsigned char parm1, unsigned char parm2) 
@@ -1944,8 +2279,8 @@ void RemapHistogram(int *histogram, double *remappedHistogram, magnolia_struct *
 
       // DEBUGGING code
       if ((int)mappingFunction[index] < 0 || (int)mappingFunction[index] > 0xff) {
-	fprintf(stderr, "error %d %g\n", index, mappingFunction[index]);
-	assert(0);
+        fprintf(stderr, "error %d %g\n", index, mappingFunction[index]);
+        assert(0);
       }
 
   } //  
@@ -1959,11 +2294,37 @@ void RemapHistogram(int *histogram, double *remappedHistogram, magnolia_struct *
 
   index = 0;
 
+  double sumR = 0, sumH = 0;
+  for (index = 0;  index < 0x100; index++) {
+    sumH += histogram[index];
+  }
+  if (sumR != sumH) {
+    //    printf("Starting*** Sum in histogram: %f\n", sumH);
+  }
+
 
   prevValue = 0.0;
   nextValue = 0.0;
 
   for (index = 0; index < 0x100; index++) {
+
+    {
+      int i;
+      double sumR = 0;
+      double sumH = 0;
+      
+      for (i = 0;  i < index; i++) {
+        sumH += histogram[i];
+      }
+      for (i = 0;  i < 0x100; i++) {
+        sumR += remappedHistogram[i];
+      }
+      if (fabs(sumR - sumH) > 0.00001) {
+        printf("****B********** Sum in histograms: %d R %f H %f, difference %g\n", index, sumR, sumH, sumH-sumR);
+        assert(0);
+      }
+      //      printf("******* Sum in histograms: %d remapped %f original %f\n", index, sumR, sumH);
+    }
 
     if (index == 0 ) {
 
@@ -1988,23 +2349,24 @@ void RemapHistogram(int *histogram, double *remappedHistogram, magnolia_struct *
 
     //    ***************************************************
 
-    if (abs(nextValue - prevValue) <=  2.0) { // remember to negate as part of the if jump less
+    if ( (int)mappingFunction[index] == 0xff ) {
+      // REPEATED FROM AAAAAAA
+      remappedHistogram[255] = histogram[index] + remappedHistogram[255];
+      continue;
+      
+    } //       if ( (int)      mappingFunction[index] == $0xff ) {
+
+    if (fabs(nextValue - prevValue) <=  2.0) { // remember to negate as part of the if jump less
 
       // RESET stack
       // remove 2 values from the stack
-      
-      if ( (int)mappingFunction[index] == 0xff ) {
-        // REPEATED FROM AAAAAAA
-        remappedHistogram[255] = histogram[index] + remappedHistogram[255];
-        continue;
-
-      }
       
       //      fprintf(stderr, "PTdouble[%d] = %g\n", index, mappingFunction[index]);
       assert(mappingFunction[index] >= 0 && mappingFunction[index] <= 0xff);
       
       
     } else { // if (top stack (and pop) ??  2.0) { // remember to negate as part of the if jump less
+
 
       int ecx;
       int var2072;
@@ -2013,6 +2375,11 @@ void RemapHistogram(int *histogram, double *remappedHistogram, magnolia_struct *
       //////////////////////////////////////////////////////////
       double st_0;
 
+      double checkSum = histogram[index];
+      
+      double deltaPrev;
+      double deltaNext;
+
       ecx = (int)nextValue;
       
       if ((int)nextValue > 0xff ) {
@@ -2020,8 +2387,6 @@ void RemapHistogram(int *histogram, double *remappedHistogram, magnolia_struct *
       } 
 
       edx = (int)prevValue;//TOP
-
-
       if (edx < prevValue) { 
         edx ++;
       } //if 
@@ -2034,96 +2399,116 @@ void RemapHistogram(int *histogram, double *remappedHistogram, magnolia_struct *
 
       st_0 = 0;
 
-      
+      deltaPrev = (mappingFunction[index] - prevValue);
+      deltaNext = (nextValue - mappingFunction[index]);
+
       for (var2072 = edx ; var2072 <= ecx; var2072++ ) {
-	
-	if (var2072 < mappingFunction[index]) {  // I AM IN DOUBT of this one
-	  
-	  if ( (mappingFunction[index] - prevValue) != 0.0 ) {
-	    assert(mappingFunction[index] - prevValue > 0);
-	    //
-	    st_0 += (var2072 - prevValue)/(mappingFunction[index] - prevValue);
-	    
-	  }
-	  continue;
-	  
-	} else { //     if (var2072 < mappingFunction[index])
-	  
-	  if ( 0.0 != (nextValue - mappingFunction[index]) ) {
-	    assert(nextValue - mappingFunction[index] > 0);
-	    st_0 += (nextValue- var2072) / (nextValue - mappingFunction[index]);
-	  }
-	  continue;
-	  
-	} //    if (var2072 < mappingFunction[index])
-	
-	assert(0); // it should not reach here
-	
-	
+        
+        if (var2072 < mappingFunction[index]) {  // I AM IN DOUBT of this one
+          
+          if ( deltaPrev != 0.0 ) {
+            assert(mappingFunction[index] - prevValue > 0);
+            //
+            st_0 += (var2072 - prevValue)/deltaPrev;
+            
+          }
+        } else { //     if (var2072 < mappingFunction[index])
+          
+          if ( 0.0 != deltaNext ) {
+            assert(nextValue - mappingFunction[index] > 0);
+            st_0 += (nextValue- var2072) / deltaNext;
+          }
+        } //    if (var2072 < mappingFunction[index])
       } // for loop
       
+      assert(st_0 != 0.0);
       if (0.0 != st_0 ) {
 
-	for (var2072 = edx; var2072 <= ecx; var2072++) {
+        for (var2072 = edx; var2072 <= ecx; var2072++) {
 
-	  if (var2072 < mappingFunction[index]) {
-	
-	    if (mappingFunction[index] - prevValue != 0.0) {
-
-	      remappedHistogram[var2072] += (((var2072 - prevValue) / (mappingFunction[index] - prevValue)) * histogram[index])/st_0;
-	  
-	    } //    
-	    continue;
-	
-	  } else {
-	    
-	    if ((nextValue - mappingFunction[index]) != 0.0) {
-	      
-	      // ????????????? it was remappedHistogram[edi]
-	      remappedHistogram[var2072] += (((nextValue - var2072) / (nextValue - mappingFunction[index]) * histogram[index]))/st_0;
-	      
-	      continue;
-	      
-	    } //if
-	  } //if 
-	} //for
-	continue; //???
-      }
-
-
-      if ( (int) mappingFunction[index] == 0xff ) {
+          if (var2072 < mappingFunction[index]) {
         
-        remappedHistogram[255] = histogram[index] + remappedHistogram[255];
-        
-        continue;
-        
-        
-      } //       if ( (int)      mappingFunction[index] == $0xff ) {
+            if (deltaPrev != 0.0) {
 
+              double contribution = (histogram[index] * (var2072 - prevValue)) / (deltaPrev * st_0);
+
+              remappedHistogram[var2072] += contribution;
+              
+              checkSum -= contribution;
+          
+            } 
+        
+          } else {
+            
+            if (deltaNext != 0.0) {
+
+              double contribution = (histogram[index] * (nextValue - var2072) ) / (deltaNext * st_0);
+              
+              //((nextValue - var2072) / deltaNext) * histogram[index])/st_0;
+
+              // ????????????? it was remappedHistogram[edi]
+              remappedHistogram[var2072] += contribution;
+
+              checkSum -= contribution;
+              
+            } //if
+          } //if 
+        } //    for (var2072 = edx; var2072 <= ecx; var2072++) {
+
+
+        if (checkSum > 0) {
+          //      printf("Missing------------------------->%f\n", checkSum);
+          remappedHistogram[index] += checkSum; // perhaps this should be spreaded over several points XXXXXXXXXXXXX
+          checkSum = 0;
+        }
+
+        continue; //???
+      } 
+
+      assert(0);
+      assert(checkSum == 0.0);
       assert(st_0 == 0);
 
       //////////////////////////////////////////////////////////
-
+      
     } //// if (top stack (and pop) ??  2.0) { // remember to negate as part of the if jump less
 
 
     value = (int) mappingFunction[index];
 
     delta = mappingFunction[index] - (int) mappingFunction[index];
-
+    
     // delta determines the rounding error. 1-delta*histogram gets
     // added to the current value and
     // delta *histogram to the next value.
-
-    remappedHistogram[value]   = (1 - delta) *histogram[index] +  remappedHistogram[value];
-
-
-    remappedHistogram[value+1] = delta * histogram[index] + remappedHistogram[value+1];
+    
+    assert(value < 255);
+    
+    double contribution; 
+    
+    contribution = (1 - delta) *histogram[index];
+    //    contribution2 = delta * histogram[index];
+    
+    remappedHistogram[value]   += contribution;
+    remappedHistogram[value+1] += histogram[index] - contribution;
     
 
+    
   } //  for (index = 0; index < 0x100; index++) {
+  
+  {
+    double sumR = 0, sumH = 0;
+    for (index = 0;  index < 0x100; index++) {
+      sumR += remappedHistogram[index];
+      sumH += histogram[index];
+    }
+    if (fabs(sumR - sumH) > 0.00001) {
+      printf("F************* Sum in histograms: %f %f\n", sumR, sumH);
+      assert(0);
+    }
+  }
 
-
+  
 }
 
 
@@ -2147,6 +2532,18 @@ void ComputeAdjustmentCurve(double *sourceHistogram, double *referenceHistogram,
   double total1 = 0;
   double total2 = 0;
   for (i=0;i<0x100;i++) {
+    if (sourceHistogram[i] < 0) {
+      
+      printf("I am going to crash %f\n", sourceHistogram[i]);
+    }
+    if (referenceHistogram[i] < 0) {
+      int j;
+      for (j=0;j<0x100;j++) {
+        printf("I am going to crash %f   ", referenceHistogram[j]);
+      }
+      printf("I am going to crash at i %d %f   ", i, referenceHistogram[i]);
+      printf("\n");
+    }
     assert(sourceHistogram[i]>= 0);
     assert(referenceHistogram[i]>= 0);
     total1 += sourceHistogram[i];
@@ -2196,23 +2593,23 @@ void ComputeAdjustmentCurve(double *sourceHistogram, double *referenceHistogram,
       
       if ( st_0 == 0.0  ) {
 
-	otherArray[j] = 0;
+        otherArray[j] = 0;
 
       } else if (st_0 < copyReferenceHistogram[j] ) {
 
-	otherArray[j] = st_0;
-	copyReferenceHistogram[j] -= st_0;
-	
-	st_0 = 0.0;
-	
+        otherArray[j] = st_0;
+        copyReferenceHistogram[j] -= st_0;
+        
+        st_0 = 0.0;
+        
       } else {
-	//	
-	otherArray[j] = copyReferenceHistogram[j];
-	
-	st_0 -= copyReferenceHistogram[j];
-	
-	copyReferenceHistogram[j] = 0.0;
-	
+        //      
+        otherArray[j] = copyReferenceHistogram[j];
+        
+        st_0 -= copyReferenceHistogram[j];
+        
+        copyReferenceHistogram[j] = 0.0;
+        
       }
 
     }//   for (j = 0; j <= 0xff; j ++) {
@@ -2233,7 +2630,7 @@ void ComputeAdjustmentCurve(double *sourceHistogram, double *referenceHistogram,
 
         curve[0] = 0;
 
-	continue;
+        continue;
 
       } else { 
 
@@ -2241,13 +2638,13 @@ void ComputeAdjustmentCurve(double *sourceHistogram, double *referenceHistogram,
 
           curve[0xff] = 255.0;
 
-	  continue;
+          continue;
 
         }
-	curve[i] = -1.0;
+        curve[i] = -1.0;
 
       }
-      assert(	curve[i] == -1.0);
+      assert(   curve[i] == -1.0);
     }  else { // sum != 0.0
 
       assert(sum != 0.0);
@@ -2255,7 +2652,7 @@ void ComputeAdjustmentCurve(double *sourceHistogram, double *referenceHistogram,
       sum2 = 0.0;
       for (j = 0;  j <= 0xff; j ++ ) {
 
-	sum2 += otherArray[j] * j;
+        sum2 += otherArray[j] * j;
 
       }
       //      fprintf(stderr, "Value of sum2 %g\n", sum2);
@@ -2295,12 +2692,12 @@ void ComputeAdjustmentCurve(double *sourceHistogram, double *referenceHistogram,
       
       if ( j <= 0xff ) {
 
-	while ( curve[j] == -1.0  ) {
-	  ++j;
-	  if (j > 0xff) {
-	    break; // 
-	  }
-	}
+        while ( curve[j] == -1.0  ) {
+          ++j;
+          if (j > 0xff) {
+            break; // 
+          }
+        }
       }   //    if ( %j <= $0xff )
 
       assert(curve[j] >= 0);
@@ -2361,28 +2758,28 @@ void Unknown41(double *sourceHistogram, double *targetHistogram, double *magnoli
       
       if (  copySourceHist[i] == 0.0  ) {
 
-	otherArray[j] = 0;
+        otherArray[j] = 0;
 
       } else { //    if (  ??  ) {
 
-	if (copySourceHist[i] < copyTargetHist[j] ) {
+        if (copySourceHist[i] < copyTargetHist[j] ) {
 
-	  copyTargetHist[j] -= copySourceHist[i];
+          copyTargetHist[j] -= copySourceHist[i];
 
-	  otherArray[j] = copySourceHist[i];
+          otherArray[j] = copySourceHist[i];
 
-	  contribution = 0.0;
+          contribution = 0.0;
 
-	} else {
+        } else {
 
-	  otherArray[j] = copyTargetHist[j];
+          otherArray[j] = copyTargetHist[j];
 
 
-	  contribution = copySourceHist[i] - copyTargetHist[j];
+          contribution = copySourceHist[i] - copyTargetHist[j];
 
-	  copyTargetHist[j] = 0.0;
+          copyTargetHist[j] = 0.0;
 
-	}
+        }
       } // end of else    if (  ??  ) {
 
 
@@ -2403,21 +2800,21 @@ void Unknown41(double *sourceHistogram, double *targetHistogram, double *magnoli
       contribution = 0.0;
       
       if ( i == 0 ) {
-	
-	magnoliaArray[0] = 0;
-	
-	continue; 
-	
+        
+        magnoliaArray[0] = 0;
+        
+        continue; 
+        
       } else { 
-	
-	if (i == 0xff ) {
-	  magnoliaArray[0x7f8/8] = 255.0;
-	  continue;
-	  
-	}
-	
-	contribution = -1;
-	
+        
+        if (i == 0xff ) {
+          magnoliaArray[0x7f8/8] = 255.0;
+          continue;
+          
+        }
+        
+        contribution = -1;
+        
       }
 
       assert(contribution == -1);
@@ -2427,7 +2824,7 @@ void Unknown41(double *sourceHistogram, double *targetHistogram, double *magnoli
       
       sum = 0.0;
       for (edx = 0; edx <= 0xff; edx ++ ) {
-	sum+= edx  * otherArray[edx];
+        sum+= edx  * otherArray[edx];
       }
       contribution /= sum;
       
@@ -2447,11 +2844,11 @@ void Unknown41(double *sourceHistogram, double *targetHistogram, double *magnoli
       
       if ( ecx <= 0xff ) {
 
-	while ( magnoliaArray[ecx] == -1.0  ) {
-	  if (++ecx > 0xff) {
-	    break;
-	  }
-	}
+        while ( magnoliaArray[ecx] == -1.0  ) {
+          if (++ecx > 0xff) {
+            break;
+          }
+        }
       }   //    
 
       magnoliaArray[edx] = magnoliaArray[edx-1] + (ecx - edx -1)/(magnoliaArray[ecx] - magnoliaArray[edx-1]);
