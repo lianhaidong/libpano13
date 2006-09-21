@@ -741,11 +741,11 @@ void getROI(TrformStr * TrPtr, aPrefs * aP, PTRect * ROIRect)
 			//a value of "-1.#IND00".  This is not a number, and probably indicates
 			//a divide by zero error somewhere in the mapping function.  This should
 			//be solved, but, for now, discard this value and keep going
-			if (!_isnan(Dx)) {
+			if (!isnan(Dx)) {
 				if ((int)Dx < ROIRect->left) ROIRect->left = (int)Dx;
 				if ((int)Dx > ROIRect->right) ROIRect->right = (int)Dx;
 			}
-			if (!_isnan(Dy)){		
+			if (!isnan(Dy)){		
 				if ((int)Dy < ROIRect->top) ROIRect->top = (int)Dy;
 				if ((int)Dy > ROIRect->bottom) ROIRect->bottom = (int)Dy;
 			}

@@ -42,7 +42,7 @@ if $AUTOCONF --version < /dev/null > /dev/null 2>&1 ; then
 	autoconf_version=`$AUTOCONF --version | sed 's/^[^0-9]*\([0-9.][0-9.]*\).*/\1/'`
 #	echo autoconf version: $autoconf_version
 	case $autoconf_version in
-	    2.5*)
+	    2.5*|2.6*)
 		have_autoconf=true
 		;;
 	esac

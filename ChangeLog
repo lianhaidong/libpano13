@@ -1,3 +1,12 @@
+2006-09-21  dmg  <dmg@uvic.ca>
+
+	* bootstrap (have_autoconf): Added support for autoconf 2.6
+
+	* PTcommon.c (getROI): Replace calls to _nan() with nan()
+
+	by Florian Merz
+
+
 2006-08-30  dmg  <dmg@uvic.ca>
 
 	* file.c: Added code to start to include metadata in PSD file. So
