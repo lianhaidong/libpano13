@@ -35,7 +35,7 @@ endif
 AM_CPPFLAGS = $(JAVA_FLAGS) $(LIN_DEFS) $(DAR_DEFS) $(TIFF_FLAGS) $(JPEG_FLAGS)
 AM_LDFLAGS  = -L${top_builddir}
 
-bin_PROGRAMS = panoinfo PTOptimizer PTmender PTblender PTtiff2psd PTuncrop
+bin_PROGRAMS = panoinfo PTOptimizer PTmender PTblender PTtiff2psd PTuncrop PTtiffdump
 
 PTblender_SOURCES = PTblender.c 
 PTblender_LDADD = -l${PANOLIB} -ltiff
@@ -48,6 +48,10 @@ PTtiff2psd_LDADD   = -l${PANOLIB} -ljpeg -ltiff
 
 PTuncrop_SOURCES = PTuncrop.c
 PTuncrop_LDADD   = -l${PANOLIB} -ljpeg -ltiff
+
+PTtiffdump_SOURCES = PTtiffdump.c
+PTtiffdump_LDADD   = -l${PANOLIB} -ljpeg -ltiff
+
 
 PTOptimizer_SOURCES = PTOptimizer.c
 PTOptimizer_LDADD   = -l${PANOLIB}

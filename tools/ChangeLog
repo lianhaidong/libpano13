@@ -1,3 +1,9 @@
+2006-09-20  dmg  <dmg@uvic.ca>
+
+	* PTblender.c: Added option to select type of colour
+	correction. Fixed a bug (when colour correction and flat output
+	was requested, the output file did not use the colour corrected files)
+
 2006-08-12  dmg  <dmg@iridium.dmg>
 
 	* PTtiff2psd.c (main): Updated call to functions now in

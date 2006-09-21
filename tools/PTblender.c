@@ -48,6 +48,7 @@
                          "Options:\n"\
                          "\t-o <prefix>\tPrefix for output filename\n"\
                          "\t-k <index>\tIndex to image to use as a reference (0-based)\n"\
+                         "\t-t [0,1,2]\tType of colour correction: 0 full (default), 1 brightness only, 2 colour only\n"\
                          "\t-f <filename>\t\tFlatten images to single TIFF file\n"\
                          "\t-q\t\tQuiet run\n\t-h\t\tShow this message\n"\
                          "\t-c\t\tOutput curves smooth\n\t-h\t\tOutput a photoshop curve per each corrected file\n"\
@@ -76,8 +77,10 @@ int main(int argc,char *argv[])
   int base = 0;
   int flattenFlag =0;
   int outputCurvesType = 0; // if 1 => create Photoshop curve files (.acv)
+  int typeCorrection = 0;
 
   ptrInputFiles = NULL;
+
   counter = 0;
 
   printf(PT_BLENDER_VERSION);
@@ -85,7 +88,7 @@ int main(int argc,char *argv[])
 
   strcpy(outputPrefix, "corrected%4d");
 
-  while ((opt = getopt(argc, argv, "o:k:hf:qcm")) != -1) {
+  while ((opt = getopt(argc, argv, "o:k:t:hf:qcm")) != -1) {
 
 // o and f -> set output file
 // h       -> help
@@ -106,6 +109,14 @@ int main(int argc,char *argv[])
         PrintError("Invalid integer in -k option");
         return -1;
       }
+      break;
+    case 't':
+      typeCorrection = strtol(optarg, &endPtr, 10);
+      if (errno != 0 || (typeCorrection < 0 || typeCorrection > 2)) {
+        PrintError("Invalid integer in -t option");
+        return -1;
+      }
+      break;
     case 'f':
       flattenFlag = 1;
       if (strlen(optarg) < MAX_PATH_LENGTH) {
@@ -199,8 +210,9 @@ int main(int argc,char *argv[])
   }
   printf("Continuing\n");
   if (referenceImage >= 0) {
-    printf("Colour correcting photo using %d as a base\n", referenceImage);
-    ColourBrightness(ptrInputFiles, ptrOutputFiles, filesCount, referenceImage, 0, outputCurvesType);
+    printf("Colour correcting photo using %d as a base type %d\n", referenceImage, typeCorrection);
+    ColourBrightness(ptrInputFiles, ptrOutputFiles, filesCount, referenceImage, typeCorrection, outputCurvesType);
+    ptrInputFiles = ptrOutputFiles;
   }
 
   if (flattenFlag) {
