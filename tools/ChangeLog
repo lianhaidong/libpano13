@@ -1,3 +1,7 @@
+2006-09-21  dmg  <dmg@uvic.ca>
+
+	* PTblender.c (main): Add the ability to compute stitching masks.
+
 2006-09-20  dmg  <dmg@uvic.ca>
 
 	* PTblender.c: Added option to select type of colour

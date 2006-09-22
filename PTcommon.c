@@ -1397,10 +1397,17 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
 
     //If we are dealing with an output format that is not TIFF_m or PSD_nomask,
     //then we have to add "masks" to the images before finishing...
-    if (strcmp(output_file_format, "TIFF_m") != 0
-        && strcmp(output_file_format, "PSD_mask") != 0) {
+    if (! (
+	   strcmp(output_file_format, "TIFF_m") == 0 
+	   ||
+	   strcmp(output_file_format, "PSD_nomask") == 0 
+	   )
+	) {
         // There is no point in adding stitching masks for just one image 
         if (counterImageFiles > 1) {
+
+
+	  printf("Creating seams******************\n");
 
             if (panoStitchReplaceMasks(fullPathImages, fullPathImages, counterImageFiles,
                  feather) != 0) {
@@ -1475,7 +1482,8 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
     // Layered PSD is less simple...we need to assemble the existing
     // intermediate files into a layered photoshop document
     if (strcmp(output_file_format, "PSD_nomask") == 0
-        || strcmp(output_file_format, "PSD_mask") == 0) {
+        || strcmp(output_file_format, "PSD_mask") == 0
+	) {
         panoReplaceExt(panoFileName->name, ".psd");
         
         if (panoCreatePSD(fullPathImages, counterImageFiles, panoFileName) != 0) {

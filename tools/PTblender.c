@@ -78,6 +78,7 @@ int main(int argc,char *argv[])
   int flattenFlag =0;
   int outputCurvesType = 0; // if 1 => create Photoshop curve files (.acv)
   int typeCorrection = 0;
+  int ptComputeSeams = 0;
 
   ptrInputFiles = NULL;
 
@@ -88,7 +89,7 @@ int main(int argc,char *argv[])
 
   strcpy(outputPrefix, "corrected%4d");
 
-  while ((opt = getopt(argc, argv, "o:k:t:hf:qcm")) != -1) {
+  while ((opt = getopt(argc, argv, "o:k:t:hf:sqcm")) != -1) {
 
 // o and f -> set output file
 // h       -> help
@@ -126,6 +127,9 @@ int main(int argc,char *argv[])
       }
       break;
 
+      break;
+    case 's':
+      ptComputeSeams = 1;
       break;
     case 'q':
       ptQuietFlag = 1;
@@ -220,6 +224,13 @@ int main(int argc,char *argv[])
     fullPath pathName;
 
     printf("Flattening image\n");
+
+    printf("Computing seams for %d files\n", filesCount);
+    if (panoStitchReplaceMasks(ptrInputFiles, ptrInputFiles, filesCount,
+			       0) != 0) {
+      PrintError("Could not create stitching masks");
+      return -1;
+    }
 
     if (StringtoFullPath(&pathName, flatOutputFileName) != 0) { 
       PrintError("Syntax error: Not a valid pathname");

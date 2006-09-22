@@ -384,7 +384,8 @@ static void panoStitchSetBestAlphaChannel8bits(unsigned char *imagesBuffer,
     bytesPerLine = imageParms->cropInfo.fullWidth * imageParms->bytesPerPixel;
 
     for (column = 0, pixel = imagesBuffer;
-         column < imageParms->cropInfo.fullWidth; column++, pixel += 4) {
+         column < imageParms->cropInfo.fullWidth; 
+	 column++, pixel += 4) {
 
         best = 0;
         ptrCount = (uint16_t *) (pixel + 2);
@@ -393,8 +394,11 @@ static void panoStitchSetBestAlphaChannel8bits(unsigned char *imagesBuffer,
         // find the image with the highest value
 
         for (j = 1; j < numberImages; j++) {
+	    unsigned char *temp;
+	  
+            temp = (pixel + bytesPerLine * j + 2);
 
-            ptrCount = (uint16_t *) (pixel + bytesPerLine * j + 2);
+            ptrCount = (uint16_t *) temp;
 
             if (*ptrCount > maskValue) {
 
@@ -647,7 +651,17 @@ int panoStitchCreateAlphaChannels(fullPath * masksNames,
     fullImageWidth = panoTiffFullImageWidth(tiffMasks[0]);
     fullImageHeight = panoTiffFullImageHeight(tiffMasks[0]);
     bitsPerPixel = panoTiffBitsPerPixel(tiffMasks[0]);
-        bytesPerLine = panoTiffBytesPerLine(tiffMasks[0]);
+    bytesPerLine = fullImageWidth * panoTiffBytesPerPixel(tiffMasks[0]);
+
+    for (index = 0; index < numberImages; index++) {
+	assert(fullImageWidth == panoTiffFullImageWidth(tiffMasks[index]));
+	assert(fullImageHeight == panoTiffFullImageHeight(tiffMasks[index]));
+	assert(bitsPerPixel == panoTiffBitsPerPixel(tiffMasks[index]));
+	assert(bytesPerLine == fullImageWidth * panoTiffBytesPerPixel(tiffMasks[index]));
+    }
+
+    // just for the sake of it
+
     // The imagesBuffer contains as many rows as we have input images, and 
     // each row is as wide as the final output image
 
@@ -655,9 +669,7 @@ int panoStitchCreateAlphaChannels(fullPath * masksNames,
         //                 bytesPerLine,
         //                 bytesPerLine, bitsPerPixel);
 
-    imagesBuffer =
-        calloc(numberImages,
-               fullImageWidth * panoTiffBytesPerPixel(tiffMasks[0]));
+    imagesBuffer = calloc(numberImages, bytesPerLine);
     if (imagesBuffer == NULL) {
         PrintError("Not enough memory");
         goto end;
@@ -671,7 +683,7 @@ int panoStitchCreateAlphaChannels(fullPath * masksNames,
 
     for (fullSizeRowIndex = 0; fullSizeRowIndex < fullImageHeight;
          fullSizeRowIndex++) {
-
+	
         // Update progress
         if (ptQuietFlag == 0) {
             if (fullSizeRowIndex == (fullSizeRowIndex / 20) * 20) {
@@ -686,6 +698,7 @@ int panoStitchCreateAlphaChannels(fullPath * masksNames,
             }
         }
 
+
         // process the current row for all images
         for (ptrBuffer = imagesBuffer, index = 0; index < numberImages;
              index++, ptrBuffer += bytesPerLine) {
@@ -696,21 +709,25 @@ int panoStitchCreateAlphaChannels(fullPath * masksNames,
                 returnValue = 0;
                 goto end;
             }
-
-            RGBAtoARGB(ptrBuffer, fullImageWidth, bitsPerPixel);
+	    RGBAtoARGB(ptrBuffer, fullImageWidth, bitsPerPixel);
 
         }
+	
+
+
         //calculate the alpha channel for this row in all images
-        panoStitchCalculateAlphaChannel(imagesBuffer, numberImages,
-                                        panoTiffImageMetadata(tiffMasks[0]));
+
+	panoStitchCalculateAlphaChannel(imagesBuffer, numberImages,
+					panoTiffImageMetadata(tiffMasks[0]));
+
+
 
         //write out the alpha channel data for this row to all output images
         for (index = 0, ptrBuffer = imagesBuffer; index < numberImages;
              index++, ptrBuffer += bytesPerLine) {
 
-            ARGBtoRGBA(ptrBuffer, fullImageWidth, bitsPerPixel);
 
-
+	    ARGBtoRGBA(ptrBuffer, fullImageWidth, bitsPerPixel);
             if (!panoTiffWriteScanLineFullSize
                 (tiffAlphaChannels[index], ptrBuffer, fullSizeRowIndex)) {
                 PrintError
@@ -719,6 +736,7 @@ int panoStitchCreateAlphaChannels(fullPath * masksNames,
                 goto end;
             }
         }
+
 
     }                           //for fullSizeRowIndex
     returnValue = 1;
@@ -816,6 +834,10 @@ int panoStitchReplaceMasks(fullPath * inputFiles, fullPath * outputFiles,
         // we no longer need the alpha channel
         remove(alphaChannelFiles[i].name);
 
+
+#if 0
+This code is useless until we support feathers
+
         // Do feathering
         if (featherSize > 0) {
 
@@ -829,11 +851,15 @@ int panoStitchReplaceMasks(fullPath * inputFiles, fullPath * outputFiles,
 
             remove(withAlphaChannel.name);
             rename(feathered.name, outputFiles[i].name);
-
         }
         else {
-            rename(withAlphaChannel.name, outputFiles[i].name);
+
         }
+
+#else
+	printf("Using this\n");
+	rename(withAlphaChannel.name, outputFiles[i].name);
+#endif
     }
 
     free(maskFiles);
