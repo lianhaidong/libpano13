@@ -1,3 +1,7 @@
+2006-09-25  dmg  <dmg@selenium.dmg>
+
+	* added PTtiffdump.c to the svn repository
+
 2006-09-21  dmg  <dmg@uvic.ca>
 
 	* PTblender.c (main): Add the ability to compute stitching masks.
