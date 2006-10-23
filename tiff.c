@@ -560,10 +560,6 @@ void ARGBtoRGBA(UCHAR * buf, int width, int bitsPerPixel)
 //////////////////////////////////////////////////////////////////////
 // NEW tiff routines
 //////////////////////////////////////////////////////////////////////
-#define PANO_DEFAULT_PIXELS_PER_RESOLUTION 150.0
-#define PANO_DEFAULT_TIFF_RESOLUTION_UNITS  RESUNIT_INCH
-#define PANO_DEFAULT_TIFF_COMPRESSION       
-
 
 
 

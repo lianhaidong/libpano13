@@ -1580,7 +1580,7 @@ static int addLayer( Image *im, CropInfo *crop_info, file_spec src, file_spec fn
     WRITEUCHAR( 'r' );
     WRITEUCHAR( 'm' );
 
-    WRITEUCHAR(255); // 1 byte Opacity 0 = transparent ... 255 = opaque
+    WRITEUCHAR(sB->opacity); // 1 byte Opacity 0 = transparent ... 255 = opaque
     WRITEUCHAR( 0 ); // 1 byte Clipping 0 = base, 1 = non–base
     WRITEUCHAR( hasShapeMask ); // 1 byte Flags bit 0 = transparency protected bit 1 = visible
     WRITEUCHAR( 0 ); // 1 byte (filler) (zero)

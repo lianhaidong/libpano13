@@ -173,7 +173,7 @@ int panoUnCropTiff(char *inputFile, char *outputFile)
 }
 
 int panoCreatePSD(fullPath * fullPathImages, int numberImages,
-                  fullPath * outputFileName)
+                  fullPath * outputFileName, int stacked)
 {
     Image *ptrImage;
     int i;
@@ -195,9 +195,9 @@ int panoCreatePSD(fullPath * fullPathImages, int numberImages,
     // Process background of PSD
     SetImageDefaults(&image);
 
-    if (readTIFF(&image, &fullPathImages[0]) != 0) {
+    if (panoTiffRead(&image, fullPathImages[0].name) == 0) {
 
-        PrintError("Could not read TIFF image No 0");
+      PrintError("Could not read TIFF image No 0 %s", fullPathImages[0].name);
         if (ptQuietFlag == 0)
             Progress(_disposeProgress, tempString);
 
@@ -265,6 +265,10 @@ int panoCreatePSD(fullPath * fullPathImages, int numberImages,
 
         stitchInfo.seam = 1;
         stitchInfo.feather = 0;
+	if (stacked) 
+	  stitchInfo.opacity = (unsigned char) (255.0/ (i + 1));
+	else
+	  stitchInfo.opacity = 255;
 
         if (addLayerToFile(ptrImage, outputFileName, &tempFile, &stitchInfo)
             != 0) {
@@ -1486,7 +1490,7 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
 	) {
         panoReplaceExt(panoFileName->name, ".psd");
         
-        if (panoCreatePSD(fullPathImages, counterImageFiles, panoFileName) != 0) {
+        if (panoCreatePSD(fullPathImages, counterImageFiles, panoFileName, 0) != 0) {
             PrintError("Error creating PSD file");
             return (-1);
         }

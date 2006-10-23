@@ -1,3 +1,13 @@
+2006-10-22  dmg  <dmg@uvic.ca>
+
+	* version.h (VERSION), configure.ac: Upgraded to version 2.8.5pre4
+
+	* tiff.c: Removed redundant #defines
+
+	* PTcommon.c, PTcommon.h, filter.h, file.c: Added support for
+	stacking images in PSD files, that is, each iamge contributes
+	equaly to a final image.
+
 2006-09-22  dmg  <dmg@uvic.ca>
 
 	* ptstitch.c: The creation of the stitching masks was not working

@@ -55,7 +55,7 @@ int panoAddStitchingMasks(fullPath *inputFiles, fullPath *outputFiles, int numbe
 /*  defined in ptpicker.c, but never exported */
 
 int panoFlattenTIFF(fullPath *fullPathImages, int counterImageFiles, fullPath *outputFileName, int removeOriginals);
-int  panoCreatePSD(  fullPath *fullPathImages, int, fullPath*);
+int  panoCreatePSD(  fullPath *fullPathImages, int, fullPath*, int);
 
 
 extern int quietFlag;

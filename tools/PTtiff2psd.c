@@ -48,7 +48,8 @@
 #define PT_TIFF2PSD_USAGE "PTtiff2psd [options] <tiffFiles>+\n\n"\
                          "Options:\n"\
                          "\t-o <filename>\tOutput filename (default merged.psd)\n"\
-                         "\t-m\t\tAdd stitching mask"\
+                         "\t-m\t\tAdd stitching mask\n"\
+                         "\t-s\t\tStack them\n"\
                          "\t-q\t\tQuiet run\n"\
                          "\t-r\t\tReverse layers\n"\
                          "\t-h\t\tShow this message\n"\
@@ -73,6 +74,7 @@ int main(int argc,char *argv[])
   int featherSize = 0;
   int eraseTempFiles = 0;
   int i;
+  int stacked = 0;
 
   ptrInputFiles = NULL;
   counter = 0;
@@ -84,7 +86,7 @@ int main(int argc,char *argv[])
     return(-1);
   }
 
-  while ((opt = getopt(argc, argv, "o:qhfmr")) != -1) {
+  while ((opt = getopt(argc, argv, "o:sqhfmr")) != -1) {
 
 // o and f -> set output file
 // h       -> help
@@ -99,8 +101,12 @@ int main(int argc,char *argv[])
         return(-1);
       }
       break;
+    case 's':
+      stacked = 1;
+      break;
     case 'm':
       addMask = 1;
+      break;
     case 'f':
       forceOverwrite = 1;
       break;
@@ -202,7 +208,7 @@ int main(int argc,char *argv[])
     Progress(_initProgress, tempString);
   }
 
-  if (panoCreatePSD(ptrInputFiles, filesCount, &outputFilename ) != 0) {
+  if (panoCreatePSD(ptrInputFiles, filesCount, &outputFilename, stacked) != 0) {
     PrintError("Error while creating PSD file");
     return -1;
   }
