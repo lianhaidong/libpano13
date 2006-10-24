@@ -51,8 +51,8 @@
                          "\t-t [0,1,2]\tType of colour correction: 0 full (default), 1 brightness only, 2 colour only\n"\
                          "\t-f <filename>\t\tFlatten images to single TIFF file\n"\
                          "\t-q\t\tQuiet run\n\t-h\t\tShow this message\n"\
-                         "\t-c\t\tOutput curves smooth\n\t-h\t\tOutput a photoshop curve per each corrected file\n"\
-                         "\t-m\t\tOutput curves arbitrary map\n\t-h\t\tOutput a photoshop curve per each corrected file\n"\
+                         "\t-c\t\tOutput curves smooth\t\t(Output a photoshop curve per each corrected file)\n"\
+                         "\t-m\t\tOutput curves arbitrary map\t(Output a photoshop curve per each corrected file)\n"\
                          "\n"
 
 #define PT_BLENDER_VERSION "PTblender Version " VERSION ", originally written by Helmut Dersch, rewritten by Daniel M German\n"
@@ -119,6 +119,10 @@ int main(int argc,char *argv[])
       }
       break;
     case 'f':
+      if (outputCurvesType) {
+        PrintError("Option -f can't be used with option -c or -m");
+        return -1;
+      }
       flattenFlag = 1;
       if (strlen(optarg) < MAX_PATH_LENGTH) {
         strcpy(flatOutputFileName, optarg);
@@ -135,9 +139,25 @@ int main(int argc,char *argv[])
       ptQuietFlag = 1;
       break;
     case 'c':
+      if (outputCurvesType == CB_OUTPUT_CURVE_ARBITRARY) {
+        PrintError("Can't use both -c and -m options");
+        return -1;
+      }
+      if (flattenFlag) {
+        PrintError("Option -c can't be used with option -f");
+        return -1;
+      }
       outputCurvesType = CB_OUTPUT_CURVE_SMOOTH;
       break;
     case 'm':
+      if (outputCurvesType == CB_OUTPUT_CURVE_SMOOTH) {
+        PrintError("Can't use both -c and -m options");
+        return -1;
+      }
+      if (flattenFlag) {
+        PrintError("Option -m can't be used with option -f");
+        return -1;
+      }
       outputCurvesType = CB_OUTPUT_CURVE_ARBITRARY;
       break;
     case 'h':
@@ -212,11 +232,13 @@ int main(int argc,char *argv[])
     PrintError("TIFFs are not compatible");
     return -1;
   }
-  printf("Continuing\n");
+
   if (referenceImage >= 0) {
     printf("Colour correcting photo using %d as a base type %d\n", referenceImage, typeCorrection);
     ColourBrightness(ptrInputFiles, ptrOutputFiles, filesCount, referenceImage, typeCorrection, outputCurvesType);
+    free(ptrInputFiles);
     ptrInputFiles = ptrOutputFiles;
+    ptrOutputFiles = NULL;
   }
 
   if (flattenFlag) {
@@ -244,8 +266,8 @@ int main(int argc,char *argv[])
     }
   }
 
-  free(ptrInputFiles);
-  free(ptrOutputFiles);
+  if (ptrInputFiles) free(ptrInputFiles);
+  if (ptrOutputFiles) free(ptrOutputFiles);
 
   return 0;
   

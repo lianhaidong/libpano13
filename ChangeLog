@@ -1,3 +1,19 @@
+2006-10-24  dmg  <dmg@uvic.ca>
+
+	* version.h (VERSION), configure.ac: Upgraded to version 2.8.5pre5
+
+	* ColourBrightness.c, tools/PTblender.c: The following bugs in PTblender
+	are fixed:
+	
+	1) When -c or -m is specified no image output is done and therefore it 
+	should not be possible to specify -f too.
+	2) When -c is specified wrong index to array curveExtension is used.
+	3) Program tries to free already freed memory at the end.
+
+	Submitted by Michal at lightcomp.
+
+	We need a test suite for PTblender.
+	
 2006-10-22  dmg  <dmg@uvic.ca>
 
 	* version.h (VERSION), configure.ac: Upgraded to version 2.8.5pre4

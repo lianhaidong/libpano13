@@ -490,8 +490,8 @@ int OutputCurves(int index, magnolia_struct *curves, int typeOfCorrection,
   int i;
   FILE *output;
   char *curveExtension[2] = {
-    ".acv",
-    ".amp"};
+    ".amp",
+    ".acv"};
 
 #define PHOTOSHOP_CURVES_MAGIC_NUMBER   "\x00\x04\x00\x05"
 
@@ -502,7 +502,7 @@ int OutputCurves(int index, magnolia_struct *curves, int typeOfCorrection,
   sprintf(temp, "%04d", index);
   strcat(outputFileName, temp);
 
-  panoReplaceExt(outputFileName, curveExtension[curveType]); 
+  panoReplaceExt(outputFileName, curveExtension[curveType-1]); 
 
   //  fprintf(stderr, "Creating output file %s\n", outputFileName);
 

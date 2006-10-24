@@ -76,9 +76,9 @@ my %formats = (
     'tiff_m' => "TIFF_m",        #  
     'tiff_mask' => "TIFF_mask",
     'tiff_m_cropped'   => "TIFF_m r:CROP",
-    'psd' => "PSD",
-    'psd_nomask' => "PSD_nomask",
-    'psd_mask' => "PSD_mask",
+#    'psd' => "PSD",
+#    'psd_nomask' => "PSD_nomask",
+#    'psd_mask' => "PSD_mask",
 
 #    "xinvalid" => 'invalid',
 );

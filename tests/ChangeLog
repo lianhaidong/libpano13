@@ -1,3 +1,9 @@
+2006-10-24  dmg  <dmg@uvic.ca>
+
+	* panoAutomateTest.pl: I have disabled PSD testing. The inclusing
+	of the version of  metadata in the output is making it fail every
+	time. We need a program to test only data.
+
 2006-08-30  dmg  <dmg@uvic.ca>
 
 	* updated PSD files according to changes in file.c
