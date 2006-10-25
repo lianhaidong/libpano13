@@ -1,3 +1,7 @@
+PLEASE DONT UPDATE THIS FILE ANY MORE. USE ./ChangeLog instead
+
+
+	
 2006-10-22  dmg  <dmg@uvic.ca>
 
 	* PTtiff2psd.c (main): Added support to stack images

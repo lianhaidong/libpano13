@@ -1,5 +1,16 @@
 2006-10-24  dmg  <dmg@uvic.ca>
 
+	* ColourBrightness.c:  Map and Curve files for photoshop (colour
+	correction) were not properly created in Intel machines. 
+
+	Submitted by Michal at lightcomp.
+	
+	* tools/PTblender.c: Updated command line processing: assume image
+	0 as reference if options -m or -c are specified.
+	
+
+2006-10-24  dmg  <dmg@uvic.ca>
+
 	* version.h (VERSION), configure.ac: Upgraded to version 2.8.5pre5
 
 	* ColourBrightness.c, tools/PTblender.c: The following bugs in PTblender

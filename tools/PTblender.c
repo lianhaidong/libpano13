@@ -202,6 +202,14 @@ int main(int argc,char *argv[])
   }
 
 
+  if (outputCurvesType != 0 || typeCorrection != 0) {
+    // The user wants colour correction, so let us given them colour correction
+    if (referenceImage == -1)  {
+      referenceImage = 0;
+      printf("No reference image specified. Assuming image 0 as reference\n");    
+    }
+  }
+
   // Create output filename
 
   if (strchr(outputPrefix, '%') == NULL) {

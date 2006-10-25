@@ -361,7 +361,7 @@ int OutputPhotoshopCurve(FILE *output, int size, double *curve)
   uint16_t shortValue;
   int i;
 
-  // so far we only support size == 0xff
+  // so far we only support size == 256
 
   //  fprintf(stderr, "size %d\n", size);
 
@@ -372,7 +372,7 @@ int OutputPhotoshopCurve(FILE *output, int size, double *curve)
   // The algorithm currently writes the first point, 12, and the last point
 
 
-  shortValue = (uint16_t) 14;
+  shortValue = (uint16_t) htons(14);
 
   if (fwrite(&shortValue, 2, 1, output) != 1) {
     goto error;
@@ -392,8 +392,8 @@ int OutputPhotoshopCurve(FILE *output, int size, double *curve)
     // be paranoic
     assert(temp >= 0 && temp <= 255);
 
-    y = (uint16_t) temp;
-    x = (uint16_t) i;
+    y = (uint16_t) htons(temp);
+    x = (uint16_t) htons(i);
 
     // For some reason y is first in the output
     if (fwrite(&y, 2, 1, output) != 1 ||
@@ -403,7 +403,7 @@ int OutputPhotoshopCurve(FILE *output, int size, double *curve)
   }
 
   // Write the very last point
-  uint16_t x=255;
+  uint16_t x=htons(255);
   if (fwrite(&x, 2, 1, output) != 1 ||
       fwrite(&x, 2, 1, output) != 1 ) {
     goto error;
