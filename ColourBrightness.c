@@ -1385,9 +1385,9 @@ histograms_struct *ReadHistograms (fullPath *fullPathImages, int numberImages)
           assert(ptrPixel < ptrOtherPixel);
           assert(((int)(ptrOtherPixel - ptrPixel)) % bytesPerLine == 0);
 
-          /* Only process if the alpha channel is not zero in both pixels*/
+          /* Only process if the alpha channel is == 0xff in both pixels*/
 
-          if (0 != ptrPixel[0]  &&  0 != ptrOtherPixel[0] ) {
+          if (0xff == ptrPixel[0]  &&  0xff == ptrOtherPixel[0] ) {
 
             totalPixels ++;
             currentHistogram->overlappingPixels++;
