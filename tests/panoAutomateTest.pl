@@ -69,12 +69,12 @@ while (<IN>) {
 close IN;
 
 my %formats = (
-    'jpeg' => "JPEG q100 g01", # jpeg progressive scan
-    'tiff_none' => "TIFF c:NONE",          # simple tiff output
-    'tiff_lzw' => "TIFF c:LZW",          # simple tiff output
-    'tiff_deflate' => "TIFF c:DEFLATE",          # simple tiff output
-    'tiff_m' => "TIFF_m",        #  
-    'tiff_mask' => "TIFF_mask",
+#    'jpeg' => "JPEG q100 g01", # jpeg progressive scan
+#    'tiff_none' => "TIFF c:NONE",          # simple tiff output
+#    'tiff_lzw' => "TIFF c:LZW",          # simple tiff output
+#    'tiff_deflate' => "TIFF c:DEFLATE",          # simple tiff output
+#    'tiff_m' => "TIFF_m",        #  
+#    'tiff_mask' => "TIFF_mask",
     'tiff_m_cropped'   => "TIFF_m r:CROP",
 #    'psd' => "PSD",
 #    'psd_nomask' => "PSD_nomask",

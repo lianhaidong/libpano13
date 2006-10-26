@@ -265,10 +265,10 @@ int panoCreatePSD(fullPath * fullPathImages, int numberImages,
 
         stitchInfo.seam = 1;
         stitchInfo.feather = 0;
-	if (stacked) 
-	  stitchInfo.opacity = (unsigned char) (255.0/ (i + 1));
-	else
-	  stitchInfo.opacity = 255;
+        if (stacked) 
+          stitchInfo.opacity = (unsigned char) (255.0/ (i + 1));
+        else
+          stitchInfo.opacity = 255;
 
         if (addLayerToFile(ptrImage, outputFileName, &tempFile, &stitchInfo)
             != 0) {
@@ -352,48 +352,6 @@ int ApplyFeather(fullPath * inputFile, fullPath * outputFile,
 //}   
 #endif
 
-
-static int Create_LP_ivr(Image * image, fullPath * fullPathImage)
-{
-    fprintf(stderr, "Create_LP_ivr this function is not implemented yet\n");
-    exit(1);
-}
-
-static int Unknown01(Image * image, fullPath * fullPathImage)
-{
-    fprintf(stderr, "Unknown01 this function is not implemented yet\n");
-    exit(1);
-}
-
-static int Unknown02(Image * image, fullPath * fullPathImage)
-{
-    fprintf(stderr, "Unknown02 this function is not implemented yet\n");
-    exit(1);
-}
-
-static int Unknown03(Image * image, fullPath * fullPathImage)
-{
-    fprintf(stderr, "Unknown03 this function is not implemented yet\n");
-    exit(1);
-}
-
-static int Unknown04(Image * image, fullPath * fullPathImage)
-{
-    fprintf(stderr, "Unknown04 this function is not implemented yet\n");
-    exit(1);
-}
-
-static int Unknown05(Image * image, fullPath * fullPathImage)
-{
-    fprintf(stderr, "Unknown05 this function is not implemented yet\n");
-    exit(1);
-}
-
-static int Create_QTVR(Image * image, fullPath * fullPathImage)
-{
-    fprintf(stderr, "Create QTVR is not implemented yet\n");
-    exit(1);
-}
 
 static void ARGtoRGBAImage(Image * im)
 {
@@ -723,46 +681,46 @@ void getROI(TrformStr * TrPtr, aPrefs * aP, PTRect * ROIRect)
     //an interior point in an input image can be at the edge of ROI.  More research 
     //needed here, but for now include some representative interior points as well.
     for (y = 0; y <= TrPtr->src->height; y += 1) {
-	
-		x_jump = (y==0 || y==TrPtr->src->height) ? 1 : TrPtr->src->width/2;
-		
-		for (x = 0; x <= TrPtr->src->width; x += x_jump) {
-			//convert source coordinates to cartesian coordinates (i.e. origin at center of image)
-			x_d = (double) x - sw2 ;
-			y_d = (double) y - sh2 ;
-			
-			//Map the source image cartesian coordinate to the destination image cartesian coordinate
-			finvD.func( x_d, y_d, &Dx, &Dy, finvD.param);
-			
-			//Convert destination cartesian coordinate back to destination "screen" coordinates (i.e. origin at top left of image)
-			Dx += w2;
-			Dy += h2;
-			
-			//printf("  IN: %d,%d -> OUT: %f, %f   (%d, %d)\n", x, y, Dx, Dy, (int)Dx, (int)Dy);
-			
-			//Expand ROI if necessary
-			//I've observed that in some cases, the mapping function returns
-			//a value of "-1.#IND00".  This is not a number, and probably indicates
-			//a divide by zero error somewhere in the mapping function.  This should
-			//be solved, but, for now, discard this value and keep going
-			if (!isnan(Dx)) {
-				if ((int)Dx < ROIRect->left) ROIRect->left = (int)Dx;
-				if ((int)Dx > ROIRect->right) ROIRect->right = (int)Dx;
-			}
-			if (!isnan(Dy)){		
-				if ((int)Dy < ROIRect->top) ROIRect->top = (int)Dy;
-				if ((int)Dy > ROIRect->bottom) ROIRect->bottom = (int)Dy;
-			}
-		}
-	}
-	
-	//Reduce ROI if it extends beyond boundaries of final panorama region
-	if (ROIRect->left    < 0) ROIRect->left =0;
-	if (ROIRect->top     < 0) ROIRect->top  =0;
-	if (ROIRect->right   > (TrPtr->dest->width-1))  ROIRect->right    = TrPtr->dest->width-1;  
-	if (ROIRect->bottom  > (TrPtr->dest->height-1)) ROIRect->bottom   = TrPtr->dest->height-1;
-	
-	//printf("ROI: %d,%d - %d, %d\n", ROIRect->left, ROIRect->top, ROIRect->right, ROIRect->bottom);
+        
+                x_jump = (y==0 || y==TrPtr->src->height) ? 1 : TrPtr->src->width/2;
+                
+                for (x = 0; x <= TrPtr->src->width; x += x_jump) {
+                        //convert source coordinates to cartesian coordinates (i.e. origin at center of image)
+                        x_d = (double) x - sw2 ;
+                        y_d = (double) y - sh2 ;
+                        
+                        //Map the source image cartesian coordinate to the destination image cartesian coordinate
+                        finvD.func( x_d, y_d, &Dx, &Dy, finvD.param);
+                        
+                        //Convert destination cartesian coordinate back to destination "screen" coordinates (i.e. origin at top left of image)
+                        Dx += w2;
+                        Dy += h2;
+                        
+                        //printf("  IN: %d,%d -> OUT: %f, %f   (%d, %d)\n", x, y, Dx, Dy, (int)Dx, (int)Dy);
+                        
+                        //Expand ROI if necessary
+                        //I've observed that in some cases, the mapping function returns
+                        //a value of "-1.#IND00".  This is not a number, and probably indicates
+                        //a divide by zero error somewhere in the mapping function.  This should
+                        //be solved, but, for now, discard this value and keep going
+                        if (!isnan(Dx)) {
+                                if ((int)Dx < ROIRect->left) ROIRect->left = (int)Dx;
+                                if ((int)Dx > ROIRect->right) ROIRect->right = (int)Dx;
+                        }
+                        if (!isnan(Dy)){                
+                                if ((int)Dy < ROIRect->top) ROIRect->top = (int)Dy;
+                                if ((int)Dy > ROIRect->bottom) ROIRect->bottom = (int)Dy;
+                        }
+                }
+        }
+        
+        //Reduce ROI if it extends beyond boundaries of final panorama region
+        if (ROIRect->left    < 0) ROIRect->left =0;
+        if (ROIRect->top     < 0) ROIRect->top  =0;
+        if (ROIRect->right   > (TrPtr->dest->width-1))  ROIRect->right    = TrPtr->dest->width-1;  
+        if (ROIRect->bottom  > (TrPtr->dest->height-1)) ROIRect->bottom   = TrPtr->dest->height-1;
+        
+        //printf("ROI: %d,%d - %d, %d\n", ROIRect->left, ROIRect->top, ROIRect->right, ROIRect->bottom);
 }
 
 
@@ -815,8 +773,9 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
     char var40[8];
     char *tempString;           // It looks like a char *temp;          
     char outputFileName[512];
+#if 0
     VRPanoOptions defaultVRPanoOptions;
-
+#endif
     char tmpStr[64];            // string
     fullPath currentFullPath;
     fullPath panoName;          // according to documention: QTVR, PNG, PICT, TIFF, etc plus options...*/
@@ -838,7 +797,7 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
 
     int ebx;
 
-    int croppedTIFFOutput = 1, croppedTIFFIntermediate = 1;
+    int croppedTIFFIntermediate = 1;
     int croppedWidth = 0, croppedHeight = 0;
     PTRect ROIRect;
     unsigned int outputScanlineNumber = 0;
@@ -853,9 +812,9 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
     //Copy script line for line into a new temporary file
     memcpy(&tempScriptFile, scriptFileName, sizeof(fullPath));
     if (panoFileMakeTemp(&tempScriptFile) == 0) {
-                PrintError("Unable to create temporary file");
-                goto mainError;
-        }
+        PrintError("Unable to create temporary file");
+        goto mainError;
+    }
 
         panoTiffSetErrorHandler();
 
@@ -921,36 +880,8 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
                && colourCorrection < (counterImageFiles + 1) * 4);
         if (prefs->pano.cP.radial != 0) {
             
-            // correct_Prefs
-            //...
-            //  3 colors x (4 coeffic. for 3rd order polys + correction radius)
-            //radial_params[3][5] double (OFFSET 6c4 1732
-            //
-            //  [0][0..4]  40 bytes      6c4  6cc   6d4   6dc 6e4
-            //  [1][0..4]  40 (28)       6ec  6f4   6fc   704 70c
-            //  [2][0..4]  40 (28)       714  71c   724   72c 734
-            //                            3c
-            // radial_params 
-            //  3 * 5 * 8 = 120
-
             var00 = prefs->pano.cP.radial_params[0][2]; // what is this for, I have NO idea.
             var00++;
-
-#if 0
-            /*
-               I AM NOT TOTALLY SURE ABOUT THIS
-               804a01d:   dd 82 d4 06 00 00       fldl   0x6d4(%edx)            // loads address into FL
-               804a023:   d9 bd b2 eb ff ff       fnstcw 0xffffebb2(%ebp)           ;;;;;;;;;;;>>> -5198
-               804a029:   66 8b 8d b2 eb ff ff    mov    0xffffebb2(%ebp),%cx           ;;;;;;;;;;;>>> -5198
-               804a030:   66 81 c9 00 0c          or     $0xc00,%cx
-               804a035:   66 89 8d b0 eb ff ff    mov    %cx,0xffffebb0(%ebp)           ;;;;;;;;;;;>>> -5200
-               804a03c:   d9 ad b0 eb ff ff       fldcw  0xffffebb0(%ebp)           ;;;;;;;;;;;>>> -5200
-
-               804a042:   db 9d 7c e7 ff ff       fistpl 0xffffe77c(%ebp)           ;;;;;;;;;;;>>> -6276 var00
-               804a048:   d9 ad b2 eb ff ff       fldcw  0xffffebb2(%ebp)           ;;;;;;;;;;;>>> -5198
-               804a04e:   ff 85 7c e7 ff ff       incl   0xffffe77c(%ebp)           ;;;;;;;;;;;>>> -6276 var00
-             */
-#endif
 
         }                       // begins 804a00e
 
@@ -964,19 +895,6 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
 
             var01++;
 
-#ifdef adsfasdf
-            /*
-               804a063:   dd 80 5c 07 00 00       fldl   0x75c(%eax)               // loads address into FL
-               804a069:   d9 bd b2 eb ff ff       fnstcw 0xffffebb2(%ebp)           ;;;;;;;;;;;>>> -5198
-               804a06f:   66 8b 95 b2 eb ff ff    mov    0xffffebb2(%ebp),%dx           ;;;;;;;;;;;>>> -5198
-               804a076:   66 81 ca 00 0c          or     $0xc00,%dx
-               804a07b:   66 89 95 b0 eb ff ff    mov    %dx,0xffffebb0(%ebp)           ;;;;;;;;;;;>>> -5200
-               804a082:   d9 ad b0 eb ff ff       fldcw  0xffffebb0(%ebp)           ;;;;;;;;;;;>>> -5200
-               804a088:   db 9d 78 e7 ff ff       fistpl 0xffffe778(%ebp)           ;;;;;;;;;;;>>> -6280  var01
-               804a08e:   d9 ad b2 eb ff ff       fldcw  0xffffebb2(%ebp)           ;;;;;;;;;;;>>> -5198
-               804a094:   ff 85 78 e7 ff ff       incl   0xffffe778(%ebp)           ;;;;;;;;;;;>>> -6280  var01
-             */
-#endif
         }
 
         // Projection format for final panorama
@@ -991,6 +909,11 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
         --tempString;           /* nextWord does ++ before testing anything, this guarantess proper execution */
         nextWord(output_file_format, &tempString);
         
+	if (strcmp(output_file_format, "TIFF_m") != 0) {
+	    PrintError("No support for this image format (%s) falling back to TIFF_m", output_file_format);
+	}
+
+
         //New for PTMender...PTMender uses "cropped" TIFFs as its intermediate file 
         //format for all processing.  In contrast, PTStitcher used full-size TIFF
         //images for all intermediate processing.  PTMender can still write "uncropped" 
@@ -1016,16 +939,8 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
         //croppedTIFFIntermediate determines if all intermediate processing is done
         //with cropped or full size TIFF.  There probably isn't much of a reason
         //to ever disable this feature, other than for testing/debugging purposes.
+
         croppedTIFFIntermediate = 1;
-
-        //If the output format is TIFF_m or TIFF_mask, croppedTIFFOutput controls
-        //whether the output files will be cropped or uncropped
-        croppedTIFFOutput = 0;
-
-        //only use "cropped" output for TIFF_m or TIFF_mask if the includes r:CROP in p line
-        if (strstr(output_file_format, "TIFF_") != NULL
-            && strstr(panoName.name, "r:CROP") != NULL)
-            croppedTIFFOutput = 1;
 
         transform.interpolator = prefs->interpolator;
         transform.gamma = prefs->gamma;
@@ -1350,6 +1265,9 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
     if (image1.data != NULL)
         myfree((void **) image1.data);
 
+#if 0 
+    // NO LONGER SUPPORTED IN THIS FUNCTION. IT SHOULD BE REMOVED IN THE FUTURE
+
     // These functions are to correct and/or brightness.  They are not required for 
     // panoramas that do not need any brightness adjustments.  Moreover, Dersch
     // was not fully satisfied with the quality of results obtained from
@@ -1398,53 +1316,70 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
     //int getVRPanoOptions( VRPanoOptions *v, char *line )
 
     getVRPanoOptions(&defaultVRPanoOptions, tempString);
+#endif
 
-    //If we are dealing with an output format that is not TIFF_m or PSD_nomask,
-    //then we have to add "masks" to the images before finishing...
-    if (! (
-	   strcmp(output_file_format, "TIFF_m") == 0 
-	   ||
-	   strcmp(output_file_format, "PSD_nomask") == 0 
-	   )
-	) {
-        // There is no point in adding stitching masks for just one image 
-        if (counterImageFiles > 1) {
+    // We have to add "masks" to the images before finishing...
 
-
-	  printf("Creating seams******************\n");
-
-            if (panoStitchReplaceMasks(fullPathImages, fullPathImages, counterImageFiles,
-                 feather) != 0) {
-                PrintError("Could not create stitching masks");
-                goto mainError;
+    if (ptQuietFlag == 0)
+        Progress(_initProgress, "Writing Output Images");
+    
+    for (loopCounter = 0; loopCounter < counterImageFiles; loopCounter++) {
+        
+        if (ptQuietFlag == 0) {
+            sprintf(tmpStr, "%d",
+                    (100 * loopCounter) / counterImageFiles);
+            if (Progress(_setProgress, tmpStr) == 0) {
+                return (1);
             }
+        }
+        
+        strcpy(outputFileName, panoFileName->name);
+        sprintf(var40, "%04d", loopCounter);
+        strcat(outputFileName, var40);
+        panoReplaceExt(outputFileName, ".tif");
+        rename(fullPathImages[loopCounter].name, outputFileName);
+        free(fullPathImages);
+
+        if (ptQuietFlag == 0) {
+            Progress(_setProgress, "100%");
+            Progress(_disposeProgress, "");
+        }
+        
+    }
+    return (0);
+
+    // FUNCTION ENDS HERE
+
+  mainError:
+    return (-1);
+}
+
+
+#if 0
+
+    // THIS_CODE_IS_NO_LONGER_SUPPORTED. IT SHOULD BE REMOVED IN THE FUTURE
+
+    if (counterImageFiles > 1) {
+
+      // There is no point in adding stitching masks for just one image 
+      //printf("Creating seams******************\n");
+
+        if (panoStitchReplaceMasks(fullPathImages, fullPathImages, counterImageFiles,
+                                   feather) != 0) {
+            PrintError("Could not create stitching masks");
+            goto mainError;
         }
     }
 
-  /************ OUTPUT FORMATS: Multiple TIFF ***************/
+
+
+    /************ OUTPUT FORMATS: Multiple TIFF ***************/
     // TIFF_m and TIFF_mask...just rename the intermediate files 
     // that we've already computed with numbers (e.g. img0000.tif, img0001.tif, etc.) 
     // and we are finished processing.
     if (strcmp(output_file_format, "TIFF_m") == 0
         || strcmp(output_file_format, "TIFF_mask") == 0) {
 
-        if (ptQuietFlag == 0)
-            Progress(_initProgress, "Writing Output Images");
-
-        for (loopCounter = 0; loopCounter < counterImageFiles; loopCounter++) {
-            
-            if (ptQuietFlag == 0) {
-                sprintf(tmpStr, "%d",
-                        (100 * loopCounter) / counterImageFiles);
-                if (Progress(_setProgress, tmpStr) == 0) {
-                    return (1);
-                }
-            }
-
-            strcpy(outputFileName, panoFileName->name);
-            sprintf(var40, "%04d", loopCounter);
-            strcat(outputFileName, var40);
-            panoReplaceExt(outputFileName, ".tif");
 
             if ((croppedTIFFIntermediate != 0 && croppedTIFFOutput != 0) ||
                 (croppedTIFFIntermediate == 0 && croppedTIFFOutput == 0)) {
@@ -1487,7 +1422,7 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
     // intermediate files into a layered photoshop document
     if (strcmp(output_file_format, "PSD_nomask") == 0
         || strcmp(output_file_format, "PSD_mask") == 0
-	) {
+        ) {
         panoReplaceExt(panoFileName->name, ".psd");
         
         if (panoCreatePSD(fullPathImages, counterImageFiles, panoFileName, 0) != 0) {
@@ -1594,11 +1529,8 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
     PrintError("Panorama output format not supported: %s",
                output_file_format);
 
+#endif
 
-  mainError:
-    return (-1);
-
-}
 
 
 /*
@@ -1612,7 +1544,7 @@ void panoReplaceExt(char *filename, char *extension)
     char *dot_pos = strrchr(filename, '.');
     char *path_sep_win = strrchr(filename, '\\');
     char *path_sep_unix = strrchr(filename, '/');
-	char *path_sep = (path_sep_unix == NULL ? path_sep_win : path_sep_unix );
+        char *path_sep = (path_sep_unix == NULL ? path_sep_win : path_sep_unix );
 
     if (dot_pos != NULL && (path_sep == NULL || dot_pos>path_sep)) {
         strcpy(dot_pos, extension);
