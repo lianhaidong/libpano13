@@ -3,7 +3,7 @@
 	* version.h (VERSION), configure.ac: Upgraded to version 2.8.5pre8
 
 	* PTcommon.c (panoCreatePanorama): Remove post-processing during
-	remapping of images: in other words, ignore output spec in script file.
+	remapping of images: in other words, ignore output format in script file.
 
 2006-10-25  dmg  <dmg@uvic.ca>
 
