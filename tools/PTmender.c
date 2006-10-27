@@ -278,6 +278,10 @@ int main(int argc,char *argv[])
             strcpy(ptrImageFileNames[ebx].name, "");
             
           InsertFileName(&ptrImageFileNames[ebx], alignInfo.im[ebx].name);
+	  if (ptDebug) {
+	    fprintf(stderr, "Input image %d [%s]\n", ebx, ptrImageFileNames[ebx].name);
+	  }
+
         } // for (ebx = 0; ebx < counter; ebx ++)
       }//  if (counter != 0) 
       
@@ -300,6 +304,10 @@ int main(int argc,char *argv[])
       //an "o" line represents an input image
       counter = numLines(script, 'o');
       
+      if (ptDebug) {
+	fprintf(stderr, "Processing %d counter images\n", counter);
+      }
+
       if (counter == 0) {
         PrintError("No Input Images");
         exit(1);
@@ -371,6 +379,10 @@ int main(int argc,char *argv[])
     
   }
   
+  if (ptDebug) {
+    fprintf(stderr, "Processing %d counter images\n", counter);
+  }
+    
   // By now we should have loaded up the input filename array, the output 
   // panorama name, and the name of the script file (copied to a temporary
   // directory).  Now we can create the output image.

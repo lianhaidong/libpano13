@@ -1,0 +1,105 @@
+
+This file documents the activities required before we release version
+3.0.0 of the library.
+
+----------------------------------------------------------------------
+PTmap:
+ 
+PTmap should be a lightweight, simple stitching program and nothing
+else. That means it will only do mapping of the panoramas. In terms of
+the old PTsticher scripts it means it will only create TIFF_m,
+cropped, no colour correction. It will be up to the caller application
+to take these files and create the desired output (apply colour
+correction, cropping, uncropping, conversion to other formats).
+ 
+This will simplify testing, and improve stability.
+ 
+ 
+TODO:
+  
+ - Rename PTmender to PTremap
+ 
+DESIRABLE FEATURES:
+ 
+ - Insert script into the TIFF comment field.
+ 
+ - Cleanup command line options, and add a -h option
+ 
+ - Process fisheye lenses.
+ 
+ - If somebody wants full compatibility with PTstitcher, a new program
+   can be added that does all the work. It will be a "superset" of many
+   of the current pano tools.
+ 
+ ----------------------------------------------------------------------
+ 
+ PTblender:
+ 
+ It will split into 2 programs:
+ 
+ - PTblender. It will do colour correction _only_. 
+ 
+ - PTroller.  It will flatten an image. It will take a set of TIFFs and
+   create only one TIFF
+ 
+ DESIRABLE:
+ 
+ - (PTblender) Create photoshop curves and maps for HSV colour
+   corrections
+ 
+ - (PTblender) Ignore areas with mask != 255 during computation of the
+   curves, but transform them if mask > 0
+ 
+ - (PTroller) Add the ability to stack and add composing images.
+  
+ 
+ ----------------------------------------------------------------------
+ PTuncrop:
+ 
+ - No major changes, except that it will support images without full
+   size tags.
+ 
+ TODO:
+ 
+ - Add support for images without full size tags --this will affect all
+   panotools) and make sure all tools are compatible with TIFFs output
+   by nona and fulla.
+ 
+ ----------------------------------------------------------------------
+ 
+ PTtiff2psd:
+ 
+ TODO:
+ 
+ - Nothing
+ 
+ DESIRABLE:
+ 
+ - Specify blending mode for layers
+ 
+ ----------------------------------------------------------------------
+ PTestimate (old PToptimizer)
+ 
+ TODO:
+ 
+ - Nothing
+ 
+ ----------------------------------------------------------------------
+ 
+ DESIRABLE new tools:
+ 
+ PTcrop:
+ 
+ - Two options: crop to bounding rectangle, and crop to inner rectangle
+   (I think that were the names Pablo gave them).
+ 
+ 
+ 
+ ----------------------------------------------------------------------
+ LONGER TERM:
+ 
+ * Allow tools to read their parameters from the PTstitcher script.
+ 
+ * Add support to all the tools for 16 bit, and 32 bit images (it is
+   kind of mixed at this point)
+

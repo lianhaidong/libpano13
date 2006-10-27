@@ -47,12 +47,12 @@
 #define PT_BLENDER_USAGE "PTblender [options] <tiffFiles>+\n\n"\
                          "Options:\n"\
                          "\t-o <prefix>\tPrefix for output filename\n"\
-                         "\t-k <index>\tIndex to image to use as a reference (0-based)\n"\
+                         "\t-k <index>\tIndex to image to use as a reference (0-based, defaults to 0)\n"\
                          "\t-t [0,1,2]\tType of colour correction: 0 full (default), 1 brightness only, 2 colour only\n"\
-                         "\t-f <filename>\t\tFlatten images to single TIFF file\n"\
-                         "\t-q\t\tQuiet run\n\t-h\t\tShow this message\n"\
-                         "\t-c\t\tOutput curves smooth\t\t(Output a photoshop curve per each corrected file)\n"\
-                         "\t-m\t\tOutput curves arbitrary map\t(Output a photoshop curve per each corrected file)\n"\
+                         "\t-q\t\tQuiet run\n"\
+                         "\t-h\t\tShow this message\n"\
+                         "\t-c\t\tOutput curves smooth\t\t(Output one per each corrected file)\n"\
+                         "\t-m\t\tOutput curves arbitrary map\t(Output one per each corrected file)\n"\
                          "\n"
 
 #define PT_BLENDER_VERSION "PTblender Version " VERSION ", originally written by Helmut Dersch, rewritten by Daniel M German\n"
@@ -62,222 +62,169 @@
 
 int main(int argc,char *argv[])
 {
-  char opt;
-  int referenceImage = -1;
-  fullPath *ptrInputFiles;
-  fullPath *ptrOutputFiles;
+    char opt;
+    int referenceImage = 0;
+    fullPath *ptrInputFiles;
+    fullPath *ptrOutputFiles;
 
-  int counter;
-  char outputPrefix[MAX_PATH_LENGTH];
-  char flatOutputFileName[MAX_PATH_LENGTH];
-  char *endPtr;
-  int filesCount;
-  char tempString[MAX_PATH_LENGTH];
-  int i;
-  int base = 0;
-  int flattenFlag =0;
-  int outputCurvesType = 0; // if 1 => create Photoshop curve files (.acv)
-  int typeCorrection = 0;
-  int ptComputeSeams = 0;
+    int counter;
+    char outputPrefix[MAX_PATH_LENGTH];
+    char *endPtr;
+    int filesCount;
+    char tempString[MAX_PATH_LENGTH];
+    int i;
+    int base = 0;
+    int outputCurvesType = 0; // if 1 => create Photoshop curve files (.acv)
+    int typeCorrection = 0;
+    int ptComputeSeams = 0;
 
-  ptrInputFiles = NULL;
+    ptrInputFiles = NULL;
 
-  counter = 0;
+    counter = 0;
 
-  printf(PT_BLENDER_VERSION);
+    printf(PT_BLENDER_VERSION);
 
 
-  strcpy(outputPrefix, "corrected%4d");
+    strcpy(outputPrefix, "corrected%4d");
 
-  while ((opt = getopt(argc, argv, "o:k:t:hf:sqcm")) != -1) {
+    while ((opt = getopt(argc, argv, "o:k:t:hf:sqcm")) != -1) {
 
-// o and f -> set output file
-// h       -> help
-// q       -> quiet?
-// k       -> base image, defaults to first
+	// o and f -> set output file
+	// h       -> help
+	// q       -> quiet?
+	// k       -> base image, defaults to first
     
-    switch(opt) {  // fhoqs        f: 102 h:104  111 113 115  o:f:hsq
-    case 'o':
-      if (strlen(optarg) < MAX_PATH_LENGTH) {
-        strcpy(outputPrefix, optarg);
-      } else {
-        PrintError("Illegal length for output prefix");
-      }
-      break;
-    case 'k':
-      referenceImage = strtol(optarg, &endPtr, 10);
-      if (errno != 0) {
-        PrintError("Invalid integer in -k option");
-        return -1;
-      }
-      break;
-    case 't':
-      typeCorrection = strtol(optarg, &endPtr, 10);
-      if (errno != 0 || (typeCorrection < 0 || typeCorrection > 2)) {
-        PrintError("Invalid integer in -t option");
-        return -1;
-      }
-      break;
-    case 'f':
-      if (outputCurvesType) {
-        PrintError("Option -f can't be used with option -c or -m");
-        return -1;
-      }
-      flattenFlag = 1;
-      if (strlen(optarg) < MAX_PATH_LENGTH) {
-        strcpy(flatOutputFileName, optarg);
-      } else {
-        PrintError("Illegal length for flat output prefix");
-      }
-      break;
-
-      break;
-    case 's':
-      ptComputeSeams = 1;
-      break;
-    case 'q':
-      ptQuietFlag = 1;
-      break;
-    case 'c':
-      if (outputCurvesType == CB_OUTPUT_CURVE_ARBITRARY) {
-        PrintError("Can't use both -c and -m options");
-        return -1;
-      }
-      if (flattenFlag) {
-        PrintError("Option -c can't be used with option -f");
-        return -1;
-      }
-      outputCurvesType = CB_OUTPUT_CURVE_SMOOTH;
-      break;
-    case 'm':
-      if (outputCurvesType == CB_OUTPUT_CURVE_SMOOTH) {
-        PrintError("Can't use both -c and -m options");
-        return -1;
-      }
-      if (flattenFlag) {
-        PrintError("Option -m can't be used with option -f");
-        return -1;
-      }
-      outputCurvesType = CB_OUTPUT_CURVE_ARBITRARY;
-      break;
-    case 'h':
-      printf(PT_BLENDER_USAGE);
-      exit(0);
-    default:
-      break;
+	switch(opt) {  // fhoqs        f: 102 h:104  111 113 115  o:f:hsq
+	case 'o':
+	    if (strlen(optarg) < MAX_PATH_LENGTH) {
+		strcpy(outputPrefix, optarg);
+	    } else {
+		PrintError("Illegal length for output prefix");
+	    }
+	    break;
+	case 'k':
+	    referenceImage = strtol(optarg, &endPtr, 10);
+	    if (errno != 0) {
+		PrintError("Invalid integer in -k option");
+		return -1;
+	    }
+	    break;
+	case 't':
+	    typeCorrection = strtol(optarg, &endPtr, 10);
+	    if (errno != 0 || (typeCorrection < 0 || typeCorrection > 2)) {
+		PrintError("Invalid integer in -t option");
+		return -1;
+	    }
+	    break;
+	case 's':
+	    ptComputeSeams = 1;
+	    break;
+	case 'q':
+	    ptQuietFlag = 1;
+	    break;
+	case 'c':
+	    if (outputCurvesType == CB_OUTPUT_CURVE_ARBITRARY) {
+		PrintError("Can't use both -c and -m options");
+		return -1;
+	    }
+	    outputCurvesType = CB_OUTPUT_CURVE_SMOOTH;
+	    break;
+	case 'm':
+	    if (outputCurvesType == CB_OUTPUT_CURVE_SMOOTH) {
+		PrintError("Can't use both -c and -m options");
+		return -1;
+	    }
+	    outputCurvesType = CB_OUTPUT_CURVE_ARBITRARY;
+	    break;
+	case 'h':
+	    printf(PT_BLENDER_USAGE);
+	    exit(0);
+	default:
+	    break;
+	}
     }
-  }
   
-  filesCount = argc - optind;
+    filesCount = argc - optind;
   
-  if ((ptrInputFiles = calloc(filesCount, sizeof(fullPath))) == NULL || 
-      (ptrOutputFiles = calloc(filesCount, sizeof(fullPath))) == NULL)  {
-    PrintError("Not enough memory");
-    return -1;
-  }
-
-  base = optind;
-  for (; optind < argc; optind++) {
-    char *currentParm;
-
-    currentParm = argv[optind];
-
-    if (StringtoFullPath(&ptrInputFiles[optind-base], currentParm) !=0) { // success
-      PrintError("Syntax error: Not a valid pathname");
-      return(-1);
+    if ((ptrInputFiles = calloc(filesCount, sizeof(fullPath))) == NULL || 
+	(ptrOutputFiles = calloc(filesCount, sizeof(fullPath))) == NULL)  {
+	PrintError("Not enough memory");
+	return -1;
     }
-  }
 
-  if (filesCount <= 0) {
-    PrintError("No files specified in the command line");
-    fprintf(stderr, PT_BLENDER_USAGE);
-    return -1;
-  }
+    base = optind;
+    for (; optind < argc; optind++) {
+	char *currentParm;
 
-  if (referenceImage <-1 || referenceImage >= filesCount) {
-    sprintf(tempString, "Illegal reference image number %d. It should be between 0 and %d\n", 
-            referenceImage, filesCount-1);
-    PrintError(tempString);
-    return -1;
-  }
+	currentParm = argv[optind];
 
-
-  if (outputCurvesType != 0 || typeCorrection != 0) {
-    // The user wants colour correction, so let us given them colour correction
-    if (referenceImage == -1)  {
-      referenceImage = 0;
-      printf("No reference image specified. Assuming image 0 as reference\n");    
+	if (StringtoFullPath(&ptrInputFiles[optind-base], currentParm) !=0) { // success
+	    PrintError("Syntax error: Not a valid pathname");
+	    return(-1);
+	}
     }
-  }
 
-  // Create output filename
+    if (filesCount <= 0) {
+	PrintError("No files specified in the command line");
+	fprintf(stderr, PT_BLENDER_USAGE);
+	return -1;
+    }
 
-  if (strchr(outputPrefix, '%') == NULL) {
-    strcat(outputPrefix, DEFAULT_PREFIX_NUMBER_FORMAT);
-  }
+    if (referenceImage < 0 || referenceImage >= filesCount) {
+	sprintf(tempString, "Illegal reference image number %d. It should be between 0 and %d\n", 
+		referenceImage, filesCount-1);
+	PrintError(tempString);
+	return -1;
+    }
 
-  for (i =0; i< filesCount ; i++) {
-    char outputFilename[MAX_PATH_LENGTH];
+    //We can't output curves for type 1 or 2 corrections
+    if (outputCurvesType != 0) {
+	if (typeCorrection!= 0) {
+	    PrintError("Output of curves is not supported for correction type %d", typeCorrection);
+	    return -1;
+	}
+    }
 
-    sprintf(outputFilename, outputPrefix, i);
+    // Create output filename
+
+    if (strchr(outputPrefix, '%') == NULL) {
+	strcat(outputPrefix, DEFAULT_PREFIX_NUMBER_FORMAT);
+    }
+
+    for (i =0; i< filesCount ; i++) {
+	char outputFilename[MAX_PATH_LENGTH];
+
+	sprintf(outputFilename, outputPrefix, i);
    
-    // Verify the filename is different from the prefix 
-    if (strcmp(outputFilename, outputPrefix) == 0) {
-      PrintError("Invalid output prefix. It does not generate unique filenames.");
-      return -1;
-    }
+	// Verify the filename is different from the prefix 
+	if (strcmp(outputFilename, outputPrefix) == 0) {
+	    PrintError("Invalid output prefix. It does not generate unique filenames.");
+	    return -1;
+	}
 
-    if (StringtoFullPath(&ptrOutputFiles[i], outputFilename) != 0) { 
-      PrintError("Syntax error: Not a valid pathname");
-      return(-1);
-    }
-    panoReplaceExt(ptrOutputFiles[i].name, ".tif");
+	if (StringtoFullPath(&ptrOutputFiles[i], outputFilename) != 0) { 
+	    PrintError("Syntax error: Not a valid pathname");
+	    return(-1);
+	}
+	panoReplaceExt(ptrOutputFiles[i].name, ".tif");
     
-    //    fprintf(stderr, "Output filename [%s]\n", ptrOutputFiles[i].name);
-  }
+	//    fprintf(stderr, "Output filename [%s]\n", ptrOutputFiles[i].name);
+    }
 
-  if (!panoTiffVerifyAreCompatible(ptrInputFiles, filesCount, TRUE)) {
-    PrintError("TIFFs are not compatible");
-    return -1;
-  }
+    if (!panoTiffVerifyAreCompatible(ptrInputFiles, filesCount, TRUE)) {
+	PrintError("TIFFs are not compatible");
+	return -1;
+    }
 
-  if (referenceImage >= 0) {
-    printf("Colour correcting photo using %d as a base type %d\n", referenceImage, typeCorrection);
+    if (! ptQuietFlag) printf("Colour correcting photo using %d as a base type %d\n", referenceImage, typeCorrection);
+
     ColourBrightness(ptrInputFiles, ptrOutputFiles, filesCount, referenceImage, typeCorrection, outputCurvesType);
+
     free(ptrInputFiles);
     ptrInputFiles = ptrOutputFiles;
     ptrOutputFiles = NULL;
-  }
 
-  if (flattenFlag) {
-
-    fullPath pathName;
-
-    printf("Flattening image\n");
-
-    printf("Computing seams for %d files\n", filesCount);
-    if (panoStitchReplaceMasks(ptrInputFiles, ptrInputFiles, filesCount,
-			       0) != 0) {
-      PrintError("Could not create stitching masks");
-      return -1;
-    }
-
-    if (StringtoFullPath(&pathName, flatOutputFileName) != 0) { 
-      PrintError("Syntax error: Not a valid pathname");
-      return(-1);
-    }
-    panoReplaceExt(pathName.name, ".tif");
-
-    if (!panoFlattenTIFF(ptrInputFiles, filesCount, &pathName, FALSE)) { 
-      PrintError("Error while flattening TIFF-image");
-      return -1;
-    }
-  }
-
-  if (ptrInputFiles) free(ptrInputFiles);
-  if (ptrOutputFiles) free(ptrOutputFiles);
-
-  return 0;
+    return 0;
   
 }
 

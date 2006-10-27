@@ -13,7 +13,7 @@ test_n   Test to run. If none given all are done
 \n " if scalar(@ARGV) < 1;
 
 
-my $stitcher = '../../tools/PTmender';
+my $stitcher = '../../tools/PTremap';
 #my $stitcher = '/usr/local/bin/PTmender';
 $, = ' ';
 
@@ -157,7 +157,7 @@ foreach $type (@toProcess) {
       
       
       print "Creating panorama.. please wait\n";
-      system ($stitcher, '-o', 'output' , "-f", 'temp.txt');
+      system ($stitcher, '-o', 'output' , 'temp.txt');
       
       
       if ($type =~ "tiff_m") {

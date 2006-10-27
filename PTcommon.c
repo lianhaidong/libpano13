@@ -816,7 +816,7 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
         goto mainError;
     }
 
-        panoTiffSetErrorHandler();
+    panoTiffSetErrorHandler();
 
     if ((regFile = fopen(tempScriptFile.name, "w")) == NULL) {
         PrintError("Could not open temporary Scriptfile");
@@ -861,6 +861,13 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
     // This is the main processing loop...it iterates over each input image
     // and maps the pixels in these input images into the output image(s)
     for (loopCounter = 0; loopCounter < counterImageFiles; loopCounter++) {
+
+	// TODO 
+	
+	// the original PTstitcher logic  is strange
+
+	// It processes a lot of data more than once. This part should really be done once for all images
+
 
         currentImagePtr = &image1;
 
@@ -909,8 +916,8 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
         --tempString;           /* nextWord does ++ before testing anything, this guarantess proper execution */
         nextWord(output_file_format, &tempString);
         
-	if (strcmp(output_file_format, "TIFF_m") != 0) {
-	    PrintError("No support for this image format (%s) falling back to TIFF_m", output_file_format);
+	if (loopCounter == 0 && strcmp(output_file_format, "TIFF_m") != 0) {
+	    PrintError("No support for this image format (%s). Falling back to TIFF_m", output_file_format);
 	}
 
 
@@ -1340,12 +1347,14 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
         rename(fullPathImages[loopCounter].name, outputFileName);
         free(fullPathImages);
 
-        if (ptQuietFlag == 0) {
-            Progress(_setProgress, "100%");
-            Progress(_disposeProgress, "");
-        }
         
     }
+    if (ptQuietFlag == 0) {
+	Progress(_setProgress, "100%");
+	Progress(_disposeProgress, "");
+    }
+
+
     return (0);
 
     // FUNCTION ENDS HERE
