@@ -981,7 +981,8 @@ int panoTiffGetImageProperties(pano_Tiff * tiff)
     tiff->metadata.datetime = panoTiffGetString(tiff, TIFFTAG_DATETIME);
     tiff->metadata.imageDescription = panoTiffGetString(tiff, TIFFTAG_IMAGEDESCRIPTION);
     tiff->metadata.artist = panoTiffGetString(tiff, TIFFTAG_ARTIST);
-    
+
+    TIFFGetField(tiffFile, TIFFTAG_PAGENUMBER, &metadata->imageNumber, &metadata->imageTotalNumber);
 
     //printf("...........................REad and allocate ICC Profile %d %x\n",
     //(int)(metadata->iccProfile.size), (int)(metadata->iccProfile.data));
@@ -1060,7 +1061,12 @@ int panoTiffSetImageProperties(pano_Tiff * file)
         && TIFFSetField(tiffFile, TIFFTAG_XRESOLUTION,
                         metadata->xPixelsPerResolution)
         && TIFFSetField(tiffFile, TIFFTAG_YRESOLUTION,
-                        metadata->yPixelsPerResolution);
+                        metadata->yPixelsPerResolution)
+	&& TIFFSetField(tiffFile, TIFFTAG_PAGENUMBER,  metadata->imageNumber, 
+			metadata->imageTotalNumber);
+
+
+
 
     if (returnValue && metadata->bitsPerSample == 32)
     {
@@ -1069,7 +1075,13 @@ int panoTiffSetImageProperties(pano_Tiff * file)
     }
     // Take care of special cases
 
+    if (returnValue) {
+
+
+    }
+
     // Only set ICCprofile if size > 0
+
     if (returnValue && metadata->iccProfile.size > 0) {
         returnValue =
             TIFFSetField(tiffFile, TIFFTAG_ICCPROFILE,

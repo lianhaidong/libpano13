@@ -69,8 +69,8 @@ void InsertFileName(fullPath * fp, char *fname)
 }
 
 
-int panoCreatePSD(fullPath * fullPathImages, int numberImages,
-                  fullPath * outputFileName, int stacked)
+int panoPSDCreate(fullPath * fullPathImages, int numberImages,
+                  fullPath * outputFileName, pano_flattening_parms *flatteningParms)
 {
     Image *ptrImage;
     int i;
@@ -105,7 +105,7 @@ int panoCreatePSD(fullPath * fullPathImages, int numberImages,
     if (!(image.bitsPerPixel == 64 || image.bitsPerPixel == 32)) {
         PrintError("Image type not supported (%d bits per pixel)\n",
                    image.bitsPerPixel);
-        return 0;
+        return -1;
     }
 
     if (numberImages > 1 && image.bitsPerPixel != 32) {
@@ -115,6 +115,12 @@ int panoCreatePSD(fullPath * fullPathImages, int numberImages,
             TwoToOneByte(&image);       //we need to downsample to 8 bit if we are provided 16 bit images
         }
     }
+
+    if (numberImages == 1) {
+	PrintError("Writing only one image is not supported yet");
+	return -1;
+    }
+
 
     //Write out the first image as the base layer in the PSD file
     if (writePSDwithLayer(&image, outputFileName) != 0) {
@@ -162,10 +168,11 @@ int panoCreatePSD(fullPath * fullPathImages, int numberImages,
 
         stitchInfo.seam = 1;
         stitchInfo.feather = 0;
-        if (stacked) 
-          stitchInfo.opacity = (unsigned char) (255.0/ (i + 1));
+        if (flatteningParms->stacked) 
+          stitchInfo.psdOpacity = (unsigned char) (255.0/ (i + 1));
         else
-          stitchInfo.opacity = 255;
+          stitchInfo.psdOpacity = 255;
+	stitchInfo.psdBlendingMode = flatteningParms->psdBlendingMode;
 
         if (addLayerToFile(ptrImage, outputFileName, &tempFile, &stitchInfo)
             != 0) {
@@ -737,7 +744,6 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
     }
     
     fclose(regFile);
-    free(regScript);
 
     //Initialize members to zero
     SetImageDefaults(&image1);
@@ -919,7 +925,10 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
                               resultPanorama.width,
                               resultPanorama.height);
         
-        
+	metadata.imageNumber = loopCounter;
+	metadata.imageTotalNumber = counterImageFiles;
+        metadata.imageDescription = strdup(regScript);
+
         // Set output width/height for output file 
         if (croppedTIFFIntermediate) {
             getROI(&transform, prefs, &ROIRect);
@@ -1252,11 +1261,14 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
     }
 
 
+    free(regScript);
     return (0);
 
     // FUNCTION ENDS HERE
 
   mainError:
+    free(regScript);
+
     return (-1);
 }
 

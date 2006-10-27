@@ -209,7 +209,8 @@ struct stitchBuffer{						// Used describe how images should be merged
 	int				feather;		// Width of feather
 	int				colcorrect;		// Should the images be color corrected?
 	int				seam;			// Where to put the seam (see above)
-        unsigned char                   opacity;                // Opacity of the layer. Currently used only by PSD output. 0 trans, 255 opaque
+        unsigned char                   psdOpacity;               // Opacity of the layer. Currently used only by PSD output. 0 trans, 255 opaque
+        unsigned char                   psdBlendingMode;          // blending mode (photoshop)
 	};
 
 

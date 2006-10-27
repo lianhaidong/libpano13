@@ -33,6 +33,7 @@
 
 #include "panorama.h"
 #include "pt_stdint.h"
+#include "file.h"
 
 typedef struct {
   uint16_t samplesPerPixel;
@@ -55,11 +56,13 @@ int panoAddStitchingMasks(fullPath *inputFiles, fullPath *outputFiles, int numbe
 /*  defined in ptpicker.c, but never exported */
 
 int panoFlattenTIFF(fullPath *fullPathImages, int counterImageFiles, fullPath *outputFileName, int removeOriginals);
-int  panoCreatePSD(  fullPath *fullPathImages, int, fullPath*, int);
+
 
 
 extern int quietFlag;
-	
+
+int  panoPSDCreate(  fullPath *fullPathImages, int, fullPath*, pano_flattening_parms*);
+
 int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles, fullPath *panoFileName, fullPath *scriptFileName);
 
 void panoReplaceExt(char* filename, char *extension);

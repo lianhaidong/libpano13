@@ -10,8 +10,6 @@ DESIRABLE FEATURES:
  - Output a text file with the names of the files processed and extra
    information, such as size
 
- - Insert script into the TIFF comment field.
- 
  - Process fisheye lenses.
  
  - If somebody wants full compatibility with PTstitcher, a new program
@@ -29,37 +27,33 @@ DESIRABLE:
 ----------------------------------------------------------------------
 PTroller:
  
-- (PTroller) Add the ability to stack and add composing images.
+
+- Split PTroller into 2: PTmasker and PTroller
   
+DESIRABLE:
+
+- PTroller: Add the ability to stack and add composing images.
+
  
- ----------------------------------------------------------------------
+----------------------------------------------------------------------
  PTuncrop:
  
- - No major changes, except that it will support images without full
-   size tags.
- 
- TODO:
- 
- - Add support for images without full size tags --this will affect all
-   panotools) and make sure all tools are compatible with TIFFs output
-   by nona and fulla.
- 
+* Ready for 3.0.0
+
 ----------------------------------------------------------------------
  
 PTtiff2psd:
  
-DESIRABLE:
- 
- - Specify blending mode for layers
- 
+- One layer 8 and 16 bit images are not being properly created. 
+
+
  ----------------------------------------------------------------------
 PToptimizer:
 
 * Ready for 3.0.0
  
  
- ----------------------------------------------------------------------
- 
+----------------------------------------------------------------------
  DESIRABLE new tools:
  
  PTcrop:
@@ -67,9 +61,18 @@ PToptimizer:
  - Two options: crop to bounding rectangle, and crop to inner rectangle
    (I think that were the names Pablo gave them).
  
+
+----------------------------------------------------------------------
+GENERAL
+
+ - Add support for images without full size tags --this will affect all
+   panotools) and make sure all tools are compatible with TIFFs output
+   by nona and fulla.
+
+
  
  
- ----------------------------------------------------------------------
+----------------------------------------------------------------------
  LONGER TERM:
  
  * Allow tools to read their parameters from the PTstitcher script.

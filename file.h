@@ -29,6 +29,7 @@
 
 #ifndef __FILE_H__
 
+#define __FILE_H__
 // these are defined in file.c
 
 int panoImageRead(Image * im, fullPath * sfile);
@@ -37,11 +38,42 @@ int panoFileMakeTemp(fullPath * path);
 // and these are defined in bmp.c, jpeg.c, hdrfile.c, png.c, and ppm.c
 // but there is no point in creating a file for each one of them
 
-int panoBMPRead( Image *im, fullPath *sfile );
+int panoBMPRead(Image *im, fullPath *sfile );
 int panoJPEGRead(Image * im, fullPath * sfile);
 int panoHDRRead(Image *im, fullPath *sfile );
 int panoPNGRead(Image *im, fullPath *sfile );
 int panoPPMRead(Image * im, fullPath * sfile);
+
+	
+typedef struct {
+  int stacked;             // 1 if images are stacked
+  int psdBlendingMode;     // for psd output, photoshop/gimp blending mode
+} pano_flattening_parms;
+
+	
+enum {
+      PSD_NORMAL, 
+      PSD_COLOR,
+      PSD_DARKEN,
+      PSD_DIFFERENCE,
+      PSD_DISSOLVE,
+      PSD_HARD_LIGHT,
+      PSD_HUE,
+      PSD_LIGHTEN,
+      PSD_LUMINOSITY,
+      PSD_MULTIPLY,
+      PSD_OVERLAY,
+      PSD_SOFT_LIGHT,
+      PSD_SATURATION,
+      PSD_SCREEN,
+      PSD_NUMBER_BLENDING_MODES, // This Is Not Really a mode, it is the counter of number of modes
+      };
+
+
+
+extern char *psdBlendingModesNames[PSD_NUMBER_BLENDING_MODES];
+		
+extern char *psdBlendingModesInternalName[PSD_NUMBER_BLENDING_MODES];
 
 
 #endif

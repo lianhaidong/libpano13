@@ -89,6 +89,48 @@ static int              hasFeather              ( Image *im );
 static int              writeTransparentAlpha   ( Image *im, file_spec fnum, PTRect *theRect );
 
 
+	
+
+char *psdBlendingModesNames[] = {
+    "Normal", 
+    "Color",
+    "Darken",
+    "Difference",
+    "Dissolve",
+    "Hard Light",
+    "Hue",
+    "Lighten",
+    "Luminosity",
+    "Multiply",
+    "Overlay",
+    "Sof Light",
+    "Saturation",
+    "Screen"
+};
+
+		
+char *psdBlendingModesInternalName[] = {
+  "norm",
+  "colr",
+  "dark",
+  "diff",
+  "diss",
+  "hLit",
+  "hue",
+  "lite",
+  "lum",
+  "mul",
+  "over",
+  "sLit",
+  "sat",
+  "scrn"
+};
+
+
+
+
+
+
 
 
 #define PSDHLENGTH 26
@@ -126,7 +168,7 @@ int panoPSDPICTResourceWrite(file_spec fnum, unsigned char resource, unsigned ch
   WRITESHORT( len ); //length
 }
 
-#define CREATED_BY_PSD "PTmender " VERSION
+#define CREATED_BY_PSD "Panotools " VERSION
 #define IPTC_VERSION_ID 0
 #define IPTC_ORIGINATING_PROGRAM_ID 0x41
 #define IPTC_DESCRIPTION_WRITER_ID  0x7a
@@ -1574,13 +1616,22 @@ static int addLayer( Image *im, CropInfo *crop_info, file_spec src, file_spec fn
     WRITEUCHAR( 'B' );
     WRITEUCHAR( 'I' );
     WRITEUCHAR( 'M' );
-    // WRITEINT32( 'norm'); // Blend mode key
-    WRITEUCHAR( 'n' );
-    WRITEUCHAR( 'o' );
-    WRITEUCHAR( 'r' );
-    WRITEUCHAR( 'm' );
 
-    WRITEUCHAR(sB->opacity); // 1 byte Opacity 0 = transparent ... 255 = opaque
+    
+
+    {
+	// the next 4 bytes are the blending mode key
+	// WRITEINT32( 'norm'); // Blend mode key
+	assert(PSD_NUMBER_BLENDING_MODES == sizeof(psdBlendingModesNames)/sizeof(char*));
+	assert(sizeof(psdBlendingModesNames) == sizeof(psdBlendingModesInternalName));
+	char *blendingModeKey = psdBlendingModesInternalName[sB->psdBlendingMode];
+	int j;
+	for (j = 0; j< 4; j++ ) {
+	    WRITEUCHAR(blendingModeKey[j]);
+	}
+    }
+
+    WRITEUCHAR(sB->psdOpacity); // 1 byte Opacity 0 = transparent ... 255 = opaque
     WRITEUCHAR( 0 ); // 1 byte Clipping 0 = base, 1 = non–base
     WRITEUCHAR( hasShapeMask ); // 1 byte Flags bit 0 = transparency protected bit 1 = visible
     WRITEUCHAR( 0 ); // 1 byte (filler) (zero)

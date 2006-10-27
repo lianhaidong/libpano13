@@ -1,3 +1,28 @@
+2006-10-27  dmg  <dmg@uvic.ca>
+
+	* version.h (VERSION), configure.ac: Upgraded to version 2.8.5pre12
+
+	* tools/PTroller.c: Removed unused variables
+	
+	* TODO: Updated it
+
+	* PTcommon.c. Set the ImageDescription field of the tiff to the
+	contents of the script.
+	
+	* PTcommon.c, tiff.c: Set imagenumber, and imagesTotalNumber in
+	PAGENUMBER field of tiff. 
+
+	* panorama.h (struct): Added imageNumber, and imagesTotalNumber
+	and script to the metadata struct.
+
+	* PTcommon.c (panoPSDCreate): Implemented the ability to specify a
+	blending mode in the output of the image.
+
+	* tools/PTtiff2psd.c, file.c, file.h: panoCreatePSD renamed to
+	panoPSDCreate, replaced last parameter to be a
+	struct (panoFlatteningParms) so we can pass as many parameters as
+	necessary. Added support for blending mode in PSD
+ 
 2006-10-26  dmg  <dmg@uvic.ca>
 
 	* version.h (VERSION), configure.ac: Upgraded to version 2.8.5pre11

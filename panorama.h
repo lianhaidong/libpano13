@@ -319,6 +319,8 @@ typedef struct
     char *datetime;
     char *imageDescription;
     char *artist;
+    uint16_t imageNumber;        // saved in the page number TIFF field
+    uint16_t imageTotalNumber;   // total number of images
 
     // These fields are computed
     int bytesPerPixel;          // This is a common value to use

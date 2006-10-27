@@ -40,7 +40,7 @@
 #include "filter.h"
 #include "panorama.h"
 #include "PTcommon.h"
-
+#include "ptstitch.h"
 
 #define PT_ROLLER_USAGE "PTroller [options] <tiffFiles>+\n\n"\
                          "Options:\n"\
@@ -56,7 +56,6 @@
 int main(int argc,char *argv[])
 {
     char opt;
-    int referenceImage = -1;
     fullPath *ptrInputFiles;
     fullPath *ptrOutputFiles;
     
@@ -64,11 +63,7 @@ int main(int argc,char *argv[])
     char flatOutputFileName[MAX_PATH_LENGTH];
     char *endPtr;
     int filesCount;
-    char tempString[MAX_PATH_LENGTH];
-    int i;
     int base = 0;
-    int flattenFlag =0;
-    int outputCurvesType = 0; // if 1 => create Photoshop curve files (.acv)
     int typeCorrection = 0;
     int ptComputeSeams = 0;
     fullPath pathName;
