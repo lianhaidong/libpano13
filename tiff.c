@@ -460,7 +460,6 @@ int writeTIFF(Image * im, fullPath * sfile)
 }
 
 
-
 void RGBAtoARGB(UCHAR * buf, int width, int bitsPerPixel)
 {
     int x;
@@ -556,7 +555,6 @@ void ARGBtoRGBA(UCHAR * buf, int width, int bitsPerPixel)
 }
 
 
-
 //////////////////////////////////////////////////////////////////////
 // NEW tiff routines
 //////////////////////////////////////////////////////////////////////
@@ -595,47 +593,76 @@ int panoTiffGetCropInformation(pano_Tiff * file)
         return FALSE;
     }
 
-    //If nothing is stored in these tags, then this must be an "uncropped" TIFF 
-    //file, in which case, the "full size" width/height is the same as the 
-    //"cropped" width and height
-    if (TIFFGetField
-        (file->tiff, TIFFTAG_PIXAR_IMAGEFULLWIDTH, &(c->fullWidth)) == 0) {
-        c->fullWidth = c->croppedWidth;
-    }
-    else {
-        file->metadata.isCropped = TRUE;
-    }
 
-    if (TIFFGetField
-        (file->tiff, TIFFTAG_PIXAR_IMAGEFULLLENGTH, &(c->fullHeight)) == 0) {
-        c->fullHeight = c->croppedHeight;
-    }
-    else {
-        file->metadata.isCropped = TRUE;
-    }
 
-    // The position of the file is given in "real" dimensions, we have to rescale them
-    if (TIFFGetField(file->tiff, TIFFTAG_XPOSITION, &x_position) == 0)
+    if (TIFFGetField(file->tiff, TIFFTAG_XPOSITION, &x_position) != 0) {
+	// This means this is a cropped image
+	
+	file->metadata.isCropped = TRUE;
+
+
+
+	// we should get a x resoltion, y position and yresolution, if not, 
+	// we will issue an error, as it can be cropped on just "one dimension"
+	
+	if (TIFFGetField(file->tiff, TIFFTAG_XRESOLUTION, &x_resolution) == 0) {
+	    PrintError("Cropped Image contains XPosition but not XResoulion tag. "
+		       "Report to developers if you think this is a bug");
+	    return FALSE;
+	}
+	if (TIFFGetField(file->tiff, TIFFTAG_YRESOLUTION, &y_resolution) == 0) {
+	    PrintError("Cropped image contains XPosition and YPosition, but it does not contain Y Resultion. "
+		       "Report to developers you think this is a bug");
+	    return FALSE;
+	}
+
+	if (TIFFGetField(file->tiff, TIFFTAG_YPOSITION, &y_position) == 0) {
+	    PrintError("Cropped image contains XPosition but not YPosition. "
+		       "Report to developers you think this is a bug");
+	    return FALSE;
+	}
+
+	//offset in pixels of "cropped" image from top left corner of 
+	//full image (rounded to nearest integer)
+	// The position of the file is given in "real" dimensions, we have to rescale them
+
+	c->xOffset = (uint32) ((x_position * x_resolution) + 0.49);
+	c->yOffset = (uint32) ((y_position * y_resolution) + 0.49);
+
+	// One problem is that some images do not contain FULL size. if they don't have
+	// then assume it
+	
+	if (TIFFGetField(file->tiff, TIFFTAG_PIXAR_IMAGEFULLWIDTH, &(c->fullWidth)) == 0)
+	    c->fullWidth = c->xOffset  + c->croppedWidth;
+
+	if (TIFFGetField(file->tiff, TIFFTAG_PIXAR_IMAGEFULLLENGTH, &(c->fullHeight)) == 0)
+	    c->fullHeight = c->yOffset + c->croppedHeight;
+    } else {
+
+	// Not cropped, then initilize fields accordingly
+
         x_position = 0;
-    if (TIFFGetField(file->tiff, TIFFTAG_XRESOLUTION, &x_resolution) == 0)
         x_resolution = 0;
-    if (TIFFGetField(file->tiff, TIFFTAG_YPOSITION, &y_position) == 0)
         y_position = 0;
-    if (TIFFGetField(file->tiff, TIFFTAG_YRESOLUTION, &y_resolution) == 0)
         y_resolution = 0;
+	c->xOffset = 0;
+	c->yOffset = 0;
+        c->fullHeight = c->croppedHeight;
+	c->fullWidth = c->croppedWidth;
 
-    //offset in pixels of "cropped" image from top left corner of 
-    //full image (rounded to nearest integer)
-    c->xOffset = (uint32) ((x_position * x_resolution) + 0.49);
-    c->yOffset = (uint32) ((y_position * y_resolution) + 0.49);
+    }
 
-    //printf("%s: %dx%d  @ %d,%d", filename, c->cropped_width, c->cropped_height, c->x_offset, c->y_offset);
 
-    //printf("get 3 width %d length %d\n", (int) c->croppedWidth,
-    //(int) c->croppedHeight);
-    //printf("get 3 full %d length %d\n", (int) c->fullWidth,
-    //           (int) c->fullHeight);
-    //printf("cropped %d\n", (int) file->metadata.isCropped);
+#if 0
+    // used for debugging
+    printf("%dx%d  @ %d,%d", c->croppedWidth, c->croppedHeight, c->xOffset, c->yOffset);
+
+    printf("get 3 width %d length %d\n", (int) c->croppedWidth,
+    (int) c->croppedHeight);
+    printf("get 3 full %d length %d\n", (int) c->fullWidth,
+               (int) c->fullHeight);
+    printf("cropped %d\n", (int) file->metadata.isCropped);
+#endif
 
     return TRUE;
 
@@ -1640,3 +1667,106 @@ int panoTiffVerifyAreCompatible(fullPath * tiffFiles, int numberImages,
 
 }
 
+/**
+ * Reads inputFile and "uncrops" the image by adding black space to pad
+ * image to its full size, saving the result as outputFile.  If an error
+ * is encountered messageBuffer is filled with the message, and a non-zero
+ * value is returned.  If success, zero is returned
+ */
+int panoTiffUnCrop(char *inputFile, char *outputFile)
+{
+
+    pano_CropInfo *inputCropInfo = NULL;
+    char *buffer = NULL;
+    char *offsetInBuffer;
+    int inputRow, outputRow;
+    pano_Tiff *tiffInput = NULL;
+    pano_Tiff *tiffOutput = NULL;
+    pano_ImageMetadata *metadata = NULL;
+
+    if ((tiffInput = panoTiffOpen(inputFile)) == NULL) {
+        PrintError("Unable to open input file");
+        goto error;
+    }
+
+    if (!panoTiffIsCropped(tiffInput)) {
+        PrintError("Source image is not a cropped tiff");
+        goto error;
+    }
+
+    inputCropInfo = &tiffInput->metadata.cropInfo;
+
+    if ((tiffOutput =
+         panoTiffCreateUnCropped(outputFile, &tiffInput->metadata)) == NULL) {
+        PrintError("Unable to create output file [%s]", outputFile);
+        goto error;
+    }
+
+    metadata = &tiffOutput->metadata;
+    //printf("***Size of line %d\n", metadata->bytesPerLine);
+
+    // Allocate buffer for line
+    buffer = calloc(metadata->bytesPerLine, 1);
+
+    if (buffer == NULL) {
+        PrintError("Unable to allocate memory for IO buffer");
+        goto error;
+    }
+
+    inputRow = 0;
+    // The crop data has to be placed inside the buffer according to the
+    // cropinfo offset
+
+    offsetInBuffer =
+        buffer + inputCropInfo->xOffset * metadata->bytesPerPixel;
+
+    assert(metadata->imageHeight > 0);
+    // Read one line at a time and transfer to output file
+    for (outputRow = 0; outputRow < metadata->imageHeight; outputRow++) {
+
+        //fill empty buffer with empty space (zeros)
+        bzero(buffer, metadata->bytesPerLine);
+
+        //if inside ROI then read from input file
+        if (panoROIRowInside(inputCropInfo, outputRow)) {
+
+            if (TIFFReadScanline(tiffInput->tiff, offsetInBuffer, inputRow, 0)
+                != 1) {
+                PrintError("Unable to read scanline %d", inputRow);
+                goto error;
+            }
+            inputRow++;
+        }
+
+        //write buffer to outputfile
+        if (TIFFWriteScanline(tiffOutput->tiff, buffer, outputRow, 0) != 1) {
+            PrintError("Unable to write scanline %d", outputRow);
+            goto error;
+        }
+
+    }
+
+    //printf("Finished\n");
+
+    free(buffer);
+    panoTiffClose(tiffInput);
+    panoTiffClose(tiffOutput);
+
+    return 1;
+
+  error:
+    // Error handler
+    // Make sure we release any resources we have
+
+    if (buffer != NULL)
+        free(buffer);
+
+    if (tiffOutput != NULL)
+        panoTiffClose(tiffOutput);
+
+    if (tiffInput != NULL)
+        panoTiffClose(tiffInput);
+
+
+    return 0;
+}

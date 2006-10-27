@@ -63,7 +63,7 @@ int Compare(unsigned char *data1,
     }
     printf("%5d,%4d,%c,%3x %x, %c\n", x, y, channel, *data1, *data2, extra);
   }
-
+  return 0;
 }
 
 
@@ -72,9 +72,7 @@ int main(int argc,char *argv[])
   char opt;
   int overwrite = 0;
   int filesCount;
-  int retVal;
   char *inputFile, *otherFile;
-  FILE *testFile;
   
   //Need enough space for a message to be returned if something goes wrong
   
@@ -126,15 +124,14 @@ int main(int argc,char *argv[])
   unsigned char *data1 = *(im1.data);
   unsigned char *data2 = *(im2.data);
   int x, y;
-  int channel = 0;
 
   if (im1.width != im2.width ||
       im1.height != im2.height) {
     printf("The files have differente sizes %d,%d and %d,%d\n",
-	   im1.width, im1.height, im2.width, im2.height);
+	   (int)im1.width, (int)im1.height, (int)im2.width, (int)im2.height);
   }
 
-  printf("Comparing %d %d pixels\n", im1.width, im1.height);
+  printf("Comparing %d %d pixels\n", (int)im1.width, (int)im1.height);
 
 
   int count =0;

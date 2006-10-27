@@ -3,27 +3,14 @@ This file documents the activities required before we release version
 3.0.0 of the library.
 
 ----------------------------------------------------------------------
-PTmap:
- 
-PTmap should be a lightweight, simple stitching program and nothing
-else. That means it will only do mapping of the panoramas. In terms of
-the old PTsticher scripts it means it will only create TIFF_m,
-cropped, no colour correction. It will be up to the caller application
-to take these files and create the desired output (apply colour
-correction, cropping, uncropping, conversion to other formats).
- 
-This will simplify testing, and improve stability.
- 
- 
-TODO:
-  
- - Rename PTmender to PTremap
+PTremap:
  
 DESIRABLE FEATURES:
  
+ - Output a text file with the names of the files processed and extra
+   information, such as size
+
  - Insert script into the TIFF comment field.
- 
- - Cleanup command line options, and add a -h option
  
  - Process fisheye lenses.
  
@@ -31,26 +18,18 @@ DESIRABLE FEATURES:
    can be added that does all the work. It will be a "superset" of many
    of the current pano tools.
  
- ----------------------------------------------------------------------
- 
- PTblender:
- 
- It will split into 2 programs:
- 
- - PTblender. It will do colour correction _only_. 
- 
- - PTroller.  It will flatten an image. It will take a set of TIFFs and
-   create only one TIFF
- 
- DESIRABLE:
+----------------------------------------------------------------------
+PTblender:
+
+DESIRABLE:
  
  - (PTblender) Create photoshop curves and maps for HSV colour
-   corrections
+   corrections. Probably not for 3.0.0
  
- - (PTblender) Ignore areas with mask != 255 during computation of the
-   curves, but transform them if mask > 0
+----------------------------------------------------------------------
+PTroller:
  
- - (PTroller) Add the ability to stack and add composing images.
+- (PTroller) Add the ability to stack and add composing images.
   
  
  ----------------------------------------------------------------------
@@ -65,24 +44,19 @@ DESIRABLE FEATURES:
    panotools) and make sure all tools are compatible with TIFFs output
    by nona and fulla.
  
- ----------------------------------------------------------------------
+----------------------------------------------------------------------
  
- PTtiff2psd:
+PTtiff2psd:
  
- TODO:
- 
- - Nothing
- 
- DESIRABLE:
+DESIRABLE:
  
  - Specify blending mode for layers
  
  ----------------------------------------------------------------------
- PTestimate (old PToptimizer)
+PToptimizer:
+
+* Ready for 3.0.0
  
- TODO:
- 
- - Nothing
  
  ----------------------------------------------------------------------
  

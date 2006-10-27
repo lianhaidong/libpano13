@@ -94,7 +94,7 @@ int main(int argc,char *argv[])
     }
   }
   
-  retVal = panoUnCropTiff(inputFile, outputFile);
+  retVal = panoTiffUnCrop(inputFile, outputFile);
 	
   
   exit(retVal);	

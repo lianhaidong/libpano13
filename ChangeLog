@@ -1,5 +1,19 @@
 2006-10-26  dmg  <dmg@uvic.ca>
 
+	* version.h (VERSION), configure.ac: Upgraded to version 2.8.5pre11
+
+	* Support for cropped images that do not contain full size. We
+	assume the full size = croppped size + offset
+
+	* tools/PTtiffdump.c: Cleaned up compilation errors.
+
+	* tiff.c, PTcommon.c (panoTiffUnCrop): Moved function from
+	PTcommon.c, renamed it.
+
+	* TODO: Updates to reflect current status.
+	
+2006-10-26  dmg  <dmg@uvic.ca>
+
 	* version.h (VERSION), configure.ac: Upgraded to version 2.8.5pre10
 
 	* TODO: Added file

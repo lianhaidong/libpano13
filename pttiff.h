@@ -46,7 +46,7 @@ void setCropInformationInTiff(TIFF *tiffFile, CropInfo *crop_info);
 int TiffGetImageParameters(TIFF *tiffFile, pt_tiff_parms *tiffData);
 int TiffSetImageParameters(TIFF *tiffFile, pt_tiff_parms *tiffData);
 
-int uncropTiff(char *inputFile, char *outputFile, char *messageBuffer);
+int panoTiffUnCrop(char *inputFile, char *outputFile);
 
 
 int panoTiffGetCropInformation(pano_Tiff * file);
