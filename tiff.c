@@ -921,12 +921,13 @@ int panoTiffGetImageProperties(pano_Tiff * tiff)
         goto error;
 
     if (metadata->compression.type == COMPRESSION_LZW) {
-        //predictor only exists in LZW compressed files
-        if (!TIFFGetField
-            (tiffFile, TIFFTAG_PREDICTOR,
-             &(metadata->compression.predictor))) {
-            goto error;
-        }
+
+	// set default compression predictor
+	metadata->compression.predictor = 2; //horizontal differencing
+
+	// unleess it comes in the file
+	TIFFGetField(tiffFile, TIFFTAG_PREDICTOR,
+		     &(metadata->compression.predictor));
     }
 
     metadata->bytesPerLine = TIFFScanlineSize(tiffFile);

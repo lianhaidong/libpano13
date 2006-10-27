@@ -1,5 +1,12 @@
 2006-10-26  dmg  <dmg@uvic.ca>
 
+	* version.h (VERSION), configure.ac: Upgraded to version 2.8.5pre9
+
+	* tiff.c (panoTiffGetImageProperties): Do not choke if LZW
+	compressed TIFFs do not have a predictor field
+		
+2006-10-26  dmg  <dmg@uvic.ca>
+
 	* version.h (VERSION), configure.ac: Upgraded to version 2.8.5pre8
 
 	* PTcommon.c (panoCreatePanorama): Remove post-processing during
