@@ -1,3 +1,4 @@
+
 This is the pano12 library, part of the Panorama Tools by Helmut
 Dersch of the University of Applied Sciences Furtwangen.
 
@@ -7,6 +8,29 @@ Also included with the library are:
 
 - tools/PTOptimizer, a command-line tool for optimizing control points.
 - tools/panoinfo, a command-line tool for querying the library version.
+
+Usage
+----
+
+The typical workflow would be:
+
+- PTremap    maps the pano files, outputs cropped TIFFS
+- PTblender* fixes colour shifts in TIFFs, outputs cropped TIFFS (8 bit only)
+- PTmasker*  creates stitching masks in TIFFs, outputs cropped TIFFS
+- PTroller   creates a single TIFF from set of TIFFs
+- PTcrop     recropps a TIFF to a tight bounding box, creates a cropped TIFF
+
+* Optional step.
+
+Other tools:
+
+- PTtiff2psd Combines a set of tiffs into one PSD file with multiple
+             layers (including stacking feature) and the ability to
+             specify blending mode (8 bit only)
+
+- PTuncrop   Uncrops a cropped TIFF.
+
+
 
 Installation
 ------------

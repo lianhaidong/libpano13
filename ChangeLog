@@ -1,5 +1,7 @@
 2006-10-28  dmg  <dmg@uvic.ca>
 
+	* README: Updated it.
+	
 	* version.h (VERSION), configure.ac: Upgraded to version 2.8.5pre14
 
 	* tools/PTtiff2psd.c: Add -f force processing option. Cleaned up.
