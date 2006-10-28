@@ -50,7 +50,7 @@
                          "Options:\n"\
                          "\t-o <filename>\t\tOutput filename (default merged.psd)\n"\
                          "\t-b <blendingmode>\tSpecify blending mode for layers (see below)\n"\
-                         "\t-m\t\t\tAdd stitching mask\n"\
+                         "\t-f\t\tForce processing (do not stop at warnings)\n"\
                          "\t-s\t\t\tStack them\n"\
                          "\t-q\t\t\tQuiet run\n"\
                          "\t-r\t\t\tReverse layers\n"\
@@ -68,16 +68,12 @@ int main(int argc,char *argv[])
     fullPath *ptrInputFiles;
     int counter;
     fullPath outputFilename;
-    fullPath *tempFiles;
     int filesCount;
     int base = 0;
-    int forceOverwrite = 0;
     int reverseLayers = 0;
-    int addMask = 0;
-    int featherSize = 0;
-    int eraseTempFiles = 0;
     int i;
     int temp;
+    int ptForceProcessing = 0;
 
     pano_flattening_parms flatteningParms;
   
@@ -109,8 +105,6 @@ int main(int argc,char *argv[])
 	    }
 	    break;
 	case 'b':
-	    printf("Here\n");
-
 	    temp = strtol(optarg, &endPtr, 10);
 	    if (errno != 0 || (temp < 0 || temp >= PSD_NUMBER_BLENDING_MODES)) {
 		PrintError("Invalid value in blending mode. Use -h to see possible values ");
@@ -122,11 +116,8 @@ int main(int argc,char *argv[])
 	case 's':
 	    flatteningParms.stacked = 1;
 	    break;
-	case 'm':
-	    addMask = 1;
-	    break;
 	case 'f':
-	    forceOverwrite = 1;
+	    ptForceProcessing = 1;
 	    break;
 	case 'r':
 	    reverseLayers = 1;
@@ -185,41 +176,17 @@ int main(int argc,char *argv[])
     }
 
     // Check that all files are compatible
-
-    if (filesCount > 1 && !panoTiffVerifyAreCompatible(ptrInputFiles, filesCount, TRUE)) {
-	PrintError("TIFFs are not compatible");
+    if (filesCount == 1) {
+	PrintError("PTtiff2psd does not currently support one file only.");
 	return -1;
     }
 
-    // Masks processing...
 
-    if (addMask) {
-
-	if (!ptQuietFlag) {
-	    Progress(_initProgress, "To add stitching mask");
-	}
-
-	// Find names for the temporary files
-
-	tempFiles = calloc(filesCount, sizeof(fullPath));
-	if (tempFiles == NULL) {
-	    PrintError("Not enough memory");
+    if (!ptForceProcessing)  {
+	if (!panoTiffVerifyAreCompatible(ptrInputFiles, filesCount, TRUE)) {
+	    PrintError("TIFFs are not compatible. Use -f to force processing");
 	    return -1;
 	}
-	for (i=0;i<filesCount;i++) {
-	    strcpy(tempFiles[i].name, ptrInputFiles[0].name);
-	    if (panoFileMakeTemp(&tempFiles[i]) == 0) {
-		PrintError("Could not make Tempfile");
-		return -1;
-	    }
-	}
-	if (panoStitchReplaceMasks(ptrInputFiles, tempFiles, filesCount, featherSize) != 0) {
-	    PrintError("Unable to add stitching masks");
-	    return -1;
-	}
-	free(ptrInputFiles);
-	ptrInputFiles = tempFiles;
-	eraseTempFiles = 1;
     }
 
     // Finally create the PSD
@@ -235,11 +202,6 @@ int main(int argc,char *argv[])
 	return -1;
     }
 
-    if (eraseTempFiles) {
-	for (i=0;i<filesCount; i++)
-	    remove(ptrInputFiles[i].name);
-    }
-    
     free(ptrInputFiles);
 
     return 0;

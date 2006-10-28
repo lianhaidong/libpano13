@@ -1695,7 +1695,7 @@ int panoTiffVerifyAreCompatible(fullPath * tiffFiles, int numberImages,
  * is encountered messageBuffer is filled with the message, and a non-zero
  * value is returned.  If success, zero is returned
  */
-int panoTiffUnCrop(char *inputFile, char *outputFile)
+int panoTiffUnCrop(char *inputFile, char *outputFile, pano_cropping_parms *croppingParms)
 {
 
     pano_CropInfo *inputCropInfo = NULL;
@@ -1713,7 +1713,9 @@ int panoTiffUnCrop(char *inputFile, char *outputFile)
 
     if (!panoTiffIsCropped(tiffInput)) {
         PrintError("Source image is not a cropped tiff");
-        goto error;
+	if (!croppingParms->forceProcessing)
+	    goto error;
+        PrintError("Forced processing... continuing");	
     }
 
     inputCropInfo = &tiffInput->metadata.cropInfo;

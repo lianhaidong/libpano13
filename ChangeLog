@@ -1,7 +1,32 @@
 2006-10-28  dmg  <dmg@uvic.ca>
 
-	* tools/PTcrop.c: Reindented.
+	* version.h (VERSION), configure.ac: Upgraded to version 2.8.5pre14
 
+	* tools/PTtiff2psd.c: Add -f force processing option. Cleaned up.
+
+	* file.h: Added a field to specify if forced processing in panoTiffUncrop
+
+	* tools/PTmasker.c: Moved functionalty to create stitching masks
+	into this program (from PTroller and PTblender).
+	
+	* tools/PTroller.c (main): Cleaned up options, added the option
+	for force processsing.
+
+	* tools/PTmender.c (main): Removed all functionality from it.
+
+	* tools/PTblender.c (main): Cleaned up options. Added the option -f
+	for force procesing
+
+	* file.h, file.c (panoFileExists): Added function.
+
+	* PTfile.c, tools/PTblender: Refactored function
+	panoFileOutputNamesCreate
+
+	* tools/PTcrop.c: Reindented. Cleanup options. Replaced -o with -f
+	to be consistent
+
+	* tools/PTcrop.c: Cleanup options. Replaced -o with -f
+	
 	* version.h (VERSION), configure.ac: Upgraded to version 2.8.5pre13
 
 	* ptstitch.c, ptstitch.h (panoStitchPixelChannelGet): Upgraded

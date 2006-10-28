@@ -41,13 +41,14 @@ typedef struct
 
 } pano_Tiff;
 
+
 void getCropInformationFromTiff(TIFF *tif, CropInfo *c);
 void setCropInformationInTiff(TIFF *tiffFile, CropInfo *crop_info);
 
 int TiffGetImageParameters(TIFF *tiffFile, pt_tiff_parms *tiffData);
 int TiffSetImageParameters(TIFF *tiffFile, pt_tiff_parms *tiffData);
 
-int panoTiffUnCrop(char *inputFile, char *outputFile);
+int panoTiffUnCrop(char *inputFile, char *outputFile, pano_cropping_parms *croppingParms);
 int panoTiffCrop(char *inputFile, char *outputFile, pano_cropping_parms *croppingParms);
 
 int panoTiffGetCropInformation(pano_Tiff * file);

@@ -52,6 +52,7 @@ typedef struct {
 
 typedef struct {
   int type;             // 1 if images are stacked
+  int forceProcessing;
 } pano_cropping_parms;
 
 
@@ -79,6 +80,10 @@ enum {
 extern char *psdBlendingModesNames[PSD_NUMBER_BLENDING_MODES];
 		
 extern char *psdBlendingModesInternalName[PSD_NUMBER_BLENDING_MODES];
+
+int panoFileOutputNamesCreate(fullPath *ptrOutputFiles, int filesCount, char* outputPrefix);
+
+char *panoFileExists(fullPath *ptrFiles, int filesCount);
 
 
 #endif

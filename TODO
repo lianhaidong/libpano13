@@ -7,7 +7,11 @@ This file documents the activities required before we release version
 * Bug: There is a memory leak in panoTiffRead. I don't release the
   memory it has allocated when an image is read. Create a
   panoImageDispose routine 
-  ----------------------------------------------------------------------
+
+* Command line processing. All tools should have similar command line
+  processing. This needs to be checked, and updated, if necessary.
+
+----------------------------------------------------------------------
 
 PTremap:
  
@@ -33,28 +37,25 @@ DESIRABLE:
 ----------------------------------------------------------------------
 PTroller:
  
-- Split PTroller into 2: PTmasker and PTroller
-  
 DESIRABLE:
 
 - PTroller: Add the ability to stack and add composing images.
  
 ----------------------------------------------------------------------
  PTuncrop:
- 
-* Feature: Take a -f option for force processing
 
 ----------------------------------------------------------------------
  PTcrop:
  
-* Feature: Take a -f option for force processing.
 * Feature: compute the inner rectangle
 
 ----------------------------------------------------------------------
  
 PTtiff2psd:
  
-- Bug: One layer 8 and 16 bit images are not being properly created. 
+DESIRABLE:
+
+Create PSDs of one layer 8 and 16 bit images
 
  ----------------------------------------------------------------------
 PToptimizer:

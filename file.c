@@ -2355,8 +2355,8 @@ int panoImageRead(Image * im, fullPath * sfile)
     
     ext = strrchr(sfile->name, '.');
     if (ext == NULL || strlen(ext) != 4) {
-		PrintError("Unsupported file format [%s]: must have extension JPG, PNG, TIF, BMP or HDR", sfile);
-        return -1;
+	PrintError("Unsupported file format [%s]: must have extension JPG, PNG, TIF, BMP or HDR", sfile);
+	return -1;
     }
     ext++;
     strcpy(extension, ext);
@@ -2394,6 +2394,61 @@ int panoImageRead(Image * im, fullPath * sfile)
     // it should never get here
     assert(0);
 }
+
+// Takes a prefix, and creates a list of unique filenames
+int panoFileOutputNamesCreate(fullPath *ptrOutputFiles, int filesCount, char *outputPrefix)
+{
+    int i;
+    char outputFilename[MAX_PATH_LENGTH];
+
+    // I am sure we will never have more than 10000 images in a project!
+#define DEFAULT_PREFIX_NUMBER_FORMAT "%04d"
+
+    if (strchr(outputPrefix, '%') == NULL) {
+	if ((strlen(outputPrefix) + strlen(DEFAULT_PREFIX_NUMBER_FORMAT)) >= MAX_PATH_LENGTH) {
+	    PrintError("Output prefix too long [%s]", outputPrefix);
+	    return 0;
+	}
+      	strcat(outputPrefix, DEFAULT_PREFIX_NUMBER_FORMAT);
+    }
+
+    for (i =0; i< filesCount ; i++) {
+	char outputFilename[MAX_PATH_LENGTH];
+
+	sprintf(outputFilename, outputPrefix, i);
+   
+	// Verify the filename is different from the prefix 
+	if (strcmp(outputFilename, outputPrefix) == 0) {
+	    PrintError("Invalid output prefix. It does not generate unique filenames.");
+	    return -1;
+	}
+
+	if (StringtoFullPath(&ptrOutputFiles[i], outputFilename) != 0) { 
+	    PrintError("Syntax error: Not a valid pathname");
+	    return(-1);
+	}
+	panoReplaceExt(ptrOutputFiles[i].name, ".tif");
+	//    fprintf(stderr, "Output filename [%s]\n", ptrOutputFiles[i].name);
+    }
+    return 1;
+}
+
+// Find the first file that exists in the input array of filenames
+char *panoFileExists(fullPath *ptrFiles, int filesCount)
+{
+    int i;
+    FILE *testFile;
+    for (i =0; i< filesCount ; i++) {
+	if ((testFile = fopen(ptrFiles[i].name, "r"))!= NULL) {
+            fclose(testFile);
+	    return ptrFiles[i].name;
+        }
+    }
+    return NULL;
+
+}
+
+
 
 
 #ifdef DONOTCOMPILE_TOBE_DELETED

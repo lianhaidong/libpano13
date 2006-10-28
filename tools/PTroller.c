@@ -1,11 +1,11 @@
 /*
- *  PTroller $id$
+ *  PTroller $Id$
  *
  *  Based on the program PTStitcher by Helmut Dersch.
  *  
- *   Flattens a set of TIFFs into one TIFF
+ *  Flattens a set of TIFFs into one TIFF
  *
- *  Jan 2006
+ *  Oct 2006
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public
@@ -41,12 +41,14 @@
 #include "panorama.h"
 #include "PTcommon.h"
 #include "ptstitch.h"
+#include "pttiff.h"
 
 #define PT_ROLLER_USAGE "PTroller [options] <tiffFiles>+\n\n"\
                          "Options:\n"\
                          "\t-o <filename>\tOutput filename (defaults to merged.tif)\n"\
-                         "\t-s\t\tCompute stitching seams (default not)\n"\
-                         "\t-q\t\tQuiet run\n\t-h\t\tShow this message\n"\
+                         "\t-f\t\tForce processing (do not stop at warnings)\n"\
+                         "\t-q\t\tQuiet run\n"\
+                         "\t-h\t\tShow this message\n"\
                          "\n"
 
 #define PT_ROLLER_VERSION "PTroller Version " VERSION ", originally written by Helmut Dersch, rewritten by Daniel M German\n"
@@ -61,12 +63,10 @@ int main(int argc,char *argv[])
     
     int counter;
     char flatOutputFileName[MAX_PATH_LENGTH];
-    char *endPtr;
     int filesCount;
     int base = 0;
-    int typeCorrection = 0;
-    int ptComputeSeams = 0;
     fullPath pathName;
+    int ptForceProcessing = 0;
 
     ptrInputFiles = NULL;
 
@@ -76,7 +76,7 @@ int main(int argc,char *argv[])
 
     strcpy(flatOutputFileName, DEFAULT_FILENAME);
 
-    while ((opt = getopt(argc, argv, "o:hqs")) != -1) {
+    while ((opt = getopt(argc, argv, "o:fqh")) != -1) {
 
         // o and f -> set output file
         // h       -> help
@@ -85,9 +85,6 @@ int main(int argc,char *argv[])
 	// s       -> compute seams
     
         switch(opt) {  // fhoqs    f: 102 h:104  111 113 115  o:f:hsq
-	case 's':
-	    ptComputeSeams = 1;
-	    break;
         case 'o':
             if (strlen(optarg) < MAX_PATH_LENGTH) {
                 strcpy(flatOutputFileName, optarg);
@@ -95,13 +92,8 @@ int main(int argc,char *argv[])
                 PrintError("Illegal length for output filename");
             }
             break;
-        case 't':
-            typeCorrection = strtol(optarg, &endPtr, 10);
-            if (errno != 0 || (typeCorrection < 0 || typeCorrection > 2)) {
-                PrintError("Invalid integer in -t option");
-                return -1;
-            }
-            break;
+	case 'f':
+	    ptForceProcessing = 1;
         case 'q':
             ptQuietFlag = 1;
             break;
@@ -139,23 +131,25 @@ int main(int argc,char *argv[])
         return -1;
     }
 
-    if (! ptQuietFlag) printf("Flattening image\n");
-
-    if (ptComputeSeams) {
-	
-	if (! ptQuietFlag) printf("Computing seams for %d files\n", filesCount);
-	
-	if (panoStitchReplaceMasks(ptrInputFiles, ptrInputFiles, filesCount,
-				   0) != 0) {
-	    PrintError("Could not create stitching masks");
-	    return -1;
-	}
-    }
     if (StringtoFullPath(&pathName, flatOutputFileName) != 0) { 
-        PrintError("Syntax error: Not a valid pathname");
+        PrintError("Not a valid output filename");
         return(-1);
     }
     panoReplaceExt(pathName.name, ".tif");
+
+    if (!ptForceProcessing) {
+	// Verify if output file exists
+	char *temp;
+	if ((temp = panoFileExists(&pathName, 1)) != NULL) {
+	    PrintError("Output filename exists %d", temp);
+	    return -1;
+	}
+	
+	if (!panoTiffVerifyAreCompatible(ptrInputFiles, filesCount, TRUE)) {
+	    PrintError("Input files are not compatible");
+	    return -1;
+	}
+    }
 
     if (!panoFlattenTIFF(ptrInputFiles, filesCount, &pathName, FALSE)) { 
         PrintError("Error while flattening TIFF-image");

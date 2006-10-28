@@ -97,7 +97,7 @@ int main(int argc,char *argv[])
 
     if (!overwrite) {
         if ((testFile = fopen(outputFile, "r"))!= NULL) {
-            fprintf(stderr, "Output file already exists. Use -o to overwrite\n");
+            fprintf(stderr, "Output file already exists. Use -f to overwrite\n");
             fclose(testFile);
             exit(1);
         }

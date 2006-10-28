@@ -26,7 +26,7 @@
 
 #define PT_UNCROP_USAGE "PTuncrop [options] <inputFile> <outputFile>\n\n"\
                          "Options:\n"\
-                         "-o\t\tOverwrite output file if it exists\n"\
+                         "-f\t\tForce processing (do not stop at warnings)\n"\
 			 "\t-q\t\tQuiet run\n\t-h\t\tShow this message\n"\
                          "\n"
 
@@ -46,25 +46,24 @@
 int main(int argc,char *argv[])
 {
   char opt;
-  int overwrite = 0;
   int filesCount;
-  int retVal;
   char *inputFile, *outputFile;
   FILE *testFile;
-  
-  //Need enough space for a message to be returned if something goes wrong
+  int ptForceProcessing = 0;
+  pano_cropping_parms cropParms;
+
   
   printf(PT_UNCROP_VERSION);
 
-  while ((opt = getopt(argc, argv, "ohq")) != -1) {
+  while ((opt = getopt(argc, argv, "fhq")) != -1) {
 
 // o overwrite
 // h       -> help
 // q       -> quiet?
     
     switch(opt) {  // fhoqs        f: 102 h:104  111 113 115  o:f:hsq
-    case 'o':
-      overwrite = 1;
+    case 'f':
+      ptForceProcessing = 1;
       break;
     case 'q':
       ptQuietFlag = 1;
@@ -86,15 +85,20 @@ int main(int argc,char *argv[])
   inputFile = argv[optind];
   outputFile = argv[optind+1];
 
-  if (!overwrite) {
+  if (!ptForceProcessing) {
     if ((testFile = fopen(outputFile, "r"))!= NULL) {
-	fprintf(stderr, "Output file already exists. Use -o to overwrite\n");
+	fprintf(stderr, "Output file already exists. Use -f to overwrite\n");
 	fclose(testFile);
 	exit(1);
     }
   }
   
-  if (panoTiffUnCrop(inputFile, outputFile))
+  // prepare cropping parms
+
+  bzero(&cropParms, sizeof(cropParms));
+  cropParms.forceProcessing = ptForceProcessing;
+
+  if (panoTiffUnCrop(inputFile, outputFile, &cropParms))
     return 0;
 	
   

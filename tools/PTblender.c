@@ -42,23 +42,24 @@
 #include "panorama.h"
 #include "PTcommon.h"
 #include "ColourBrightness.h"
+#include "pttiff.h"
 
+#define DEFAULT_PREFIX "blended%04d"
 
 #define PT_BLENDER_USAGE "PTblender [options] <tiffFiles>+\n\n"\
                          "Options:\n"\
-                         "\t-o <prefix>\tPrefix for output filename\n"\
+                         "\t-p <prefix>\tPrefix for output filename. Defaults to blended%%4d\n"\
                          "\t-k <index>\tIndex to image to use as a reference (0-based, defaults to 0)\n"\
                          "\t-t [0,1,2]\tType of colour correction: 0 full (default), 1 brightness only, 2 colour only\n"\
-                         "\t-q\t\tQuiet run\n"\
-                         "\t-h\t\tShow this message\n"\
                          "\t-c\t\tOutput curves smooth\t\t(Output one per each corrected file)\n"\
                          "\t-m\t\tOutput curves arbitrary map\t(Output one per each corrected file)\n"\
+                         "\t-f\t\fForce processing (ignore warnings)\n"\
+                         "\t-q\t\tQuiet run\n"\
+                         "\t-h\t\tShow this message\n"\
                          "\n"
 
 #define PT_BLENDER_VERSION "PTblender Version " VERSION ", originally written by Helmut Dersch, rewritten by Daniel M German\n"
 
-#define DEFAULT_PREFIX "corrected%04d"
-#define DEFAULT_PREFIX_NUMBER_FORMAT "%04d"
 
 int main(int argc,char *argv[])
 {
@@ -72,11 +73,10 @@ int main(int argc,char *argv[])
     char *endPtr;
     int filesCount;
     char tempString[MAX_PATH_LENGTH];
-    int i;
     int base = 0;
     int outputCurvesType = 0; // if 1 => create Photoshop curve files (.acv)
     int typeCorrection = 0;
-    int ptComputeSeams = 0;
+    int ptForceProcessing;
 
     ptrInputFiles = NULL;
 
@@ -87,7 +87,7 @@ int main(int argc,char *argv[])
 
     strcpy(outputPrefix, "corrected%4d");
 
-    while ((opt = getopt(argc, argv, "o:k:t:hf:sqcm")) != -1) {
+    while ((opt = getopt(argc, argv, "p:k:t:fqcmh")) != -1) {
 
 	// o and f -> set output file
 	// h       -> help
@@ -95,11 +95,12 @@ int main(int argc,char *argv[])
 	// k       -> base image, defaults to first
     
 	switch(opt) {  // fhoqs        f: 102 h:104  111 113 115  o:f:hsq
-	case 'o':
+	case 'p':
 	    if (strlen(optarg) < MAX_PATH_LENGTH) {
 		strcpy(outputPrefix, optarg);
 	    } else {
 		PrintError("Illegal length for output prefix");
+		return -1;
 	    }
 	    break;
 	case 'k':
@@ -116,9 +117,8 @@ int main(int argc,char *argv[])
 		return -1;
 	    }
 	    break;
-	case 's':
-	    ptComputeSeams = 1;
-	    break;
+	case 'f':
+	    ptForceProcessing = 1;
 	case 'q':
 	    ptQuietFlag = 1;
 	    break;
@@ -171,9 +171,8 @@ int main(int argc,char *argv[])
     }
 
     if (referenceImage < 0 || referenceImage >= filesCount) {
-	sprintf(tempString, "Illegal reference image number %d. It should be between 0 and %d\n", 
+	PrintError(tempString, "Illegal reference image number %d. It should be between 0 and %d\n", 
 		referenceImage, filesCount-1);
-	PrintError(tempString);
 	return -1;
     }
 
@@ -184,36 +183,23 @@ int main(int argc,char *argv[])
 	    return -1;
 	}
     }
-
-    // Create output filename
-
-    if (strchr(outputPrefix, '%') == NULL) {
-	strcat(outputPrefix, DEFAULT_PREFIX_NUMBER_FORMAT);
+    if (panoFileOutputNamesCreate(ptrOutputFiles, filesCount, outputPrefix) == 0) {
+	return -1;
     }
 
-    for (i =0; i< filesCount ; i++) {
-	char outputFilename[MAX_PATH_LENGTH];
 
-	sprintf(outputFilename, outputPrefix, i);
-   
-	// Verify the filename is different from the prefix 
-	if (strcmp(outputFilename, outputPrefix) == 0) {
-	    PrintError("Invalid output prefix. It does not generate unique filenames.");
+
+    if (!ptForceProcessing) {
+	char *temp;
+	if ((temp = panoFileExists(ptrOutputFiles, filesCount)) != NULL) {
+	    PrintError("Output filename exists %d", temp);
 	    return -1;
 	}
 
-	if (StringtoFullPath(&ptrOutputFiles[i], outputFilename) != 0) { 
-	    PrintError("Syntax error: Not a valid pathname");
-	    return(-1);
+	if (!panoTiffVerifyAreCompatible(ptrInputFiles, filesCount, TRUE)) {
+	    PrintError("TIFFs are not compatible");
+	    return -1;
 	}
-	panoReplaceExt(ptrOutputFiles[i].name, ".tif");
-    
-	//    fprintf(stderr, "Output filename [%s]\n", ptrOutputFiles[i].name);
-    }
-
-    if (!panoTiffVerifyAreCompatible(ptrInputFiles, filesCount, TRUE)) {
-	PrintError("TIFFs are not compatible");
-	return -1;
     }
 
     if (! ptQuietFlag) printf("Colour correcting photo using %d as a base type %d\n", referenceImage, typeCorrection);
