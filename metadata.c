@@ -56,4 +56,21 @@ void panoUnCropMetadata(pano_ImageMetadata * metadata)
     metadata->bytesPerLine = metadata->imageWidth * metadata->bytesPerPixel;
 }
 
+void panoMetadataCropSizeUpdate(pano_ImageMetadata * metadata, pano_CropInfo *cropInfo)
+{
+    // Update metadata with cropped info.
 
+    metadata->imageWidth = cropInfo->croppedWidth;
+    metadata->imageHeight = cropInfo->croppedHeight;
+    metadata->bytesPerLine = metadata->imageWidth * metadata->bytesPerPixel;
+
+    // now the crop info in the metadata
+   
+    metadata->cropInfo.croppedWidth = cropInfo->croppedWidth;
+    metadata->cropInfo.croppedHeight = cropInfo->croppedHeight;
+    metadata->cropInfo.xOffset += cropInfo->xOffset;
+    metadata->cropInfo.yOffset += cropInfo->yOffset;
+    
+    // The full size remains the same, 
+    // The rest of the metadata should be the same
+}

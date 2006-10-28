@@ -1,4 +1,25 @@
+2006-10-28  dmg  <dmg@uvic.ca>
+
+	* version.h (VERSION), configure.ac: Upgraded to version 2.8.5pre13
+
+	* ptstitch.c, ptstitch.h (panoStitchPixelChannelGet): Upgraded
+	this function to non-static, since it is useful in tiff.c too.
+
+	* pttiff.h, metadata.c, metadata.h, tiff.c: implemented cropping
+	of tiffs to boudning rectangle
+
+	* tools/Makefile.am, tools/PTcrop.c: Created program to crop panos
+	to bounding rectangle
+
+	* tools/PTuncrop.c (main): Fixed bug: return zero when success, and non-zero
+	in error.
+
 2006-10-27  dmg  <dmg@uvic.ca>
+
+	* tiff.c (panoTiffOpen, panoTiffRead): These functions were not
+	handling input errors properly
+
+	* TODO (PTblender): Added ideas from JD Smith on how to improve it.
 
 	* version.h (VERSION), configure.ac: Upgraded to version 2.8.5pre12
 

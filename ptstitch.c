@@ -35,7 +35,7 @@
 #include "PTcommon.h"
 
 // Get the value of a channel in the  pixel pointed by ptr
-static unsigned int panoStitchPixelChannelGet(unsigned char *ptr, int bytesPerPixel, int channel)
+unsigned int panoStitchPixelChannelGet(unsigned char *ptr, int bytesPerPixel, int channel)
 {
     uint16_t *pixel16;
     assert(ptr != NULL);
@@ -144,7 +144,7 @@ void panoStitchComputeMaskMap(Image * image)
 
     // determine the type of image
     bytesPerPixel = image->bitsPerPixel/8;
-    
+
     // Use the GreenBlue pixel area is used to keep a counter of the
     // minimum distance (in pixels) away we are from the edges of the
     // mask (horizontal or vertical)

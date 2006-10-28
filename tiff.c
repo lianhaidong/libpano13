@@ -33,6 +33,7 @@
 
 #include "pttiff.h"
 #include "metadata.h"
+#include "ptstitch.h"
 
 
 int readplanarTIFF(Image * im, TIFF * tif);
@@ -1261,15 +1262,23 @@ pano_Tiff *panoTiffOpen(char *fileName)
     // Open file and retrieve metadata
     panoTiff->tiff = TIFFOpen(fileName, "r");
 
-    if (panoTiff->tiff != NULL) {
-        if (!panoTiffGetImageProperties(panoTiff)) {
-            TIFFClose(panoTiff->tiff);
-            free(panoTiff);
-            return NULL;
-        }
+    if (panoTiff->tiff == NULL) {
+	PrintError("Unable to open file %s", fileName);
+	goto error;
+    }
+
+    if (!panoTiffGetImageProperties(panoTiff)) {
+	TIFFClose(panoTiff->tiff);
+	PrintError("Unable to get properties of tiff file %s", fileName);	
+	goto error;
     }
     // return value
     return panoTiff;
+
+ error:
+    free(panoTiff);
+    return NULL;
+
 }
 
 
@@ -1496,7 +1505,7 @@ int panoUpdateMetadataFromTiff(Image *im, pano_Tiff *tiff)
 
 int panoTiffRead(Image * im, char *fileName)
 {
-    pano_Tiff *tiff;
+    pano_Tiff *tiff = NULL;
     int result = FALSE;
     
     SetImageDefaults(im);
@@ -1533,7 +1542,8 @@ int panoTiffRead(Image * im, char *fileName)
 
     //panoDumpMetadata(&im->metadata,"Read metadata");
 
-    panoTiffClose(tiff);
+    if (tiff != NULL)
+	panoTiffClose(tiff);
     return result;
 }
 
@@ -1779,6 +1789,154 @@ int panoTiffUnCrop(char *inputFile, char *outputFile)
     if (tiffInput != NULL)
         panoTiffClose(tiffInput);
 
+
+    return 0;
+}
+
+
+
+int panoImageBoundingRectangleCompute(unsigned char *data, int width, int height, int bytesPerPixel, pano_CropInfo *cropInfo)
+{
+    unsigned char *pixel;
+    int xLeft, xRight, yTop, yBottom;
+    int row; int column;
+    int alphaChannel;
+
+    xLeft = width;
+    yTop = 0;
+
+    xRight = 0;
+    yBottom = 0;
+
+    // We can do it all in one pass over the data
+
+    pixel = data;
+    for (row = 0; row < height; row++) {
+	
+	for (column = 0; column < width; column++) {
+
+	    alphaChannel = panoStitchPixelChannelGet(pixel, bytesPerPixel, 0);
+
+	    if (alphaChannel != 0) {
+		// Only set the row the first time
+		if (yTop == 0) 
+		    yTop = row;
+		// Keep setting it until we find no more data
+		yBottom = row;
+
+		// Columns are trickier...
+		// We are scanning row by row, so we need to 
+		if (xLeft > column) {
+		    xLeft = column;
+		}
+		if (xRight < column) {
+		    xRight = column;
+		}
+	    }
+	    pixel += bytesPerPixel;
+	}
+    }
+
+    assert(xRight > xLeft);
+    assert(yBottom > yTop);
+
+
+    // Fill return struct
+
+    cropInfo->xOffset = xLeft;
+    cropInfo->yOffset = yTop;
+    cropInfo->croppedWidth = 1 + xRight - xLeft ; 
+    cropInfo->croppedHeight = 1+ yBottom - yTop;
+    
+    // it should be at most equal to the original size
+    assert(width >= cropInfo->croppedWidth);
+    assert(height >= cropInfo->croppedHeight);
+
+
+
+    fprintf(stderr, "Finding boudinging box: x %d y %d width %d height %d\n", (int)cropInfo->xOffset, (int)cropInfo->yOffset,
+	    (int)cropInfo->croppedWidth, (int)cropInfo->croppedHeight);
+	    
+    return 1;
+}
+
+/**
+ * Reads inputFile and crops image
+ */
+int panoTiffCrop(char *inputFile, char *outputFile, pano_cropping_parms *croppingParms)
+{
+
+    pano_Tiff *tiffOutput = NULL;
+    pano_ImageMetadata metadata;
+    pano_CropInfo cropInfo;
+    Image im;
+    unsigned char *data = NULL;
+    int i;
+
+    if (panoTiffRead(&im, inputFile) ==0 ) {
+        PrintError("Unable to open input file %s", inputFile);
+        goto error;
+    }
+
+
+    // Compute inner rectangle
+
+    panoImageBoundingRectangleCompute(*im.data, im.width, im.height, im.bitsPerPixel/8, &cropInfo);
+
+    // Cropinfo is with respect to the data of the read image, not with respet to the "uncropped" image
+    if (cropInfo.croppedWidth == 0 || cropInfo.croppedHeight == 0) {
+	PrintError("Image is empty, unable to crop. ");
+	goto error;
+    }
+
+    if (!panoMetadataCopy(&metadata, &(im.metadata))) {
+	goto error;
+    }
+
+    panoMetadataCropSizeUpdate(&metadata, &cropInfo);
+
+    if ((tiffOutput =
+         panoTiffCreate(outputFile, &metadata)) == NULL) {
+        PrintError("Unable to create output file [%s]", outputFile);
+        goto error;
+    }
+
+    // Now we need to copy the data.
+    
+    data = *(im.data);
+
+    // We need to advance data the number of lines that this file has more of ofset
+    data += im.bytesPerLine * cropInfo.yOffset;
+    for (i =0;i < metadata.imageHeight; i++) {
+	unsigned char *ptr;
+
+	// skip the necessary bytes
+
+	ptr = data + im.metadata.bytesPerPixel * cropInfo.xOffset;
+
+	// write
+	ARGBtoRGBA(ptr, metadata.imageWidth, metadata.bitsPerPixel);
+        if (TIFFWriteScanline(tiffOutput->tiff, ptr, i, 1) != 1) {
+	    PrintError("Error writing to output file");
+	    goto error;
+	}
+	
+	data += im.bytesPerLine;
+
+    }
+
+    //printf("Finished\n");
+
+    panoTiffClose(tiffOutput);
+
+    return 1;
+
+  error:
+    // Error handler
+    // Make sure we release any resources we have
+
+    if (tiffOutput != NULL)
+        panoTiffClose(tiffOutput);
 
     return 0;
 }

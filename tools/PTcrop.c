@@ -1,9 +1,14 @@
 /*
- *  PTuncrop
+ *  PTcrop
  *
- *  This program takes as input a cropped TIFF and generates an uncropped TIFF
+ *  This program takes as input a TIFF (cropped or uncropped) and generates an cropped TIFF
+ *  according to the spec: 
  *
- *  May 2005
+ *  - Specific boounding rectangle
+ *  - Outer bounding rectangle
+ *  - Inner inclusive rectangle
+ *
+ *  Oct 2006
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public
@@ -24,13 +29,13 @@
  * 
  */
 
-#define PT_UNCROP_USAGE "PTuncrop [options] <inputFile> <outputFile>\n\n"\
+#define PT_CROP_USAGE "PTuncrop [options] <inputFile> <outputFile>\n\n"\
                          "Options:\n"\
                          "-o\t\tOverwrite output file if it exists\n"\
 			 "\t-q\t\tQuiet run\n\t-h\t\tShow this message\n"\
                          "\n"
 
-#define PT_UNCROP_VERSION "PTuncrop Version " VERSION ", by Daniel M German\n"
+#define PT_CROP_VERSION "PTcrop Version " VERSION ", by Daniel M German\n"
 
 #include <assert.h>
 #include <stdio.h>
@@ -42,6 +47,7 @@
 #include "filter.h"
 #include "PTcommon.h"
 #include "pttiff.h"
+#include "file.h"
 
 int main(int argc,char *argv[])
 {
@@ -51,10 +57,13 @@ int main(int argc,char *argv[])
   int retVal;
   char *inputFile, *outputFile;
   FILE *testFile;
+  pano_cropping_parms croppingParms;
   
+  bzero(&croppingParms, sizeof(croppingParms));
+
   //Need enough space for a message to be returned if something goes wrong
   
-  printf(PT_UNCROP_VERSION);
+  printf(PT_CROP_VERSION);
 
   while ((opt = getopt(argc, argv, "ohq")) != -1) {
 
@@ -70,7 +79,7 @@ int main(int argc,char *argv[])
       ptQuietFlag = 1;
       break;
     case 'h':
-      printf(PT_UNCROP_USAGE);
+      printf(PT_CROP_USAGE);
       exit(0);
     default:
       break;
@@ -79,7 +88,7 @@ int main(int argc,char *argv[])
   filesCount = argc - optind;
 
   if (filesCount != 2) {
-    printf(PT_UNCROP_USAGE);
+    printf(PT_CROP_USAGE);
     exit(0);
   }
 
@@ -94,11 +103,12 @@ int main(int argc,char *argv[])
     }
   }
   
-  if (panoTiffUnCrop(inputFile, outputFile))
-    return 0;
+  retVal = panoTiffCrop(inputFile, outputFile, &croppingParms);
 	
+  if (retVal == 0) {
+    return 1;
+  }
   
-  return -1;
-  
+  return 0;
 }
 

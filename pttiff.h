@@ -31,6 +31,7 @@
 
 #include <tiffio.h>
 #include <tiff.h>
+#include "file.h"
 
 typedef struct
 {
@@ -47,7 +48,7 @@ int TiffGetImageParameters(TIFF *tiffFile, pt_tiff_parms *tiffData);
 int TiffSetImageParameters(TIFF *tiffFile, pt_tiff_parms *tiffData);
 
 int panoTiffUnCrop(char *inputFile, char *outputFile);
-
+int panoTiffCrop(char *inputFile, char *outputFile, pano_cropping_parms *croppingParms);
 
 int panoTiffGetCropInformation(pano_Tiff * file);
 int panoTiffRowInsideROI(pano_Tiff * image, int row);

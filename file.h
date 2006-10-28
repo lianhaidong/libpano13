@@ -50,6 +50,11 @@ typedef struct {
   int psdBlendingMode;     // for psd output, photoshop/gimp blending mode
 } pano_flattening_parms;
 
+typedef struct {
+  int type;             // 1 if images are stacked
+} pano_cropping_parms;
+
+
 	
 enum {
       PSD_NORMAL, 

@@ -33,5 +33,6 @@
 
 int panoMetadataUpdateFromImage(Image *im);
 void panoUnCropMetadata(pano_ImageMetadata * metadata);
+void panoMetadataCropSizeUpdate(pano_ImageMetadata * metadata, pano_CropInfo *cropInfo);
 
 #endif
