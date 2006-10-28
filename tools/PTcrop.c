@@ -29,11 +29,11 @@
  * 
  */
 
-#define PT_CROP_USAGE "PTuncrop [options] <inputFile> <outputFile>\n\n"\
-                         "Options:\n"\
-                         "-o\t\tOverwrite output file if it exists\n"\
-			 "\t-q\t\tQuiet run\n\t-h\t\tShow this message\n"\
-                         "\n"
+#define PT_CROP_USAGE "PTuncrop [options] <inputFile> <outputFile>\n\n" \
+    "Options:\n"                                                        \
+    "-o\t\tOverwrite output file if it exists\n"                        \
+    "\t-q\t\tQuiet run\n\t-h\t\tShow this message\n"                    \
+    "\n"
 
 #define PT_CROP_VERSION "PTcrop Version " VERSION ", by Daniel M German\n"
 
@@ -51,64 +51,64 @@
 
 int main(int argc,char *argv[])
 {
-  char opt;
-  int overwrite = 0;
-  int filesCount;
-  int retVal;
-  char *inputFile, *outputFile;
-  FILE *testFile;
-  pano_cropping_parms croppingParms;
+    char opt;
+    int overwrite = 0;
+    int filesCount;
+    int retVal;
+    char *inputFile, *outputFile;
+    FILE *testFile;
+    pano_cropping_parms croppingParms;
   
-  bzero(&croppingParms, sizeof(croppingParms));
+    bzero(&croppingParms, sizeof(croppingParms));
 
-  //Need enough space for a message to be returned if something goes wrong
+    //Need enough space for a message to be returned if something goes wrong
   
-  printf(PT_CROP_VERSION);
+    printf(PT_CROP_VERSION);
 
-  while ((opt = getopt(argc, argv, "ohq")) != -1) {
+    while ((opt = getopt(argc, argv, "ohq")) != -1) {
 
-// o overwrite
-// h       -> help
-// q       -> quiet?
+        // o overwrite
+        // h       -> help
+        // q       -> quiet?
     
-    switch(opt) {  // fhoqs        f: 102 h:104  111 113 115  o:f:hsq
-    case 'o':
-      overwrite = 1;
-      break;
-    case 'q':
-      ptQuietFlag = 1;
-      break;
-    case 'h':
-      printf(PT_CROP_USAGE);
-      exit(0);
-    default:
-      break;
+        switch(opt) {  // fhoqs        f: 102 h:104  111 113 115  o:f:hsq
+        case 'o':
+            overwrite = 1;
+            break;
+        case 'q':
+            ptQuietFlag = 1;
+            break;
+        case 'h':
+            printf(PT_CROP_USAGE);
+            exit(0);
+        default:
+            break;
+        }
     }
-  }
-  filesCount = argc - optind;
+    filesCount = argc - optind;
 
-  if (filesCount != 2) {
-    printf(PT_CROP_USAGE);
-    exit(0);
-  }
-
-  inputFile = argv[optind];
-  outputFile = argv[optind+1];
-
-  if (!overwrite) {
-    if ((testFile = fopen(outputFile, "r"))!= NULL) {
-	fprintf(stderr, "Output file already exists. Use -o to overwrite\n");
-	fclose(testFile);
-	exit(1);
+    if (filesCount != 2) {
+        printf(PT_CROP_USAGE);
+        exit(0);
     }
-  }
+
+    inputFile = argv[optind];
+    outputFile = argv[optind+1];
+
+    if (!overwrite) {
+        if ((testFile = fopen(outputFile, "r"))!= NULL) {
+            fprintf(stderr, "Output file already exists. Use -o to overwrite\n");
+            fclose(testFile);
+            exit(1);
+        }
+    }
   
-  retVal = panoTiffCrop(inputFile, outputFile, &croppingParms);
-	
-  if (retVal == 0) {
-    return 1;
-  }
+    retVal = panoTiffCrop(inputFile, outputFile, &croppingParms);
+        
+    if (retVal == 0) {
+        return 1;
+    }
   
-  return 0;
+    return 0;
 }
 

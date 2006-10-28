@@ -1,5 +1,7 @@
 2006-10-28  dmg  <dmg@uvic.ca>
 
+	* tools/PTcrop.c: Reindented.
+
 	* version.h (VERSION), configure.ac: Upgraded to version 2.8.5pre13
 
 	* ptstitch.c, ptstitch.h (panoStitchPixelChannelGet): Upgraded

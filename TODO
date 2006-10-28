@@ -45,7 +45,6 @@ DESIRABLE:
 * Feature: Take a -f option for force processing
 
 ----------------------------------------------------------------------
-
  PTcrop:
  
 * Feature: Take a -f option for force processing.
@@ -64,15 +63,6 @@ PToptimizer:
  
 ----------------------------------------------------------------------
 
-----------------------------------------------------------------------
-GENERAL
-
- - Add support for images without full size tags --this will affect all
-   panotools) and make sure all tools are compatible with TIFFs output
-   by nona and fulla.
-
-
- 
  
 ----------------------------------------------------------------------
  LONGER TERM:
