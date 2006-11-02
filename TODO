@@ -2,7 +2,24 @@
 This file documents the activities required before we release version
 3.0.0 of the library.
 
+KNOWN BUGS:
+
 ----------------------------------------------------------------------
+1. PTcrop tries to read the entire image at once. I got a segfault
+   from inside libtiff. It needs to be rewritten to read only one line
+   at a time.
+
+2. PTcrop needs to be able to crop images as a "set" (that is, compute
+   the bounding rectangle of a group of images) not only as a single
+   one.
+
+3. PTroller runs _extremely_ slow. I need to find out why.
+
+4. PTtiff2psd is unable to create PSDs beyond certain size (I suspect
+   this is a limitation of the format). We need to find this
+   limitation and output an error message informing the
+   user. Otherwise a PSD is created that is "corrupted"
+
 
 * Bug: There is a memory leak in panoTiffRead. I don't release the
   memory it has allocated when an image is read. Create a
