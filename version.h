@@ -63,5 +63,9 @@
 #define PTVERSION_NAME_COMMENT "Comments"
 #endif
 #ifndef PTVERSION_COMMENT
-#define PTVERSION_COMMENT "MinGW\0"
+# ifdef _MSC_VER
+#  define PTVERSION_COMMENT "MSVC\0"
+# else
+#  define PTVERSION_COMMENT "MinGW\0"
+# endif
 #endif

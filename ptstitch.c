@@ -50,8 +50,10 @@ unsigned int panoStitchPixelChannelGet(unsigned char *ptr, int bytesPerPixel, in
         pixel16  = (uint16_t *) ptr;
         return *(pixel16+channel);
     } 
-    else
+    else {
         assert(0);
+        return 0;// fix warning.
+    }
 
 }
 

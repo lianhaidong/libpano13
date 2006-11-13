@@ -779,7 +779,7 @@ int panoTiffReadScanLineFullSize(pano_Tiff * file, void *buffer, int row)
 
     if (panoTiffRowInsideROI(file, row)) {
         if (TIFFReadScanline
-            (file->tiff, buffer + panoTiffXOffset(file) * bytesPerPixel,
+            (file->tiff, (UCHAR *)(buffer) + panoTiffXOffset(file) * bytesPerPixel,
              row - panoTiffYOffset(file), 0) != 1) {
             PrintError("Error reading row %d in tiff file", row);
             return FALSE;
@@ -810,7 +810,7 @@ int panoTiffWriteScanLineFullSize(pano_Tiff * file, void *buffer, int row)
 
     if (panoTiffRowInsideROI(file, row)) {
         if (TIFFWriteScanline
-            (file->tiff, buffer + panoTiffXOffset(file) * bytesPerPixel,
+            (file->tiff, (UCHAR *)(buffer) + panoTiffXOffset(file) * bytesPerPixel,
              row - panoTiffYOffset(file), 0) != 1) {
             PrintError("Error writing row %d in tiff file", row);
             return FALSE;

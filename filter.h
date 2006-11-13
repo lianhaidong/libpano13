@@ -647,16 +647,20 @@ int 	GetFullPath 		(fullPath *path, char *filename); // Somewhat confusing, for 
 int 	StringtoFullPath	(fullPath *path, char *filename);
 int 	IsTextFile			( char* fname );
 int 	readPositions		( char* script, transformCoord *tP );
-int 	readImage			( Image *im, fullPath *sfile );
 int	readJPEG			( Image *im, fullPath *sfile );
 int	readTIFF			( Image *im, fullPath *sfile );
-int 	writeImage			( Image *im, fullPath *sfile );
 int 	writeJPEG			( Image *im, fullPath *sfile, 	int quality, int progressive );
-int 	makeTempPath		( fullPath *path );
 int 	writePNG			( Image *im, fullPath *sfile );
 int 	readPNG				( Image *im, fullPath *sfile );
 int 	LaunchAndSendScript(char* application, char* script);
 aPrefs* readAdjustLine( fullPath *theScript );
+
+#ifdef __Mac__
+ int 	readImage			( Image *im, fullPath *sfile );
+ int 	writeImage			( Image *im, fullPath *sfile );
+ int 	makeTempPath		( fullPath *path );
+#endif
+
 //int	readtif(Image *im, TIFF* tif);
 void getCropInformation(char *filename, CropInfo *c);
 
@@ -897,6 +901,24 @@ extern sPrefs			*gsPrPtr;
 
 
 #endif // PT_BIGENDIAN
+
+#define WRITEUCHAR( theChar )       ch = theChar; count = 1; mywrite(fnum,count,&ch);
+
+#define WRITESHORT( theShort )      svar = theShort; d = data; SHORTNUMBER( svar, d ); \
+                                    count = 2; mywrite  (fnum,count,data);
+
+#define WRITEINT32( theLong )       var = theLong; d = data; LONGNUMBER( var, d ); \
+                                    count = 4; mywrite  (fnum,count,data);
+
+#define READINT32( theLong )                count = 4; myread(src,count,data);  \
+                                            d = data; NUMBERLONG( var, d );     \
+                                            theLong = var;
+                                    
+#define READSHORT( theShort )               count = 2; myread(src,count,data);  \
+                                            d = data; NUMBERSHORT( svar, d );   \
+                                            theShort = svar;
+
+#define READUCHAR( theChar )                count = 1; myread(src,count,&ch); theChar = ch; 
 
 // Cross platform file functions
 

@@ -51,7 +51,7 @@ int RGBE_ReadPixels_RLE(FILE *fp, float *data, int scanline_width,
 			int num_scanlines);
 
 int RGBE_ReadPixels_Raw_RLE(FILE *fp, unsigned char *data, int scanline_width,
-            int num_scanlines);
+            size_t num_scanlines);
 
 #ifdef _CPLUSPLUS
 /* define if your compiler understands inline commands */

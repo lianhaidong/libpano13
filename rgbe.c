@@ -225,7 +225,7 @@ int RGBE_ReadPixels(FILE *fp, float *data, int numpixels)
 }
 
 
-int RGBE_ReadPixels_Raw(FILE *fp, unsigned char *data, int numpixels)
+int RGBE_ReadPixels_Raw(FILE *fp, unsigned char *data, size_t numpixels)
 {
   if (fread(data, 4, numpixels, fp) < numpixels)
     return rgbe_error(rgbe_read_error,NULL);
@@ -427,7 +427,7 @@ int RGBE_ReadPixels_RLE(FILE *fp, float *data, int scanline_width,
 
 
 int RGBE_ReadPixels_Raw_RLE(FILE *fp, unsigned char *data, int scanline_width,
-			int num_scanlines)
+			size_t num_scanlines)
 {
   unsigned char rgbe[4], *scanline_buffer, *ptr, *ptr_end;
   int i, count;

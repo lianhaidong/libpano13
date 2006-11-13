@@ -37,7 +37,7 @@
 #include "ptstitch.h" 
 
 #include <assert.h>
-
+#include <float.h>
 
 //#include <stdio.h>
 //#include <stdlib.h>
@@ -607,11 +607,11 @@ void getROI(TrformStr * TrPtr, aPrefs * aP, PTRect * ROIRect)
                         //a value of "-1.#IND00".  This is not a number, and probably indicates
                         //a divide by zero error somewhere in the mapping function.  This should
                         //be solved, but, for now, discard this value and keep going
-                        if (!isnan(Dx)) {
+                        if (!_isnan(Dx)) {
                                 if ((int)Dx < ROIRect->left) ROIRect->left = (int)Dx;
                                 if ((int)Dx > ROIRect->right) ROIRect->right = (int)Dx;
                         }
-                        if (!isnan(Dy)){                
+                        if (!_isnan(Dy)){                
                                 if ((int)Dy < ROIRect->top) ROIRect->top = (int)Dy;
                                 if ((int)Dy > ROIRect->bottom) ROIRect->bottom = (int)Dy;
                         }

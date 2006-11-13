@@ -55,24 +55,6 @@
 #include "file.h"
 #include "pttiff.h"
 
-#define WRITEUCHAR( theChar )       ch = theChar; count = 1; mywrite(fnum,count,&ch);
-
-#define WRITESHORT( theShort )      svar = theShort; d = data; SHORTNUMBER( svar, d ); \
-                                    count = 2; mywrite  (fnum,count,data);
-
-#define WRITEINT32( theLong )       var = theLong; d = data; LONGNUMBER( var, d ); \
-                                    count = 4; mywrite  (fnum,count,data);
-
-#define READINT32( theLong )                count = 4; myread(src,count,data);  \
-                                            d = data; NUMBERLONG( var, d );     \
-                                            theLong = var;
-                                    
-#define READSHORT( theShort )               count = 2; myread(src,count,data);  \
-                                            d = data; NUMBERSHORT( svar, d );   \
-                                            theShort = svar;
-
-#define READUCHAR( theChar )                count = 1; myread(src,count,&ch); theChar = ch; 
-
 // local functions
 
 static int              writeImageDataPlanar    ( Image *im, file_spec fnum );
@@ -137,35 +119,50 @@ char *psdBlendingModesInternalName[] = {
 
 int panoPSDResourceWrite(file_spec fnum, pt_uint16 resource, pt_uint16 len)
 {
+  int rtn = 0;
   unsigned char  ch;
   size_t  count;
   short   svar;
   char    data[12], *d;
   pt_uint32   var;
-   WRITEUCHAR( '8' );
-   WRITEUCHAR( 'B' );
-   WRITEUCHAR( 'I' );
-   WRITEUCHAR( 'M' );
-   WRITESHORT(resource);
-   WRITEINT32(0); // Null string
-   WRITESHORT(len); //size of the record
+  WRITEUCHAR( '8' );
+  rtn += count;
+  WRITEUCHAR( 'B' );
+  rtn += count;
+  WRITEUCHAR( 'I' );
+  rtn += count;
+  WRITEUCHAR( 'M' );
+  rtn += count;
+  WRITESHORT(resource);
+  rtn += count;
+  WRITEINT32(0); // Null string
+  rtn += count;
+  WRITESHORT(len); //size of the record
+  rtn += count;
 
+  return rtn;
 }
 
 int panoPSDPICTResourceWrite(file_spec fnum, unsigned char resource, unsigned char record, pt_uint16 len)
 {
   // See IPTC Information Intercharge Model Exchange Version 4.
-
+  int rtn = 0;
   unsigned char  ch;
   size_t  count;
-  short   svar;
+  short   svar  = 0;
   char    data[12], *d;
-  pt_uint32   var;
+  pt_uint32   var = 0;
 
   WRITEUCHAR( 0x1c );
+  rtn += count;
   WRITEUCHAR( resource );
+  rtn += count;
   WRITEUCHAR( record );
+  rtn += count;
   WRITESHORT( len ); //length
+  rtn += count;
+
+  return rtn;
 }
 
 #define CREATED_BY_PSD "Panotools " VERSION
@@ -175,12 +172,13 @@ int panoPSDPICTResourceWrite(file_spec fnum, unsigned char resource, unsigned ch
 
 int panoPSDResourcesBlockWrite(Image *im, file_spec   fnum)
 {
+  int     rtn = 0;
   char    data[12], *d;
-  short   svar;
+  short   svar = 0;
   size_t  count;
   pt_uint32   var;
-  unsigned char  ch;
-  pt_uint16  shorty;  
+  unsigned char  ch = 0;
+  pt_uint16  shorty = 0;
   pt_uint32  len = 0; 
   pt_uint16  fileInfoLength = 0;
 
@@ -207,24 +205,29 @@ int panoPSDResourcesBlockWrite(Image *im, file_spec   fnum)
   len += shorty + 12; // size of fileinfo records + 12 overhead
 
   WRITEINT32( len );            // Image Resources size
+  rtn += count;
 
   // Write FILEinfo
-  panoPSDResourceWrite(fnum, 0x0404, shorty);
+  rtn += panoPSDResourceWrite(fnum, 0x0404, shorty);
 
   // write version
   
-  panoPSDPICTResourceWrite(fnum, 0x02, IPTC_VERSION_ID, 2);
+  rtn += panoPSDPICTResourceWrite(fnum, 0x02, IPTC_VERSION_ID, 2);
   WRITEUCHAR( 00 );
+  rtn += count;
   WRITEUCHAR( 02 );
+  rtn += count;
 
   // write originating program
 
-  panoPSDPICTResourceWrite(fnum, 0x02, IPTC_DESCRIPTION_WRITER_ID, strlen(CREATED_BY_PSD) + 1);
+  rtn += panoPSDPICTResourceWrite(fnum, 0x02, IPTC_DESCRIPTION_WRITER_ID, strlen(CREATED_BY_PSD) + 1);
 
   WRITEUCHAR(strlen(CREATED_BY_PSD));
+  rtn += count;
 
   len = strlen(CREATED_BY_PSD);
   mywrite( fnum, len, CREATED_BY_PSD);
+  rtn += len;
 
   // TODO:
   // caption abstract:    0x78 "script... (2000 bytes max)
@@ -241,12 +244,13 @@ int panoPSDResourcesBlockWrite(Image *im, file_spec   fnum)
     // We need to write an image Resources block
     // Write Image resources header
     // Write ICC Profile block
-    panoPSDResourceWrite(fnum, 0x040f, im->metadata.iccProfile.size);
+    rtn += panoPSDResourceWrite(fnum, 0x040f, im->metadata.iccProfile.size);
 
     mywrite( fnum, im->metadata.iccProfile.size, im->metadata.iccProfile.data );
+    rtn += im->metadata.iccProfile.size;
     
   } 
-  
+  return rtn;
 }
 
 
@@ -1394,6 +1398,8 @@ static int addLayer( Image *im, CropInfo *crop_info, file_spec src, file_spec fn
     unsigned char   **alpha = NULL, **buf = NULL;
     int             hasClipMask = 0;    // Create a mask
     int             hasShapeMask = 0;   // Create alpha channel
+    char          * blendingModeKey;
+    int             j;
 
     GetChannels( im, channels );
     psdchannels = channels;
@@ -1616,19 +1622,15 @@ static int addLayer( Image *im, CropInfo *crop_info, file_spec src, file_spec fn
     WRITEUCHAR( 'B' );
     WRITEUCHAR( 'I' );
     WRITEUCHAR( 'M' );
-
     
-
+    // the next 4 bytes are the blending mode key
+    /* WRITEINT32( 'norm'); // Blend mode key */
+    assert(PSD_NUMBER_BLENDING_MODES == sizeof(psdBlendingModesNames)/sizeof(char*));
+	  assert(sizeof(psdBlendingModesNames) == sizeof(psdBlendingModesInternalName));
+    blendingModeKey = psdBlendingModesInternalName[sB->psdBlendingMode];
+    for (j = 0; j< 4; j++ )
     {
-	// the next 4 bytes are the blending mode key
-	// WRITEINT32( 'norm'); // Blend mode key
-	assert(PSD_NUMBER_BLENDING_MODES == sizeof(psdBlendingModesNames)/sizeof(char*));
-	assert(sizeof(psdBlendingModesNames) == sizeof(psdBlendingModesInternalName));
-	char *blendingModeKey = psdBlendingModesInternalName[sB->psdBlendingMode];
-	int j;
-	for (j = 0; j< 4; j++ ) {
-	    WRITEUCHAR(blendingModeKey[j]);
-	}
+      WRITEUCHAR(blendingModeKey[j]);
     }
 
     WRITEUCHAR(sB->psdOpacity); // 1 byte Opacity 0 = transparent ... 255 = opaque
@@ -2413,7 +2415,6 @@ int panoFileOutputNamesCreate(fullPath *ptrOutputFiles, int filesCount, char *ou
     }
 
     for (i =0; i< filesCount ; i++) {
-	char outputFilename[MAX_PATH_LENGTH];
 
 	sprintf(outputFilename, outputPrefix, i);
    

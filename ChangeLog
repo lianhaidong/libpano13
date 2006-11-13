@@ -1,3 +1,21 @@
+2006-11-12  Jim  <jwatters@photocreations.ca>
+
+    * Updated MSVC project file to build current version.  Add files.
+
+	* file.c fixed compile warnings.  Moved macros for file BIGENDIAN/LITTLEENDIAN i/o to
+	     filter.h
+	     
+	* filter.h  Moved macros for file BIGENDIAN/LITTLEENDIAN i/o from file.c.  
+	     Commented out no longer used funtions in Windows.  Still used in pict.c for Mac.
+	     
+	* pano12vc.def updated with new funtions and commented out old 
+	* pano12vcd.def removed file
+	
+	* tiff.c fix compile error unknown size void*
+
+	* version.h (VERSION), configure.ac Upgraded to version 2.8.5pre15 (configure.ac changes
+	     untested)
+	
 2006-11-02  dmg  <dmg@uvic.ca>
 
 	* TODO (KNOWN BUGS): Create a section with list of bugs
