@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <jpeglib.h>
-#define __NO_SYSTEM__
+//#define __NO_SYSTEM__
 #include "filter.h"
 #include "metadata.h"
 #include "file.h"

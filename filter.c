@@ -1265,3 +1265,67 @@ void panoDumpMetadata(pano_ImageMetadata * metadata, char *message)
 
     printf("**EndMetadata***%s\n", message);
 }
+
+/* ENDIAN aware file i/o funtions.  Used for reading and writing photoshop files */
+BOOL panoWriteUCHAR(file_spec fnum, UCHAR theChar )
+{ 
+  size_t count = 1;
+  mywrite( fnum, count, &theChar );
+  return(count == 1);
+}
+
+BOOL panoWriteSHORT(file_spec fnum, USHORT theShort )
+{
+  size_t count = 2;
+  char data[2], *d;
+  d = data;
+  SHORTNUMBER( theShort, d );
+  mywrite( fnum, count, data );
+  return(count == 2);
+}
+
+BOOL panoWriteINT32(file_spec fnum, ULONG theLong )
+{
+  size_t count = 4;
+  char data[4], *d;
+  d = data;
+  LONGNUMBER( theLong, d );
+  mywrite( fnum, count, data );
+  return(count == 4);
+}
+
+BOOL panoReadUCHAR(file_spec fnum, UCHAR *pChar )
+{
+  size_t count = 1;
+  myread( fnum, count, pChar );
+  return (count == 1);
+}
+
+BOOL panoReadSHORT(file_spec fnum, USHORT *pShort )
+{
+  size_t count = 2;
+  char data[2], *d;
+  myread( fnum, count, data );
+  if(count != 2)
+  {
+    return FALSE;
+  }
+  d = data;
+  NUMBERSHORT( (*pShort), d );
+  return TRUE;
+}
+
+BOOL panoReadINT32(file_spec fnum, ULONG *pLong )
+{
+  size_t count = 4;
+  char data[4], *d;
+  myread( fnum, count, data );
+  if(count != 4)
+  {
+    return FALSE;
+  }
+  d = data;
+  NUMBERLONG( (*pLong), d );
+  return TRUE;
+}
+

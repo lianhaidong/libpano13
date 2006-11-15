@@ -655,7 +655,7 @@ int 	readPNG				( Image *im, fullPath *sfile );
 int 	LaunchAndSendScript(char* application, char* script);
 aPrefs* readAdjustLine( fullPath *theScript );
 
-#ifdef __Mac__
+#if 1 //def __Mac__
  int 	readImage			( Image *im, fullPath *sfile );
  int 	writeImage			( Image *im, fullPath *sfile );
  int 	makeTempPath		( fullPath *path );
@@ -902,6 +902,7 @@ extern sPrefs			*gsPrPtr;
 
 #endif // PT_BIGENDIAN
 
+//TODO:  JMW These File i/o macros are to be replaced in code with the error catching functions below
 #define WRITEUCHAR( theChar )       ch = theChar; count = 1; mywrite(fnum,count,&ch);
 
 #define WRITESHORT( theShort )      svar = theShort; d = data; SHORTNUMBER( svar, d ); \
@@ -968,6 +969,14 @@ extern sPrefs			*gsPrPtr;
 
 #endif
 
+/* ENDIAN aware file i/o funtions.  Used for reading and writing photoshop files */
+BOOL panoWriteUCHAR(file_spec fnum, UCHAR   theChar );
+BOOL panoWriteSHORT(file_spec fnum, USHORT  theShort );
+BOOL panoWriteINT32(file_spec fnum, ULONG   theLong );
+BOOL panoReadUCHAR (file_spec fnum, UCHAR  *pChar );
+BOOL panoReadSHORT (file_spec fnum, USHORT *pShort );
+BOOL panoReadINT32 (file_spec fnum, ULONG  *pLong );
+    
 
 #define PANO_DEFAULT_PIXELS_PER_RESOLUTION  150.0
 #define PANO_DEFAULT_TIFF_RESOLUTION_UNITS  RESUNIT_INCH
