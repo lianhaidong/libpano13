@@ -333,11 +333,7 @@ void Clear_Area_Outside_Selected_Region(Image * image)
 
     if (right == 0)
         right = image->width;
-
-    if (image->format == _fisheye_circ) {
-        PrintError("Not implemented yet");
-        exit(1);
-    }
+    
 
     if (image->bitsPerPixel == 32) {
         bytesPerPixel = 4;
@@ -346,9 +342,83 @@ void Clear_Area_Outside_Selected_Region(Image * image)
         bytesPerPixel = 8;
     }
     else {
-      
-        exit(0);
+	PrintError("Invalid bits per pixel in image %d", image->bitsPerPixel);
+        exit(1);
     }
+
+
+    if (image->format == _fisheye_circ) {
+
+	// TODO
+	// This routine works only in fisheyes in portrait mode
+	// it probably fails in landscape mode
+	
+	int horCenter, verCenter;
+	int horRadious;
+	int horRadious2;
+
+	horCenter = (left + right) / 2;
+	verCenter = (top + bottom) / 2;
+	
+	// Compute the horizontal width divided by 2, 
+	// let us call it horizontal radios
+
+	horRadious = (right - left) / 2;
+	// Square it, so we don't have to compute this 
+	// every time
+	horRadious2 = horRadious * horRadious;
+	
+	dataPtr = *(image->data);
+	
+	// Scan the image from top to bottom
+	for (currentRow = 0; currentRow < image->height; currentRow++) {
+	    int verDistance;
+	    int verDistance2;
+
+	    // The algorith it simple. Find the distance of each from from the 
+	    // center of the image. If the point is farther than horRadious
+	    // then set mask to zero
+	    
+	    currentColumn = 0;
+	    pixelPtr = dataPtr;
+	    
+	    // Compute the square of the vertical distance to this row from center
+	    verDistance = (currentRow - verCenter);
+	    verDistance2 = verDistance * verDistance;
+	    
+	    for (currentColumn = 0; currentColumn < image->width; currentColumn ++) {
+		int horDistance;
+		int horDistance2;
+
+		// Compute square of distance of this point to center 
+		// the old Pythagoras way
+		// distance^2 = horDistance^2  + verDistance^2
+		
+		horDistance = (currentColumn - horCenter);
+		horDistance2 = horDistance * horDistance;
+		
+		if (horDistance2 + verDistance2 > horRadious2) {
+
+		    // Point falls outside the circle defined its horizontal maximum distance
+
+		    // Set mask to zero
+		    if (bytesPerPixel == 4)
+			*pixelPtr = 0;     
+		    else if (bytesPerPixel == 8) {
+			*pixelPtr = 0;     
+			*(pixelPtr+1) = 0;     
+		    }
+			
+		}
+		pixelPtr +=  bytesPerPixel;
+
+	    } // for column
+	    dataPtr += image->bytesPerLine;
+	}  // for row
+	return;
+    }
+
+
 
     // Clear the area at above the image
     dataPtr = *(image->data);
@@ -481,8 +551,9 @@ void Clear_Area_Outside_Selected_Region(Image * image)
 
 #ifdef not_implemented_yet
 
-THIS IS the code for fisheye_circular 64 bits var20 = (left + right)
-    /2;
+THIS IS the code for fisheye_circular 64 bits 
+
+var20 = (left + right) /2;
 
 var24 = (top + bottom) / 2;
 
@@ -607,11 +678,11 @@ void getROI(TrformStr * TrPtr, aPrefs * aP, PTRect * ROIRect)
                         //a value of "-1.#IND00".  This is not a number, and probably indicates
                         //a divide by zero error somewhere in the mapping function.  This should
                         //be solved, but, for now, discard this value and keep going
-                        if (!_isnan(Dx)) {
+                        if (!isnan(Dx)) {
                                 if ((int)Dx < ROIRect->left) ROIRect->left = (int)Dx;
                                 if ((int)Dx > ROIRect->right) ROIRect->right = (int)Dx;
                         }
-                        if (!_isnan(Dy)){                
+                        if (!isnan(Dy)){                
                                 if ((int)Dy < ROIRect->top) ROIRect->top = (int)Dy;
                                 if ((int)Dy > ROIRect->bottom) ROIRect->bottom = (int)Dy;
                         }

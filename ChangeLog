@@ -1,3 +1,18 @@
+2006-11-18  dmg  <dmg@uvic.ca>
+
+	* PTcommon.c (Clear_Area_Outside_Selected_Region): Implemented circular fisheye
+	
+	* PTcommon.c (getROI): Reverted _isnan to isnan
+
+	* tools/PTmender.c: I changed my mind. We should keep the PTmender
+	in the new version of the tools too. 
+
+	* tools/PTremap.c: Deleted.
+
+	* tools/Makefile.am: Removed PTremap
+	
+	* version.h (VERSION), configure.ac Upgraded to version 2.8.5pre16 
+	
 2006-11-17  dmg  <dmg@uvic.ca>
 
 	* panorama.h: Created Boolean data type (unsigned char)
