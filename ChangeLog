@@ -6,7 +6,7 @@
 	
 	* PTcommon.c (getROI): Reverted _isnan to isnan
 
-	* tools/PTmender.c: I changed my mind. We should keep the PTmender
+	* tools/PTmender.c: I changed my mind. We should keep the PTmender name
 	in the new version of the tools too. 
 
 	* tools/PTremap.c: Deleted.
