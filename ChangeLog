@@ -1,5 +1,7 @@
 2006-11-18  dmg  <dmg@uvic.ca>
 
+	* doc/PTmender.readme (Options): Added a note on circular fisheye support
+
 	* PTcommon.c (Clear_Area_Outside_Selected_Region): Implemented circular fisheye
 	
 	* PTcommon.c (getROI): Reverted _isnan to isnan

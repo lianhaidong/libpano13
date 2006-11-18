@@ -28,3 +28,16 @@ Options:
 ----------------------------------------------------------------------
 
 
+
+
+----------------------------------------------------------------------
+If you select circular fisheye a mask is created around a circle:
+
+* The image is always assumed to be in portrait mode.
+
+* if no crop region is specified then the circle is assumed to be
+  bounded by the horizontal axis. A mask is created with a circle of
+  horizontal_width/2 radious, centered in the middle of the image
+
+* If a crop region is specified then a mask is created such that the
+  circle is enclosed (in the horizontal axis) by the crop region. 
