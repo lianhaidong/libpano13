@@ -30,7 +30,7 @@
 #include <limits.h>
 
 #include "panorama.h"
-//#include "tiffio.h"
+#include "tiffio.h"
 
 #ifndef TRUE
 	#define TRUE 1
@@ -655,7 +655,8 @@ int 	readPNG				( Image *im, fullPath *sfile );
 int 	LaunchAndSendScript(char* application, char* script);
 aPrefs* readAdjustLine( fullPath *theScript );
 
-#if 1 //def __Mac__
+#ifdef __Mac__
+
  int 	readImage			( Image *im, fullPath *sfile );
  int 	writeImage			( Image *im, fullPath *sfile );
  int 	makeTempPath		( fullPath *path );
@@ -970,12 +971,12 @@ extern sPrefs			*gsPrPtr;
 #endif
 
 /* ENDIAN aware file i/o funtions.  Used for reading and writing photoshop files */
-BOOL panoWriteUCHAR(file_spec fnum, UCHAR   theChar );
-BOOL panoWriteSHORT(file_spec fnum, USHORT  theShort );
-BOOL panoWriteINT32(file_spec fnum, ULONG   theLong );
-BOOL panoReadUCHAR (file_spec fnum, UCHAR  *pChar );
-BOOL panoReadSHORT (file_spec fnum, USHORT *pShort );
-BOOL panoReadINT32 (file_spec fnum, ULONG  *pLong );
+Boolean panoWriteUCHAR(file_spec fnum, UCHAR   theChar );
+Boolean panoWriteSHORT(file_spec fnum, USHORT  theShort );
+Boolean panoWriteINT32(file_spec fnum, ULONG   theLong );
+Boolean panoReadUCHAR (file_spec fnum, UCHAR  *pChar );
+Boolean panoReadSHORT (file_spec fnum, USHORT *pShort );
+Boolean panoReadINT32 (file_spec fnum, ULONG  *pLong );
     
 
 #define PANO_DEFAULT_PIXELS_PER_RESOLUTION  150.0

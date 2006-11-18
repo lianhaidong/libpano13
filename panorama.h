@@ -34,6 +34,7 @@
 // If you need PT_BIGENDIAN, and don't use MacOS, define it here:
 //#define PT_BIGENDIAN                  1
 
+typedef unsigned char Boolean;
 
 // Create a definition if we're on a Windows machine:
 #ifndef __Win__
@@ -50,6 +51,7 @@
 #define PT_BIGENDIAN		1
 #endif
 #endif
+
 
 #ifndef __Mac_OSX__
     #if defined(__APPLE_CC__)

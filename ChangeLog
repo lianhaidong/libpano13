@@ -1,10 +1,17 @@
+2006-11-17  dmg  <dmg@uvic.ca>
+
+	* panorama.h: Created Boolean data type (unsigned char)
+
+	* filter.c, filter.h (panoWrite*, panoRead*): Simplified the
+	functions, got rid of mywrite, replaced BOOL with Boolean
+
 2006-11-15  Jim  <jwatters@photocreations.ca>
 
-    * filter.h, filter.cpp created file i/o funtions with error checking to replace macro.
+	* filter.h, filter.cpp created file i/o funtions with error checking to replace macro.
 
 2006-11-12  Jim  <jwatters@photocreations.ca>
 
-    * Updated MSVC project file to build current version.  Add files.
+	* Updated MSVC project file to build current version.  Add files.
 
 	* file.c fixed compile warnings.  Moved macros for file BIGENDIAN/LITTLEENDIAN i/o to
 	     filter.h
