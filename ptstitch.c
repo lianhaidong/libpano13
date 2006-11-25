@@ -33,6 +33,7 @@
 #include "file.h"
 #include "ptstitch.h"
 #include "PTcommon.h"
+#include "ptfeather.h"
 
 // Get the value of a channel in the  pixel pointed by ptr
 unsigned int panoStitchPixelChannelGet(unsigned char *ptr, int bytesPerPixel, int channel)
@@ -837,31 +838,27 @@ int panoStitchReplaceMasks(fullPath * inputFiles, fullPath * outputFiles,
         remove(alphaChannelFiles[i].name);
 
 
-#if 0
-This code is useless until we support feathers
-
         // Do feathering
         if (featherSize > 0) {
 
             fullPath feathered;
+
             memcpy(&feathered, &maskFiles[i], sizeof(fullPath));
 
-            if (!ApplyFeather(&withAlphaChannel, &feathered, featherSize)) {
+            if (!panoFeatherFiles(&withAlphaChannel, &feathered, featherSize)) {
                 PrintError("Unable to apply feather to image %d", i);
                 return -1;
             }
 
-            remove(withAlphaChannel.name);
+	    if (strcmp(withAlphaChannel.name, feathered.name) != 0) {
+	      remove(withAlphaChannel.name);
+	    }
             rename(feathered.name, outputFiles[i].name);
         }
         else {
+	  rename(withAlphaChannel.name, outputFiles[i].name);
 
         }
-
-#else
-	printf("Using this\n");
-	rename(withAlphaChannel.name, outputFiles[i].name);
-#endif
     }
 
     free(maskFiles);

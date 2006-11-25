@@ -46,6 +46,7 @@
 #define PT_MASKER_USAGE "PTmasker [options] <tiffFiles>+\n\n"\
                          "Options:\n"\
                          "\t-p <prefix>\tPrefix for output files (defaults to masked%%4d)\n"\
+                         "\t-e <feather>\tSize of the feather (defaults to zero)\n"\
                          "\t-f\t\tForce processing (do not stop at warnings)\n"\
                          "\t-q\t\tQuiet run\n"\
                          "\t-h\t\tShow this message\n"\
@@ -66,7 +67,7 @@ int main(int argc,char *argv[])
     int filesCount;
     int base = 0;
     int ptForceProcessing = 0;
-
+    int feather = 0;
 
     ptrInputFiles = NULL;
 
@@ -74,7 +75,7 @@ int main(int argc,char *argv[])
 
     printf(PT_MASKER_VERSION);
 
-    while ((opt = getopt(argc, argv, "p:fqh")) != -1) {
+    while ((opt = getopt(argc, argv, "p:fqhe:")) != -1) {
 
         // o and f -> set output file
         // h       -> help
@@ -83,6 +84,13 @@ int main(int argc,char *argv[])
 	// s       -> compute seams
     
         switch(opt) {  // fhoqs    f: 102 h:104  111 113 115  o:f:hsq
+	case 'e':
+	    feather = strtol(optarg, NULL, 10);
+	    if (errno != 0) {
+		PrintError("Illegal value for feather");
+		return -1;
+	    }
+	    break;
 	case 'p':
 	    if (strlen(optarg) < MAX_PATH_LENGTH) {
 		strcpy(outputPrefix, optarg);
@@ -133,10 +141,13 @@ int main(int argc,char *argv[])
         return -1;
     }
 
+
+
     // Generate output file names
     if (panoFileOutputNamesCreate(ptrOutputFiles, filesCount, outputPrefix) == 0) {
 	return -1;
     }
+
 
     if (! ptForceProcessing) {
 	char *temp;
@@ -152,7 +163,7 @@ int main(int argc,char *argv[])
     if (! ptQuietFlag) printf("Computing seams for %d files\n", filesCount);
 	
     if (panoStitchReplaceMasks(ptrInputFiles, ptrOutputFiles, filesCount,
-			       0) != 0) {
+			       feather) != 0) {
 	PrintError("Could not create stitching masks");
 	return -1;
     }

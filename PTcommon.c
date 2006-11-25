@@ -6,7 +6,7 @@
  * 
  *  Copyright Helmut Dersch and Daniel M. German
  *  
- *  Dec 2006
+ *  Dec 2005
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public
@@ -192,57 +192,6 @@ int panoPSDCreate(fullPath * fullPathImages, int numberImages,
     }
 
     return 0;
-}
-
-
-
-static void ApplyFeather8bits(Image * image, int featherSize)
-{
-
-    fprintf(stderr, "\nFeathering 8 bits not implemented yet\n");
-
-}
-
-static void ApplyFeather16bits(Image * image, int featherSize)
-{
-
-    fprintf(stderr, "\nFeathering 16 bits not implemented yet\n");
-
-}
-
-
-int ApplyFeather(fullPath * inputFile, fullPath * outputFile,
-                 int featherSize)
-{
-    Image image;
-    if (readTIFF(&image, inputFile) != 0) {
-        PrintError("Could not open TIFF-file [%s]", inputFile->name);
-        return 0;
-    }
-
-    //  fprintf(stderr, "To apply feather %d\n", featherSize);
-    if (image.bitsPerPixel == 32) {
-        ApplyFeather8bits(&image, featherSize);
-    }
-    else if (image.bitsPerPixel == 64) {
-        ApplyFeather16bits(&image, featherSize);
-    }
-    else {
-        fprintf(stderr,
-                "Apply feather not supported for this image type (%d bitsPerPixel)\n",
-                (int) image.bitsPerPixel);
-        exit(1);
-    }
-
-    if (writeTIFF(&image, outputFile) != 0) {
-        PrintError("Could not write TIFF-file [%s]", outputFile->name);
-        return 0;
-    }
-
-    myfree((void **) image.data);
-
-    return 1;
-
 }
 
 
@@ -891,7 +840,7 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
         nextWord(output_file_format, &tempString);
         
 	if (loopCounter == 0 && strcmp(output_file_format, "TIFF_m") != 0) {
-	    PrintError("No support for this image format (%s). Falling back to TIFF_m", output_file_format);
+	    PrintError("No support for this ouput image format (%s). Output will be TIFF_m", output_file_format);
 	}
 
 

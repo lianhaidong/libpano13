@@ -1411,25 +1411,31 @@ int panoTiffWrite(Image * im, char *fileName)
     }
     // end Rik's mask-from-focus hacking (for the moment...)
 
+    printf("Here\n");
     bufsize = TIFFScanlineSize(tif->tiff);
 
     if (bufsize < im->bytesPerLine)
         bufsize = im->bytesPerLine;
 
-    buf = calloc(bufsize, 0);
+    buf = calloc(bufsize, 1);
     if (buf == NULL) {
         PrintError("Not enough memory");
         goto error;
     }
 
     for (y = 0; y < im->height; y++) {
+	printf("Here 1 buffsize %d bytesperline %d width %d\n", bufsize, im->bytesPerLine, im->width);
         memcpy(buf, *(im->data) + y * im->bytesPerLine,
                (size_t) im->bytesPerLine);
+	printf("Here 2\n");
         ARGBtoRGBA(buf, im->width, im->bitsPerPixel);
-        if (TIFFWriteScanline(tif->tiff, buf, y, 1) != 1) {
+	printf("Here 3\n");
+        if (TIFFWriteScanline(tif->tiff, buf, y, 0) != 1) {
             PrintError("Unable to write to TIFF");
             goto error;
         }
+	printf("Here 4\n");
+
     }
     panoTiffClose(tif);
     free(buf);

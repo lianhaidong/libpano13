@@ -1,3 +1,25 @@
+2006-11-25  dmg  <dmg@uvic.ca>
+
+	* version.h (VERSION), configure.ac Upgraded to version 2.8.5pre17
+
+	* tiff.c (panoTiffWrite): Fixed a bug in the allocation of the
+	buffer for writing to the output file.
+
+	* ptstitch.c, tools/PTmasker.c: Enabled feathering code
+
+	* PTcommon.c: removed feathering skeletons from here.
+	
+	* ptfeather.c, ptfeather.h: Implemented feathering. 
+
+	* Makefile.am: Added ptfeather.c, ptfeather.h
+
+2006-11-23  dmg  <dmg@uvic.ca>
+
+	* TODO: updated tasks.
+
+	* PTcommon.c (panoCreatePanorama): Change slightly error message
+	to make it clearer.
+
 2006-11-18  dmg  <dmg@uvic.ca>
 
 	* doc/PTmender.readme (Options): Added a note on circular fisheye support

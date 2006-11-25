@@ -5,9 +5,9 @@ This file documents the activities required before we release version
 KNOWN BUGS:
 
 ----------------------------------------------------------------------
-1. PTcrop tries to read the entire image at once. I got a segfault
-   from inside libtiff. It needs to be rewritten to read only one line
-   at a time.
+1. PTcrop tries to read the entire image at once. With a huge image I
+   got a segfault from inside libtiff. It needs to be rewritten to read
+   only one line at a time.
 
 2. PTcrop needs to be able to crop images as a "set" (that is, compute
    the bounding rectangle of a group of images) not only as a single
@@ -30,15 +30,16 @@ KNOWN BUGS:
 
 ----------------------------------------------------------------------
 
-PTremap:
+PTmender:
  
+- Allow the specification of the images in the command line
+
+
 DESIRABLE FEATURES:
  
  - Output a text file with the names of the files processed and extra
    information, such as size
 
- - Process fisheye lenses.
- 
  - If somebody wants full compatibility with PTstitcher, a new program
    can be added that does all the work. It will be a "superset" of many
    of the current pano tools.
@@ -64,7 +65,7 @@ DESIRABLE:
 ----------------------------------------------------------------------
  PTcrop:
  
-* Feature: compute the inner rectangle
+* Feature: compute the inner rectangle with the largest area.
 
 ----------------------------------------------------------------------
  

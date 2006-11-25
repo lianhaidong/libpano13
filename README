@@ -1,5 +1,5 @@
 
-This is the pano12 library, part of the Panorama Tools by Helmut
+This is the pano13 library, part of the Panorama Tools by Helmut
 Dersch of the University of Applied Sciences Furtwangen.
 
    http://panotools.sourceforge.net/
@@ -14,7 +14,7 @@ Usage
 
 The typical workflow would be:
 
-- PTremap    maps the pano files, outputs cropped TIFFS
+- PTmender    maps the pano files, outputs cropped TIFFS
 - PTblender* fixes colour shifts in TIFFs, outputs cropped TIFFS (8 bit only)
 - PTmasker*  creates stitching masks in TIFFs, outputs cropped TIFFS
 - PTroller   creates a single TIFF from set of TIFFs
