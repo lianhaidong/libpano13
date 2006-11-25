@@ -1,5 +1,7 @@
 2006-11-25  dmg  <dmg@uvic.ca>
 
+	* Removed makefile.osx which is badly out of date.
+
 	* version.h (VERSION), configure.ac Upgraded to version 2.8.5pre17
 
 	* tiff.c (panoTiffWrite): Fixed a bug in the allocation of the
