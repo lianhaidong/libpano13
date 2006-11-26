@@ -13,7 +13,7 @@ test_n   Test to run. If none given all are done
 \n " if scalar(@ARGV) < 1;
 
 
-my $stitcher = '../../tools/PTremap';
+my $stitcher = '../../tools/PTmender';
 #my $stitcher = '/usr/local/bin/PTmender';
 $, = ' ';
 

@@ -258,11 +258,14 @@ void setCropInformationInTiff(TIFF * tiffFile, CropInfo * crop_info)
 
 
 
+#ifdef DEPRECATED
 int readTIFF(Image * im, fullPath * sfile)
 {
     char filename[512];
     TIFF *tif;
     int result = 0;
+    
+
 
 #ifdef __Mac__
     unsigned char the_pcUnixFilePath[512];      //added by Kekus Digital
@@ -310,7 +313,6 @@ int readTIFF(Image * im, fullPath * sfile)
     TIFFClose(tif);
     return result;
 }
-
 
 int writeCroppedTIFF(Image * im, fullPath * sfile, CropInfo * crop_info)
 {
@@ -455,10 +457,13 @@ int writeCroppedTIFF(Image * im, fullPath * sfile, CropInfo * crop_info)
 
 }
 
+
 int writeTIFF(Image * im, fullPath * sfile)
 {
     return writeCroppedTIFF(im, sfile, &(im->cropInformation));
 }
+
+#endif
 
 
 void RGBAtoARGB(UCHAR * buf, int width, int bitsPerPixel)
@@ -1411,7 +1416,6 @@ int panoTiffWrite(Image * im, char *fileName)
     }
     // end Rik's mask-from-focus hacking (for the moment...)
 
-    printf("Here\n");
     bufsize = TIFFScanlineSize(tif->tiff);
 
     if (bufsize < im->bytesPerLine)
@@ -1424,18 +1428,14 @@ int panoTiffWrite(Image * im, char *fileName)
     }
 
     for (y = 0; y < im->height; y++) {
-	printf("Here 1 buffsize %d bytesperline %d width %d\n", bufsize, im->bytesPerLine, im->width);
+	//	printf("Here 1 buffsize %d bytesperline %d width %d\n", bufsize, im->bytesPerLine, im->width);
         memcpy(buf, *(im->data) + y * im->bytesPerLine,
                (size_t) im->bytesPerLine);
-	printf("Here 2\n");
         ARGBtoRGBA(buf, im->width, im->bitsPerPixel);
-	printf("Here 3\n");
         if (TIFFWriteScanline(tif->tiff, buf, y, 0) != 1) {
             PrintError("Unable to write to TIFF");
             goto error;
         }
-	printf("Here 4\n");
-
     }
     panoTiffClose(tif);
     free(buf);

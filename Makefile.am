@@ -16,7 +16,7 @@ endif
 
 STD_HDR = panorama.h filter.h version.h panotypes.h PTcommon.h pt_stdint.h
 
-INTERNAL_HDR = fftn.h f2c.h ZComb.h adjust.h ColourBrightness.h PTcommon.h pt_stdint.h pttiff.h metadata.h jpegicc.h ptstitch.c ptfeather.h
+INTERNAL_HDR = fftn.h f2c.h ZComb.h adjust.h ColourBrightness.h PTcommon.h pt_stdint.h pttiff.h metadata.h jpegicc.h ptstitch.h ptfeather.h
 
 TOOL_HDR = queryfeature.h pteditor.h ptutils.h 
 

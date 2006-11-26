@@ -1,7 +1,27 @@
 2006-11-25  dmg  <dmg@uvic.ca>
 
-	* Removed makefile.osx which is badly out of date.
+	* version.h (VERSION), configure.ac Upgraded to version 2.9.0
 
+	* TODO: Updated this file
+	
+	* Makefile.am: Minor fix
+
+	* tiff.c (readTIFF, writeTIFF): Finally stopped using these functions.
+
+	* ptstitch.c: Fixed a bug in the computation of masks for 16 bit
+	images, and replaced calls to readTIFF and writeTIFF
+
+	* tools/PTmasker.c (main): Added some testing code
+
+	* ptfeather.c (panoFeatherImage): Implemented feathering of
+	cropped files and 16 bit images
+
+	* metadata.h, metadata.c: added a bunch of simple functions to
+	access the metatada of the image. Ideally we should not access the pointer
+	directly any more.
+
+2006-11-25  dmg  <dmg@uvic.ca>
+	
 	* version.h (VERSION), configure.ac Upgraded to version 2.8.5pre17
 
 	* tiff.c (panoTiffWrite): Fixed a bug in the allocation of the

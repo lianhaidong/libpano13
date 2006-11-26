@@ -1,3 +1,7 @@
+2006-11-25  dmg  <dmg@uvic.ca>
+
+	* panoAutomateTest.pl: CHanged from PTremap to PTmender
+
 2006-10-26  dmg  <dmg@uvic.ca>
 
 	* panoAutomateTest.pl: Disable all tests but tiff_m

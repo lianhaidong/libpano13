@@ -30,6 +30,9 @@
 // update metadata from an image. IT does not update cropped information
 
 #include <stdio.h>
+
+#include <assert.h>
+
 #include "panorama.h"
 #include "metadata.h"
 
@@ -73,4 +76,82 @@ void panoMetadataCropSizeUpdate(pano_ImageMetadata * metadata, pano_CropInfo *cr
     
     // The full size remains the same, 
     // The rest of the metadata should be the same
+}
+
+int panoImageIsCropped(Image *image)
+{
+    assert(image!= NULL);
+    return (image->metadata.isCropped);
+}
+
+int panoImageBytesPerPixel(Image *image)
+{
+    return (image->metadata.bitsPerSample * image->metadata.samplesPerPixel )/ 8;
+}
+
+int panoImageBytesPerLine(Image *image)
+{
+    return (image->metadata.bytesPerLine);
+}
+
+int panoImageBitsPerSample(Image *image)
+{
+    return (image->metadata.bitsPerSample);
+}
+
+int panoImageFullWidth(Image *image)
+{
+    assert(image!= NULL);
+    if (panoImageIsCropped(image))
+	return image->metadata.cropInfo.fullWidth;
+    else
+	return image->width;
+}
+
+int panoImageWidth(Image *image)
+{
+    assert(image!= NULL);
+    return image->width;
+}
+
+int panoImageHeight(Image *image)
+{
+    assert(image!= NULL);
+    return image->height;
+}
+
+
+
+int panoImageFullHeight(Image *image)
+{
+    assert(image!= NULL);
+    if (panoImageIsCropped(image))
+	return image->metadata.cropInfo.fullHeight;
+    else
+	return image->width;
+}
+
+
+int panoImageOffsetX(Image *image)
+{
+    assert(image!= NULL);
+    if (panoImageIsCropped(image))
+	return image->metadata.cropInfo.xOffset;
+    else
+	return 0;
+}
+
+
+int panoImageOffsetY(Image *image)
+{
+    assert(image!= NULL);
+    if (panoImageIsCropped(image))
+	return image->metadata.cropInfo.yOffset;
+    else
+	return 0;
+}
+
+unsigned char *panoImageData(Image *image)
+{
+    return *(image->data);
 }

@@ -27,7 +27,7 @@
 
 //version of preferences file, used to verify data
 #ifndef VERSION
-#define VERSION "2.8.5pre17 "
+#define VERSION "2.9.0 "
 #endif
 
 #ifndef PTVERSION_NAME_LONG
@@ -38,7 +38,7 @@
 #endif
 
 #ifndef PTVERSION_FILEVERSIONNUMBER
-#define PTVERSION_FILEVERSIONNUMBER 2,8,5,-1
+#define PTVERSION_FILEVERSIONNUMBER 2,9,0,-1
 #endif
 
 #ifndef PTVERSION_NAME_FILEVERSION

@@ -34,6 +34,7 @@
 #include "ptstitch.h"
 #include "PTcommon.h"
 #include "ptfeather.h"
+#include "metadata.h"
 
 // Get the value of a channel in the  pixel pointed by ptr
 unsigned int panoStitchPixelChannelGet(unsigned char *ptr, int bytesPerPixel, int channel)
@@ -146,7 +147,7 @@ void panoStitchComputeMaskMap(Image * image)
 
 
     // determine the type of image
-    bytesPerPixel = image->bitsPerPixel/8;
+    bytesPerPixel = panoImageBytesPerPixel(image);
 
     // Use the GreenBlue pixel area is used to keep a counter of the
     // minimum distance (in pixels) away we are from the edges of the
@@ -164,17 +165,20 @@ void panoStitchComputeMaskMap(Image * image)
     // for each row
     //   repeat the same algorithm (done per column)
 
-    for (column = 0; column < image->width; column++) {
+    for (column = 0; column < panoImageWidth(image); column++) {
         count = 0;
         // Point to the given column in row 0
-        ptr = *image->data + column * bytesPerPixel;
+
+        ptr = panoImageData(image) + column * bytesPerPixel;
+
         //    fprintf(stderr, "St1.1 Column[%d]\n", column);
         
 
         // From top to bottom
-        for (row = 0; row < image->height; row++) {
+        for (row = 0; row < panoImageHeight(image); row++) {
+
             // Get alpha channel for this point
-            pixel = ptr +  row * image->bytesPerLine;
+	    pixel = ptr +  row * panoImageBytesPerLine(image);
 
             alphaChannel = panoStitchPixelChannelGet(pixel, bytesPerPixel, 0);
 
@@ -213,7 +217,7 @@ void panoStitchComputeMaskMap(Image * image)
 
         // process from left to right
         for (column = 0; column < image->width; column++) {
-            pixel = ptr + 4 * column;
+            pixel = ptr + panoImageBytesPerPixel(image) * column;
 
             panoStitchPixelDetermineMap(pixel, bytesPerPixel, &count);
         }                       // for column
@@ -227,7 +231,7 @@ void panoStitchComputeMaskMap(Image * image)
         column = image->width;
 
         while (--column >= 0) {
-            pixel = ptr + 4 * column;
+            pixel = ptr + panoImageBytesPerPixel(image) * column;
 
             panoStitchPixelDetermineMap(pixel, bytesPerPixel, &count);
         }
@@ -264,7 +268,7 @@ int panoStitchCreateMaskMapFiles(fullPath * inputFiles, fullPath * maskFiles,
             }
         }
 
-        if (readTIFF(&image, &inputFiles[index]) != 0) {
+        if (panoTiffRead(&image, inputFiles[index].name) == 0) {
             PrintError("Could not read TIFF-file");
             return 0;
         }
@@ -279,7 +283,10 @@ int panoStitchCreateMaskMapFiles(fullPath * inputFiles, fullPath * maskFiles,
             return -1;
         }
 
-        writeTIFF(&image, &maskFiles[index]);
+	if (panoTiffWrite(&image, maskFiles[index].name) == 0) {
+	    PrintError("Could not write TIFF-file [%s]", maskFiles[index].name);
+	    return -1;
+	}
 
         //    fprintf(stderr, "Written to file %s\n", maskFiles[index].name);
 
@@ -318,13 +325,12 @@ static void panoStitchSetBestAlphaChannel16bits(unsigned char *imagesBuffer,
     int j;
     int bytesPerLine;
 
-
-    assert(imageParms->bytesPerPixel == 4);
+    assert(imageParms->bytesPerPixel == 8);
 
     bytesPerLine = imageParms->cropInfo.fullWidth * imageParms->bytesPerPixel;
 
     for (column = 0, pixel = imagesBuffer;
-         column < imageParms->cropInfo.fullWidth; column++, pixel += 8) {
+         column < imageParms->cropInfo.fullWidth; column++, pixel += imageParms->bytesPerPixel) {
 
         best = 0;
         ptrCount = (uint16_t *) (pixel + 2);
@@ -560,8 +566,8 @@ static void panoStitchCalculateAlphaChannel(unsigned char *imagesBuffer,
                                                pano_ImageMetadata * imageMetadata)
 {
 
-    switch (imageMetadata->bitsPerPixel) {
-    case 32:
+    switch (imageMetadata->bitsPerSample) {
+    case 8:
         panoStitchSetBestAlphaChannel8bits(imagesBuffer, numberImages, imageMetadata);
         break;
     case 16:
@@ -845,7 +851,7 @@ int panoStitchReplaceMasks(fullPath * inputFiles, fullPath * outputFiles,
 
             memcpy(&feathered, &maskFiles[i], sizeof(fullPath));
 
-            if (!panoFeatherFiles(&withAlphaChannel, &feathered, featherSize)) {
+            if (!panoFeatherFile(&withAlphaChannel, &feathered, featherSize)) {
                 PrintError("Unable to apply feather to image %d", i);
                 return -1;
             }
