@@ -1,6 +1,13 @@
 2006-11-28  dmg  <dmg@uvic.ca>
 
-	* version.h (VERSION), configure.ac Upgraded to version 2.9.0
+	* version.h (VERSION), configure.ac Upgraded to version 2.9.1,
+	updated copyrights.
+
+	* tools/panoinfo_unix.c (main): Cleaned up the output
+
+	* queryfeature.c: Removed list of patches. It should be enough
+	with the version number
+
 
 	* tiff.c (panoImageBoundingRectangleCompute): Remove a debug
 	statement.

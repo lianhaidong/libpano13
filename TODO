@@ -46,6 +46,8 @@ PTmender:
 - Allow filenames to be specified in the 'i' line if they don't exist
   in the 'o' line. CRITICAL
 
+DESIRABLE:
+
 - PTmender is not properly calculating ROI for some images. In
   particular (at least) circular fisheyes that cover the zenit or the
   nadir. Currently these types of images require full size processing
@@ -92,6 +94,8 @@ DESIRABLE:
 ----------------------------------------------------------------------
  PTcrop:
  
+DESIRABLE
+
 - It needs to be able to crop images as a "set" (that is, compute the
    bounding rectangle of a group of images) not only as a single one.
 

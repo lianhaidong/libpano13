@@ -116,6 +116,9 @@ TStringFeature stringFeatures[]={
   {"FilterName22","Blackman/Bessel"},	
   {"FilterType23","aa"},
   {"FilterName23","Blackman/sinc"},
+#if 0
+  // WE NO longer support need to list them. It should be enough to list the version
+
   // Patches that have been applied
   {"Patch200510a", "Rob Platt, Do not process unchanged color channels for CA correction"},
   {"BMPrev", "Jim Watters, correctly open BMP files created with rows in reverse order"},
@@ -138,6 +141,7 @@ TStringFeature stringFeatures[]={
   {"Patch200312a", "Jim Watters, Updated PSD format, http://photocreations.ca/panotools"},
   {"Patch200309a", "Jim Watters, Allowed linking of y, p, & r values, http://photocreations.ca/panotools"},
   {"Patch200308a", "Jim Watters, Improved Radial Luminance, http://photocreations.ca/panotools"}
+#endif
 };
 /***************** end feature tables **********************/
 

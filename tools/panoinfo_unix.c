@@ -46,7 +46,7 @@ int main(int argc,char *argv[])
 
 	if(queryFeatureString (PTVERSION_NAME_FILEVERSION, sResult, sizeof(sResult)/sizeof(sResult[0]) ))
 	{
-		sprintf(str1, "Pano12 file version:\t%s\n", sResult );
+		sprintf(str1, "Panotools version:\t%s\n", sResult );
 		strcat(str2 ,str1);
 	}
 
@@ -93,6 +93,6 @@ int main(int argc,char *argv[])
 		strcat(str2 ,str1);
 		free(value);
 	}
-        printf("libpano12 properties and features:\n%s", str2);
+        printf(str2);
         return 0;
 }

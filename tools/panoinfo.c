@@ -53,7 +53,7 @@ int main(int argc,char *argv[])
 	char			str1[1000];
 	char			str2[10000];
 
-	hDll = LoadLibrary("pano12.dll");
+	hDll = LoadLibrary("pano13.dll");
 	if(!hDll)
 	{
 		MessageBox((HWND)NULL, "Could not load dll", "panoinfo", MB_ICONEXCLAMATION);
