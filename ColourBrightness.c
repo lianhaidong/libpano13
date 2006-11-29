@@ -753,32 +753,29 @@ void FreeHistograms(histograms_struct *ptrHistograms, int count)
 }
 
 
-
 int CorrectFileColourBrightness(fullPath *inPath, fullPath *outPath, magnolia_struct *magnolia, int parm3)
 {
   Image image;
   CropInfo crop_info;
   char tempString[512];
-  if (readTIFF (&image, inPath) != 0) {
+  if (panoTiffRead (&image, inPath->name) != 0) {
     sprintf(tempString, "Could not read TIFF file %s", inPath->name);
     PrintError(tempString);
     return -1;
   }   
 
-  // TODO: add error checking to the write
-
-
-  getCropInformation(inPath->name, &crop_info);  
-  
   CorrectImageColourBrigthness(&image, magnolia, parm3);
   
-  writeCroppedTIFF(&image, outPath, &crop_info);
+  if (panoTiffWrite(&image, outPath->name) == 0) {
+    PrintError("Could not read TIFF file %s", inPath->name);
+    myfree((void**)image.data);
+    return -1;
+  }
 
   myfree((void**)image.data);
   return(0);
 
 }
-
 
 
 int FindNextCandidate(int candidates[], calla_struct *calla)

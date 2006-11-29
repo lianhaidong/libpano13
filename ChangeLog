@@ -1,3 +1,56 @@
+2006-11-28  dmg  <dmg@uvic.ca>
+
+	* version.h (VERSION), configure.ac Upgraded to version 2.9.0
+
+	* tiff.c (panoImageBoundingRectangleCompute): Remove a debug
+	statement.
+	
+	* file.h: removed a wrong comment
+
+	* tools/PTcrop.c (main): Renamed option -o to -f (to be consistent)
+
+	* tiff.c (panoTiffCrop): Do processing in a temporal file, instead
+	of directly in the output file
+
+	* PTcommon.c: Removed some dead code
+	
+	* PTcommon.c (panoCreatePanorama): The calculation of the ROI is
+	not done correctly for circular fisheye images (CFIs). For the
+	time being we will do uncrop processing for CFIs, and cropped
+	processing for everything else. For fisheyes we will create crops
+	in post-processing (it is a hack, but it means everything is
+	consistent).
+	
+	* tools/PTroller.c (main): Fixed a warning
+
+	* adjust.c (SetMakeParams): Added some debugging code (and
+	commented it out)
+
+	* parser.c (ReadImageDescription): Croping options  were not
+	working properly when 2 cropping specs were specified in the same
+	command line. For instance, when M=0 was specified any cropping on
+	the image was considered a type C crop. The new behaviour is the
+	following:
+
+	if M is specified with parameter == 0, then it is ignored
+
+	For project with two different types of cropping (M<>0, S or C)
+	the first takes precedence over the second, and a warning is
+	displayed.
+	
+
+2006-11-27  dmg  <dmg@uvic.ca>
+
+	* ColourBrightness.c (CorrectFileColourBrightness): Replaced
+	readTIFF and writeTIFF  with panoTiffRead and panoTiffWrite. Added
+	some error checking
+
+	* PTcommon.c (panoPSDCreate): Replaced readTIFF  with panoTiffRead
+
+2006-11-26  dmg  <dmg@uvic.ca>
+
+	* file.c (panoImageRead): Fixed bug in return value of panoReadImage
+
 2006-11-25  dmg  <dmg@uvic.ca>
 
 	* version.h (VERSION), configure.ac Upgraded to version 2.9.0

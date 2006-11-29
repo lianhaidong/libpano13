@@ -51,7 +51,7 @@ typedef struct {
 } pano_flattening_parms;
 
 typedef struct {
-  int type;             // 1 if images are stacked
+  int type;             //
   int forceProcessing;
 } pano_cropping_parms;
 

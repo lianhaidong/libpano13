@@ -2,39 +2,65 @@
 This file documents the activities required before we release version
 3.0.0 of the library.
 
+
+======================================================================
 KNOWN BUGS:
 
 ----------------------------------------------------------------------
+All tools:
+
+- Bug: There is a memory leak in panoTiffRead. I don't release the
+  memory it has allocated when an image is read. Create a
+  panoImageDispose routine. CRITICAL
+
+- Command line processing. All tools should have similar command line
+  processing. This needs to be checked, and updated, if
+  necessary. CRITICAL
+
 - PTcrop tries to read the entire image at once. With a huge image I
    got a segfault from inside libtiff. It needs to be rewritten to read
    only one line at a time.
 
-- PTroller runs _extremely_ slow. I need to find out why.
+- PTroller runs _extremely_ slow. I need to find out why. (not
+  critical for 3.0.0)
 
 - PTtiff2psd is unable to create PSDs beyond certain size (I suspect
    this is a limitation of the format). We need to find this
    limitation and output an error message informing the
    user. Otherwise a PSD is created that is "corrupted"
 
-* Bug: There is a memory leak in panoTiffRead. I don't release the
-  memory it has allocated when an image is read. Create a
-  panoImageDispose routine.
-
-* Command line processing. All tools should have similar command line
-  processing. This needs to be checked, and updated, if necessary.
 
 ----------------------------------------------------------------------
 
 panoinfo:
 
-- Update it.
+- Update it. CRITICAL
 
 ----------------------------------------------------------------------
 
 PTmender:
  
-- Allow the specification of the images in the command line
 
+- Allow the specification of the images in the command line. CRITICAL
+
+- Allow filenames to be specified in the 'i' line if they don't exist
+  in the 'o' line. CRITICAL
+
+- PTmender is not properly calculating ROI for some images. In
+  particular (at least) circular fisheyes that cover the zenit or the
+  nadir. Currently these types of images require full size processing
+  (as opposed to cropped processing).
+
+----------------------------------------------------------------------
+PTtiff2psd:
+ 
+DESIRABLE:
+
+Create PSDs of one layer 8 and 16 bit images
+
+======================================================================
+
+After 3.0.0:
 
 DESIRABLE FEATURES:
  

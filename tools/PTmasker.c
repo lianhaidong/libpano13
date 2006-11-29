@@ -141,9 +141,6 @@ int main(int argc,char *argv[])
         return -1;
     }
 
-
-
-
     // Generate output file names
     if (panoFileOutputNamesCreate(ptrOutputFiles, filesCount, outputPrefix) == 0) {
 	return -1;
@@ -153,8 +150,6 @@ int main(int argc,char *argv[])
     panoFeatherFile(ptrInputFiles, ptrOutputFiles, feather);
     exit(1);
 #endif
-
-
 
     if (! ptForceProcessing) {
 	char *temp;

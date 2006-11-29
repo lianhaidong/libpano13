@@ -1258,11 +1258,14 @@ static int ReadImageDescription( Image *imPtr, stBuf *sPtr, char *line )
 	char *ch = line;
 	char buf[LINE_LENGTH];
 	int	 i;
-
+	int    cropping = 0;
+	int tempInt;
+	char typeParm;
 	
 	memcpy( &im, 	imPtr,	 sizeof(Image) );
 	memcpy( &sBuf, 	sPtr,	 sizeof(stBuf ));
 	
+	//	printf("************************************* Before Cut Frame %d \n", im.cP.cutFrame);
 	while( *ch != 0)
 	{
 		switch(*ch)
@@ -1328,32 +1331,77 @@ static int ReadImageDescription( Image *imPtr, stBuf *sPtr, char *line )
 						sBuf.colcorrect += (i+1)*4;
 						break;	
 			case 'm':  // Frame
-						ch++;
-						switch( *ch )
-						{
-							case 'x':
-								READ_VAR( "%d", &im.cP.fwidth );
-								im.cP.cutFrame = TRUE;
-								break;
-							case 'y':
-								READ_VAR( "%d", &im.cP.fheight );
-								im.cP.cutFrame = TRUE;
-								break;
-							default:
-								ch--;
-								READ_VAR( "%d", &(im.cP.frame) );
-								im.cP.cutFrame = TRUE;											
-								break;
-						}
-						break;
+			    //THiS NEEDS A GOOD FIX...
+			    typeParm = *(ch+1);			    
+			    // first consume the parameter
+			    if (typeParm =='x' || typeParm == 'y') {
+				// Consume next character, then read parm
+				ch++;
+				READ_VAR( "%d", &tempInt);
+			    }
+			    else {
+				READ_VAR( "%d", &tempInt);
+			    }
+			    
+			    if (tempInt == 0) {
+				// value of zero, just ignore
+				break;
+			    } 
+
+			    // Sometimes this is specified to force a zero. In this case
+			    // issue a warning and ignore
+			    if (cropping) {
+				PrintError("Contradictory cropping specified. M cropping ignored\n");
+				break;
+			    }
+			    // Eat next token to avoid error
+			    cropping = 1;
+			    im.cP.cutFrame = TRUE;
+
+			    switch( typeParm ) {
+			    case 'x':
+				im.cP.fwidth = tempInt;
+				//READ_VAR( "%d", &im.cP.fwidth );
+				break;
+			    case 'y':
+				im.cP.fheight = tempInt;
+				//READ_VAR( "%d", &im.cP.fheight );
+				//im.cP.cutFrame = TRUE;
+				break;
+			    default:
+				im.cP.frame = tempInt;
+				READ_VAR( "%d", &(im.cP.frame) );
+				// im.cP.cutFrame = TRUE;											
+				break;
+			    }
+			    
+			    break;
 			case 'n':  // Name string (used for panorama format)
 						nextWord( buf, &ch );
 						strcpy( im.name, buf );
 						break;	
-			case 'S':  nextWord( buf, &ch );		
+			case 'S':  
+			  if (cropping) {
+			    PrintError("Contradictory cropping specified. S cropping ignored\n");
+			    // Eat next token
+			    nextWord( buf, &ch );		
+			    break;
+			  }
+			  cropping = 1;
+
+			           nextWord( buf, &ch );		
 				   sscanf( buf, FMT_INT32","FMT_INT32","FMT_INT32","FMT_INT32, &im.selection.left, &im.selection.right, &im.selection.top, &im.selection.bottom );
 				   break;
-			case 'C':  nextWord( buf, &ch );		
+			case 'C':  
+			  if (cropping) {
+			    PrintError("Contradictory cropping specified. C cropping ignored\n");
+			    // Eat next token
+			    nextWord( buf, &ch );		
+			    break;
+			  }
+			  cropping = 1;
+
+			  nextWord( buf, &ch );		
 				   sscanf( buf, FMT_INT32","FMT_INT32","FMT_INT32","FMT_INT32, &im.selection.left, &im.selection.right, &im.selection.top, &im.selection.bottom );
 				   im.cP.cutFrame = TRUE;
 				   break;
@@ -1361,7 +1409,8 @@ static int ReadImageDescription( Image *imPtr, stBuf *sPtr, char *line )
 						break;
 		}
 	}
-	
+
+	//	printf("************************************* A Cut Frame %d \n", im.cP.cutFrame);
 	// Set 4th polynomial parameter
 					
 	im.cP.radial_params[0][0] = 1.0 - ( im.cP.radial_params[0][3] + im.cP.radial_params[0][2]

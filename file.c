@@ -2355,10 +2355,11 @@ int panoImageRead(Image * im, fullPath * sfile)
     assert(sfile != NULL);
     assert(im != NULL);
     
+    printf("Filename %s\n", sfile->name);
     ext = strrchr(sfile->name, '.');
     if (ext == NULL || strlen(ext) != 4) {
 	PrintError("Unsupported file format [%s]: must have extension JPG, PNG, TIF, BMP or HDR", sfile);
-	return -1;
+	return 0;
     }
     ext++;
     strcpy(extension, ext);

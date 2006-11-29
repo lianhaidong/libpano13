@@ -141,7 +141,7 @@ int main(int argc,char *argv[])
 	// Verify if output file exists
 	char *temp;
 	if ((temp = panoFileExists(&pathName, 1)) != NULL) {
-	    PrintError("Output filename exists %d", temp);
+	    PrintError("Output filename exists %s", pathName.name);
 	    return -1;
 	}
 	

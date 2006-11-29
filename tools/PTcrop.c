@@ -31,7 +31,7 @@
 
 #define PT_CROP_USAGE "PTuncrop [options] <inputFile> <outputFile>\n\n" \
     "Options:\n"                                                        \
-    "-o\t\tOverwrite output file if it exists\n"                        \
+    "-f\t\tForce processing: Overwrite output file if it exists\n"                        \
     "\t-q\t\tQuiet run\n\t-h\t\tShow this message\n"                    \
     "\n"
 
@@ -65,14 +65,14 @@ int main(int argc,char *argv[])
   
     printf(PT_CROP_VERSION);
 
-    while ((opt = getopt(argc, argv, "ohq")) != -1) {
+    while ((opt = getopt(argc, argv, "fhq")) != -1) {
 
         // o overwrite
         // h       -> help
         // q       -> quiet?
     
         switch(opt) {  // fhoqs        f: 102 h:104  111 113 115  o:f:hsq
-        case 'o':
+        case 'f':
             overwrite = 1;
             break;
         case 'q':

@@ -724,6 +724,17 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
 	mp->rot[0]		= mp->distance * PI;								// 180 in screenpoints
 	mp->rot[1]		= -im->yaw *  mp->distance * PI / 180.0; 			//    rotation angle in screenpoints
 
+
+	/*
+	printf("Image format %d\n", im->format);
+	printf("shear[0] %f\n", mp->shear[0]);
+	printf("shear[1] %f\n", mp->shear[1]);
+	printf("rot[0] %f\n", mp->rot[0]);
+	printf("rot[1] %f\n", mp->rot[1]);
+	printf("scale[0] %f\n", mp->rot[0]);
+	*/
+
+
 	mp->perspect[0] = (void*)(mp->mt);
 	mp->perspect[1] = (void*)&(mp->distance);
 			

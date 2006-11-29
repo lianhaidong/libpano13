@@ -68,7 +68,7 @@ int ptDebug = 0;
 int sorting_function(const void *, const void *);
 int hasPathInfo(char *aName);
 
-static void panoRemapDuplicateScriptFile(char *scriptFileName, char *script, fullPath  *scriptPathName)
+static void panoMenderDuplicateScriptFile(char *scriptFileName, char *script, fullPath  *scriptPathName)
 {
     FILE* scriptFD;
     int temp;
@@ -200,7 +200,7 @@ int main(int argc,char *argv[])
     // The parser of panotools is really broken. To retrieve each
     // input filename it reads the file,
     // finds the first filename, then removes it, and writes the rest of the file again
-    // This is done recursively
+    // This is done recursively 
 
     //an "o" line represents an input image
     counter = numLines(script, 'o');
@@ -213,7 +213,7 @@ int main(int argc,char *argv[])
 
     // create a temporary copy we can overwrite
     fullPath scriptPathName;
-    panoRemapDuplicateScriptFile(scriptFileName.name, script, &scriptPathName);
+    panoMenderDuplicateScriptFile(scriptFileName.name, script, &scriptPathName);
 
     free(script); 
 

@@ -1862,8 +1862,8 @@ int panoImageBoundingRectangleCompute(unsigned char *data, int width, int height
 
 
 
-    fprintf(stderr, "Finding boudinging box: x %d y %d width %d height %d\n", (int)cropInfo->xOffset, (int)cropInfo->yOffset,
-	    (int)cropInfo->croppedWidth, (int)cropInfo->croppedHeight);
+    //    fprintf(stderr, "Finding boudinging box: x %d y %d width %d height %d\n", (int)cropInfo->xOffset, (int)cropInfo->yOffset,
+    //	    (int)cropInfo->croppedWidth, (int)cropInfo->croppedHeight);
 	    
     return 1;
 }
@@ -1880,12 +1880,18 @@ int panoTiffCrop(char *inputFile, char *outputFile, pano_cropping_parms *croppin
     Image im;
     unsigned char *data = NULL;
     int i;
+    fullPath tempFile;
 
+    // Let us do the processing in a different file
+    if (panoFileMakeTemp(&tempFile) == 0) {
+	PrintError("Could not make Tempfile");
+	return -1;
+    }
+    
     if (panoTiffRead(&im, inputFile) ==0 ) {
         PrintError("Unable to open input file %s", inputFile);
         goto error;
     }
-
 
     // Compute inner rectangle
 
@@ -1904,7 +1910,7 @@ int panoTiffCrop(char *inputFile, char *outputFile, pano_cropping_parms *croppin
     panoMetadataCropSizeUpdate(&metadata, &cropInfo);
 
     if ((tiffOutput =
-         panoTiffCreate(outputFile, &metadata)) == NULL) {
+         panoTiffCreate(tempFile.name, &metadata)) == NULL) {
         PrintError("Unable to create output file [%s]", outputFile);
         goto error;
     }
@@ -1936,6 +1942,11 @@ int panoTiffCrop(char *inputFile, char *outputFile, pano_cropping_parms *croppin
     //printf("Finished\n");
 
     panoTiffClose(tiffOutput);
+    remove(outputFile);
+    if (rename(tempFile.name, outputFile) != 0) {
+	PrintError("Unable to create output file %s", outputFile);
+    }
+
 
     return 1;
 
@@ -1943,8 +1954,10 @@ int panoTiffCrop(char *inputFile, char *outputFile, pano_cropping_parms *croppin
     // Error handler
     // Make sure we release any resources we have
 
-    if (tiffOutput != NULL)
+    if (tiffOutput != NULL) {
         panoTiffClose(tiffOutput);
+	remove(tempFile.name);
+    }
 
     return 0;
 }

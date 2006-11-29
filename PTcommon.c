@@ -144,7 +144,7 @@ int panoPSDCreate(fullPath * fullPathImages, int numberImages,
             }
         }
 
-        if (readTIFF(ptrImage, &fullPathImages[i]) != 0) {
+        if (panoTiffRead(ptrImage, fullPathImages[i].name) == 0) {
 
             PrintError("Could not read TIFF image No &d", i);
             if (ptQuietFlag == 0)
@@ -298,6 +298,7 @@ void Clear_Area_Outside_Selected_Region(Image * image)
 
     if (image->format == _fisheye_circ) {
 
+
 	// TODO
 	// This routine works only in fisheyes in portrait mode
 	// it probably fails in landscape mode
@@ -436,126 +437,6 @@ void Clear_Area_Outside_Selected_Region(Image * image)
 
     return;
 
-
-#ifdef not_implemented_yet
-
-
-    //  THIS IS the code for fisheye_circular 24 bits, but I don't understand it yet.
-
-    pixelPtr = right;
-    currentColumn = left;
-
-    eax = left + right;
-
-
-    var20 = (left + right) / 2;
-    var24 = (top + bottom) / 2;
-    assert(left >= right);
-    temp = (left - right) / 2;
-    tmpStr28 = temp * temp;
-
-
-    dataPtr = *(image->data);
-
-    for (currentRow = 0; currentRow < image->height; currentRow++) {
-
-        currentColumn = 0;
-        pixelPtr = dataPtr;
-
-        if (currentColumn < image->width) {
-
-
-            temp = currentRow - var24;
-
-            var36 = temp * temp;
-
-            do {
-
-                temp = currentColumn - var20;
-                temp = temp * temp + var36;
-
-                if (%eax > tmpStr28) {
-
-                    *pixelPtr = 0;      //moves only 1 byte
-                }
-
-                currentColumn++;
-                pixelPtr += bytesPerPixel;
-
-            } while (currentColumn < image->width);
-
-        }                       //    if ( currentColumn < image->width ) {
-
-
-        dataPtr += image->bytesPerLine;
-
-
-    }                           //for ( ; currentRow < image->height ; ) {
-
-    return;
-}                               //if ( image->bitsPerPixel == $0x20 ) {
-#endif
-
-
-
-#ifdef not_implemented_yet
-
-THIS IS the code for fisheye_circular 64 bits 
-
-var20 = (left + right) /2;
-
-var24 = (top + bottom) / 2;
-
-currentColumn = (left - right) / 2;
-
-tmpStr28 = currentColumn * currentColumn;
-
-dataPtr = *(image->data);
-
-for (currentRow = 0;; currentRow < image->height; ++currentRow) {
-    //if ( currentRow >= image->height )
-    //              return;
-
-    currentColumn = 0;
-    pixelPtr = dataPtr;
-
-    if (currentColumn < image->width) {
-
-        var40 = (currentRow * var24) * (currentRow * var24);
-
-        do {
-
-            eax = currentColumn * currentColumn + var40;
-
-            if (%eax > tmpStr28) {
-                *pixelPtr = 0;  // Again CAREFUL, moves 8 bytes
-            }
-
-            currentColumn++;
-            pixelPtr = bytesPerPixel;
-
-        } while (currentColumn < image->width);
-        //if ( currentColumn < image->width )
-        //       
-
-    }                           //if ( currentColumn < image->width ) {
-
-    dataPtr += image->bytesPerLine;
-
-}                               //for ( ; %currentRow < image->height ; ) 
-#endif
-
-return;
-
-
-}
-
-
-void Unknown09(Image * currentImagePtr)
-{
-    // NEEDED
-    fprintf(stderr, "Unknown09 this function is not implemented yet\n");
-    exit(1);
 }
 
 
@@ -647,6 +528,9 @@ void getROI(TrformStr * TrPtr, aPrefs * aP, PTRect * ROIRect)
         //printf("ROI: %d,%d - %d, %d\n", ROIRect->left, ROIRect->top, ROIRect->right, ROIRect->bottom);
 }
 
+#if 0 
+
+// NO LONGER NEEDED
 
 /**
  * Populates the CropInfo struct with data about cropping of 
@@ -667,7 +551,6 @@ void getCropInformation(char *filename, CropInfo * c)
 }
 
 
-
 void setFullSizeImageParameters(pt_tiff_parms * imageParameters,
                                 CropInfo * crop_info)
 {
@@ -678,6 +561,8 @@ void setFullSizeImageParameters(pt_tiff_parms * imageParameters,
     imageParameters->bytesPerLine =
         imageParameters->imageWidth * (imageParameters->bitsPerPixel / 8);
 }
+
+#endif
 
 
 int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
@@ -801,6 +686,43 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
             goto mainError;
         }
 
+	//	printf("*********cut frame: should be zero for S and no crop %d\n",  prefs->im.cP.cutFrame);
+	
+        //New for PTMender...PTMender uses "cropped" TIFFs as its intermediate file 
+        //format for all processing.  In contrast, PTStitcher used full-size TIFF
+        //images for all intermediate processing.  PTMender can still write "uncropped" 
+        //final as needed.
+        //
+        //To the end user, PTMender appears to behave similarly to PTStitcher for 
+        //TIFF_m and TIFF_mask formats, outputting a one "full-size" TIFF for each 
+        //layer.  However, the internal processing is done on cropped TIFFs which
+        //speeds things up considerably.
+        //
+        //An important improvement over PTStitcher is that the user can also explicitly 
+        //requests cropped output for multi layer TIFF output by inlcluding 
+        //"r:CROP" as part of the "p" line (e.g. n"TIFF_m r:CROP")
+        //
+        //Using cropped TIFF as the intermediate format significantly speeds up 
+        //processing, with larger panos showing more dramatic increases in speed.  
+        //It should also mean that the creation of the "flattened" formats will 
+        //be significantly more memory-friendly, as the masking steps and PSD 
+        //assembly steps won't need to load images the size of the output file 
+        //into memory at once.  Unless the PTMender is fed extremely large input 
+        //images, all memory constraints should now be a thing of the past (MRDL - May 2006).
+
+        //croppedTIFFIntermediate determines if all intermediate processing is done
+        //with cropped or full size TIFF.  There probably isn't much of a reason
+        //to ever disable this feature, other than for testing/debugging purposes.
+
+
+	// By default we do cropped TIFF,
+	// but at this point we cannot properly calculate the ROI for fisheyes, so just
+	// process them uncropped.
+
+	if (prefs->im.format == _fisheye_circ) {
+	    croppedTIFFIntermediate = 0;
+	} 
+
         colourCorrection = prefs->sBuf.colcorrect;
         // This is a strange value:
         // colourCorrection == (i & 3) + (i+1)*4;
@@ -844,33 +766,6 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
 	}
 
 
-        //New for PTMender...PTMender uses "cropped" TIFFs as its intermediate file 
-        //format for all processing.  In contrast, PTStitcher used full-size TIFF
-        //images for all intermediate processing.  PTMender can still write "uncropped" 
-        //final as needed.
-        //
-        //To the end user, PTMender appears to behave similarly to PTStitcher for 
-        //TIFF_m and TIFF_mask formats, outputting a one "full-size" TIFF for each 
-        //layer.  However, the internal processing is done on cropped TIFFs which
-        //speeds things up considerably.
-        //
-        //An important improvement over PTStitcher is that the user can also explicitly 
-        //requests cropped output for multi layer TIFF output by inlcluding 
-        //"r:CROP" as part of the "p" line (e.g. n"TIFF_m r:CROP")
-        //
-        //Using cropped TIFF as the intermediate format significantly speeds up 
-        //processing, with larger panos showing more dramatic increases in speed.  
-        //It should also mean that the creation of the "flattened" formats will 
-        //be significantly more memory-friendly, as the masking steps and PSD 
-        //assembly steps won't need to load images the size of the output file 
-        //into memory at once.  Unless the PTMender is fed extremely large input 
-        //images, all memory constraints should now be a thing of the past (MRDL - May 2006).
-
-        //croppedTIFFIntermediate determines if all intermediate processing is done
-        //with cropped or full size TIFF.  There probably isn't much of a reason
-        //to ever disable this feature, other than for testing/debugging purposes.
-
-        croppedTIFFIntermediate = 1;
 
         transform.interpolator = prefs->interpolator;
         transform.gamma = prefs->gamma;
@@ -883,15 +778,18 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
 
         //Read input image into transform.src
         if (panoImageRead(currentImagePtr, &ptrImageFileNames[loopCounter]) == 0) {
-            PrintError("Could not read input image %s", ptrImageFileNames[loopCounter].name);
+            PrintError("Could not read input image [%s]", ptrImageFileNames[loopCounter].name);
             goto mainError;
         }
 
-        //      printf("Ended reading INPUT image\n");
+	// printf("Ended reading INPUT image\n");
 
         //This "masks" the input image so that some pixels are excluded from 
         //transformation routine during pixel remapping/interpolation 
+	
         if (prefs->im.cP.cutFrame != 0) {       // remove frame? 0 - no; 1 - yes
+	    // THIS CODE is executed in crop C type only, but not in S type
+	    //	    printf("To crop image\n");
             if (CropImage(currentImagePtr, &(prefs->im.selection)) == 0) {
                 prefs->im.selection.left = 0;
                 prefs->im.selection.right = 0;
@@ -899,7 +797,6 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
                 prefs->im.selection.top = 0;
             }
         }
-
         //setup width/height of input image
         prefs->im.width = image1.width;
         prefs->im.height = image1.height;
@@ -948,6 +845,7 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
 	metadata.imageNumber = loopCounter;
 	metadata.imageTotalNumber = counterImageFiles;
         metadata.imageDescription = strdup(regScript);
+
 
         // Set output width/height for output file 
         if (croppedTIFFIntermediate) {
@@ -1065,6 +963,13 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
         image1.selection.left = prefs->im.selection.left;
         image1.selection.right = prefs->im.selection.right;
 
+	/*
+	printf("****** Image selection hfov %f, %d %d %d %d \n", image1.hfov, image1.selection.top,
+	       image1.selection.bottom,
+	       image1.selection.left,
+	       image1.selection.right);
+	*/
+
         CopyPosition(&resultPanorama, &(prefs->pano));
 
         //Set image data outside selection region to zeros
@@ -1088,6 +993,15 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
                 1 : resultPanorama.height)) {
 
             // Call the main pixel remapping routine...all the interpolation happens here
+
+	    /*
+	    printf("Prefs: %f\n", prefs->pano.hfov);
+	    printf("Prefs im: hvof %f, yaw %f pitch %f, roll %f\n", prefs->im.hfov, prefs->im.yaw, prefs->im.pitch, prefs->im.roll);
+	    printf("Prefs pano: hvof %f, vfov %f pitch %f, roll %f\n", prefs->pano.hfov, prefs->pano.yaw, prefs->pano.pitch, prefs->pano.roll);
+	    printf("Prefs Interpolator %d:\n", prefs->interpolator);
+	    printf("Prefs Gamma %d:\n", prefs->gamma);
+	    */
+
             MakePano(&transform, prefs);
 
             if (transform.success == 0) {       // Error 
@@ -1149,6 +1063,21 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
         }
 
         panoTiffClose(tiffFile);
+	
+	if (croppedTIFFIntermediate == 0) {
+	    // We can't process (yet) all files in cropped mode
+	    // To quite the roar from the masses let them think we
+	    // do. I wonder how long it will take for them to notice. Placebo effect?
+	    pano_cropping_parms croppingParms;
+	    bzero(&croppingParms, sizeof(croppingParms));
+	    
+	    if (panoTiffCrop(currentFullPath.name, currentFullPath.name, &croppingParms) == 0) {
+		PrintError("Unable to write output file %s", currentFullPath.name);
+		remove(tempScriptFile.name);
+		return (-1);
+	    }
+	}
+
 
         //////////////////////////////////////////////////////////////////////
 
