@@ -62,11 +62,13 @@ int ptDebug = 0;
                          "\t-o <prefix>\tPrefix for output filename, defaults to " DEFAULT_OUTPUT_NAME "\n"\
                          "\t-q\t\tQuiet run\n"\
                          "\t-h\t\tShow this message\n"\
+                         "\t-s\t\tSort the filenames provided in the command line in lexicographical order (and only in the command line)\n"\
                          "\n"
 
 
-int sorting_function(const void *, const void *);
-int hasPathInfo(char *aName);
+static int hasPathInfo(char *aName);
+static int panoMenderSortingFunction(const void *p1, const void *p2);
+
 
 static void panoMenderDuplicateScriptFile(char *scriptFileName, char *script, fullPath  *scriptPathName)
 {
@@ -98,20 +100,154 @@ static void panoMenderDuplicateScriptFile(char *scriptFileName, char *script, fu
     
 }
 
+void panoMenderSetFileName(fullPath *ptrImageFileName, char *name, fullPath *scriptFileName)
+{
+    //Only prepend the path to the script to the filenames if the filenames
+    //don't already have path information
+    if ( (hasPathInfo(name)) == 0 )
+	strcpy(ptrImageFileName->name, scriptFileName->name);
+    else
+	strcpy(ptrImageFileName->name, "");
+    
+    InsertFileName(ptrImageFileName, name);
+}
+
+static int panoMenderImageFileNamesReadFromScript(fullPath **ptrImageFileNames, fullPath *scriptFileName)
+{
+    char *script;
+    AlignInfo alignInfo;
+    int counter;
+    int i;
+
+    // We don't have any images yet. We read the Script and load them from it.
+    if (ptDebug) {
+	fprintf(stderr, "Loading script [%s]\n", scriptFileName->name);
+    }
+	
+    script = LoadScript(scriptFileName);
+    
+    if (script == NULL) {
+	PrintError("Could not load script [%s]", scriptFileName->name);
+	return -1;
+    }
+    
+    // parse input script and set up an array of input file names
+    if (ParseScript(script, &alignInfo) != 0) {
+	// print error
+	
+	PrintError("Panorama script parsing error");
+	return 0;
+    }
+    
+    // The parser of panotools is really broken. To retrieve each
+    // input filename it reads the file,
+    // finds the first filename, then removes it, and writes the rest of the file again
+    // This is done recursively 
+    
+    counter = alignInfo.numIm;
+    
+    if (counter != 0) {
+	
+	// Try to find filenames in input section
+	if (ptDebug) {
+	    fprintf(stderr, "Found %d images in script file in INPUT section\n", counter);
+	}
+	// Allocate their space
+	if ((*ptrImageFileNames = malloc(512 * counter)) == NULL) {
+	    PrintError("Not enough memory");
+	    exit(1);
+	}
+	
+	//Iterate over input images and populate input filename array
+	for (i = 0; i < counter; i ++) {
+	    //If the image filenames don't appear to have any path information, then 
+	    //prepend the path to the script (if any) that was specified on the 
+	    //command line (Note: this was the only behavior in the original 
+	    //PTStitcher.  It has been moved into this conditional block because
+	    //the script path could get prepended to an already fully qualified
+	    //filename...not very useful.
+	    panoMenderSetFileName(&((*ptrImageFileNames)[i]), alignInfo.im[i].name, scriptFileName);
+	    
+	    if (ptDebug) {
+		fprintf(stderr, "Reading image filename [%s] from 'i' line %d\n", (*ptrImageFileNames)[i].name, i);
+	    }
+	    
+	    
+	}
+	DisposeAlignInfo(&alignInfo);
+    }	
+    if (counter == 0) {
+	// Sometimes the names of the images are not in the 'o' line, then assume they are
+	// in the 'i' line.
+	
+	
+	// create a temporary copy we can overwrite
+	fullPath scriptPathName;
+	
+	counter = numLines(script, 'o');
+	
+	if (counter == 0) {
+	    PrintError("No images found input file script file (there are no 'o' lines nor 'i' lines");
+	    exit(1);
+	}
+	// Allocate their space
+	if ((ptrImageFileNames = malloc(512 * counter)) == NULL) {
+	    PrintError("Not enough memory");
+	    exit(1);
+	}
+	
+	
+	panoMenderDuplicateScriptFile(scriptFileName->name, script, &scriptPathName);
+	
+	if ((ptrImageFileNames = malloc(counter * 512)) == NULL) {
+	    PrintError("Not enough memory\n");
+	    exit(1);
+	}
+	
+	for (i = 0; i < counter; i++) {
+	    aPrefs* preferences;
+	    if ( (preferences = readAdjustLine(&scriptPathName)) == NULL) {
+		PrintError("No 'i' line for image number %d", i);
+		exit(1);
+	    }
+	    
+	    panoMenderSetFileName(&((*ptrImageFileNames)[i]), preferences->im.name, scriptFileName);
+	    
+	    if (ptDebug) {
+		fprintf(stderr, "Reading image filename [%s] from 'i' line %d\n",
+			(*ptrImageFileNames)[i].name, i);
+	    }
+	    if (preferences->td != NULL)
+		free(preferences->td);
+	    
+	    if (preferences->ts != NULL)
+		free(preferences->ts);
+	    
+	    free(preferences);
+	    
+	} // end of for (i = 0; i < counter; i++) {
+	free(script); 
+	
+	remove(scriptPathName.name);
+	
+    }
+    return counter;
+}
 
 
 int main(int argc,char *argv[])
 {
-    char *script;
     int counter;
+    int sort = 0; // do we sort command line filenames?
     fullPath *ptrImageFileNames;
-    AlignInfo alignInfo;
+
     fullPath scriptFileName;
     fullPath panoFileName;
     int i;
 
     char opt;
 
+    char *currentParm;
     ptrImageFileNames = NULL;
     counter = 0;
     strcpy(panoFileName.name, DEFAULT_OUTPUT_NAME);
@@ -133,7 +269,9 @@ int main(int argc,char *argv[])
 		return(-1);
 	    }
 	    break;
-	    
+	case 's':
+	    sort = 1;
+	    break;
 	case 'd':
 	    ptDebug = 1;
 	    break;
@@ -150,11 +288,17 @@ int main(int argc,char *argv[])
 	}
     }
 
-    if (optind != argc - 1) {
+
+    if (ptDebug) {
+	fprintf(stderr, "Number of options to process %d\n", argc- optind);
+    }
+
+
+    if (optind - argc == 0) {
 	PrintError(PT_MENDER_USAGE);
 	return -1;
     }
-
+    // First we get the name of the script
     if (StringtoFullPath(&scriptFileName, argv[optind]) !=0) { // success
 	PrintError("Syntax error: Not a valid pathname");
 	PrintError(PT_MENDER_USAGE);
@@ -169,94 +313,55 @@ int main(int argc,char *argv[])
 
     }  // end of if (scriptFileName[0] != 0) {
 
-    // Prompt user to specify output filename if not set via command line
+    if (ptDebug){
+	fprintf(stderr,"Script filename %s\n", scriptFileName.name);
+    }
+
+    
+
+    // optionally  we receive a list of filenames
+    optind ++;
+    currentParm = NULL;
+    while (optind < argc  ) {
+	currentParm = argv[optind];
+	optind++;
+	counter++;
+	
+	if((ptrImageFileNames = realloc(ptrImageFileNames, counter * 512)) == NULL) {
+	    PrintError("Not enough memory");
+	    exit(1);
+	}
+	
+	
+	if (StringtoFullPath(&ptrImageFileNames[counter-1], currentParm) != 0) {
+	    PrintError("Syntax error: Not a valid pathname");
+	    return(-1);
+	}
+	if (ptDebug){
+	    fprintf(stderr,"Getting file from command line %s index %d\n", ptrImageFileNames[counter-1].name, counter);
+	}
+    } // end of while loop  while (optind < argc  ) {
+  
+    if (sort && counter > 0) {
+	// We have filenames that need to be sorted
+	qsort(ptrImageFileNames, counter, 512, panoMenderSortingFunction);;
+    }
+
+
+    // Handle some lack of information
     if (strlen(panoFileName.name) == 0) {
 	PrintError("No output filename specified\n");
 	PrintError(PT_MENDER_USAGE);
 	return -1;
     }
   
-    // We don't have any images yet. We read the Script and load them from it.
-    if (ptDebug) {
-	fprintf(stderr, "Loading script [%s]\n", scriptFileName.name);
+    if (counter == 0) {
+	counter = panoMenderImageFileNamesReadFromScript(&ptrImageFileNames, &scriptFileName);
     }
-    
-    script = LoadScript(&scriptFileName);
-    
-    if (script == NULL) {
-	PrintError("Could not load script [%s]", scriptFileName.name);
-	return -1;
+    if (counter == 0) {
+	PrintError("No images found input file script file (there are no 'o' lines nor 'i' lines");
+	exit(1);
     }
-    
-    // parse input script and set up an array of input file names
-    if (ParseScript(script, &alignInfo) != 0) {
-	PrintError("Unable to parse input script");
-	return -1;
-    }
-
-
-    // TODO redo
-
-    // The parser of panotools is really broken. To retrieve each
-    // input filename it reads the file,
-    // finds the first filename, then removes it, and writes the rest of the file again
-    // This is done recursively 
-
-    //an "o" line represents an input image
-    counter = numLines(script, 'o');
-    if (ptDebug) {
-	fprintf(stderr, "Found %d images in script\n", counter);
-    }
-    
-    DisposeAlignInfo(&alignInfo);
-
-
-    // create a temporary copy we can overwrite
-    fullPath scriptPathName;
-    panoMenderDuplicateScriptFile(scriptFileName.name, script, &scriptPathName);
-
-    free(script); 
-
-    
-    if ((ptrImageFileNames = malloc(counter * 512)) == NULL) {
-        PrintError("Not enough memory\n");
-        exit(1);
-    }
-    
-    for (i = 0; i < counter; i++) {
-        aPrefs* preferences;
-        
-	if (ptDebug) {
-	    fprintf(stderr, "Reading image filename  %d: ", i);
-	}
-        if ( (preferences = readAdjustLine(&scriptPathName)) == NULL) {
-	    PrintError("Could not read ScriptFile");
-	    exit(1);
-        }
-	
-        //Only prepend the path to the script to the filenames if the filenames
-        //don't already have path information
-        if ( (hasPathInfo(preferences->im.name)) == 0 )
-	    strcpy(ptrImageFileNames[i].name, scriptFileName.name);
-        else
-	    strcpy(ptrImageFileNames[i].name, "");
-        
-        InsertFileName(&ptrImageFileNames[i], preferences->im.name);
-	
-	if (ptDebug) {
-	    fprintf(stderr, "%s\n", ptrImageFileNames[i].name);
-	}
-        if (preferences->td != NULL)
-	    free(preferences->td);
-        
-        if (preferences->ts != NULL)
-	    free(preferences->ts);
-	
-        free(preferences);
-	
-    } // end of for (i = 0; i < counter; i++) {
-    
-    remove(scriptPathName.name);
 
     // By now we should have loaded up the input filename array, the output 
     // panorama name, and the name of the script file (copied to a temporary
@@ -280,7 +385,12 @@ char* Filename(fullPath* path)
 }
 
 
-int hasPathInfo(char *aName)
+static int hasPathInfo(char *aName)
 {
     return ((strchr(aName, PATH_SEP) == NULL) ? 0 : 1);
+}
+
+static int panoMenderSortingFunction(const void *p1, const void *p2)
+{
+  return strcmp(p1, p2);
 }

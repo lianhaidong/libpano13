@@ -34,17 +34,9 @@ All tools:
 
 panoinfo:
 
-- Update it. CRITICAL
-
 ----------------------------------------------------------------------
 
 PTmender:
- 
-
-- Allow the specification of the images in the command line. CRITICAL
-
-- Allow filenames to be specified in the 'i' line if they don't exist
-  in the 'o' line. CRITICAL
 
 DESIRABLE:
 

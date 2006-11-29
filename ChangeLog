@@ -1,5 +1,15 @@
 2006-11-28  dmg  <dmg@uvic.ca>
 
+	* version.h (VERSION), configure.ac Upgraded to version 2.9.2.
+
+	* TODO: Updated it.
+	
+	* tools/PTmender.c: Mimic processing of input filenames to match
+	PTstitcher: 
+	  -- First use command line options
+	  -- If no images, then use filename in "i" lines
+	  -- If still no images, then use filename in "o" lines
+
 	* version.h (VERSION), configure.ac Upgraded to version 2.9.1,
 	updated copyrights.
 
