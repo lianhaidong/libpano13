@@ -44,6 +44,7 @@ int main(int argc,char *argv[])
 	Tp12FeatureType type;
 
 
+	strcpy(str2, ""); // clean up string 
 	if(queryFeatureString (PTVERSION_NAME_FILEVERSION, sResult, sizeof(sResult)/sizeof(sResult[0]) ))
 	{
 		sprintf(str1, "Panotools version:\t%s\n", sResult );
