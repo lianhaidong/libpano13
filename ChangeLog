@@ -1,5 +1,7 @@
 2006-11-28  dmg  <dmg@uvic.ca>
 
+	* tools/PTmender.c (PT_MENDER_USAGE): Updated usage message
+
 	* version.h (VERSION), configure.ac Upgraded to version 2.9.2.
 
 	* TODO: Updated it.

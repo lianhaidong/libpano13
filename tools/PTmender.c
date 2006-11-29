@@ -57,12 +57,14 @@ int ptDebug = 0;
 
 #define PT_MENDER_VERSION  "PTmender Version " VERSION ", originally written by Helmut Dersch, rewritten by Daniel German\n"
 
-#define PT_MENDER_USAGE "PTmender [options] <script filename>\n\n"\
+#define PT_MENDER_USAGE "PTmender [options] <script filename> <images>*\n\n"\
                          "Options:\n"\
                          "\t-o <prefix>\tPrefix for output filename, defaults to " DEFAULT_OUTPUT_NAME "\n"\
                          "\t-q\t\tQuiet run\n"\
                          "\t-h\t\tShow this message\n"\
                          "\t-s\t\tSort the filenames provided in the command line in lexicographical order (and only in the command line)\n"\
+                         "\n\nIf no images are specified in the command line, then the 'i' lines are used. If 'i' lines do not contain "\
+                         "a valid filename then the 'o' lines are used.\n"\
                          "\n"
 
 
