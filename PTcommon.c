@@ -529,7 +529,6 @@ void getROI(TrformStr * TrPtr, aPrefs * aP, PTRect * ROIRect)
         //printf("ROI: %d,%d - %d, %d\n", ROIRect->left, ROIRect->top, ROIRect->right, ROIRect->bottom);
 }
 
-#if 0 
 
 // NO LONGER NEEDED
 
@@ -551,6 +550,8 @@ void getCropInformation(char *filename, CropInfo * c)
 
 }
 
+
+#if 0 
 
 void setFullSizeImageParameters(pt_tiff_parms * imageParameters,
                                 CropInfo * crop_info)
