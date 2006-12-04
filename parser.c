@@ -78,7 +78,7 @@ static int 		ReadCoordinates( 	CoordInfo	*cp, char *line );
 								}								\
 								if( gl->opt[k].var )			\
 								{								\
-									PrintError("Conflict in script: Line %d\n\nMultiple Instances of Variable\n\nImage number: %k", lineNum, k);\
+									PrintError("Conflict in script: Line %d\n\nMultiple Instances of Variable\n\nImage number: %d", lineNum, k);\
 									return -1;					\
 								}								\
 								gl->opt[k].var	 = 1;			\
@@ -1769,3 +1769,45 @@ aPrefs* readAdjustLine( fullPath *theScript ){
 }	
 
 
+char *panoParserFindOLine(char *script, int index)
+{
+    char ch;
+    char *ptr;
+    int count = 0;
+
+
+    ptr = script;
+    while (ptr != NULL) {
+	if (*ptr == 'o') {
+	    if (count == index) {
+		// we have found it
+		int length;
+		char *temp;
+		char *result;
+		// how big is it?
+		temp = strchr(ptr, '\n');
+		if (temp == NULL)
+		    length = strlen(ptr);
+		else
+		    length = temp -ptr;
+		//allocate it
+
+		result = calloc(length + 1, 1);
+		if (result == NULL) {
+		    PrintError("Not enought memory");
+		    return NULL;
+		} else {
+		    strncpy(result, ptr, length);
+		}
+		return result;
+	    } else {
+		count++;
+	    }
+	}
+	// find next beginning of line
+	ptr = strchr(ptr, '\n');
+	ptr++;
+
+    }
+    return NULL;
+}

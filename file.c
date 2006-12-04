@@ -2407,6 +2407,8 @@ int panoFileOutputNamesCreate(fullPath *ptrOutputFiles, int filesCount, char *ou
     // I am sure we will never have more than 10000 images in a project!
 #define DEFAULT_PREFIX_NUMBER_FORMAT "%04d"
 
+    printf("Output prefix %d %s\n",filesCount,  outputPrefix);
+
     if (strchr(outputPrefix, '%') == NULL) {
 	if ((strlen(outputPrefix) + strlen(DEFAULT_PREFIX_NUMBER_FORMAT)) >= MAX_PATH_LENGTH) {
 	    PrintError("Output prefix too long [%s]", outputPrefix);
@@ -2485,3 +2487,19 @@ int writeImage( Image *im, fullPath *sfile )
 }
 
 #endif
+
+int panoFileDeleteMultiple(fullPath* files, int filesCount)
+{
+    extern int ptQuietFlag;
+    int i;
+    assert(files != NULL);
+    for (i = 0; i < filesCount; i++) {
+	if (!ptQuietFlag) {
+	    PrintError("Deleting %-th source file %s", i, files[i].name);
+	}
+	if(remove(files[i].name) != 0) {
+	    PrintError("Unable to remove file %s. Continuing", files[i].name);
+	}
+    }
+    return 1;
+}

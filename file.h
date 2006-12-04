@@ -85,5 +85,7 @@ int panoFileOutputNamesCreate(fullPath *ptrOutputFiles, int filesCount, char* ou
 
 char *panoFileExists(fullPath *ptrFiles, int filesCount);
 
+int panoFileDeleteMultiple(fullPath* files, int filesCount);
+
 
 #endif

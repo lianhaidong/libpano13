@@ -43,11 +43,12 @@
 #include "ptstitch.h"
 #include "pttiff.h"
 
-#define PT_MASKER_USAGE "PTmasker [options] <tiffFiles>+\n\n"\
+#define PT_MASKER_USAGE "PTmasker [options] <tiffFiles>+\n\n"	\
                          "Options:\n"\
                          "\t-p <prefix>\tPrefix for output files (defaults to masked%%4d)\n"\
                          "\t-e <feather>\tSize of the feather (defaults to zero)\n"\
                          "\t-f\t\tForce processing (do not stop at warnings)\n"\
+                         "\t-x\t\tDelete source files (use with care)\n"\
                          "\t-q\t\tQuiet run\n"\
                          "\t-h\t\tShow this message\n"\
                          "\n"
@@ -68,6 +69,7 @@ int main(int argc,char *argv[])
     int base = 0;
     int ptForceProcessing = 0;
     int feather = 0;
+    int ptDeleteSources = 0;
 
     ptrInputFiles = NULL;
 
@@ -75,7 +77,7 @@ int main(int argc,char *argv[])
 
     printf(PT_MASKER_VERSION);
 
-    while ((opt = getopt(argc, argv, "p:fqhe:")) != -1) {
+    while ((opt = getopt(argc, argv, "p:fqhxe:")) != -1) {
 
         // o and f -> set output file
         // h       -> help
@@ -105,6 +107,9 @@ int main(int argc,char *argv[])
         case 'q':
             ptQuietFlag = 1;
             break;
+	case 'x':
+	    ptDeleteSources = 1;
+            break;
         case 'h':
             printf(PT_MASKER_USAGE);
             exit(0);
@@ -115,6 +120,11 @@ int main(int argc,char *argv[])
   
     filesCount = argc - optind;
   
+    if (filesCount < 1) {
+        PrintError("No files specified in the command line");
+        fprintf(stderr, PT_MASKER_USAGE);
+        return -1;
+    }
     // Allocate memory for filenames
     if ((ptrInputFiles = calloc(filesCount, sizeof(fullPath))) == NULL || 
         (ptrOutputFiles = calloc(filesCount, sizeof(fullPath))) == NULL)        {
@@ -133,12 +143,6 @@ int main(int argc,char *argv[])
             PrintError("Syntax error: Not a valid pathname");
             return(-1);
         }
-    }
-
-    if (filesCount <= 0) {
-        PrintError("No files specified in the command line");
-        fprintf(stderr, PT_MASKER_USAGE);
-        return -1;
     }
 
     // Generate output file names
@@ -172,6 +176,14 @@ int main(int argc,char *argv[])
 
     if (ptrInputFiles) free(ptrInputFiles);
     if (ptrOutputFiles) free(ptrOutputFiles);
+
+    if (ptDeleteSources) {
+	int i;
+	for (i = 0; i < filesCount; i++) {
+	    remove(ptrInputFiles[i].name);
+	}
+    }
+
 
     return 0;
   

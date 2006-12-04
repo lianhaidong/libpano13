@@ -74,5 +74,10 @@ void InsertFileName( fullPath *fp, char *fname );
 int ApplyFeather(fullPath * inputFile, fullPath * outputFile,
 		 int featherSize);
 
+/*****************/
+#define PANO_CROPPING_UNCROP 1
+#define PANO_CROPPING_CROP   2
+
+int panoCroppingMain(int argc,char *argv[], int operation, char *version,char *usage, char *defaultPrefix);
 
 #endif

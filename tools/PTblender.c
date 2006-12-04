@@ -54,6 +54,7 @@
                          "\t-c\t\tOutput curves smooth\t\t(Output one per each corrected file)\n"\
                          "\t-m\t\tOutput curves arbitrary map\t(Output one per each corrected file)\n"\
                          "\t-f\t\fForce processing (ignore warnings)\n"\
+                         "\t-x\t\tDelete source files (use with care)\n"\
                          "\t-q\t\tQuiet run\n"\
                          "\t-h\t\tShow this message\n"\
                          "\n"
@@ -77,6 +78,7 @@ int main(int argc,char *argv[])
     int outputCurvesType = 0; // if 1 => create Photoshop curve files (.acv)
     int typeCorrection = 0;
     int ptForceProcessing;
+    int ptDeleteSources = 0;
 
     ptrInputFiles = NULL;
 
@@ -136,6 +138,9 @@ int main(int argc,char *argv[])
 	    }
 	    outputCurvesType = CB_OUTPUT_CURVE_ARBITRARY;
 	    break;
+	case 'x':
+	    ptDeleteSources = 1;
+            break;
 	case 'h':
 	    printf(PT_BLENDER_USAGE);
 	    exit(0);
@@ -210,6 +215,12 @@ int main(int argc,char *argv[])
     ptrInputFiles = ptrOutputFiles;
     ptrOutputFiles = NULL;
 
+    if (ptDeleteSources) {
+	int i;
+	for (i = 0; i < filesCount; i++) {
+	    remove(ptrInputFiles[i].name);
+	}
+    }
     return 0;
   
 }

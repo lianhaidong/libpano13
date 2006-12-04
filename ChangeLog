@@ -1,3 +1,35 @@
+2006-12-03  dmg  <dmg@uvic.ca>
+
+	* version.h (VERSION), configure.ac Upgraded to version 2.9.3.
+
+	* tiff.c (panoTiffDisplayInfo): Added function. 
+
+	* parser.c (panoParserFindOLine): Added function.
+
+2006-12-02  dmg  <dmg@uvic.ca>
+
+	* PTinfo.c, Makefile.am (bin_PROGRAMS): Created new program
+
+	* metadata.c (panoMetadataCropSizeUpdate),
+	tiff.c (panoImageBoundingRectangleCompute): Fixed a bug in the
+	creation of cropped files. The full size tag was not being
+	created.
+
+	* file.h, file.c (panoFileDeleteMultiple): Created function. Used
+	with -x option.
+
+	* PTcommon.h, PTcommon.c:  Refactored main function from PTcrop
+	and PTuncrop.
+
+	* tools/PTcrop.c: allow the multiple files in the command line
+	
+	* tools/PTmasker.c, tools/PTroller.c, tools/PTblender.c, tools/PTcrop.c: Add -x switch
+
+2006-11-30  dmg  <dmg@uvic.ca>
+
+	* parser.c (READ_OPT_VAR): Bug fix: changed a format spec from %k
+	to %d
+
 2006-11-28  dmg  <dmg@uvic.ca>
 
 	* tools/PTmender.c (PT_MENDER_USAGE): Updated usage message

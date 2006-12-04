@@ -727,6 +727,11 @@ void 	nextWord			( register char* word, char** ch );
 void 	nextLine			( register char* line, char** ch );
 int 	numLines			( char* script, char first );
 
+char *panoParserFindOLine(char *script, int index);
+
+
+
+
 // Memory
 
 void 	DisposeAlignInfo	( AlignInfo *g );

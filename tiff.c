@@ -1851,6 +1851,8 @@ int panoImageBoundingRectangleCompute(unsigned char *data, int width, int height
 
     // Fill return struct
 
+    cropInfo->fullWidth = width;
+    cropInfo->fullHeight = height;
     cropInfo->xOffset = xLeft;
     cropInfo->yOffset = yTop;
     cropInfo->croppedWidth = 1 + xRight - xLeft ; 
@@ -1945,6 +1947,7 @@ int panoTiffCrop(char *inputFile, char *outputFile, pano_cropping_parms *croppin
     remove(outputFile);
     if (rename(tempFile.name, outputFile) != 0) {
 	PrintError("Unable to create output file %s", outputFile);
+	goto error;
     }
 
 
@@ -1960,4 +1963,53 @@ int panoTiffCrop(char *inputFile, char *outputFile, pano_cropping_parms *croppin
     }
 
     return 0;
+}
+
+
+int panoTiffDisplayInfo(char *fileName)
+{
+    pano_Tiff *imageFile;
+    pano_ImageMetadata *meta;
+
+    char *line = NULL;
+
+    if ((imageFile = panoTiffOpen(fileName)) == NULL) {
+        PrintError("Could not open TIFF-file %s", fileName);
+        return 0;
+    }
+    meta = &(imageFile->metadata);
+    printf("Dimensions: %d,%d\n", meta->imageWidth, meta->imageHeight);
+    if (meta->isCropped) {
+	printf("Cropped tiff. Full size: %d,%d Offset: %d,%d\n", 
+	       meta->cropInfo.fullWidth, meta->cropInfo.fullHeight,
+	       meta->cropInfo.xOffset, meta->cropInfo.yOffset);
+    }
+    printf("Samples per pixel: %d\n", meta->samplesPerPixel);
+    printf("Bits per sample: %d\n", meta->bitsPerSample);
+    printf("Compression: %d\n",     meta->compression);
+
+    if (meta->iccProfile.size == 0) {
+	printf("Contains ICC profile\n");
+    }
+    if (meta->copyright != NULL){
+	printf("Copyright: %s\n", meta->copyright);
+    }
+    if (meta->datetime != NULL){
+	printf("Date created: %s\n", meta->datetime);
+    }
+    if (meta->artist != NULL){
+	printf("Photographer: %s\n", meta->artist);
+    }
+    printf("Image: %d out of %d\n", meta->imageNumber, meta->imageTotalNumber);
+
+    line = panoParserFindOLine(meta->imageDescription, meta->imageNumber);
+    if (line != NULL) {
+	printf("Image Spec: %s\n", line);
+	free(line);
+	if (meta->imageDescription) {
+	    printf("Script that created it:\n%s\n", meta->imageDescription);
+	}
+    }
+
+    
 }

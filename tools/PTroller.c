@@ -47,6 +47,7 @@
                          "Options:\n"\
                          "\t-o <filename>\tOutput filename (defaults to merged.tif)\n"\
                          "\t-f\t\tForce processing (do not stop at warnings)\n"\
+                         "\t-x\t\tDelete source files (use with care)\n"\
                          "\t-q\t\tQuiet run\n"\
                          "\t-h\t\tShow this message\n"\
                          "\n"
@@ -67,6 +68,7 @@ int main(int argc,char *argv[])
     int base = 0;
     fullPath pathName;
     int ptForceProcessing = 0;
+    int ptDeleteSources = 0;
 
     ptrInputFiles = NULL;
 
@@ -96,6 +98,9 @@ int main(int argc,char *argv[])
 	    ptForceProcessing = 1;
         case 'q':
             ptQuietFlag = 1;
+            break;
+	case 'x':
+	    ptDeleteSources = 1;
             break;
         case 'h':
             printf(PT_ROLLER_USAGE);
@@ -158,6 +163,14 @@ int main(int argc,char *argv[])
 
     if (ptrInputFiles) free(ptrInputFiles);
     if (ptrOutputFiles) free(ptrOutputFiles);
+
+    if (ptDeleteSources) {
+	int i;
+	for (i = 0; i < filesCount; i++) {
+	    remove(ptrInputFiles[i].name);
+	}
+    }
+
 
     return 0;
   

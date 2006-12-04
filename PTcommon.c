@@ -46,6 +46,7 @@
 //#include <unistd.h>
 //#include <stdint.h>
 //#include <math.h>
+#include <unistd.h>
 
 
 int panoFlattenTIFF(fullPath * fullPathImages, int counterImageFiles,
@@ -1064,6 +1065,7 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
 
         panoTiffClose(tiffFile);
 	
+#ifdef UNCROP_FISHEYES
 	if (croppedTIFFIntermediate == 0) {
 	    // We can't process (yet) all files in cropped mode
 	    // To quite the roar from the masses let them think we
@@ -1077,7 +1079,7 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
 		return (-1);
 	    }
 	}
-
+#endif
 
         //////////////////////////////////////////////////////////////////////
 
@@ -1664,3 +1666,137 @@ int panoFlattenTIFF(fullPath * fullPathImages, int counterImageFiles,
 }
 
 
+
+
+// the functionality of PTcrop and PTuncrop is essentially identical, except for
+// the function that they call
+
+int panoCroppingMain(int argc,char *argv[], int operation, char *version, char *usage, char *defaultPrefix)
+{
+    char opt;
+    int ptForceProcessing = 0;
+    int filesCount;
+    int retVal;
+    FILE *testFile;
+    pano_cropping_parms croppingParms;
+    char outputPrefix[MAX_PATH_LENGTH];
+    int ptDeleteSources = 0;
+    fullPath *ptrInputFiles;
+    fullPath *ptrOutputFiles;
+    int base;
+    int i;
+  
+    // Set defaults
+    strcpy(outputPrefix, defaultPrefix);
+    bzero(&croppingParms, sizeof(croppingParms));
+    
+    printf(version);
+    
+    //Need enough space for a message to be returned if something goes wrong
+  
+    while ((opt = getopt(argc, argv, "p:fqhx")) != -1) {
+
+        // o overwrite
+        // h       -> help
+        // q       -> quiet?
+    
+        switch(opt) {  // fhoqs        f: 102 h:104  111 113 115  o:f:hsq
+	case 'p':
+	    if (strlen(optarg) < MAX_PATH_LENGTH) {
+		strcpy(outputPrefix, optarg);
+	    } else {
+		PrintError("Illegal length for output prefix");
+		return -1;
+	    }
+	    break;
+        case 'f':
+            ptForceProcessing = 1;
+            break;
+	case 'x':
+	    ptDeleteSources = 1;
+            break;
+        case 'q':
+            ptQuietFlag = 1;
+            break;
+        case 'h':
+            printf(usage);
+            exit(0);
+        default:
+            break;
+        }
+    }
+    filesCount = argc - optind;
+
+    if (filesCount < 1) {
+        PrintError("No files specified in the command line");
+        printf(usage);
+        exit(0);
+    }
+    // Allocate memory for filenames
+    if ((ptrInputFiles = calloc(filesCount, sizeof(fullPath))) == NULL || 
+        (ptrOutputFiles = calloc(filesCount, sizeof(fullPath))) == NULL)        {
+        PrintError("Not enough memory");
+        return -1;
+    }
+
+    // GET input file names
+    base = optind;
+    for (; optind < argc; optind++) {
+        char *currentParm;
+
+        currentParm = argv[optind];
+
+        if (StringtoFullPath(&ptrInputFiles[optind-base], currentParm) !=0) { // success
+            PrintError("Syntax error: Not a valid pathname");
+            return(-1);
+        }
+    }
+        // Generate output file names
+    if (panoFileOutputNamesCreate(ptrOutputFiles, filesCount, outputPrefix) == 0) {
+	return -1;
+    }
+
+    if (!ptForceProcessing) {
+	char *temp;
+	if ((temp = panoFileExists(ptrOutputFiles, filesCount)) != NULL) {
+	    PrintError("Output filename exists %s. Use -f to overwrite", temp);
+	    return -1;
+	}
+    }
+    if (! ptQuietFlag) printf("Cropping %d files\n", filesCount);
+  
+    for (i=0; i< filesCount; i++) {
+
+
+	if (!ptQuietFlag) {
+	    PrintError("Processing %d reading %s creating %s", i, ptrInputFiles[i].name, ptrOutputFiles[i].name);
+	}
+	croppingParms.forceProcessing = ptForceProcessing;
+	switch (operation) {
+	case PANO_CROPPING_CROP:
+	    retVal = panoTiffCrop(ptrInputFiles[i].name, ptrOutputFiles[i].name, &croppingParms);
+	    break;
+	case PANO_CROPPING_UNCROP:
+	    retVal = panoTiffUnCrop(ptrInputFiles[i].name, ptrOutputFiles[i].name, &croppingParms);
+	    break;
+	default:
+	    PrintError("Illegal operation in panoCroppingMain. Programming error");
+	    exit(0);
+	}
+
+
+	if (! retVal ) {
+	    PrintError("Error cropping file %s", ptrInputFiles[i].name);
+	    return -1;
+	}
+    }
+    if (ptDeleteSources) {
+	panoFileDeleteMultiple(ptrInputFiles, filesCount);
+    }
+    if (ptrInputFiles != NULL)
+	free(ptrInputFiles);
+    if (ptrOutputFiles != NULL)
+	free(ptrOutputFiles);
+
+    return 0;
+}

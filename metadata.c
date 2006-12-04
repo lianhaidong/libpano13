@@ -73,7 +73,12 @@ void panoMetadataCropSizeUpdate(pano_ImageMetadata * metadata, pano_CropInfo *cr
     metadata->cropInfo.croppedHeight = cropInfo->croppedHeight;
     metadata->cropInfo.xOffset += cropInfo->xOffset;
     metadata->cropInfo.yOffset += cropInfo->yOffset;
-    
+    metadata->cropInfo.fullWidth = cropInfo->fullWidth;
+    metadata->cropInfo.fullHeight = cropInfo->fullHeight;
+
+    metadata->isCropped = (cropInfo->croppedWidth != cropInfo->fullWidth) ||
+      (cropInfo->croppedHeight != cropInfo->fullHeight);
+
     // The full size remains the same, 
     // The rest of the metadata should be the same
 }
