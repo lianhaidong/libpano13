@@ -46,7 +46,13 @@
 //#include <unistd.h>
 //#include <stdint.h>
 //#include <math.h>
+
+#ifndef _MSC_VER
 #include <unistd.h>
+#else
+#define isnan _isnan
+#include "tools/compat_win32/getopt.h"
+#endif
 
 
 int panoFlattenTIFF(fullPath * fullPathImages, int counterImageFiles,

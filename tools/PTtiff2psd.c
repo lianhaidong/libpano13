@@ -33,7 +33,13 @@
 #include <stdlib.h>
 #include <sys/types.h>
 #include <dirent.h>
+
+#ifndef _MSC_VER
 #include <unistd.h>
+#else
+#include "compat_win32/getopt.h"
+#endif
+
 #include <assert.h>
 #include <errno.h>
 

@@ -1,0 +1,144 @@
+Microsoft Visual Studio Solution File, Format Version 8.00
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Panotools", "libpano.vcproj", "{9B19A5C0-8DB0-448B-BF99-DC6374E9751B}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PTblender", "tools\PTblender.vcproj", "{20D1E094-A4B5-4294-85CE-229529065789}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9B19A5C0-8DB0-448B-BF99-DC6374E9751B} = {9B19A5C0-8DB0-448B-BF99-DC6374E9751B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PTcrop", "tools\PTcrop.vcproj", "{20D1E094-A4B5-4294-85CE-229529065781}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9B19A5C0-8DB0-448B-BF99-DC6374E9751B} = {9B19A5C0-8DB0-448B-BF99-DC6374E9751B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PTinfo", "tools\PTinfo.vcproj", "{20D1E094-A4B5-4294-85CE-229529065782}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9B19A5C0-8DB0-448B-BF99-DC6374E9751B} = {9B19A5C0-8DB0-448B-BF99-DC6374E9751B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PTmasker", "tools\PTmasker.vcproj", "{20D1E094-A4B5-4294-85CE-229529065783}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9B19A5C0-8DB0-448B-BF99-DC6374E9751B} = {9B19A5C0-8DB0-448B-BF99-DC6374E9751B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PTmender", "tools\PTmender.vcproj", "{20D1E094-A4B5-4294-85CE-229529065784}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9B19A5C0-8DB0-448B-BF99-DC6374E9751B} = {9B19A5C0-8DB0-448B-BF99-DC6374E9751B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PToptimizer", "tools\PTOptimizer.vcproj", "{20D1E094-A4B5-4294-85CE-229529065785}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9B19A5C0-8DB0-448B-BF99-DC6374E9751B} = {9B19A5C0-8DB0-448B-BF99-DC6374E9751B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PTtiff2psd", "tools\PTtiff2psd.vcproj", "{20D1E094-A4B5-4294-85CE-229529065716}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9B19A5C0-8DB0-448B-BF99-DC6374E9751B} = {9B19A5C0-8DB0-448B-BF99-DC6374E9751B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PTtiffdump", "tools\PTtiffdump.vcproj", "{20D1E094-A4B5-4294-85CE-229529065711}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9B19A5C0-8DB0-448B-BF99-DC6374E9751B} = {9B19A5C0-8DB0-448B-BF99-DC6374E9751B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PTuncrop", "tools\PTuncrop.vcproj", "{20D1E094-A4B5-4294-85CE-229529065712}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9B19A5C0-8DB0-448B-BF99-DC6374E9751B} = {9B19A5C0-8DB0-448B-BF99-DC6374E9751B}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		Debug = Debug
+		DLL Debug = DLL Debug
+		DLL Release = DLL Release
+		Release = Release
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{9B19A5C0-8DB0-448B-BF99-DC6374E9751B}.Debug.ActiveCfg = Debug|Win32
+		{9B19A5C0-8DB0-448B-BF99-DC6374E9751B}.Debug.Build.0 = Debug|Win32
+		{9B19A5C0-8DB0-448B-BF99-DC6374E9751B}.DLL Debug.ActiveCfg = DLL Debug|Win32
+		{9B19A5C0-8DB0-448B-BF99-DC6374E9751B}.DLL Debug.Build.0 = DLL Debug|Win32
+		{9B19A5C0-8DB0-448B-BF99-DC6374E9751B}.DLL Release.ActiveCfg = DLL Release|Win32
+		{9B19A5C0-8DB0-448B-BF99-DC6374E9751B}.DLL Release.Build.0 = DLL Release|Win32
+		{9B19A5C0-8DB0-448B-BF99-DC6374E9751B}.Release.ActiveCfg = Release|Win32
+		{9B19A5C0-8DB0-448B-BF99-DC6374E9751B}.Release.Build.0 = Release|Win32
+		{20D1E094-A4B5-4294-85CE-229529065789}.Debug.ActiveCfg = Debug|Win32
+		{20D1E094-A4B5-4294-85CE-229529065789}.Debug.Build.0 = Debug|Win32
+		{20D1E094-A4B5-4294-85CE-229529065789}.DLL Debug.ActiveCfg = Debug|Win32
+		{20D1E094-A4B5-4294-85CE-229529065789}.DLL Debug.Build.0 = Debug|Win32
+		{20D1E094-A4B5-4294-85CE-229529065789}.DLL Release.ActiveCfg = Release|Win32
+		{20D1E094-A4B5-4294-85CE-229529065789}.DLL Release.Build.0 = Release|Win32
+		{20D1E094-A4B5-4294-85CE-229529065789}.Release.ActiveCfg = Release|Win32
+		{20D1E094-A4B5-4294-85CE-229529065789}.Release.Build.0 = Release|Win32
+		{20D1E094-A4B5-4294-85CE-229529065781}.Debug.ActiveCfg = Debug|Win32
+		{20D1E094-A4B5-4294-85CE-229529065781}.Debug.Build.0 = Debug|Win32
+		{20D1E094-A4B5-4294-85CE-229529065781}.DLL Debug.ActiveCfg = Debug|Win32
+		{20D1E094-A4B5-4294-85CE-229529065781}.DLL Debug.Build.0 = Debug|Win32
+		{20D1E094-A4B5-4294-85CE-229529065781}.DLL Release.ActiveCfg = Release|Win32
+		{20D1E094-A4B5-4294-85CE-229529065781}.DLL Release.Build.0 = Release|Win32
+		{20D1E094-A4B5-4294-85CE-229529065781}.Release.ActiveCfg = Release|Win32
+		{20D1E094-A4B5-4294-85CE-229529065781}.Release.Build.0 = Release|Win32
+		{20D1E094-A4B5-4294-85CE-229529065782}.Debug.ActiveCfg = Debug|Win32
+		{20D1E094-A4B5-4294-85CE-229529065782}.Debug.Build.0 = Debug|Win32
+		{20D1E094-A4B5-4294-85CE-229529065782}.DLL Debug.ActiveCfg = Debug|Win32
+		{20D1E094-A4B5-4294-85CE-229529065782}.DLL Debug.Build.0 = Debug|Win32
+		{20D1E094-A4B5-4294-85CE-229529065782}.DLL Release.ActiveCfg = Release|Win32
+		{20D1E094-A4B5-4294-85CE-229529065782}.DLL Release.Build.0 = Release|Win32
+		{20D1E094-A4B5-4294-85CE-229529065782}.Release.ActiveCfg = Release|Win32
+		{20D1E094-A4B5-4294-85CE-229529065782}.Release.Build.0 = Release|Win32
+		{20D1E094-A4B5-4294-85CE-229529065783}.Debug.ActiveCfg = Debug|Win32
+		{20D1E094-A4B5-4294-85CE-229529065783}.Debug.Build.0 = Debug|Win32
+		{20D1E094-A4B5-4294-85CE-229529065783}.DLL Debug.ActiveCfg = Debug|Win32
+		{20D1E094-A4B5-4294-85CE-229529065783}.DLL Debug.Build.0 = Debug|Win32
+		{20D1E094-A4B5-4294-85CE-229529065783}.DLL Release.ActiveCfg = Release|Win32
+		{20D1E094-A4B5-4294-85CE-229529065783}.DLL Release.Build.0 = Release|Win32
+		{20D1E094-A4B5-4294-85CE-229529065783}.Release.ActiveCfg = Release|Win32
+		{20D1E094-A4B5-4294-85CE-229529065783}.Release.Build.0 = Release|Win32
+		{20D1E094-A4B5-4294-85CE-229529065784}.Debug.ActiveCfg = Debug|Win32
+		{20D1E094-A4B5-4294-85CE-229529065784}.Debug.Build.0 = Debug|Win32
+		{20D1E094-A4B5-4294-85CE-229529065784}.DLL Debug.ActiveCfg = Debug|Win32
+		{20D1E094-A4B5-4294-85CE-229529065784}.DLL Debug.Build.0 = Debug|Win32
+		{20D1E094-A4B5-4294-85CE-229529065784}.DLL Release.ActiveCfg = Release|Win32
+		{20D1E094-A4B5-4294-85CE-229529065784}.DLL Release.Build.0 = Release|Win32
+		{20D1E094-A4B5-4294-85CE-229529065784}.Release.ActiveCfg = Release|Win32
+		{20D1E094-A4B5-4294-85CE-229529065784}.Release.Build.0 = Release|Win32
+		{20D1E094-A4B5-4294-85CE-229529065785}.Debug.ActiveCfg = Debug|Win32
+		{20D1E094-A4B5-4294-85CE-229529065785}.Debug.Build.0 = Debug|Win32
+		{20D1E094-A4B5-4294-85CE-229529065785}.DLL Debug.ActiveCfg = Debug|Win32
+		{20D1E094-A4B5-4294-85CE-229529065785}.DLL Debug.Build.0 = Debug|Win32
+		{20D1E094-A4B5-4294-85CE-229529065785}.DLL Release.ActiveCfg = Release|Win32
+		{20D1E094-A4B5-4294-85CE-229529065785}.DLL Release.Build.0 = Release|Win32
+		{20D1E094-A4B5-4294-85CE-229529065785}.Release.ActiveCfg = Release|Win32
+		{20D1E094-A4B5-4294-85CE-229529065785}.Release.Build.0 = Release|Win32
+		{20D1E094-A4B5-4294-85CE-229529065716}.Debug.ActiveCfg = Debug|Win32
+		{20D1E094-A4B5-4294-85CE-229529065716}.Debug.Build.0 = Debug|Win32
+		{20D1E094-A4B5-4294-85CE-229529065716}.DLL Debug.ActiveCfg = Debug|Win32
+		{20D1E094-A4B5-4294-85CE-229529065716}.DLL Debug.Build.0 = Debug|Win32
+		{20D1E094-A4B5-4294-85CE-229529065716}.DLL Release.ActiveCfg = Release|Win32
+		{20D1E094-A4B5-4294-85CE-229529065716}.DLL Release.Build.0 = Release|Win32
+		{20D1E094-A4B5-4294-85CE-229529065716}.Release.ActiveCfg = Release|Win32
+		{20D1E094-A4B5-4294-85CE-229529065716}.Release.Build.0 = Release|Win32
+		{20D1E094-A4B5-4294-85CE-229529065711}.Debug.ActiveCfg = Debug|Win32
+		{20D1E094-A4B5-4294-85CE-229529065711}.Debug.Build.0 = Debug|Win32
+		{20D1E094-A4B5-4294-85CE-229529065711}.DLL Debug.ActiveCfg = Debug|Win32
+		{20D1E094-A4B5-4294-85CE-229529065711}.DLL Debug.Build.0 = Debug|Win32
+		{20D1E094-A4B5-4294-85CE-229529065711}.DLL Release.ActiveCfg = Release|Win32
+		{20D1E094-A4B5-4294-85CE-229529065711}.DLL Release.Build.0 = Release|Win32
+		{20D1E094-A4B5-4294-85CE-229529065711}.Release.ActiveCfg = Release|Win32
+		{20D1E094-A4B5-4294-85CE-229529065711}.Release.Build.0 = Release|Win32
+		{20D1E094-A4B5-4294-85CE-229529065712}.Debug.ActiveCfg = Debug|Win32
+		{20D1E094-A4B5-4294-85CE-229529065712}.Debug.Build.0 = Debug|Win32
+		{20D1E094-A4B5-4294-85CE-229529065712}.DLL Debug.ActiveCfg = Debug|Win32
+		{20D1E094-A4B5-4294-85CE-229529065712}.DLL Debug.Build.0 = Debug|Win32
+		{20D1E094-A4B5-4294-85CE-229529065712}.DLL Release.ActiveCfg = Release|Win32
+		{20D1E094-A4B5-4294-85CE-229529065712}.DLL Release.Build.0 = Release|Win32
+		{20D1E094-A4B5-4294-85CE-229529065712}.Release.ActiveCfg = Release|Win32
+		{20D1E094-A4B5-4294-85CE-229529065712}.Release.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal

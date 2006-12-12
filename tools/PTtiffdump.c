@@ -36,7 +36,12 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#ifndef _MSC_VER
 #include <unistd.h>
+#else
+#include "compat_win32/getopt.h"
+#endif
 
 #include "tiffio.h"
 #include "panorama.h"
@@ -73,7 +78,15 @@ int main(int argc,char *argv[])
   int overwrite = 0;
   int filesCount;
   char *inputFile, *otherFile;
-  
+
+  Image im1;
+  Image im2;
+
+  unsigned char *data1, *data2;
+  int x, y;
+
+  int count;
+
   //Need enough space for a message to be returned if something goes wrong
   
   printf(PT_TIFF_DUMP_VERSION);
@@ -108,9 +121,6 @@ int main(int argc,char *argv[])
   inputFile = argv[optind];
   otherFile = argv[optind+1];
 
-  Image im1;
-  Image im2;
-
   if (panoTiffRead(&im1, inputFile) == 0) {
     PrintError("Unable to open input file");
     goto error;
@@ -121,9 +131,8 @@ int main(int argc,char *argv[])
     goto error;
   }
 
-  unsigned char *data1 = *(im1.data);
-  unsigned char *data2 = *(im2.data);
-  int x, y;
+  data1 = *(im1.data);
+  data2 = *(im2.data);
 
   if (im1.width != im2.width ||
       im1.height != im2.height) {
@@ -134,7 +143,7 @@ int main(int argc,char *argv[])
   printf("Comparing %d %d pixels\n", (int)im1.width, (int)im1.height);
 
 
-  int count =0;
+  count =0;
 
   for (x=0;x<im1.width;x++) {
     for (y=0;y<im2.height;y++) {

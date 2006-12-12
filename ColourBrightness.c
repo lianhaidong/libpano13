@@ -30,12 +30,18 @@
 #include "filter.h"
 #include "PTcommon.h"
 #include "ColourBrightness.h"
+#include "pt_stdint.h"
 
 #include "tiffio.h"
 #include <assert.h>
 
 #include "pttiff.h"
 
+// MSVC doesn't support round()
+#ifdef _MSC_VER
+//#define round(x) ( (int) (x+0.5) )
+#define round(x) x
+#endif
 
 FILE *debugFile;
 
@@ -359,6 +365,7 @@ void DisplayHistogramsError(int numberHistograms,   histograms_struct * ptrHisto
 int OutputPhotoshopCurve(FILE *output, int size, double *curve) 
 {
   uint16_t shortValue;
+  uint16_t x;
   int i;
 
   // so far we only support size == 256
@@ -403,7 +410,7 @@ int OutputPhotoshopCurve(FILE *output, int size, double *curve)
   }
 
   // Write the very last point
-  uint16_t x=htons(255);
+  x=htons(255);
   if (fwrite(&x, 2, 1, output) != 1 ||
       fwrite(&x, 2, 1, output) != 1 ) {
     goto error;
@@ -2263,7 +2270,9 @@ void RemapHistogram(int *histogram, double *remappedHistogram, magnolia_struct *
 
   double delta;
 
+  double sumR, sumH;
 
+  double contribution;     
 
   //  fprintf(stderr, "Doubles remappedHistogram: \n");
 
@@ -2291,7 +2300,8 @@ void RemapHistogram(int *histogram, double *remappedHistogram, magnolia_struct *
 
   index = 0;
 
-  double sumR = 0, sumH = 0;
+  sumR = 0;
+  sumH = 0;
   for (index = 0;  index < 0x100; index++) {
     sumH += histogram[index];
   }
@@ -2480,8 +2490,6 @@ void RemapHistogram(int *histogram, double *remappedHistogram, magnolia_struct *
     // delta *histogram to the next value.
     
     assert(value < 255);
-    
-    double contribution; 
     
     contribution = (1 - delta) *histogram[index];
     //    contribution2 = delta * histogram[index];

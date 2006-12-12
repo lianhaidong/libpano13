@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="2 Panotools"
+	Name="Panotools"
 	ProjectGUID="{9B19A5C0-8DB0-448B-BF99-DC6374E9751B}"
 	RootNamespace="Panotools"
 	Keyword="MakeFileProj">
@@ -26,8 +26,6 @@
 				PreprocessorDefinitions="WIN32;__Win__;HasJava"
 				RuntimeLibrary="2"
 				StructMemberAlignment="4"
-				ObjectFile="$(IntDir)/"
-				ProgramDataBaseFileName="$(IntDir)/vc70.pdb"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="FALSE"
 				DebugInformationFormat="0"
@@ -54,8 +52,7 @@
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
-				Name="VCPostBuildEventTool"
-				CommandLine="copy &quot;$(OutDir)\pano12.dll&quot; &quot;c:\windows\system32\pano12.dll&quot; /y"/>
+				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
@@ -87,8 +84,6 @@
 				PreprocessorDefinitions="WIN32;__Win__;HasJava"
 				RuntimeLibrary="3"
 				StructMemberAlignment="4"
-				ObjectFile="$(IntDir)/"
-				ProgramDataBaseFileName="$(IntDir)/vc70.pdb"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="FALSE"
 				DebugInformationFormat="3"
@@ -100,11 +95,11 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="wxtiffd.lib wxzlibd.lib wxjpegd.lib wxpngd.lib"
-				OutputFile="$(OutDir)/pano12.dll"
+				OutputFile="$(OutDir)/pano12d.dll"
 				AdditionalLibraryDirectories="&quot;$(WXWIDGETS_HOME)\lib\vc_lib&quot;"
 				IgnoreAllDefaultLibraries="FALSE"
 				IgnoreDefaultLibraryNames=""
-				ModuleDefinitionFile="pano12vc.def"
+				ModuleDefinitionFile="pano12vcd.def"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/$(TargetName).pdb"
 				EntryPointSymbol=""
@@ -113,8 +108,7 @@
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
-				Name="VCPostBuildEventTool"
-				CommandLine="copy &quot;$(OutDir)\pano12.dll&quot; &quot;c:\windows\system32\pano12.dll&quot; /y"/>
+				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
@@ -133,6 +127,94 @@
 			<Tool
 				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
 		</Configuration>
+		<Configuration
+			Name="Debug|Win32"
+			OutputDirectory="$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="4"
+			CharacterSet="0">
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="0"
+				AdditionalIncludeDirectories="&quot;$(WXWIDGETS_HOME)\src\zlib&quot;;&quot;$(WXWIDGETS_HOME)\src\png&quot;;&quot;$(WXWIDGETS_HOME)\src\tiff&quot;;&quot;$(WXWIDGETS_HOME)\src\jpeg&quot;;&quot;$(WXWIDGETS_HOME)\src&quot;;&quot;$(JDK_HOME)\include&quot;;&quot;$(JDK_HOME)\include\win32&quot;"
+				PreprocessorDefinitions="WIN32;__Win__;HasJava"
+				RuntimeLibrary="1"
+				StructMemberAlignment="4"
+				WarningLevel="3"
+				Detect64BitPortabilityProblems="FALSE"
+				DebugInformationFormat="3"
+				CallingConvention="0"
+				CompileAs="0"
+				DisableSpecificWarnings="4068;4244;4267"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLibrarianTool"/>
+			<Tool
+				Name="VCMIDLTool"/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				ResourceOutputFileName="$(IntDir)/pano12d.res"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
+		<Configuration
+			Name="Release|Win32"
+			OutputDirectory="$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="4"
+			CharacterSet="0">
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="2"
+				InlineFunctionExpansion="0"
+				FavorSizeOrSpeed="0"
+				AdditionalIncludeDirectories="&quot;$(WXWIDGETS_HOME)\src\zlib&quot;;&quot;$(WXWIDGETS_HOME)\src\png&quot;;&quot;$(WXWIDGETS_HOME)\src\tiff&quot;;&quot;$(WXWIDGETS_HOME)\src\jpeg&quot;;&quot;$(WXWIDGETS_HOME)\src&quot;;&quot;$(JDK_HOME)\include&quot;;&quot;$(JDK_HOME)\include\win32&quot;"
+				PreprocessorDefinitions="WIN32;__Win__;HasJava"
+				RuntimeLibrary="0"
+				StructMemberAlignment="4"
+				WarningLevel="3"
+				Detect64BitPortabilityProblems="FALSE"
+				DebugInformationFormat="0"
+				CallingConvention="0"
+				CompileAs="0"
+				DisableSpecificWarnings="4068;4244;4267"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLibrarianTool"/>
+			<Tool
+				Name="VCMIDLTool"/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				ResourceOutputFileName="$(IntDir)/pano12.res"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
 	</Configurations>
 	<References>
 	</References>
@@ -142,331 +224,85 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
 			<File
-				RelativePath="adjust.c">
-				<FileConfiguration
-					Name="DLL Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="DLL Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
+				RelativePath=".\adjust.c">
 			</File>
 			<File
-				RelativePath="bmp.c">
-				<FileConfiguration
-					Name="DLL Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="DLL Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
+				RelativePath=".\bmp.c">
 			</File>
 			<File
-				RelativePath="ColourBrightness.c">
-				<FileConfiguration
-					Name="DLL Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="DLL Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
+				RelativePath=".\ColourBrightness.c">
 			</File>
 			<File
-				RelativePath="correct.c">
-				<FileConfiguration
-					Name="DLL Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="DLL Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
+				RelativePath=".\correct.c">
 			</File>
 			<File
-				RelativePath="fftn.c">
-				<FileConfiguration
-					Name="DLL Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="DLL Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
+				RelativePath=".\fftn.c">
 			</File>
 			<File
-				RelativePath="file.c">
-				<FileConfiguration
-					Name="DLL Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="DLL Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
+				RelativePath=".\file.c">
 			</File>
 			<File
-				RelativePath="filter.c">
-				<FileConfiguration
-					Name="DLL Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="DLL Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
+				RelativePath=".\filter.c">
 			</File>
 			<File
-				RelativePath="fourier.c">
-				<FileConfiguration
-					Name="DLL Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="DLL Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
+				RelativePath=".\fourier.c">
 			</File>
 			<File
-				RelativePath="hdrfile.c">
-				<FileConfiguration
-					Name="DLL Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="DLL Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
+				RelativePath=".\tools\compat_win32\getopt.c">
 			</File>
 			<File
-				RelativePath="jpeg.c">
-				<FileConfiguration
-					Name="DLL Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="DLL Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
+				RelativePath=".\hdrfile.c">
 			</File>
 			<File
-				RelativePath="jpegicc.c">
+				RelativePath=".\jpeg.c">
 			</File>
 			<File
-				RelativePath="lmdif.c">
-				<FileConfiguration
-					Name="DLL Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="DLL Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
+				RelativePath=".\jpegicc.c">
 			</File>
 			<File
-				RelativePath="math.c">
-				<FileConfiguration
-					Name="DLL Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="DLL Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
+				RelativePath=".\lmdif.c">
 			</File>
 			<File
-				RelativePath="metadata.c">
+				RelativePath=".\math.c">
 			</File>
 			<File
-				RelativePath="morpher.c">
-				<FileConfiguration
-					Name="DLL Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="DLL Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
+				RelativePath=".\metadata.c">
 			</File>
 			<File
-				RelativePath="multilayer.c">
-				<FileConfiguration
-					Name="DLL Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="DLL Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
+				RelativePath=".\morpher.c">
 			</File>
 			<File
-				RelativePath="optimize.c">
-				<FileConfiguration
-					Name="DLL Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="DLL Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
+				RelativePath=".\multilayer.c">
 			</File>
 			<File
-				RelativePath="pan.c">
-				<FileConfiguration
-					Name="DLL Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="DLL Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
+				RelativePath=".\optimize.c">
 			</File>
 			<File
-				RelativePath="parser.c">
-				<FileConfiguration
-					Name="DLL Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="DLL Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
+				RelativePath=".\pan.c">
 			</File>
 			<File
-				RelativePath="perspect.c">
-				<FileConfiguration
-					Name="DLL Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="DLL Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
+				RelativePath=".\parser.c">
 			</File>
 			<File
-				RelativePath="png.c">
-				<FileConfiguration
-					Name="DLL Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="DLL Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
+				RelativePath=".\perspect.c">
 			</File>
 			<File
-				RelativePath="ppm.c">
+				RelativePath=".\png.c">
 			</File>
 			<File
-				RelativePath="PTcommon.c">
-				<FileConfiguration
-					Name="DLL Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="DLL Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
+				RelativePath=".\ppm.c">
 			</File>
 			<File
-				RelativePath="PTDialogs.c">
-				<FileConfiguration
-					Name="DLL Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="DLL Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
+				RelativePath=".\PTcommon.c">
+			</File>
+			<File
+				RelativePath=".\PTDialogs.c">
 			</File>
 			<File
 				RelativePath=".\pteditor.c">
+			</File>
+			<File
+				RelativePath=".\ptfeather.c">
 			</File>
 			<File
 				RelativePath=".\ptpicker.c">
@@ -475,154 +311,34 @@
 				RelativePath=".\ptstitch.c">
 			</File>
 			<File
-				RelativePath="queryfeature.c">
-				<FileConfiguration
-					Name="DLL Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="DLL Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
+				RelativePath=".\queryfeature.c">
 			</File>
 			<File
-				RelativePath="remap.c">
-				<FileConfiguration
-					Name="DLL Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="DLL Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
+				RelativePath=".\remap.c">
 			</File>
 			<File
-				RelativePath="resample.c">
-				<FileConfiguration
-					Name="DLL Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="DLL Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
+				RelativePath=".\resample.c">
 			</File>
 			<File
-				RelativePath="rgbe.c">
-				<FileConfiguration
-					Name="DLL Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="DLL Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
+				RelativePath=".\rgbe.c">
 			</File>
 			<File
-				RelativePath="seamer.c">
-				<FileConfiguration
-					Name="DLL Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="DLL Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
+				RelativePath=".\seamer.c">
 			</File>
 			<File
-				RelativePath="sys_common.c">
-				<FileConfiguration
-					Name="DLL Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="DLL Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
+				RelativePath=".\sys_common.c">
 			</File>
 			<File
-				RelativePath="sys_win.c">
-				<FileConfiguration
-					Name="DLL Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="DLL Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
+				RelativePath=".\sys_win.c">
 			</File>
 			<File
-				RelativePath="tiff.c">
-				<FileConfiguration
-					Name="DLL Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="DLL Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
+				RelativePath=".\tiff.c">
 			</File>
 			<File
-				RelativePath="Triangulate.c">
-				<FileConfiguration
-					Name="DLL Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="DLL Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
+				RelativePath=".\Triangulate.c">
 			</File>
 			<File
-				RelativePath="ZComb.c">
-				<FileConfiguration
-					Name="DLL Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="DLL Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
+				RelativePath=".\ZComb.c">
 			</File>
 		</Filter>
 		<Filter
@@ -630,61 +346,52 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
 			<File
-				RelativePath="adjust.h">
+				RelativePath=".\ColourBrightness.h">
 			</File>
 			<File
-				RelativePath="ColourBrightness.h">
+				RelativePath=".\f2c.h">
 			</File>
 			<File
-				RelativePath="f2c.h">
+				RelativePath=".\fftn.h">
 			</File>
 			<File
-				RelativePath="fftn.h">
+				RelativePath=".\filter.h">
 			</File>
 			<File
-				RelativePath="file.h">
+				RelativePath=".\tools\compat_win32\getopt.h">
 			</File>
 			<File
-				RelativePath="filter.h">
+				RelativePath=".\panorama.h">
 			</File>
 			<File
-				RelativePath="jpegicc.h">
+				RelativePath=".\pt_stdint.h">
 			</File>
 			<File
-				RelativePath="metadata.h">
+				RelativePath=".\PTcommon.h">
 			</File>
 			<File
-				RelativePath="panorama.h">
+				RelativePath=".\pteditor.h">
 			</File>
 			<File
-				RelativePath="panotypes.h">
+				RelativePath=".\ptutils.h">
 			</File>
 			<File
-				RelativePath="pt_stdint.h">
+				RelativePath=".\resource.h">
 			</File>
 			<File
-				RelativePath="PTcommon.h">
+				RelativePath=".\rgbe.h">
 			</File>
 			<File
-				RelativePath="pttiff.h">
+				RelativePath=".\seamer.h">
 			</File>
 			<File
-				RelativePath="ptutils.h">
+				RelativePath=".\sys_win.h">
 			</File>
 			<File
-				RelativePath="queryfeature.h">
+				RelativePath=".\version.h">
 			</File>
 			<File
-				RelativePath="rgbe.h">
-			</File>
-			<File
-				RelativePath="sys_win.h">
-			</File>
-			<File
-				RelativePath="version.h">
-			</File>
-			<File
-				RelativePath="ZComb.h">
+				RelativePath=".\ZComb.h">
 			</File>
 		</Filter>
 		<Filter
@@ -692,25 +399,13 @@
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}">
 			<File
-				RelativePath=".\Authors">
+				RelativePath=".\pano12.rc">
 			</File>
 			<File
-				RelativePath=".\ChangeLog">
+				RelativePath=".\pano12vc.def">
 			</File>
 			<File
-				RelativePath=".\News">
-			</File>
-			<File
-				RelativePath="pano12.rc">
-			</File>
-			<File
-				RelativePath="pano12vc.def">
-			</File>
-			<File
-				RelativePath=".\Readme">
-			</File>
-			<File
-				RelativePath=".\Todo">
+				RelativePath=".\pano12vcd.def">
 			</File>
 		</Filter>
 	</Files>
