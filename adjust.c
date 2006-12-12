@@ -674,6 +674,7 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
         case _equirectangular:
         case _fisheye_ff:
         case _panorama:
+        case _lambert:
         case _mercator:
         case _sinusoidal:
             // horizontal pixels per degree
@@ -769,6 +770,10 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
    	else if(pn->format == _mercator)
 	{
 		SetDesc(stack[i],	erect_mercator,		&(mp->distance)	); i++;	// Convert mercator to sphere
+    }
+   	else if(pn->format == _lambert)
+	{
+		SetDesc(stack[i],	erect_lambert,		&(mp->distance)	); i++;	// Convert lambert to sphere
     }
    	else if(pn->format == _trans_mercator)
 	{
@@ -915,6 +920,7 @@ void 	SetInvMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , 
         case _equirectangular:
         case _fisheye_ff:
         case _panorama:
+        case _lambert:
         case _mercator:
         case _sinusoidal:
             // horizontal pixels per degree
@@ -932,7 +938,7 @@ void 	SetInvMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , 
             break;
         default:
             // unknown
-            PrintError ("SetMakeParams: Unsupported panorama projection");
+            PrintError ("SetInvMakeParams: Unsupported panorama projection");
             // no way to report an error back to the caller...
             mp->distance = 1;
         }
@@ -952,7 +958,7 @@ void 	SetInvMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , 
             mp->scale[0] = ((double) im->width) / a / mp->distance;
             break;
         default:
-            PrintError ("SetMakeParams: Unsupported input image projection");
+            PrintError ("SetInvMakeParams: Unsupported input image projection");
             // no way to report an error back to the caller...
             mp->scale[1] = 1;
         }
@@ -1078,6 +1084,10 @@ void 	SetInvMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , 
    	else if(pn->format == _mercator)
 	{
 		SetDesc(stack[i],	mercator_erect,		&(mp->distance)	); i++;	// Convert sphere to sphere
+    }
+   	else if(pn->format == _lambert)
+	{
+		SetDesc(stack[i],	lambert_erect,		&(mp->distance)	); i++;	// Convert sphere to lambert
     }
    	else if(pn->format == _trans_mercator)
 	{
@@ -2474,7 +2484,9 @@ int CheckParams( AlignInfo *g )
 	if( g->pano.format != _rectilinear 		&& g->pano.format != _panorama &&
 		g->pano.format != _equirectangular 	&& g->pano.format != _fisheye_ff &&
 		g->pano.format != _stereographic 	&& g->pano.format != _mercator &&
-		g->pano.format != _trans_mercator 	&& g->pano.format != _sinusoidal) 
+		g->pano.format != _trans_mercator 	&& g->pano.format != _sinusoidal &&
+	        g->pano.format != _lambert
+	     ) 
 		    	err=11;
 		    
 	// Check Control Points

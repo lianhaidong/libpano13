@@ -106,6 +106,10 @@ void panoMenderSetFileName(fullPath *ptrImageFileName, char *name, fullPath *scr
 {
     //Only prepend the path to the script to the filenames if the filenames
     //don't already have path information
+    assert(ptrImageFileName != NULL);
+    assert(name != NULL);
+    assert(scriptFileName != NULL);
+
     if ( (hasPathInfo(name)) == 0 )
 	strcpy(ptrImageFileName->name, scriptFileName->name);
     else
@@ -168,6 +172,10 @@ static int panoMenderImageFileNamesReadFromScript(fullPath **ptrImageFileNames, 
 	    //PTStitcher.  It has been moved into this conditional block because
 	    //the script path could get prepended to an already fully qualified
 	    //filename...not very useful.
+	    if (ptDebug) {
+		fprintf(stderr, "Processing image [%s] from 'i' line %d\n", alignInfo.im[i].name, i);
+	    }
+
 	    panoMenderSetFileName(&((*ptrImageFileNames)[i]), alignInfo.im[i].name, scriptFileName);
 	    
 	    if (ptDebug) {
@@ -193,18 +201,13 @@ static int panoMenderImageFileNamesReadFromScript(fullPath **ptrImageFileNames, 
 	    exit(1);
 	}
 	// Allocate their space
-	if ((ptrImageFileNames = malloc(512 * counter)) == NULL) {
+	if ((*ptrImageFileNames = malloc(512 * counter)) == NULL) {
 	    PrintError("Not enough memory");
 	    exit(1);
 	}
 	
 	
 	panoMenderDuplicateScriptFile(scriptFileName->name, script, &scriptPathName);
-	
-	if ((ptrImageFileNames = malloc(counter * 512)) == NULL) {
-	    PrintError("Not enough memory\n");
-	    exit(1);
-	}
 	
 	for (i = 0; i < counter; i++) {
 	    aPrefs* preferences;
@@ -213,6 +216,10 @@ static int panoMenderImageFileNamesReadFromScript(fullPath **ptrImageFileNames, 
 		exit(1);
 	    }
 	    
+	    if (ptDebug) {
+		fprintf(stderr, "Processing image [%s] from 'o' line %d\n", preferences->im.name, i);
+	    }
+
 	    panoMenderSetFileName(&((*ptrImageFileNames)[i]), preferences->im.name, scriptFileName);
 	    
 	    if (ptDebug) {

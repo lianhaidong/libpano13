@@ -568,7 +568,7 @@ int rect_erect( double x_dest,double  y_dest, double* x_src, double* y_src, void
 #endif
     return 1;
 }
-
+// This is the cylindrical projection
 int pano_erect( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {	
 	// params: double distance
@@ -602,6 +602,25 @@ int erect_mercator( double x_dest,double  y_dest, double* x_src, double* y_src, 
     // params: distance
     *x_src = x_dest;
     *y_src = distance*atan(sinh(y_dest/distance));
+    return 1;
+}
+
+
+/** convert from erect to lambert */
+int lambert_erect( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
+{
+    // params: distance
+    *x_src = x_dest;
+    *y_src = distance*sin(y_dest/distance);
+    return 1;
+}
+
+/** convert from lambert to erect */
+int erect_lambert( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
+{
+    // params: distance
+    *x_src = x_dest;
+    *y_src = distance*asin(y_dest/distance);
     return 1;
 }
 

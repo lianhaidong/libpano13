@@ -831,6 +831,8 @@ int erect_sphere_tp	( double x_dest,double  y_dest, double* x_src, double* y_src
 int mirror_erect		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
 int mercator_erect		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
 int erect_mercator		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
+int lambert_erect		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
+int erect_lambert		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
 int transmercator_erect		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
 int erect_transmercator		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
 int sinusoidal_erect		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );

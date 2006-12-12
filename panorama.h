@@ -247,7 +247,8 @@ enum
     _mercator = 11,
     _trans_mercator = 12,
     _trans_panorama = 13,
-    _sinusoidal = 14
+    _sinusoidal = 14,
+    _lambert    = 15,
 };
 
 // A large rectangle

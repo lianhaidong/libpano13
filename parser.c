@@ -468,6 +468,9 @@ int ParseScript( char* script, AlignInfo *gl )
 						case 7:
 							gl->pano.format = _sinusoidal;
 							break;
+						case 8:
+							gl->pano.format = _lambert;
+							break;
 						default:
 							PrintError( "Unknown panorama projection: %d", gl->pano.format );
 							return -1;
@@ -930,6 +933,9 @@ int readAdjust( aPrefs *p,  fullPath* sfile, int insert, sPrefs *sP )
 							break;
 						case 7:
 							p->pano.format = _sinusoidal;
+							break;
+						case 8:
+							p->pano.format = _lambert;
 							break;
 						default:
 							PrintError( "Unknown panorama projection: %d", p->pano.format );

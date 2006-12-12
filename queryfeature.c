@@ -64,6 +64,7 @@ TStringFeature stringFeatures[]={
   {"PanoType5","Mercator"},
   {"PanoType6","Transverse mercator"},
   {"PanoType7","Sinusoidal"},
+  {"PanoType8","Lambert"},
   // Filter Types
   //   fix: Fixed Windowsize
   //   aa: Antialiasing filter with adaptive filter size
