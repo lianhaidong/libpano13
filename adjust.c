@@ -680,6 +680,13 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
             // horizontal pixels per degree
             mp->distance        = ((double) pn->width) / b;
             break;
+        case _lambertazimuthal: // this is probably WRONG
+	    tpara = 1;
+	    lambertazimuthal_erect(b/2.0, 0.0, &tx, &ty, & tpara);
+	    printf("Computing %10.4f  %10.4f\n", tx, ty); 
+            mp->distance = pn->width/(2.0*tx);
+	  //            mp->distance        = ((double) pn->width) / b;
+            break;
         case _stereographic:
             tpara = 1;
             stereographic_erect(b/2.0, 0.0, &tx, &ty, & tpara);
@@ -774,6 +781,10 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
    	else if(pn->format == _lambert)
 	{
 		SetDesc(stack[i],	erect_lambert,		&(mp->distance)	); i++;	// Convert lambert to sphere
+    }
+   	else if(pn->format == _lambertazimuthal)
+	{
+		SetDesc(stack[i],	erect_lambertazimuthal,		&(mp->distance)	); i++;	// Convert lambert to sphere
     }
    	else if(pn->format == _trans_mercator)
 	{
@@ -925,6 +936,12 @@ void 	SetInvMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , 
         case _sinusoidal:
             // horizontal pixels per degree
             mp->distance        = ((double) pn->width) / b;
+            break;
+	case _lambertazimuthal: // this is probably WRONG
+	    tpara = 1;
+	    lambertazimuthal_erect(b/2.0, 0.0, &tx, &ty, & tpara);
+	    mp->distance = pn->width/(2.0*tx);
+            //mp->distance        = ((double) pn->width) / b;
             break;
         case _stereographic:
             tpara = 1;
@@ -1088,6 +1105,10 @@ void 	SetInvMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , 
    	else if(pn->format == _lambert)
 	{
 		SetDesc(stack[i],	lambert_erect,		&(mp->distance)	); i++;	// Convert sphere to lambert
+    }
+   	else if(pn->format == _lambertazimuthal)
+	{
+		SetDesc(stack[i],	lambertazimuthal_erect,		&(mp->distance)	); i++;	// Convert sphere to lambert azimuthal
     }
    	else if(pn->format == _trans_mercator)
 	{
@@ -2485,7 +2506,7 @@ int CheckParams( AlignInfo *g )
 		g->pano.format != _equirectangular 	&& g->pano.format != _fisheye_ff &&
 		g->pano.format != _stereographic 	&& g->pano.format != _mercator &&
 		g->pano.format != _trans_mercator 	&& g->pano.format != _sinusoidal &&
-	        g->pano.format != _lambert
+ 	        g->pano.format != _lambert              && g->pano.format != _lambertazimuthal
 	     ) 
 		    	err=11;
 		    

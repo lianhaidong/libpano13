@@ -249,6 +249,7 @@ enum
     _trans_panorama = 13,
     _sinusoidal = 14,
     _lambert    = 15,
+    _lambertazimuthal  = 16,
 };
 
 // A large rectangle

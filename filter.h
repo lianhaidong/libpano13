@@ -60,7 +60,7 @@ enum{
 //---------------------- Some useful math defines --------------------------
 
 #ifndef PI
-	#define PI 3.14159265358979323846
+        #define PI 3.14159265358979323846264338327950288
 #endif
 #ifndef HALF_PI
     #define HALF_PI (PI*0.5)
@@ -833,6 +833,8 @@ int mercator_erect		( double x_dest,double  y_dest, double* x_src, double* y_src
 int erect_mercator		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
 int lambert_erect		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
 int erect_lambert		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
+int erect_lambertazimuthal( double x_dest,double  y_dest, double* x_src, double* y_src, void* params);
+int lambertazimuthal_erect( double x_dest,double  y_dest, double* x_src, double* y_src, void* params);
 int transmercator_erect		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
 int erect_transmercator		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
 int sinusoidal_erect		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );

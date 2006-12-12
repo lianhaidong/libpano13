@@ -26,6 +26,8 @@
 #define MAXITER 100
 
 
+#include <assert.h>
+
 
 #ifndef abs
 #define abs(a) ( (a) >= 0 ? (a) : -(a) )
@@ -586,6 +588,96 @@ int erect_pano( double x_dest,double  y_dest, double* x_src, double* y_src, void
 	*y_src = distance * atan( y_dest / distance);
     return 1;
 }
+
+/** convert from erect to lambert azimuthal */
+int lambertazimuthal_erect( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
+{
+    // params: distance
+    double phi, lambda,k1;
+    lambda = x_dest/distance;
+    phi = y_dest/distance;
+
+/*
+    printf("To compute original x %10.4f  y %10.4f distance %10.4f\n", x_dest, y_dest, distance); 
+    printf("To compute x %10.4f  y %10.4f\n", lambda, phi); 
+    printf("To compute cos(y) %10.4f  cos(x) %10.4f\n", cos(phi), cos(lambda)); 
+*/
+    if (abs(cos(phi) * cos(lambda) + 1.0) <= EPSLN) {
+      *x_src = distance * 2 ;
+      *y_src = 0;
+      return 0;
+    }
+
+    k1 = sqrt(2.0 / (1 + cos(phi) * cos(lambda)));
+
+    printf("To compute k %10.4f  \n", k1); 
+
+    *x_src = distance * k1 * cos(phi) * sin (lambda);
+    *y_src = distance * k1 * sin(phi);
+
+    return 1;
+}
+
+/** convert from lambert azimuthal to erect */
+int erect_lambertazimuthal( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
+{
+
+    double x, y, r, ro,c;
+
+    x = x_dest/distance;
+    y = y_dest/distance;
+    //x = x_dest;
+    //y = y_dest;
+
+    assert(! isnan(x));
+    assert(! isnan(y));
+    if (fabs(x) > PI || fabs(y) > PI) {
+        *y_src = 0;
+        *x_src = 0;
+	return 0;
+    }
+
+    ro = hypot(  x, y);
+
+    if (fabs(ro) <= EPSLN)
+    {
+      printf("** compute x %10.4f  y %10.4f\n", x, y); 
+      printf("** compute c %10.4f\n", ro); 
+
+        *y_src = 0;
+        *x_src = 0;
+        return 1;
+    }
+
+    c = 2 * asin(ro / 2.0);
+
+    *y_src = distance * asin( (y * sin(c)) / ro);
+
+
+    if (fabs(ro * cos(c)) <= EPSLN ) {
+      printf("** compute x %10.4f  y %10.4f\n", x, y); 
+      printf("** compute cos(y) %10.4f  cos(x) %10.4f\n", cos(c), c); 
+      *x_src = 0;
+      return 1;
+    }
+
+    *x_src = distance * atan2( x * sin(c), (ro * cos(c)));
+
+    //*x_src = atan( x * sin(c) / (ro * cos(c)));
+    //*y_src = asin( y * sin(c) / ro);
+
+    /*
+    if (*x_src/distance < -PI/4 || *x_src/distance > PI/4)
+	return 0; 
+
+    if (*y_src/distance < -PI/4 || *y_src/distance > PI/4)
+	return 0; 
+    */
+    return 1;
+
+}
+
+
 
 /** convert from erect to mercator */
 int mercator_erect( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
