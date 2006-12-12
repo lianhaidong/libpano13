@@ -1,3 +1,19 @@
+2006-12-12 dangelo <pablo.dangelo@web.de>
+        * ColorBrightness.c, PTcommon.c, tools/PTblender.c,
+          tools/PTcrop.c, tools/PTinfo.c, tools/PTmasker.c, tools/PTmender.c,
+          tools/PTtiff2psd.c, tools/PTtiffdump.c, tools/PTuncrop.c: Fixes for
+          MSVC compilation, unistd.h not available on that platform. C Compiler
+          only accepts variables declared at the beginning of a function.
+
+        * libpano.sln, libpano.vcproj, tools/PTblender.vcproj, 
+          tools/PTcrop.vcproj, tools/PTinfo.vcproj, tools/PTmasker.vcproj,
+          tools/PTmender.vcproj, tools/PTtiff2psd.vcproj,
+          tools/PTtiffdump.vcproj, tools/PTuncrop.vcproj: New MSVC project
+          files, statically linked to libpano and image libraries.
+
+        * tools/compat_win32/dirent.h, tools/compat_win32/getopt.h
+          tools/compat_win32/getopt.c: getopt not ANSI C.
+
 2006-12-11  dmg  <dmg@uvic.ca>
 
 	* version.h (VERSION), configure.ac Upgraded to version 2.9.4.
