@@ -663,16 +663,6 @@ int erect_lambertazimuthal( double x_dest,double  y_dest, double* x_src, double*
 
     *x_src = distance * atan2( x * sin(c), (ro * cos(c)));
 
-    //*x_src = atan( x * sin(c) / (ro * cos(c)));
-    //*y_src = asin( y * sin(c) / ro);
-
-    /*
-    if (*x_src/distance < -PI/4 || *x_src/distance > PI/4)
-	return 0; 
-
-    if (*y_src/distance < -PI/4 || *y_src/distance > PI/4)
-	return 0; 
-    */
     return 1;
 
 }
@@ -727,6 +717,11 @@ int transmercator_erect( double x_dest,double  y_dest, double* x_src, double* y_
     B = cos(y_dest)*sin(x_dest);
     *x_src = distance * atanh(B);
     *y_src = distance * atan2(tan(y_dest), cos(x_dest));
+
+    if (isinf(*x_src)) {
+      return 0;
+    }
+
     return 1;
 }
 
@@ -736,6 +731,14 @@ int erect_transmercator( double x_dest,double  y_dest, double* x_src, double* y_
     // params: distance
     x_dest /= distance;
     y_dest /= distance;
+
+    if (fabs(y_dest) > PI ) {
+        *y_src = 0;
+        *x_src = 0;
+	return 0;
+    }
+
+
     *x_src = distance * atan2(sinh(x_dest),cos(y_dest));
     *y_src = distance * asin(sin(y_dest)/cosh(x_dest));
     return 1;

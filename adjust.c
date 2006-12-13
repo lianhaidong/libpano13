@@ -680,12 +680,10 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
             // horizontal pixels per degree
             mp->distance        = ((double) pn->width) / b;
             break;
-        case _lambertazimuthal: // this is probably WRONG
+        case _lambertazimuthal: 
 	    tpara = 1;
 	    lambertazimuthal_erect(b/2.0, 0.0, &tx, &ty, & tpara);
-	    printf("Computing %10.4f  %10.4f\n", tx, ty); 
             mp->distance = pn->width/(2.0*tx);
-	  //            mp->distance        = ((double) pn->width) / b;
             break;
         case _stereographic:
             tpara = 1;
@@ -937,11 +935,10 @@ void 	SetInvMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , 
             // horizontal pixels per degree
             mp->distance        = ((double) pn->width) / b;
             break;
-	case _lambertazimuthal: // this is probably WRONG
+	case _lambertazimuthal:
 	    tpara = 1;
 	    lambertazimuthal_erect(b/2.0, 0.0, &tx, &ty, & tpara);
 	    mp->distance = pn->width/(2.0*tx);
-            //mp->distance        = ((double) pn->width) / b;
             break;
         case _stereographic:
             tpara = 1;
