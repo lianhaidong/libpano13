@@ -1,3 +1,9 @@
+2006-12-13  dmg  <dmg@uvic.ca>
+
+	* ColourBrightness.c (CorrectFileColourBrightness): Another bug I
+	introduced when I replaced readTIFF with panoTiffRead. I need
+	regression testing :(
+
 2006-12-13  dangelo <pablo.dangelo@web.de>
 
         * Makefile.am: install file.h during make install. It is required

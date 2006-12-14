@@ -765,7 +765,7 @@ int CorrectFileColourBrightness(fullPath *inPath, fullPath *outPath, magnolia_st
   Image image;
   CropInfo crop_info;
   char tempString[512];
-  if (panoTiffRead (&image, inPath->name) != 0) {
+  if (panoTiffRead (&image, inPath->name) == 0) {
     sprintf(tempString, "Could not read TIFF file %s", inPath->name);
     PrintError(tempString);
     return -1;
