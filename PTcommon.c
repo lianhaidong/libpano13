@@ -124,12 +124,19 @@ int panoPSDCreate(fullPath * fullPathImages, int numberImages,
     }
 
     if (numberImages == 1) {
-	PrintError("Writing only one image is not supported yet");
-	return -1;
+	if (writePSD(&image, outputFileName) != 0) {
+	    PrintError("Could not write PSD-file");
+	    if (ptQuietFlag != 0)
+		Progress(_disposeProgress, tempString);
+	    return -1;
+	}
+	return 0;
     }
 
+    //////////////////////////////////////////////////////////////////////
 
     //Write out the first image as the base layer in the PSD file
+
     if (writePSDwithLayer(&image, outputFileName) != 0) {
         PrintError("Could not write PSD-file");
         if (ptQuietFlag != 0)

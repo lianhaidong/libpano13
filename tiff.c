@@ -258,7 +258,6 @@ void setCropInformationInTiff(TIFF * tiffFile, CropInfo * crop_info)
 
 
 
-#ifdef DEPRECATED
 int readTIFF(Image * im, fullPath * sfile)
 {
     char filename[512];
@@ -463,7 +462,6 @@ int writeTIFF(Image * im, fullPath * sfile)
     return writeCroppedTIFF(im, sfile, &(im->cropInformation));
 }
 
-#endif
 
 
 void RGBAtoARGB(UCHAR * buf, int width, int bitsPerPixel)
@@ -1599,6 +1597,7 @@ int panoTiffVerifyAreCompatible(fullPath * tiffFiles, int numberImages,
     pano_CropInfo *otherCropInfo = NULL;
 
     assert(tiffFiles != NULL);
+
     assert(numberImages > 1);
 
 

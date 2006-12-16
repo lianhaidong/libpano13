@@ -60,13 +60,13 @@
 static int              writeImageDataPlanar    ( Image *im, file_spec fnum );
 static int              readImageDataPlanar     (Image *im, file_spec fnum ) ;
 static int              ParsePSDHeader          ( char *header, Image *im );
-static int              writeChannelData        ( Image *im, file_spec fnum, int channel, CropInfo *crop_info, PTRect *r );
-static int              writeLayerAndMask       ( Image *im, CropInfo *crop_info, file_spec fnum );
-static void             getImageRectangle       ( Image *im, CropInfo *crop_info, PTRect *r );
+static int              writeChannelData        ( Image *im, file_spec fnum, int channel, PTRect *r );
+static int              writeLayerAndMask       ( Image *im, file_spec fnum );
+static void             getImageRectangle       ( Image *im, PTRect *r );
 static int              fileCopy                ( file_spec src, file_spec dest, size_t numBytes, unsigned char *buf);
 static void             orAlpha                 ( unsigned char* alpha, unsigned char *buf, Image *im, PTRect *r );
 static void             writeWhiteBackground    ( pt_int32 width, pt_int32 height, file_spec fnum );
-static int              addLayer                ( Image *im, CropInfo *crop_info, file_spec src, file_spec fnum , stBuf *sB);
+static int              addLayer                ( Image *im, file_spec src, file_spec fnum , stBuf *sB);
 static int              hasFeather              ( Image *im );
 static int              writeTransparentAlpha   ( Image *im, file_spec fnum, PTRect *theRect );
 
@@ -117,8 +117,17 @@ char *psdBlendingModesInternalName[] = {
 
 #define PSDHLENGTH 26
 
-int panoPSDResourceWrite(file_spec fnum, pt_uint16 resource, pt_uint16 len)
+int panoPSDResourceWrite(file_spec fnum, pt_uint16 resource, pt_uint16 len, pt_uint16 dataLen, char *resourceData)
 {
+//struct _ColorModeDataBlock
+//{
+//    BYTE Type[4];  /* Always "8BIM" */
+//    WORD ID;       /* (See table below) */
+//    BYTE Name[];   /* Even-length Pascal-format string, 2 bytes or longer */
+//    LONG Size;     /* Length of resource data following, in bytes */
+//    BYTE Data[];   /* Resource data, padded to even length */
+//};
+//
   int rtn = 0;
   unsigned char  ch;
   size_t  count;
@@ -135,15 +144,20 @@ int panoPSDResourceWrite(file_spec fnum, pt_uint16 resource, pt_uint16 len)
   rtn += count;
   WRITESHORT(resource);
   rtn += count;
-  WRITEINT32(0); // Null string
+  WRITESHORT(0); // Null string 2 bytes (length)
   rtn += count;
-  WRITESHORT(len); //size of the record
+  WRITEINT32(len); //size of the record (4 bytes)
   rtn += count;
+
+  if (dataLen > 0 && resourceData != NULL) {
+    mywrite( fnum, dataLen, resourceData );
+    rtn +=  dataLen;
+  }
 
   return rtn;
 }
 
-int panoPSDPICTResourceWrite(file_spec fnum, unsigned char resource, unsigned char record, pt_uint16 len)
+int panoPSDPICTResourceWrite(file_spec fnum, unsigned char resource, unsigned char record, pt_uint16 len, char *recordData)
 {
   // See IPTC Information Intercharge Model Exchange Version 4.
   int rtn = 0;
@@ -162,10 +176,24 @@ int panoPSDPICTResourceWrite(file_spec fnum, unsigned char resource, unsigned ch
   WRITESHORT( len ); //length
   rtn += count;
 
+  if (recordData != NULL > 0) {
+
+      mywrite( fnum, len,  recordData);
+      rtn += count;
+      
+      if (len % 2 == 0) {
+	  // Odd size record! it should be aligned to word, but not reported in the lenght
+	  // and the record header is odd length (5 bytes) so...
+	  //	  printf("Writing extra record to align\n");
+	  
+	  WRITEUCHAR( 0 );
+	  rtn += count;
+      }
+  }
   return rtn;
 }
 
-#define CREATED_BY_PSD "Panotools " VERSION
+#define CREATED_BY_PSD "Panotools  " VERSION
 #define IPTC_VERSION_ID 0
 #define IPTC_ORIGINATING_PROGRAM_ID 0x41
 #define IPTC_DESCRIPTION_WRITER_ID  0x7a
@@ -181,53 +209,62 @@ int panoPSDResourcesBlockWrite(Image *im, file_spec   fnum)
   pt_uint16  shorty = 0;
   pt_uint32  len = 0; 
   pt_uint16  fileInfoLength = 0;
+  int saveLocation = 0;
+  int saveLocationForSize=0;
+  int temp;
 
-  // Write the length
+
+  // This function is a bit cryptic mainly because PSD forces the lenght to be known before a record is written. 
+  // What I have decided is to make the writing process non-sequential.
   
-  // if we have profile...
-  if (im->metadata.iccProfile.size > 0)
-    len  += im->metadata.iccProfile.size + 12; // To include record data
-  // + Write file info...
-  
-  // compute length of fileinfo record
-  // each record is 5 bytes + data
-  // We will write the following records
+  // Write an empty length first, then "rewind" and write its real
+  // one. It will make things way easier and more maintainable.
 
-  // originating program: 0x41 "Ptmender (32 bytes max)
-  
-  assert(strlen(CREATED_BY_PSD) <= 32);
+  // Write 4 bytes
+  saveLocationForSize = ftell(fnum);
 
-  shorty = strlen(CREATED_BY_PSD) + 1 // size of originating program, len + 1 as it is pascal type
-    + 7 // size of version record
-    + 5 * 1 // 5 * number of records other than version
-    ;
+  WRITEINT32( 1234 );            // Image Resources size
+  rtn += 4;
+  if (im->metadata.iccProfile.size > 0) {
+    // Currently we only include ICC profile if it exists
+    
+    // We need to write an image Resources block
+    // Write Image resources header
+    // Write ICC Profile block
+      rtn += panoPSDResourceWrite(fnum, 0x040f, im->metadata.iccProfile.size,
+				  im->metadata.iccProfile.size, im->metadata.iccProfile.data);
+    
+  } 
 
-  len += shorty + 12; // size of fileinfo records + 12 overhead
+  { 
+      // we will refactor this chunck
+      char IPTCVersion[3];
+      int dataLen = 0;
+      IPTCVersion[0] = 0;
+      IPTCVersion[1] = 2;
+      IPTCVersion[2] = 0;
 
-  WRITEINT32( len );            // Image Resources size
-  rtn += count;
+      // To write PICT we need to create a resource of type IPCT
+      // Inside it write the sequence of PICT records
 
-  // Write FILEinfo
-  rtn += panoPSDResourceWrite(fnum, 0x0404, shorty);
+      // THIS IS UNTIL I FIX THIS CODE. IPTC records should be aligned and the header takes
+      // 5 bytes
+      // We also need to make it easier to add new records by
+      //simplifying the computation of the length of the subrecords
 
-  // write version
-  
-  rtn += panoPSDPICTResourceWrite(fnum, 0x02, IPTC_VERSION_ID, 2);
-  WRITEUCHAR( 00 );
-  rtn += count;
-  WRITEUCHAR( 02 );
-  rtn += count;
+      assert(strlen(CREATED_BY_PSD) % 2 == 1) ;
 
-  // write originating program
+      temp = strlen(CREATED_BY_PSD);
 
-  rtn += panoPSDPICTResourceWrite(fnum, 0x02, IPTC_DESCRIPTION_WRITER_ID, strlen(CREATED_BY_PSD) + 1);
-
-  WRITEUCHAR(strlen(CREATED_BY_PSD));
-  rtn += count;
-
-  len = strlen(CREATED_BY_PSD);
-  mywrite( fnum, len, CREATED_BY_PSD);
-  rtn += len;
+      /// 8 of the VERSION ID + length of Descriptor (5 header + 2 strlen + string )
+      rtn += panoPSDResourceWrite(fnum, 0x0404, 8 + 5 + 2 + temp, 0, NULL);
+      rtn += panoPSDPICTResourceWrite(fnum, 0x02, IPTC_VERSION_ID, 2, IPTCVersion);
+      rtn += panoPSDPICTResourceWrite(fnum, 0x02, IPTC_DESCRIPTION_WRITER_ID, temp, NULL );
+      WRITESHORT(temp);
+      rtn += count;
+      
+      mywrite( fnum, temp, CREATED_BY_PSD);
+      rtn += temp;
 
   // TODO:
   // caption abstract:    0x78 "script... (2000 bytes max)
@@ -237,20 +274,22 @@ int panoPSDResourcesBlockWrite(Image *im, file_spec   fnum)
   // imagedescription
   // artist               0x80 (32 max)
 
-  if (im->metadata.iccProfile.size != 0) {
-    
-    // Currently we only include ICC profile if it exists
-    
-    // We need to write an image Resources block
-    // Write Image resources header
-    // Write ICC Profile block
-    rtn += panoPSDResourceWrite(fnum, 0x040f, im->metadata.iccProfile.size);
 
-    mywrite( fnum, im->metadata.iccProfile.size, im->metadata.iccProfile.data );
-    rtn += im->metadata.iccProfile.size;
-    
-  } 
+  }
+  // Write length
+
+  saveLocation = ftell(fnum);
+  fseek(fnum,  saveLocationForSize, SEEK_SET);
+  assert(saveLocation > saveLocationForSize);
+  WRITEINT32( saveLocation - saveLocationForSize-4 );            // Image Resources size
+  fseek(fnum, saveLocation, SEEK_SET);
+
+  
+
+
   return rtn;
+
+
 }
 
 
@@ -274,6 +313,7 @@ int writePSD(Image *im, fullPath *sfile )
         PrintError("Error Writing Image File");
         return -1;
     }
+    //    printf("It is sropped %d\n", panoImageIsCropped(im));
 
     // Write PSD Header
     // WRITEINT32( '8BPS' );
@@ -287,12 +327,20 @@ int writePSD(Image *im, fullPath *sfile )
     WRITEUCHAR( 0 );
     WRITEUCHAR( channels );// No of channels
         
-    WRITEINT32( im->height );
-    WRITEINT32( im->width  );
+    // TODO: IF THE SOURCE FILE IS CROPPED THIS IS WRITING ONLY THE CROPPED AREA
+
+    //    printf("It is sropped %d %d %d %d %d\n", panoImageIsCropped(im),
+    //	   panoImageHeight(im), panoImageWidth(im), panoImageFullHeight(im), panoImageFullWidth(im));
+
+
+    //The Photoshop file has the dimensions of the full size image, regardless
+    //of whether the TIFF file is "cropped" or not.
+    WRITEINT32( panoImageHeight(im)); // Rows
+    WRITEINT32( panoImageWidth(im));  // Columns
             
     WRITESHORT( BitsPerChannel );           // BitsPerChannel
     
-    switch( im->dataformat )
+    switch( im->dataformat ) // Color mode
     {
         case _Lab:  WRITESHORT( 9 );
                     break;
@@ -301,8 +349,11 @@ int writePSD(Image *im, fullPath *sfile )
         default:    WRITESHORT( 3 );            
     }
 
-    WRITEINT32( 0 );                // Color Mode
+    printf(".................HHHHHHHHHHHHHHHHHHHHHHHHHHHHH\n");
 
+    WRITEINT32( 0 );                // Color Mode block
+
+    //    WRITEINT32( 0);
     panoPSDResourcesBlockWrite(im, fnum);
                     
     WRITEINT32( 0 );            // Layer & Mask 
@@ -327,11 +378,9 @@ int writePSDwithLayer(Image *im, fullPath *sfile )
     unsigned char  ch;
     short       svar;
     int         BitsPerChannel;
-    CropInfo    crop_info;
 
     //Determine if this is a "cropped" tiff, and, if so, what is 
     //the full size from which this is cropped?
-    getCropInformation(im->name, &crop_info);
     
     // Jim Watters 2003/11/18: Photoshop CS does 16bit channels if 16 bit in, allow 16 bit out
     // TwoToOneByte( im ); // Multilayer image format doesn't support 16 bit channels
@@ -350,21 +399,22 @@ int writePSDwithLayer(Image *im, fullPath *sfile )
     WRITEUCHAR( 'B' );
     WRITEUCHAR( 'P' );
     WRITEUCHAR( 'S' );
-    WRITESHORT( 1 );
-    WRITEINT32( 0 ); WRITESHORT( 0 );
+    WRITESHORT( 1 ); // Version
+    WRITEINT32( 0 ); WRITESHORT( 0 ); // 6 bytes zeroed
 
-    WRITEUCHAR( 0 );
-    WRITEUCHAR( 3 );            // No of channels; Background always white, 3 channels
+    WRITESHORT( 3 );            // No of channels; Background always white, 3 channels
         
     //WRITEINT32( im->height );
     //WRITEINT32( im->width  );
     
+    printf("It is sropped %d\n", panoImageIsCropped(im));
+
     //The Photoshop file has the dimensions of the full size image, regardless
     //of whether the TIFF file is "cropped" or not.
-    WRITEINT32( crop_info.full_height);
-    WRITEINT32( crop_info.full_width);
+    WRITEINT32( panoImageFullHeight(im)); // Rows
+    WRITEINT32( panoImageFullWidth(im));  // Columns
             
-    WRITESHORT( BitsPerChannel );           // BitsPerChannel
+    WRITESHORT( BitsPerChannel );        // BitsPerChannel
     switch( im->dataformat )
     {
         case _Lab:  WRITESHORT( 9 );
@@ -373,16 +423,17 @@ int writePSDwithLayer(Image *im, fullPath *sfile )
                     break;
         default:    WRITESHORT( 3 );            
     }
+
     WRITEINT32( 0 );                // Color Mode
 
     panoPSDResourcesBlockWrite(im, fnum);
 
-    writeLayerAndMask( im, &crop_info, fnum );
+    writeLayerAndMask( im, fnum );
 
     writeWhiteBackground( im->width * BitsPerChannel/8, im->height, fnum );
         
-
     myclose (fnum );
+
     return 0;
 }
 
@@ -399,12 +450,10 @@ int addLayerToFile( Image *im, fullPath* sfile, fullPath* dfile, stBuf *sB)
     pt_uint32   var;
     char        data[12], *d;
     int         BitsPerChannel, result = 0;
-    CropInfo    crop_info;
 
     // Jim Watters 2003/11/18: Photoshop CS does 16bit channels if 16 bit in, allow 16 bit out
     // TwoToOneByte( im ); // Multilayer image format doesn't support 16 bit channels
     
-    getCropInformation(im->name, &crop_info);
     GetBitsPerChannel( im, BitsPerChannel );
     
 
@@ -435,7 +484,8 @@ int addLayerToFile( Image *im, fullPath* sfile, fullPath* dfile, stBuf *sB)
     }
     
     // Check if image can be inserted
-    if( sim.width != crop_info.full_width || sim.height != crop_info.full_height )
+    //    printf("Image size %d %d im %d %d\n", sim.width, sim.height, panoImageWidth(im),  panoImageHeight(im));
+    if( sim.width != panoImageFullWidth(im) || sim.height != panoImageFullHeight(im) )
     {   
         PrintError("Can't add layer: Images have different size");
         return -1;
@@ -483,7 +533,7 @@ int addLayerToFile( Image *im, fullPath* sfile, fullPath* dfile, stBuf *sB)
     myfree( (void**)buf );
 
     // Add one layer    
-    if( addLayer( im, &crop_info, src, fnum, sB ) != 0 )
+    if( addLayer( im,  src, fnum, sB ) != 0 )
     {
         result = -1;
         goto _addLayerToFile_exit;
@@ -515,6 +565,8 @@ static int writeImageDataPlanar( Image *im, file_spec fnum )
     GetBitsPerChannel( im, BitsPerChannel );
     GetChannels( im,channels);
     
+    printf("Bitx per channel %d channels %d\n", BitsPerChannel, channels);
+
     bpp = im->bitsPerPixel / 8;
             
 
@@ -913,7 +965,7 @@ readImageDataPlanar_exit:
 
 // Write image as separate first layer
 
-static int writeLayerAndMask( Image *im, CropInfo *crop_info, file_spec fnum )
+static int writeLayerAndMask( Image *im, file_spec fnum )
 {
     pt_uint32       var;
     PTRect          theRect;
@@ -945,7 +997,7 @@ static int writeLayerAndMask( Image *im, CropInfo *crop_info, file_spec fnum )
     //contains "non-empty" image data.  The bounds of this region are recorded in
     //in "theRect".  If this input image is a "cropped" image, then theRect will
     //just use the data region specified "crop_info".
-    getImageRectangle( im, crop_info, &theRect );
+    getImageRectangle( im, &theRect );
 
     numLayers = 1;
     
@@ -1047,12 +1099,12 @@ static int writeLayerAndMask( Image *im, CropInfo *crop_info, file_spec fnum )
     // Write color channels
     for( i=0; i<3; i++)
     {
-        if( writeChannelData( im, fnum, i + channels - 3, crop_info, &theRect ) ) 
+        if( writeChannelData( im, fnum, i + channels - 3,  &theRect ) ) 
             return -1;
     }
     if( hasShapeMask )
     {
-        if( writeChannelData( im, fnum, 0, crop_info, &theRect ) ) 
+        if( writeChannelData( im, fnum, 0,  &theRect ) ) 
             return -1;
     }
     else
@@ -1062,7 +1114,7 @@ static int writeLayerAndMask( Image *im, CropInfo *crop_info, file_spec fnum )
     }
     if( hasClipMask )
     {
-        if( writeChannelData( im, fnum, 0, crop_info, &theRect ) ) 
+        if( writeChannelData( im, fnum, 0,  &theRect ) ) 
             return -1;
     }
         
@@ -1096,7 +1148,7 @@ static int writeLayerAndMask( Image *im, CropInfo *crop_info, file_spec fnum )
 
 
 
-static int writeChannelData( Image *im, file_spec fnum, int channel, CropInfo *crop_info, PTRect *theRect )
+static int writeChannelData( Image *im, file_spec fnum, int channel, PTRect *theRect )
 {
     register int            x, y, idx, idy, bpp, BitsPerChannel, channels;
     unsigned char           **ch;
@@ -1131,10 +1183,10 @@ static int writeChannelData( Image *im, file_spec fnum, int channel, CropInfo *c
     outputRegionWidth  = (theRect->right - theRect->left);
     outputRegionHeight = (theRect->bottom - theRect->top);
     
-    if (outputRegionWidth > crop_info->cropped_width || outputRegionHeight > crop_info->cropped_height) 
+    if (outputRegionWidth > panoImageWidth(im) || outputRegionHeight > panoImageHeight(im)) 
     {
         printf("output region (%d x %d) is larger than input image data region (%d x %d)\n", 
-			   (int)outputRegionWidth, (int)outputRegionHeight, (int)crop_info->cropped_width, (int)crop_info->cropped_height);
+			   (int)outputRegionWidth, (int)outputRegionHeight, (int)panoImageWidth(im), (int)panoImageHeight(im));
         return 1;
     }
     
@@ -1144,7 +1196,7 @@ static int writeChannelData( Image *im, file_spec fnum, int channel, CropInfo *c
     {
         for(y=theRect->top; y<theRect->bottom;y++)
         {
-            idy = (y - crop_info->y_offset) * im->bytesPerLine;
+            idy = (y - panoImageOffsetY(im)) * im->bytesPerLine;
 
             if (idy < 0) {  //should never happen
                 PrintError("writeChannelData: index error");
@@ -1153,7 +1205,7 @@ static int writeChannelData( Image *im, file_spec fnum, int channel, CropInfo *c
             
             for(x=theRect->left; x<theRect->right;x++)
             {
-                idx = ((x - crop_info->x_offset) * bpp);
+                idx = ((x - panoImageOffsetX(im)) * bpp);
                 *c++ = idata [ idy + idx ];
             }
         }
@@ -1163,7 +1215,7 @@ static int writeChannelData( Image *im, file_spec fnum, int channel, CropInfo *c
         unsigned short storage;
         for(y=theRect->top; y<theRect->bottom;y++)
         {
-            idy = (y - crop_info->y_offset) * im->bytesPerLine;
+            idy = (y - panoImageOffsetY(im)) * im->bytesPerLine;
             
             if (idy < 0) {  //should never happen
                 PrintError("writeChannelData: index error");
@@ -1172,7 +1224,7 @@ static int writeChannelData( Image *im, file_spec fnum, int channel, CropInfo *c
                         
             for(x=theRect->left; x<theRect->right;x++)
             {
-                idx = ((x - crop_info->x_offset) * bpp);            
+                idx = ((x - panoImageOffsetX(im)) * bpp);            
                 storage = *(unsigned short*)&idata [ idy + idx ];
                 SHORTNUMBER( storage, c );
             }
@@ -1245,7 +1297,7 @@ static int writeTransparentAlpha( Image *im, file_spec fnum, PTRect *theRect )
 
 // Return the smallest rectangle enclosing the image; 
 // Use alpha channel and rgb data 
-static void getImageRectangle( Image *im, CropInfo *crop_info, PTRect *theRect )
+static void getImageRectangle( Image *im, PTRect *theRect )
 {
     register unsigned char *alpha, *data;
     register int x,y,cy,bpp,channels;
@@ -1254,14 +1306,14 @@ static void getImageRectangle( Image *im, CropInfo *crop_info, PTRect *theRect )
     //If this is a cropped TIFF then we can get the image rectangle ROI from
     //the metadata in crop_info, rather than having to parse the entire
     //file to look for ROI
-    if ( crop_info->full_height != crop_info->cropped_height || crop_info->full_width != crop_info->cropped_width ) {
-        theRect->left   = crop_info->x_offset;
-        theRect->top    = crop_info->y_offset;
+    if ( panoImageIsCropped(im)) {
+        theRect->left   = panoImageOffsetX(im);
+        theRect->top    = panoImageOffsetY(im);
         //Slightly counter-intuitive...right and bottom are one pixel larger than expected
         //so that the width and height can be calculated by subtracting
         //left from right or top from bottom
-        theRect->right  = theRect->left + crop_info->cropped_width;
-        theRect->bottom = theRect->top  + crop_info->cropped_height;
+        theRect->right  = theRect->left + panoImageWidth(im);
+        theRect->bottom = theRect->top  + panoImageHeight(im);
         
         return;
     }
@@ -1378,7 +1430,7 @@ static void getImageRectangle( Image *im, CropInfo *crop_info, PTRect *theRect )
 // There must be one valid layer structure, and the
 // filepointer is at the beginning of it in both src and dest
 
-static int addLayer( Image *im, CropInfo *crop_info, file_spec src, file_spec fnum, stBuf *sB )
+static int addLayer( Image *im, file_spec src, file_spec fnum, stBuf *sB )
 {
     pt_uint32       var;
     PTRect          theRect, *nRect = NULL;
@@ -1425,7 +1477,7 @@ static int addLayer( Image *im, CropInfo *crop_info, file_spec src, file_spec fn
         memset( *alpha, 0 , (size_t)(im->width * im->height * BitsPerChannel/8));
     }
 
-    getImageRectangle( im, crop_info, &theRect );
+    getImageRectangle( im,  &theRect );
     channelLength = (theRect.right-theRect.left) * (theRect.bottom-theRect.top)  + 2;
     
     
@@ -1566,10 +1618,22 @@ static int addLayer( Image *im, CropInfo *crop_info, file_spec src, file_spec fn
         WRITEUCHAR( 'I' );
         WRITEUCHAR( 'M' );
         // WRITEINT32( 'norm'); // Blend mode key
-        WRITEUCHAR( 'n' );
-        WRITEUCHAR( 'o' );
-        WRITEUCHAR( 'r' );
-        WRITEUCHAR( 'm' );
+	if (i == 0) {
+	    //use norm
+	    WRITEUCHAR( 'n' );
+	    WRITEUCHAR( 'o' );
+	    WRITEUCHAR( 'r' );
+	    WRITEUCHAR( 'm' );
+	} else {
+	    // use the desired one. 
+	    // XXX TODO: read the blending more from the layer so we can write it the same way back
+	    assert(sizeof(psdBlendingModesNames) == sizeof(psdBlendingModesInternalName));
+	    blendingModeKey = psdBlendingModesInternalName[sB->psdBlendingMode];
+	    for (j = 0; j< 4; j++ ) {
+		WRITEUCHAR(blendingModeKey[j]);
+	    }
+	}
+
         WRITEINT32( nflag[i] ); // Opacity, clipping, flag, filler
         WRITEINT32( nextra[i] );    // Extra data size Length of the extra data field. This is the total length of the next five fields.
         WRITEINT32( nmask[i] ); // Layer Mask data
@@ -1700,7 +1764,7 @@ static int addLayer( Image *im, CropInfo *crop_info, file_spec src, file_spec fn
     // Write color channels
     for( i=0; i<3; i++)
     {
-        if( writeChannelData( im, fnum, i + channels - 3, crop_info, &theRect ) ) 
+        if( writeChannelData( im, fnum, i + channels - 3, &theRect ) ) 
         {
             result = -1;
             goto _addLayer_exit;
@@ -1709,7 +1773,7 @@ static int addLayer( Image *im, CropInfo *crop_info, file_spec src, file_spec fn
     
     if( hasShapeMask )  // Alpha channel present
     {       
-        if( writeChannelData( im, fnum, 0, crop_info, &theRect ) ) 
+        if( writeChannelData( im, fnum, 0,  &theRect ) ) 
         {
             result = -1;
             goto _addLayer_exit;
@@ -1742,7 +1806,7 @@ static int addLayer( Image *im, CropInfo *crop_info, file_spec src, file_spec fn
             }
 #endif
         }
-        if( writeChannelData( im, fnum, 0, crop_info, &theRect ) ) 
+        if( writeChannelData( im, fnum, 0,  &theRect ) ) 
         {
             result = -1;
             goto _addLayer_exit;

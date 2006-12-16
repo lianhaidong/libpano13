@@ -133,7 +133,7 @@ int panoImageFullHeight(Image *image)
     if (panoImageIsCropped(image))
 	return image->metadata.cropInfo.fullHeight;
     else
-	return image->width;
+	return image->height;
 }
 
 

@@ -55,7 +55,7 @@
 #define PT_TIFF2PSD_USAGE "PTtiff2psd [options] <tiffFiles>+\n\n"\
                          "Options:\n"\
                          "\t-o <filename>\t\tOutput filename (default merged.psd)\n"\
-                         "\t-b <blendingmode>\tSpecify blending mode for layers (see below)\n"\
+                         "\t-b <blendingmode>\tSpecify blending mode for layers (use -h to display them)\n"\
                          "\t-f\t\tForce processing (do not stop at warnings)\n"\
                          "\t-s\t\t\tStack them\n"\
                          "\t-q\t\t\tQuiet run\n"\
@@ -181,15 +181,8 @@ int main(int argc,char *argv[])
 	return -1;
     }
 
-    // Check that all files are compatible
-    if (filesCount == 1) {
-	PrintError("PTtiff2psd does not currently support one file only.");
-	return -1;
-    }
-
-
     if (!ptForceProcessing)  {
-	if (!panoTiffVerifyAreCompatible(ptrInputFiles, filesCount, TRUE)) {
+	if (filesCount > 1 && !panoTiffVerifyAreCompatible(ptrInputFiles, filesCount, TRUE)) {
 	    PrintError("TIFFs are not compatible. Use -f to force processing");
 	    return -1;
 	}
