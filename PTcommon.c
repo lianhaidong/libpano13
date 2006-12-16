@@ -1216,10 +1216,12 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
         strcat(outputFileName, var40);
         panoReplaceExt(outputFileName, ".tif");
         rename(fullPathImages[loopCounter].name, outputFileName);
-        free(fullPathImages);
 
         
     }
+    free(fullPathImages);
+
+
     if (ptQuietFlag == 0) {
 	Progress(_setProgress, "100%");
 	Progress(_disposeProgress, "");
