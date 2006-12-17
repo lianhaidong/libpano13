@@ -23,8 +23,9 @@
 #include "sys_mac.h"
 #endif
 
+// dangelo: use sys ansi for windows as well..
 #ifdef __Win__
-#include "sys_win.h"
+#include "sys_ansi.h"
 #endif
 
 #ifdef __Ansi__

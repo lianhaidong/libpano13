@@ -29,7 +29,7 @@ X11_SRC =
 endif
 
 if HAVE_CYGWIN
-WIN_SRC =  sys_win.c bmp.c
+WIN_SRC =  sys_ansi.c bmp.c
 WIN_DEFS = -D__Win__=1
 WIN_LDFS = -mwindows -avoid-version -no-undefined -export-symbols $(srcdir)/libpano12.def 
 
@@ -41,7 +41,7 @@ install-exec-hook:
 endif
 
 if HAVE_MINGW
-WIN_SRC =  sys_win.c bmp.c
+WIN_SRC =  sys_ansi.c bmp.c
 WIN_DEFS = -D__Win__=1
 WIN_LDFS = -mwindows -avoid-version -no-undefined -export-symbols $(srcdir)/libpano12.def 
 

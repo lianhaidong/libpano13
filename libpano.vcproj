@@ -326,10 +326,10 @@
 				RelativePath=".\seamer.c">
 			</File>
 			<File
-				RelativePath=".\sys_common.c">
+				RelativePath=".\sys_ansi.c">
 			</File>
 			<File
-				RelativePath=".\sys_win.c">
+				RelativePath=".\sys_common.c">
 			</File>
 			<File
 				RelativePath=".\tiff.c">
