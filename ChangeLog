@@ -1,3 +1,7 @@
+2006-12-17 dangelo <pablo.dangelo@web.de>
+
+        * math.c: added defines for isnan and isinf, if MSVC is used.
+
 2006-12-15  dmg  <dmg@uvic.ca>
 
 	* PTcommon.c (panoCreatePanorama): A pointer was freed more than

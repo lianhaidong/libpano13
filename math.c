@@ -25,12 +25,16 @@
 #define R_EPS  1.0e-6	
 #define MAXITER 100
 
-
 #include <assert.h>
 
 
 #ifndef abs
 #define abs(a) ( (a) >= 0 ? (a) : -(a) )
+#endif
+
+#ifdef _MSC_VER
+#define isnan(a) _isnan(a)
+#define isinf(a) (_fpclass(a) == _FPCLASS_NINF || _fpclass(a) == _FPCLASS_PINF)
 #endif
 
 void 	matrix_matrix_mult	( double m1[3][3],double m2[3][3],double result[3][3]);
