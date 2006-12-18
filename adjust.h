@@ -21,3 +21,8 @@ void setFcnPanoDoNotInitAvgFov(void);
 void forceFcnPanoReinitAvgFov(void);
 AlignInfo   *GetGlobalPtr();
 
+// set sigma of huber m-estimator. The influence of
+// control points with errors above sigma is reduced.
+// sigma = 0 disables the m-estimator
+void setFcnPanoHuberSigma(double sigma);
+

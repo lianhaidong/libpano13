@@ -205,6 +205,17 @@ v v0 r0 p0 r1 p1 y1
 #
 # p0           Create panorama after optimizing control points
 #                  0 no(default), 1 yes
+#
+# m0           use Huber m-estimator during second optimisation pass.
+#              This will reduce the weight of control points with higher errors
+#              It might help a little if a pano contains a few inaccurate or
+#              completely wrong control points. 
+#              0: no m-estimator (as in previous versions)
+#              Any other number is the sigma parameter of the huber m-estimator.
+#              Control points with errors higher than sigma will have less
+#              influence during the optimisation. 
+#              A good value for sigma might be 2.
+#              
 
 m g1.5 i6
 

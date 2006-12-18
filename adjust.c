@@ -48,7 +48,7 @@ static double initialAvgFov;   // these three for fov stabilization
 static double avgfovFromSAP;
 static int needInitialAvgFov;
 
-#define ADJUST_LOG_FILENAME "c:\\PToolsLog.txt"  // file name for logging, if enabled
+#define ADJUST_LOG_FILENAME "PToolsLog.txt"  // file name for logging, if enabled
 #define ADJUST_LOGGING_ENABLED 0
 
 
@@ -1572,6 +1572,28 @@ double rectDistSquared( int num )
 	return result;
 }
 
+/// huber() is an M-Estimator function. Using an M-Estimator might
+/// work better if the control points contain outliers (eg. from autopano).
+/// this implementation accepts normal, non squared errors, and return non-squared errors,
+/// contrary to the definition in the literature (where the square is
+/// included in the function)
+
+static double fcnPanoHuberSigma = 0; // sigma for Huber M-estimator. 0 disables M-estimator
+
+void setFcnPanoHuberSigma(double sigma)
+{
+    fcnPanoHuberSigma = sigma;
+}
+
+double huber(double x, double sigma)
+{
+    if (abs(x) < sigma)
+        return x;
+    else
+        return sqrt(2.0*sigma*abs(x) - sigma*sigma);
+}
+
+
 
 /// (function distSquared2 has been removed -- it was unused and redundant)
 
@@ -1792,8 +1814,12 @@ int fcnPano(int m, int n, double x[], double fvec[], int *iflag)
 	for( i=0; i < g->numPts; i++){
 		if (fcnPanoNperCP == 1) {
 			EvaluateControlPointErrorAndComponents ( i, &fvec[iresult], &junk2[0]);
-		} else {
+        } else {
 			EvaluateControlPointErrorAndComponents ( i, &junk, &fvec[iresult]);
+            if (fcnPanoHuberSigma) {
+                fvec[iresult] = huber(fvec[iresult], fcnPanoHuberSigma);
+                fvec[iresult+1] = huber(fvec[iresult+1], fcnPanoHuberSigma);
+            }
 		}
 		
 		// Field-of-view stabilization.  Applying here means that the

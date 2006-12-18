@@ -1446,6 +1446,7 @@ static int ReadModeDescription( sPrefs *sP, char *line )
 	sPrefs theSprefs;
 	char *ch = line;
 	char buf[LINE_LENGTH];
+	double sigma = 0;
 	// FS+
 	int n;
 	// FS-
@@ -1478,6 +1479,9 @@ static int ReadModeDescription( sPrefs *sP, char *line )
 						}
 						break;
 			// FS-
+            case 'm':   READ_VAR( "%lf", &sigma);
+                        setFcnPanoHuberSigma(sigma);
+                        break;
 			default: 	ch++;
 						break;
 		}
