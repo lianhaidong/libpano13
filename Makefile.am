@@ -103,7 +103,7 @@ dist-hook:
 	rm -rf `find $(distdir) -name .cvsignore`
 
 EXTRA_DIST =  gpl.txt README.linux README.windows README.mac \
-	      makefile.linux makefile.mac makefile.osx makefile.win32 \
+	      makefile.linux makefile.mac makefile.win32 \
 	      bootstrap filter.r pano12.def libpano12.def pano12.rc \
 	      seamer_.c sys_X11.c sys_win.c bmp.c PixMap.c pict.c shell_mac.c \
 	      sys_mac.c ppm.c PixMap.h sys_ansi.c ppm.c ZComb.h adjust.h \
