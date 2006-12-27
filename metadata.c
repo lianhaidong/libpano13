@@ -104,6 +104,11 @@ int panoImageBitsPerSample(Image *image)
     return (image->metadata.bitsPerSample);
 }
 
+int panoImageBytesPerSample(Image *image)
+{
+    return (image->metadata.bitsPerSample/8);
+}
+
 int panoImageFullWidth(Image *image)
 {
     assert(image!= NULL);

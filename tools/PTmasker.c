@@ -156,6 +156,7 @@ int main(int argc,char *argv[])
 	return -1;
     }
 
+
 #ifdef testingfeather
     panoFeatherFile(ptrInputFiles, ptrOutputFiles, feather);
     exit(1);
@@ -167,13 +168,28 @@ int main(int argc,char *argv[])
 	    PrintError("Output filename exists %s. Use -f to overwrite", temp);
 	    return -1;
 	}
-	if (!panoTiffVerifyAreCompatible(ptrInputFiles, filesCount, TRUE)) {
-	    PrintError("Input files are not compatible. Use -f to overwrite");
-	    return -1;
+	if (filesCount > 1) {
+	    if (!panoTiffVerifyAreCompatible(ptrInputFiles, filesCount, TRUE)) {
+		PrintError("Input files are not compatible. Use -f to overwrite");
+		return -1;
+	    }
 	}
     }
     if (! ptQuietFlag) printf("Computing seams for %d files\n", filesCount);
 	
+    if (filesCount == 1) {
+      // only do feathering
+	if (feather == 0) {
+	    PrintError("Only one file specified, nothing to do\n");
+	    return -1;
+	}
+	if (panoFeatherFile(ptrInputFiles, ptrOutputFiles, feather)) {
+	    return 0;
+	} else
+	    return 1;
+
+    }
+
     if (panoStitchReplaceMasks(ptrInputFiles, ptrOutputFiles, filesCount,
 			       feather) != 0) {
 	PrintError("Could not create stitching masks");

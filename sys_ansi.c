@@ -38,15 +38,23 @@ void filter_main( TrformStr *TrPtr, struct size_Prefs *spref)
 
 void  PrintErrorIntern( char* fmt, va_list ap)
 {
-	char message[257];
-	
-	vsprintf(message, fmt, ap);
-	
+	char message[512];
+	char *toPrint;
+
+	if (strlen(fmt) < 512) {
+ 	  vsprintf(message, fmt, ap);	  
+	  toPrint = message;
+	}   else {
+	  // we don't have enough space, so just 
+	  // print original string
+	  toPrint = fmt;
+	}
+
 	if( JavaUI ){
-		JPrintError( message );
+	  JPrintError( toPrint );
 	}else{
-		printf("%s\n", message);
-		fflush(stdout);
+	  printf(toPrint);
+	  fflush(stdout);
 	}
 }
 

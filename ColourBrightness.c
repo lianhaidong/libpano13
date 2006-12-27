@@ -775,11 +775,11 @@ int CorrectFileColourBrightness(fullPath *inPath, fullPath *outPath, magnolia_st
   
   if (panoTiffWrite(&image, outPath->name) == 0) {
     PrintError("Could not read TIFF file %s", inPath->name);
-    myfree((void**)image.data);
+    panoImageDispose(&image);
     return -1;
   }
 
-  myfree((void**)image.data);
+  panoImageDispose(&image);
   return(0);
 
 }

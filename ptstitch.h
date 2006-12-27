@@ -43,6 +43,7 @@ int panoStitchReplaceMasks(fullPath * inputFiles, fullPath * outputFiles,
                            int numberImages, int featherSize);
 
 unsigned int panoStitchPixelChannelGet(unsigned char *ptr, int bytesPerPixel, int channel);
+void panoStitchPixelChannelSet(unsigned char *ptr, int bytesPerPixel, int channel, unsigned int value);
 
 
 

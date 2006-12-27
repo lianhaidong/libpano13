@@ -2,6 +2,34 @@
 This file documents the activities required before we release version
 3.0.0 of the library.
 
+* Very little testing has been done in 16 bit images.
+
+
+* Perhaps the most pressing issue is to create a good set of tests for
+  each of the tools. So far we only have tests for PTmender (and only 2).
+
+What we need:
+
+* PTmender. We need to test each of the projections, and each of the
+  different types of input projections.
+
+* All others: they desperately need a test.
+
+Issues with creating the tests:
+
+* tiffcmp is good for comparing just the data in tiffs. But once one
+  starts using the non-deterministic parts of panotools (such as
+  colour correction and feathering) it is impossible to use them. What
+  we need is some type of program that reads the data inside an image
+  and compares it to be "similar" within certain threshold.
+
+* we also need the equivalent of tiffcmp for PSDs, where we can
+  specify we want to compare the data, not the metadata. The small
+  parser I have written might be exactly what we need: ignore all
+  metadata. It might be necessary to compare the "layer and masks
+  block", but not the ColorModedDataBlock or the Metadata block. It
+  might not be as easy as it sounds, because offset might have
+  shifted. 
 
 ======================================================================
 KNOWN BUGS:
@@ -9,26 +37,24 @@ KNOWN BUGS:
 ----------------------------------------------------------------------
 All tools:
 
-- Bug: There is a memory leak in panoTiffRead. I don't release the
-  memory it has allocated when an image is read. Create a
-  panoImageDispose routine. CRITICAL
-
 - Command line processing. All tools should have similar command line
   processing. This needs to be checked, and updated, if
-  necessary. CRITICAL
+  necessary. 
+
+  * I have updated most of them to be consistent, but I might have
+    missed something. Needs to be checked.
 
 - PTcrop tries to read the entire image at once. With a huge image I
    got a segfault from inside libtiff. It needs to be rewritten to read
-   only one line at a time.
+   only one line at a time (not critical for 3.0.0, but it would be nice).
 
 - PTroller runs _extremely_ slow. I need to find out why. (not
   critical for 3.0.0)
 
-- PTtiff2psd is unable to create PSDs beyond certain size (I suspect
-   this is a limitation of the format). We need to find this
-   limitation and output an error message informing the
-   user. Otherwise a PSD is created that is "corrupted"
-
+- PTtiff2psd. I fixed a major bug in the implementation of writing the
+  metadata. I suspect that there are still some "issues" regarding
+  this. I have also written a small top-down parser to verify the data
+  written. 
 
 ----------------------------------------------------------------------
 
@@ -70,7 +96,7 @@ PTblender:
 
 DESIRABLE:
  
- - Feauture: Create photoshop curves and maps for HSV colour
+ - Feature: Create photoshop curves and maps for HSV colour
    corrections. Probably not for 3.0.0
  
 ----------------------------------------------------------------------
@@ -78,7 +104,8 @@ PTroller:
  
 DESIRABLE:
 
-- PTroller: Add the ability to stack and add composing images.
+- PTroller: Add the ability to stack and add composing
+  images (PTtiff2psd is able to do stacking and compositing)
  
 ----------------------------------------------------------------------
  PTuncrop:

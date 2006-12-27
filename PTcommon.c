@@ -143,8 +143,8 @@ int panoPSDCreate(fullPath * fullPathImages, int numberImages,
             Progress(_disposeProgress, tempString);
         return -1;
     }
+    panoImageDispose(&image);
 
-    myfree((void **) image.data);
     ptrImage = &image;
 
     //Now iterate over all other images and add them as layers to the PSD file
@@ -197,7 +197,7 @@ int panoPSDCreate(fullPath * fullPathImages, int numberImages,
         remove(outputFileName->name);
         rename(tempFile.name, outputFileName->name);
 
-        myfree((void **) image.data);
+	panoImageDispose(&image);
     }
 
     if (!ptQuietFlag) {
@@ -1096,14 +1096,7 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
 #endif
 
         //////////////////////////////////////////////////////////////////////
-
-        if (image1.data != NULL) {
-            myfree((void **) image1.data);
-            image1.data = NULL;
-            
-            panoMetadataFree(&image1.metadata);
-            
-        }
+	panoImageDispose(&image1);
 
         // The memory for td and ts was allocated in morpher.c with malloc 
         // (not myMalloc), so we need to use free (not myFree)
@@ -1116,12 +1109,7 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
         }
         free(prefs);
 
-        if (resultPanorama.data != NULL) {
-            myfree((void **) resultPanorama.data);
-            resultPanorama.data = NULL;
-            panoMetadataFree(&resultPanorama.metadata);
-        }
-        
+	panoImageDispose(&resultPanorama);
         
     }                           //End of main image processing loop
     
@@ -1137,11 +1125,8 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
 
     remove(tempScriptFile.name);
 
-    if (resultPanorama.data != NULL)
-        myfree((void **) resultPanorama.data);
-
-    if (image1.data != NULL)
-        myfree((void **) image1.data);
+    panoImageDispose(&resultPanorama);
+    panoImageDispose(&image1);
 
 #if 0 
     // NO LONGER SUPPORTED IN THIS FUNCTION. IT SHOULD BE REMOVED IN THE FUTURE

@@ -1043,17 +1043,26 @@ void panoMetadataFree(pano_ImageMetadata * metadata)
         metadata->iccProfile.size = 0;
     }
 
-    if (metadata->copyright!=NULL) 
+    if (metadata->copyright!=NULL)  {
         free(metadata->copyright);
+	metadata->copyright = NULL;
+    }
+    
 
-    if (metadata->artist!=NULL) 
+    if (metadata->artist!=NULL) {
         free(metadata->artist);
+	metadata->artist = NULL;
+    }
 
-    if (metadata->datetime!=NULL) 
-        free(metadata->datetime);
+    if (metadata->datetime!=NULL)  {
+	free(metadata->datetime);
+	metadata->datetime = NULL;
+    }
 
-    if (metadata->imageDescription!=NULL) 
+    if (metadata->imageDescription!=NULL)  {
         free(metadata->imageDescription);
+        metadata->imageDescription = NULL;
+    }
     
 }
 

@@ -202,7 +202,7 @@ int main(int argc,char *argv[])
     if (!ptForceProcessing) {
 	char *temp;
 	if ((temp = panoFileExists(ptrOutputFiles, filesCount)) != NULL) {
-	    PrintError("Output filename exists %d", temp);
+	    PrintError("Output filename(s) exists. Use -f to overwrite");
 	    return -1;
 	}
 

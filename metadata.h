@@ -37,6 +37,7 @@ void panoMetadataCropSizeUpdate(pano_ImageMetadata * metadata, pano_CropInfo *cr
 int panoImageIsCropped(Image *image);
 int panoImageBytesPerPixel(Image *image);
 int panoImageBitsPerSample(Image *image);
+int panoImageBytesPerSample(Image *image);
 int panoImageBytesPerLine(Image *image);
 int panoImageFullWidth(Image *image);
 int panoImageFullHeight(Image *image);

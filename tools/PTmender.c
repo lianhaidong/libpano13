@@ -307,11 +307,11 @@ int main(int argc,char *argv[])
 	fprintf(stderr, "Number of options to process %d\n", argc- optind);
     }
 
-
     if (optind - argc == 0) {
 	PrintError(PT_MENDER_USAGE);
 	return -1;
     }
+
     // First we get the name of the script
     if (StringtoFullPath(&scriptFileName, argv[optind]) !=0) { // success
 	PrintError("Syntax error: Not a valid pathname");

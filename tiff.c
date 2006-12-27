@@ -1359,6 +1359,7 @@ int panoTiffReadData(Image * im, pano_Tiff * tif)
 
  error:
     myfree((void**)im->data);
+    im->data = NULL;
     return 0;
 }
 
@@ -1551,6 +1552,23 @@ int panoTiffRead(Image * im, char *fileName)
     return result;
 }
 
+
+// THis functions clens any memory currently used by the Image 
+// data structure
+void panoImageDispose(Image *im) 
+{
+    if (im != NULL) {
+
+	// Release metadata
+	panoMetadataFree(&(im->metadata));
+
+	// Release image data
+	if (im->data != NULL) {
+	    myfree((void **) im->data);
+	    im->data = NULL;
+	}
+    }
+}
 
 
 void panoTiffErrorHandler(const char *module, const char *fmt, va_list ap)
@@ -1822,7 +1840,7 @@ int panoImageBoundingRectangleCompute(unsigned char *data, int width, int height
 	
 	for (column = 0; column < width; column++) {
 
-	    alphaChannel = panoStitchPixelChannelGet(pixel, bytesPerPixel, 0);
+	    alphaChannel = panoStitchPixelChannelGet(pixel, bytesPerPixel/4, 0);
 
 	    if (alphaChannel != 0) {
 		// Only set the row the first time
@@ -1980,12 +1998,11 @@ int panoTiffDisplayInfo(char *fileName)
     printf("Dimensions: %d,%d\n", meta->imageWidth, meta->imageHeight);
     if (meta->isCropped) {
 	printf("Cropped tiff. Full size: %d,%d Offset: %d,%d\n", 
-	       meta->cropInfo.fullWidth, meta->cropInfo.fullHeight,
-	       meta->cropInfo.xOffset, meta->cropInfo.yOffset);
+	       (int)meta->cropInfo.fullWidth, (int)meta->cropInfo.fullHeight,
+	       (int)meta->cropInfo.xOffset, (int)meta->cropInfo.yOffset);
     }
     printf("Samples per pixel: %d\n", meta->samplesPerPixel);
     printf("Bits per sample: %d\n", meta->bitsPerSample);
-    printf("Compression: %d\n",     meta->compression);
 
     if (meta->iccProfile.size == 0) {
 	printf("Contains ICC profile\n");
@@ -2010,5 +2027,5 @@ int panoTiffDisplayInfo(char *fileName)
 	}
     }
 
-    
+    return 1;
 }

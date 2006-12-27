@@ -37,24 +37,46 @@
 #include "metadata.h"
 
 // Get the value of a channel in the  pixel pointed by ptr
-unsigned int panoStitchPixelChannelGet(unsigned char *ptr, int bytesPerPixel, int channel)
+unsigned int panoStitchPixelChannelGet(unsigned char *ptr, int bytesPerChannel, int channel)
 {
     uint16_t *pixel16;
     assert(ptr != NULL);
 
     assert(channel >= 0 && channel <=3);
-    assert(bytesPerPixel == 4 || bytesPerPixel ==8);
+    assert(bytesPerChannel == 1 || bytesPerChannel ==2);
 
-    if (bytesPerPixel == 4) {
+    if (bytesPerChannel == 1) {
         return *(ptr + channel);
     } 
-    else if (bytesPerPixel == 8) {
+    else if (bytesPerChannel == 2) {
         pixel16  = (uint16_t *) ptr;
         return *(pixel16+channel);
     } 
     else {
         assert(0);
         return 0;// fix warning.
+    }
+
+}
+
+// Get the value of a channel in the  pixel pointed by ptr
+void panoStitchPixelChannelSet(unsigned char *ptr, int bytesPerChannel, int channel, unsigned int value)
+{
+    uint16_t *pixel16;
+    assert(ptr != NULL);
+
+    assert(channel >= 0 && channel <=3);
+    assert(bytesPerChannel == 4 || bytesPerChannel ==8);
+
+    if (bytesPerChannel == 4) {
+        *(ptr + channel) = value;
+    } 
+    else if (bytesPerChannel == 8) {
+        pixel16  = (uint16_t *) ptr;
+        *(pixel16+channel) = value;
+    } 
+    else {
+        assert(0);
     }
 
 }
@@ -106,7 +128,7 @@ static void panoStitchPixelDetermineMap(unsigned char *pixel, int bytesPerPixel,
     assert(bytesPerPixel == 4 || bytesPerPixel ==8);
     assert(pixel != NULL);
 
-    alphaChannel = panoStitchPixelChannelGet(pixel, bytesPerPixel, 0);
+    alphaChannel = panoStitchPixelChannelGet(pixel, bytesPerPixel/4, 0);
     
     if (alphaChannel == 0) {
         *count = 0;
@@ -180,7 +202,7 @@ void panoStitchComputeMaskMap(Image * image)
             // Get alpha channel for this point
 	    pixel = ptr +  row * panoImageBytesPerLine(image);
 
-            alphaChannel = panoStitchPixelChannelGet(pixel, bytesPerPixel, 0);
+            alphaChannel = panoStitchPixelChannelGet(pixel, bytesPerPixel/4, 0);
 
             if (alphaChannel == 0) {
                 count = 0;
@@ -290,7 +312,7 @@ int panoStitchCreateMaskMapFiles(fullPath * inputFiles, fullPath * maskFiles,
 
         //    fprintf(stderr, "Written to file %s\n", maskFiles[index].name);
 
-        myfree((void **) image.data);
+	panoImageDispose(&image);
 
     }                           // for (index...
 

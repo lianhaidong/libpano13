@@ -85,6 +85,7 @@ void panoTiffSetErrorHandler(void);
 int panoTiffVerifyAreCompatible(fullPath * tiffFiles, int numberImages,
 				int optionalCheck);
 
+void panoImageDispose(Image *im) ;
 
 
 #endif
