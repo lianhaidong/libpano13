@@ -36,6 +36,12 @@
 	bytes to print, and anything longer created a run time error. I
 	have changed it to deal with any lenght.
 
+2006-12-18 dangelo <pablo.dangelo@web.de>
+
+	* adjust.c, adjust.h, parser.c, doc/Optimize.txt:
+	Added optional robust estimation using the Huber
+	M-estimator function. 
+	
 2006-12-17 dangelo <pablo.dangelo@web.de>
 
         * math.c: added defines for isnan and isinf, if MSVC is used.
