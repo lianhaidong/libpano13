@@ -33,7 +33,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="wxtiff.lib wxzlib.lib wxjpeg.lib wxpng.lib Ws2_32.lib"
-                                OutputFile="$(OutDir)/PTmasker.exe"
+				OutputFile="$(OutDir)/PTmasker.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;$(WXWIDGETS_HOME)\lib\vc_lib&quot;"
 				GenerateDebugInformation="TRUE"
@@ -81,7 +81,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="wxtiff.lib wxzlib.lib wxjpeg.lib wxpng.lib Ws2_32.lib"
-				OutputFile="$(OutDir)/PTblender.exe"
+				OutputFile="$(OutDir)/PTmasker.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;$(WXWIDGETS_HOME)\lib\vc_lib&quot;"
 				GenerateDebugInformation="TRUE"
@@ -119,7 +119,7 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
 			<File
-                            RelativePath=".\PTmasker.c">
+				RelativePath=".\PTmasker.c">
 			</File>
 		</Filter>
 		<Filter
