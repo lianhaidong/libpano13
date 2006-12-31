@@ -1307,7 +1307,7 @@ histograms_struct *ReadHistograms (fullPath *fullPathImages, int numberImages)
   
   //  fprintf(stderr,"Width %d Length %d BytesPerPixel %d per line%d\n", imageWidth, imageLength, bytesPerPixel, bytesPerLine);
 
-  for (currentRow = 0; currentRow < imageLength; currentRow ++) {
+  for (currentRow = 0; currentRow < (int) imageLength; currentRow ++) {
 
     if (currentRow * 2 == (int)(currentRow / 5.0) * 10) {
 
@@ -1357,7 +1357,7 @@ histograms_struct *ReadHistograms (fullPath *fullPathImages, int numberImages)
     
     //for each pixel in the current line...
 
-    for (currentPixel = 0;  currentPixel < imageWidth; currentPixel++, ptrCurrentPixelLineBuffer+= bytesPerPixel ) {
+    for (currentPixel = 0;  currentPixel < (int)imageWidth; currentPixel++, ptrCurrentPixelLineBuffer+= bytesPerPixel ) {
 
       unsigned char *ptrPixel;
       unsigned char *ptrOtherPixel;

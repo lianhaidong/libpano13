@@ -929,13 +929,13 @@ static void panoStitchBlendLayers8Bit(unsigned char **imageDataBuffers, int coun
 
     currentLine = 0;
 
-    for (currentLine = 0; currentLine < lines; currentLine++) {
+    for (currentLine = 0; (int)currentLine < lines; currentLine++) {
 
         //printf("Currnet line %d\n", currentLine);
 
         rowOffset = scanLineSize * currentLine;
 
-        for (currentColumn = 0; currentColumn < imageWidth; currentColumn++) {
+        for (currentColumn = 0; (int) currentColumn < imageWidth; currentColumn++) {
 
             unsigned int pixelOffset;
             unsigned int i;
@@ -1051,7 +1051,7 @@ static void panoStitchBlendLayers16Bit(unsigned char **imageDataBuffers, int cou
     currentLine = 0;
 
 
-    for (currentLine = 0; currentLine < lines; currentLine++) {
+    for (currentLine = 0; (int) currentLine < lines; currentLine++) {
 
         //  printf("Lines %d\n", lines);
         //  printf("Width %d\n", imageWidth);
@@ -1063,7 +1063,7 @@ static void panoStitchBlendLayers16Bit(unsigned char **imageDataBuffers, int cou
         // scanLineSize is in bytes, but we need the length in 16bit units
         rowOffset = (scanLineSize / 2) * currentLine;
 
-        for (currentColumn = 0; currentColumn < imageWidth; currentColumn++) {
+        for (currentColumn = 0; (int) currentColumn < imageWidth; currentColumn++) {
 
             unsigned int pixelOffset;
             unsigned int i;

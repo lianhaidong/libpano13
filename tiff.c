@@ -434,7 +434,7 @@ int writeCroppedTIFF(Image * im, fullPath * sfile, CropInfo * crop_info)
         setCropInformationInTiff(tif, crop_info);
 
     bufsize = TIFFScanlineSize(tif);
-    if (bufsize < im->bytesPerLine)
+    if ((pt_int32)bufsize < im->bytesPerLine)
         bufsize = im->bytesPerLine;
     buf = (UCHAR *) malloc(bufsize);
     if (buf == NULL)
@@ -443,7 +443,7 @@ int writeCroppedTIFF(Image * im, fullPath * sfile, CropInfo * crop_info)
         return -1;
     }
 
-    for (y = 0; y < im->height; y++)
+    for (y = 0; (pt_int32) y < im->height; y++)
     {
         memcpy(buf, *(im->data) + y * im->bytesPerLine,
                (size_t) im->bytesPerLine);
@@ -1161,7 +1161,7 @@ int panoTiffReadPlannar(Image * im, pano_Tiff * tif)
         return 0;
     }
 
-    for (row = 0; row < im->height; row++) {
+    for (row = 0; (pt_int32) row < im->height; row++) {
         if (TIFFReadScanline(tif->tiff, buf, row, 0) != 1) {
             PrintError("Error reading TIFF file");
             goto error;
@@ -1417,7 +1417,7 @@ int panoTiffWrite(Image * im, char *fileName)
 
     bufsize = TIFFScanlineSize(tif->tiff);
 
-    if (bufsize < im->bytesPerLine)
+    if ((pt_int32)bufsize < im->bytesPerLine)
         bufsize = im->bytesPerLine;
 
     buf = calloc(bufsize, 1);
@@ -1426,7 +1426,7 @@ int panoTiffWrite(Image * im, char *fileName)
         goto error;
     }
 
-    for (y = 0; y < im->height; y++) {
+    for (y = 0; (pt_int32) y < im->height; y++) {
 	//	printf("Here 1 buffsize %d bytesperline %d width %d\n", bufsize, im->bytesPerLine, im->width);
         memcpy(buf, *(im->data) + y * im->bytesPerLine,
                (size_t) im->bytesPerLine);
@@ -1769,7 +1769,7 @@ int panoTiffUnCrop(char *inputFile, char *outputFile, pano_cropping_parms *cropp
 
     assert(metadata->imageHeight > 0);
     // Read one line at a time and transfer to output file
-    for (outputRow = 0; outputRow < metadata->imageHeight; outputRow++) {
+    for (outputRow = 0; outputRow < (int) metadata->imageHeight; outputRow++) {
 
         //fill empty buffer with empty space (zeros)
         bzero(buffer, metadata->bytesPerLine);
@@ -1940,7 +1940,7 @@ int panoTiffCrop(char *inputFile, char *outputFile, pano_cropping_parms *croppin
 
     // We need to advance data the number of lines that this file has more of ofset
     data += im.bytesPerLine * cropInfo.yOffset;
-    for (i =0;i < metadata.imageHeight; i++) {
+    for (i =0;i < (int) metadata.imageHeight; i++) {
 	unsigned char *ptr;
 
 	// skip the necessary bytes

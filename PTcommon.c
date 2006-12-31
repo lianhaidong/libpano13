@@ -1470,7 +1470,7 @@ int panoFlattenTIFF(fullPath * fullPathImages, int counterImageFiles,
         return 0;
     }
 
-    for (i = 0; i < counterImageFiles; i++) {
+    for (i = 0; (int) i < counterImageFiles; i++) {
 
         if (GetFullPath(&fullPathImages[i], tmpFilename) != 0) {
             PrintError("Could not get filename");
@@ -1538,7 +1538,7 @@ int panoFlattenTIFF(fullPath * fullPathImages, int counterImageFiles,
     // code simpler, however.
     imageDataBuffers = calloc(counterImageFiles, sizeof(unsigned char *));
 
-    for (i = 0; i < counterImageFiles; i++) {
+    for (i = 0; (int) i < counterImageFiles; i++) {
         imageDataBuffers[i] =
             calloc(linesPerPass * outputMetadata->bytesPerLine, 1);
         if (imageDataBuffers[i] == NULL) {
@@ -1569,14 +1569,14 @@ int panoFlattenTIFF(fullPath * fullPathImages, int counterImageFiles,
     // combine into output buffer, write to file
     while (linesLeft > 0) {
 
-        linesToRead = (linesLeft > linesPerPass) ? linesPerPass : linesLeft;
+        linesToRead = (linesLeft > (int)linesPerPass) ? linesPerPass : linesLeft;
 
         // iterate over each input file
-        for (i = 0; i < counterImageFiles; i++) {
+        for (i = 0; (int) i < counterImageFiles; i++) {
             cropInfo = &(tiffFileHandles[i]->metadata.cropInfo);
 
             // Get a few lines of data from this input file one row at a time
-            for (rowInPass = 0; rowInPass < linesToRead; rowInPass++) {
+            for (rowInPass = 0; rowInPass < (int) linesToRead; rowInPass++) {
 
                 //figure out which row to read/write from input/output images
                 outputImageRowIndex = offsetBeforeThisPass + rowInPass;
@@ -1642,7 +1642,7 @@ int panoFlattenTIFF(fullPath * fullPathImages, int counterImageFiles,
 
     //  printf("Lines read %d from %d\n", offsetBeforeThisPass,outputMetadata->imageHeight);
 
-    for (i = 0; i < counterImageFiles; i++) {
+    for (i = 0; (int) i < counterImageFiles; i++) {
         free(imageDataBuffers[i]);
         panoTiffClose(tiffFileHandles[i]);
     }
@@ -1650,7 +1650,7 @@ int panoFlattenTIFF(fullPath * fullPathImages, int counterImageFiles,
     panoTiffClose(outputFile);
 
     if (removeOriginals) {
-        for (i = 0; i < counterImageFiles; i++) {
+        for (i = 0; (int) i < counterImageFiles; i++) {
             remove(fullPathImages[i].name);
         }
     }

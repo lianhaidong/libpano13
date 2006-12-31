@@ -407,7 +407,7 @@ int writePSDwithLayer(Image *im, fullPath *sfile )
     //WRITEINT32( im->height );
     //WRITEINT32( im->width  );
     
-    printf("It is sropped %d\n", panoImageIsCropped(im));
+    printf("It is cropped %d\n", panoImageIsCropped(im));
 
     //The Photoshop file has the dimensions of the full size image, regardless
     //of whether the TIFF file is "cropped" or not.

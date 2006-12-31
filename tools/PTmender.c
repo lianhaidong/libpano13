@@ -96,7 +96,7 @@ static void panoMenderDuplicateScriptFile(char *scriptFileName, char *script, fu
         exit(1);
     }
     
-    temp = fwrite(script, 1, strlen(script), scriptFD); 
+    temp = fwrite(script, 1, (int) strlen(script), scriptFD); 
     
     if (strlen(script) != temp) {
         PrintError("Could not write temporary Scriptfile");

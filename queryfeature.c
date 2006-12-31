@@ -241,7 +241,7 @@ int queryFeatureString(const char *name,char *result, const int bufsize)
   }
   // make sure that the copied string always is NULL terminated, even if truncated
   // (except if the buffer holds only zero bytes):
-  if( result && (length >= bufsize) && (bufsize > 0) )
+  if( result && ((int)length >= bufsize) && (bufsize > 0) )
   {
     result[bufsize-1]=0;
   }
