@@ -385,7 +385,7 @@
 				RelativePath=".\seamer.h">
 			</File>
 			<File
-				RelativePath=".\sys_win.h">
+				RelativePath=".\sys_ansi.h">
 			</File>
 			<File
 				RelativePath=".\version.h">

@@ -80,6 +80,7 @@ int main(int argc,char *argv[])
     ptrInputFiles = NULL;
 
     counter = 0;
+    outputPrefix[0] = 0;
 
     printf(PT_MASKER_VERSION);
 
@@ -124,6 +125,11 @@ int main(int argc,char *argv[])
         }
     }
   
+    // check if an output prefix was given
+    if (!(*outputPrefix)) {
+        strcpy(outputPrefix, "masked");
+    }
+
     filesCount = argc - optind;
   
     if (filesCount < 1) {

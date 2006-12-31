@@ -28,7 +28,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PTmender", "tools\PTmender.
 		{9B19A5C0-8DB0-448B-BF99-DC6374E9751B} = {9B19A5C0-8DB0-448B-BF99-DC6374E9751B}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PToptimizer", "tools\PTOptimizer.vcproj", "{20D1E094-A4B5-4294-85CE-229529065785}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PTOptimizer", "tools\PTOptimizer.vcproj", "{20D1E094-A4B5-4294-85CE-229529065785}"
 	ProjectSection(ProjectDependencies) = postProject
 		{9B19A5C0-8DB0-448B-BF99-DC6374E9751B} = {9B19A5C0-8DB0-448B-BF99-DC6374E9751B}
 	EndProjectSection
@@ -44,6 +44,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PTtiffdump", "tools\PTtiffd
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PTuncrop", "tools\PTuncrop.vcproj", "{20D1E094-A4B5-4294-85CE-229529065712}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9B19A5C0-8DB0-448B-BF99-DC6374E9751B} = {9B19A5C0-8DB0-448B-BF99-DC6374E9751B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PTroller", "tools\PTroller.vcproj", "{20D1E094-A4B5-4294-85CE-229529065786}"
 	ProjectSection(ProjectDependencies) = postProject
 		{9B19A5C0-8DB0-448B-BF99-DC6374E9751B} = {9B19A5C0-8DB0-448B-BF99-DC6374E9751B}
 	EndProjectSection
@@ -136,6 +141,14 @@ Global
 		{20D1E094-A4B5-4294-85CE-229529065712}.DLL Release.Build.0 = Release|Win32
 		{20D1E094-A4B5-4294-85CE-229529065712}.Release.ActiveCfg = Release|Win32
 		{20D1E094-A4B5-4294-85CE-229529065712}.Release.Build.0 = Release|Win32
+		{20D1E094-A4B5-4294-85CE-229529065786}.Debug.ActiveCfg = Debug|Win32
+		{20D1E094-A4B5-4294-85CE-229529065786}.Debug.Build.0 = Debug|Win32
+		{20D1E094-A4B5-4294-85CE-229529065786}.DLL Debug.ActiveCfg = Debug|Win32
+		{20D1E094-A4B5-4294-85CE-229529065786}.DLL Debug.Build.0 = Debug|Win32
+		{20D1E094-A4B5-4294-85CE-229529065786}.DLL Release.ActiveCfg = Release|Win32
+		{20D1E094-A4B5-4294-85CE-229529065786}.DLL Release.Build.0 = Release|Win32
+		{20D1E094-A4B5-4294-85CE-229529065786}.Release.ActiveCfg = Release|Win32
+		{20D1E094-A4B5-4294-85CE-229529065786}.Release.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection
