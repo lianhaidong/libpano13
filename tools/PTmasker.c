@@ -49,6 +49,7 @@
 #include "ptstitch.h"
 #include "pttiff.h"
 
+
 #define PT_MASKER_USAGE "PTmasker [options] <tiffFiles>+\n\n"	\
                          "Options:\n"\
                          "\t-p <prefix>\tPrefix for output files (defaults to masked%%4d)\n"\
@@ -57,9 +58,25 @@
                          "\t-x\t\tDelete source files (use with care)\n"\
                          "\t-q\t\tQuiet run\n"\
                          "\t-h\t\tShow this message\n"\
+                         "\t-z\t\tEnable Extended depth of field\n"\
+                         "\t-m\t\tFocus estimation mask type\n"\
+                         "\t\t\t0  hard-edged masks, mutually exclusive\n"\
+                         "\t\t\t1  hard-edged masks, stack of nested masks\n"\
+                         "\t\t\t2  blended masks, stack of nested masks\n"\
+                         "\t\t\t\t2 is default & strongly recommended -- this option includes a smoothing computation that seems to help a lot.\n"\
+                         "\t-w <integer>\t\tFocus estimation window size. Only available if -z\n"\
+                         "\t\t\tRecommended value is 0.5% of image width, e.g. 4 pixels for an 800-pixel image\n."\
+                         "\t\t\tComputation cost for focus estimation increases proportional to N^2.  Default w4.\n"\
+                         "\t-s <integer>\t\tSmoothing window size,  Only available if -z\n"\
+                         "\t\t\tRecommended value is 0.5% of image width, e.g. 4 pixels for an 800-pixel image\n."\
+                         "\t\t\tComputation cost for focus estimation increases proportional to N^2.  Default w4.\n"\
                          "\n"
 
 #define PT_MASKER_VERSION "PTmasker Version " VERSION ", originally written by Helmut Dersch, rewritten by Daniel M German\n"
+
+#define Z_DEFAULT_MASK_TYPE 2
+#define Z_DEFAULT_WINDOW_SIZE 4
+#define Z_DEFAULT_SMOOTHING_WINDOW_SIZE 4
 
 #define DEFAULT_PREFIX    "masked"
 
@@ -76,6 +93,10 @@ int main(int argc,char *argv[])
     int ptForceProcessing = 0;
     int feather = 0;
     int ptDeleteSources = 0;
+    int enableFocusEstimation = 0;
+    int focusEstimationWindowSize = 0;
+    int focusEstimationMaskType = -1;
+    int focusEstimationSmoothingWindowSize = 0;
 
     ptrInputFiles = NULL;
 
@@ -84,7 +105,7 @@ int main(int argc,char *argv[])
 
     printf(PT_MASKER_VERSION);
 
-    while ((opt = getopt(argc, argv, "p:fqhxe:")) != -1) {
+    while ((opt = getopt(argc, argv, "p:fqhxe:zw:s:m:")) != -1) {
 
         // o and f -> set output file
         // h       -> help
@@ -100,6 +121,28 @@ int main(int argc,char *argv[])
 		return -1;
 	    }
 	    break;
+	case 'w':
+	    focusEstimationWindowSize = strtol(optarg, NULL, 10);
+	    if (errno != 0 || focusEstimationWindowSize <= 0) {
+		PrintError("Illegal value for focus estimation window size [%s]", optarg);
+		return -1;
+	    }
+	    break;
+	case 'm':
+	    focusEstimationMaskType = strtol(optarg, NULL, 10);
+	    if (errno != 0 || focusEstimationMaskType  <0 || focusEstimationMaskType > 2) {
+	      PrintError("Illegal value for focus estimation window type [%s]", optarg);
+		return -1;
+	    }
+	    break;
+	case 's':
+	    focusEstimationSmoothingWindowSize = strtol(optarg, NULL, 10);
+	    if (errno != 0 || focusEstimationSmoothingWindowSize <= 0) {
+		PrintError("Illegal value for focus estimation smoothing window size [%s]", optarg);
+		return -1;
+	    }
+	    break;
+
 	case 'p':
 	    if (strlen(optarg) < MAX_PATH_LENGTH) {
 		strcpy(outputPrefix, optarg);
@@ -108,6 +151,9 @@ int main(int argc,char *argv[])
 		return -1;
 	    }
 	    break;
+        case 'z':
+	    enableFocusEstimation = 1;
+            break;
         case 'f':
 	    ptForceProcessing = 1;
             break;
@@ -121,6 +167,8 @@ int main(int argc,char *argv[])
             printf(PT_MASKER_USAGE);
             exit(0);
         default:
+            printf(PT_MASKER_USAGE);
+            exit(1);
             break;
         }
     }
@@ -131,12 +179,42 @@ int main(int argc,char *argv[])
     }
 
     filesCount = argc - optind;
+
   
     if (filesCount < 1) {
         PrintError("No files specified in the command line");
         fprintf(stderr, PT_MASKER_USAGE);
         return -1;
     }
+
+    if (enableFocusEstimation == 0) {
+	if (focusEstimationWindowSize != 0 ||
+	    focusEstimationSmoothingWindowSize != 0 ||
+	    focusEstimationMaskType != -1)  {
+	    PrintError("You should specify -z option in order to use options -m -w  or -s");
+	    return -1;
+	}
+    } else {
+	if (feather == 0) {
+	    PrintError("-z requires feathering (use -e)");
+	    return -1;
+	}
+
+	if (filesCount == 1) {
+	    PrintError("-z requires more than one file, disabing -z");
+	    enableFocusEstimation = 0;
+	}
+	// At this point we know we are to do Z processing
+	// set defaults if no values are given
+
+	if (focusEstimationWindowSize == 0)
+	    focusEstimationWindowSize = Z_DEFAULT_WINDOW_SIZE;
+	if (focusEstimationSmoothingWindowSize == 0)
+	    focusEstimationSmoothingWindowSize = Z_DEFAULT_SMOOTHING_WINDOW_SIZE;
+	if (focusEstimationMaskType == -1)
+	    focusEstimationMaskType =  Z_DEFAULT_MASK_TYPE;
+    }
+
     // Allocate memory for filenames
     if ((ptrInputFiles = calloc(filesCount, sizeof(fullPath))) == NULL || 
         (ptrOutputFiles = calloc(filesCount, sizeof(fullPath))) == NULL)        {
@@ -195,6 +273,15 @@ int main(int argc,char *argv[])
 	    return 1;
 
     }
+
+    if (enableFocusEstimation)  {
+	ZCombSetFocusWindowHalfwidth(focusEstimationWindowSize);
+	ZCombSetSmoothingWindowHalfwidth(focusEstimationSmoothingWindowSize);
+	ZCombSetMaskType(focusEstimationMaskType);
+	ZCombSetEnabled();
+    }
+
+
 
     if (panoStitchReplaceMasks(ptrInputFiles, ptrOutputFiles, filesCount,
 			       feather) != 0) {

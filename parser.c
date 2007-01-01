@@ -486,7 +486,10 @@ int ParseScript( char* script, AlignInfo *gl )
 					break;
 
 		// Rik's mask-from-focus hacking
-		case 'z':	ZCombSetEnabled();
+		case 'z':	
+		  // I was tempted to remove this code, but I am not sure how it will affect PToptimizer, until then.. it will remain
+		  //PrintError( "z option is no longer supported by PTmender and it is ignored. Use PTmasker instead\n" );
+					//ZCombSetEnabled();
 					li = &(line[1]);
 					while( *li != 0)
 					{
@@ -514,6 +517,7 @@ int ParseScript( char* script, AlignInfo *gl )
 					}
 					break;
 		// end Rik's mask-from-focus hacking
+
 
 		case '*':	// End of script-data
 					*lineStart = 0; *ch = 0;

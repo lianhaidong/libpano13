@@ -28,7 +28,7 @@
 
 #include "filter.h"
 
-#define ZCOMBLOGFILENAME "c:\\Rikslog.txt"
+#define ZCOMBLOGFILENAME "zcom_log.txt"
 
 static struct {  // ZComb parameters
 	int enabled;
@@ -308,7 +308,7 @@ void ZCombSetGreenTo255(Image *im) {
 
 int ZCombSeeImage(Image *im, char *filename) {
 	if (!ZComb.enabled) {
-		// ZCombLogMsg ("Z-combining disabled\n",NULL);
+	  ZCombLogMsg ("Z-combining disabled\n",NULL);
 		return 0;
 	}
 	ZCombLogMsg ("Z-combining enabled\n",NULL);

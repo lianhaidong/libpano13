@@ -54,6 +54,12 @@ void  PrintErrorIntern( char* fmt, va_list ap)
 	  JPrintError( toPrint );
 	}else{
 	  printf(toPrint);
+
+	  // Add an end of line if none is provide
+	  if (strlen(toPrint) > 0 &&
+	      toPrint[strlen(toPrint)-1] != '\n') {
+	      putchar('\n');
+	  }
 	  fflush(stdout);
 	}
 }

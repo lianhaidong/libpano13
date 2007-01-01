@@ -1,3 +1,27 @@
+2007-01-01  dmg  <dmg@uvic.ca>
+
+	* version.h (VERSION), configure.ac Upgraded to version 2.9.8
+
+	* parser.c (ParseScript): Added some comments to "z" option
+
+	* sys_ansi.c (PrintErrorIntern): Add an end-of-line if none is
+	provided (to increase readbility of PrintError, but only when
+	stdout is used)
+
+	* AUTHORS: Updated my own URL. Order them in lexicographical order
+	by lastname
+
+	* TODO: Updated file.
+
+	* ZComb.c (ZCOMBLOGFILENAME): Changed name of log file for Zcomb
+	to something more appropriate.
+
+	* ColourBrightness.c (CorrectImageColourBrigthness): Fixed some
+	compilation warnings
+
+	* tools/PTmasker.c (main): Added support for focus enhancing (z
+	option in the old PTstitch script)
+
 2006-12-31 dangelo <pablo.dangelo@web.de>
 
 	* ColourBrightness.c, file.c, PTcommon.c, ptstitch.c, queryfeature.c,
@@ -7,7 +31,6 @@
 	on the command line
 
 	* libpano.sln: Forgot to compile PTroller
-
 
 2006-12-26  dmg  <dmg@uvic.ca>
 

@@ -252,3 +252,25 @@ PTblender:
 
 - Add an optional debug switch to enable all that Debug.txt output
   (just to stdout).
+----------------------------------------------------------------------
+
+GetROI
+
+   Hello
+   I used ptmender to play with the projections. I use the SVN-source from 
+   SF. I converted a equirectangular panorama to lambertazimuthal projection.
+   I had the problem that the resulting image-file often displays not the 
+   whole projection. The reason for this problem seems to be the x_jump in 
+   the getROI-function:
+   
+   Depending on the image size and because of the x_jumping getROI 
+   calculates sometimes wrong left/right values.
+   
+   I could solve my problems by changing the line 504 in PTcommon.c from
+       x_jump = (y==0 || y==TrPtr->src->height) ? 1 : TrPtr->src->width/2;
+   into
+       x_jump = (y==0 || y==TrPtr->src->height ||
+           abs(y - TrPtr->src->height/2)<=5) ? 1 : TrPtr->src->width/2;
+   
+   
+   

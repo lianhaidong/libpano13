@@ -763,7 +763,6 @@ void FreeHistograms(histograms_struct *ptrHistograms, int count)
 int CorrectFileColourBrightness(fullPath *inPath, fullPath *outPath, magnolia_struct *magnolia, int parm3)
 {
   Image image;
-  CropInfo crop_info;
   char tempString[512];
   if (panoTiffRead (&image, inPath->name) == 0) {
     sprintf(tempString, "Could not read TIFF file %s", inPath->name);
@@ -1633,7 +1632,6 @@ unsigned char panoColourComputeHue (unsigned char red, unsigned char green, unsi
   // Compute Hue
   double H, S, V;
   int h;
-  unsigned temp;
 
   panoColourRGBtoHSV(red, green, blue, &H, &S, &V);
 
@@ -1661,7 +1659,6 @@ unsigned char panoColourComputeSaturation (unsigned char red, unsigned char gree
 {
   double H, S, V;
   int h;
-  unsigned temp;
 
   panoColourRGBtoHSV(red, green, blue, &H, &S, &V);
 
@@ -1929,8 +1926,6 @@ void CorrectImageColourBrigthness(Image *image, magnolia_struct *magnolia, int p
         
         if (*ptrPixel != 0 ) {
           
-          int ebx,ecx;
-
           int R, G, B;
           double H, S, I;
 
@@ -1952,7 +1947,7 @@ void CorrectImageColourBrigthness(Image *image, magnolia_struct *magnolia, int p
           panoColourHSVtoRGB(H, S, I, &R, &G, &B);
           
           if (R < 0 || R > 255 || G < 0 || G > 255 || B < 0 || B > 255) {
-            printf("Value of R G B %d % %d\n", R, G, B);
+            printf("Value of R G B %d %d %d\n", R, G, B);
             assert(0);
           }
           //assert(R >= 0 && R <= 255);

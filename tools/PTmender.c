@@ -1,5 +1,5 @@
 /*
- *  PTmender
+ *  PTmender 
  *
  *  Based on the program PTStitcher by Helmut Dersch.
  *
