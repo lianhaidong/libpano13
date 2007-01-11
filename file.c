@@ -54,6 +54,7 @@
 
 #include "file.h"
 #include "pttiff.h"
+#include "metadata.h"
 
 // local functions
 
@@ -165,7 +166,6 @@ int panoPSDPICTResourceWrite(file_spec fnum, unsigned char resource, unsigned ch
   size_t  count;
   short   svar  = 0;
   char    data[12], *d;
-  pt_uint32   var = 0;
 
   WRITEUCHAR( 0x1c );
   rtn += count;
@@ -176,7 +176,7 @@ int panoPSDPICTResourceWrite(file_spec fnum, unsigned char resource, unsigned ch
   WRITESHORT( len ); //length
   rtn += count;
 
-  if (recordData != NULL > 0) {
+  if (recordData != NULL ) {
 
       mywrite( fnum, len,  recordData);
       rtn += count;
@@ -205,10 +205,6 @@ int panoPSDResourcesBlockWrite(Image *im, file_spec   fnum)
   short   svar = 0;
   size_t  count;
   pt_uint32   var;
-  unsigned char  ch = 0;
-  pt_uint16  shorty = 0;
-  pt_uint32  len = 0; 
-  pt_uint16  fileInfoLength = 0;
   int saveLocation = 0;
   int saveLocationForSize=0;
   int temp;
@@ -239,7 +235,6 @@ int panoPSDResourcesBlockWrite(Image *im, file_spec   fnum)
   { 
       // we will refactor this chunck
       char IPTCVersion[3];
-      int dataLen = 0;
       IPTCVersion[0] = 0;
       IPTCVersion[1] = 2;
       IPTCVersion[2] = 0;

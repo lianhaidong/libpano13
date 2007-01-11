@@ -250,6 +250,7 @@ enum
     _sinusoidal = 14,
     _lambert    = 15,
     _lambertazimuthal  = 16,
+    _albersequalareaconic = 17
 };
 
 // A large rectangle
@@ -333,6 +334,21 @@ typedef struct
 
 #define PANO_PATH_LEN 255
 
+// THe following constants define the number of parameters used by a projection
+
+// THe first is the number provided by the user. In most cases it is
+// zero, sometimes 1 and sometimes 2.
+// The second is the number of internally used parameters. THis is
+// used for optimization purposes, as some projections require to compute
+// the same value over and over again.
+
+
+// This are the maximum number of parameters accepted by a given projection
+#define PANO_PROJECTION_MAX_PARMS 3
+// This are the maximum number of internal parameters used by a given projection
+#define PANO_PROJECTION_PRECOMPUTED_VALUES 10
+
+
 struct Image
 {
     // Pixel data
@@ -344,6 +360,10 @@ struct Image
     unsigned char **data;
     pt_int32 dataformat;        // rgb, Lab etc
     pt_int32 format;            // Projection: rectilinear etc
+    int formatParamCount;       // Number of format parameters.
+    double formatParam[PANO_PROJECTION_MAX_PARMS];  // Parameters for format.
+    int precomputedCount;   // number of values precomputed for a given pano
+    double precomputedValue[PANO_PROJECTION_PRECOMPUTED_VALUES]; // to speed up pano creation
     double hfov;
     double yaw;
     double pitch;

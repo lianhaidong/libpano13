@@ -358,6 +358,8 @@ struct MakeParams{								// Actual parameters used by Xform functions for pano-
 	double  distance;
 	double	horizontal;
 	double	vertical;
+	Image *im;
+	Image *pn;
 	};
 
 struct LMStruct{								// Parameters used by the Levenberg Marquardt-Solver
@@ -841,6 +843,10 @@ int sinusoidal_erect		( double x_dest,double  y_dest, double* x_src, double* y_s
 int erect_sinusoidal		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
 int stereographic_erect		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
 int erect_stereographic		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
+int albersequalareaconic_erect	( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
+int erect_albersequalareaconic	( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
+int albersequalareaconic_distance	( double *x_src, void* params );
+
 
 int mirror_sphere_cp	( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
 int mirror_pano		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	

@@ -581,6 +581,8 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
 */
         int image_selection_width=im->width;
         int image_selection_height=im->height;
+	mp->im = im;
+	mp->pn = pn;
         if(im->cP.horizontal)
         {
           mp->horizontal=im->cP.horizontal_params[color];
@@ -695,6 +697,12 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
             transmercator_erect(b/2.0, 0.0, &tx, &ty, &tpara);
             mp->distance = pn->width/(2.0*tx);
             break;
+	case _albersequalareaconic:
+	    mp->distance = 1.0;
+	    //albersequalareaconic_erect(1.924913116, -PI/2.0, &tx, &ty, mp); //b/2.0
+	    albersequalareaconic_distance(&tx, mp);
+	    mp->distance = pn->width/(2.0*tx);
+	    break;
         default:
             // unknown
             PrintError ("SetMakeParams: Unsupported panorama projection");
@@ -795,6 +803,10 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
    	else if(pn->format == _sinusoidal)
 	{
 		SetDesc(stack[i],	erect_sinusoidal,		&(mp->distance)	); i++;	// Convert sinusoidal to sphere
+	}
+   	else if(pn->format == _albersequalareaconic)
+	{
+		SetDesc(stack[i],	erect_albersequalareaconic,		mp	); i++;	// Convert albersequalareaconic to sphere
 	}
    	else if(pn->format == _equirectangular) 
 	{
@@ -908,12 +920,14 @@ void 	SetInvMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , 
 
 	int 		i;
 	double		a,b;							// field of view in rad
-    double      tx,ty,tpara;
+	double      tx,ty,tpara;
 
 	a =	 DEG_TO_RAD( im->hfov );	// field of view in rad		
 	b =	 DEG_TO_RAD( pn->hfov );
 
 
+	mp->im = im;
+	mp->pn = pn;
 	SetMatrix( 	DEG_TO_RAD( im->pitch ), 
 				0.0, 
 				DEG_TO_RAD( im->roll ), 
@@ -948,6 +962,12 @@ void 	SetInvMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , 
         case _trans_mercator:
             tpara = 1;
             transmercator_erect(b/2.0, 0.0, &tx, &ty, & tpara);
+            mp->distance = pn->width/(2.0*tx);
+            break;
+        case _albersequalareaconic:
+            mp->distance = 1.0;
+            //albersequalareaconic_erect(1.924913116, -PI/2.0, &tx, &ty, mp);  //b/2.0
+	    albersequalareaconic_distance(&tx, mp);
             mp->distance = pn->width/(2.0*tx);
             break;
         default:
@@ -1118,6 +1138,10 @@ void 	SetInvMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , 
    	else if(pn->format == _sinusoidal)
 	{
 		SetDesc(stack[i],	sinusoidal_erect,		&(mp->distance)	); i++;	// Convert sphere to sinusoidal
+	}
+   	else if(pn->format == _albersequalareaconic)
+	{
+		SetDesc(stack[i],	albersequalareaconic_erect,		mp	); i++;	// Convert sphere to albersequalareaconic
 	}
    	else if(pn->format == _equirectangular) 
 	{
@@ -2529,7 +2553,8 @@ int CheckParams( AlignInfo *g )
 		g->pano.format != _equirectangular 	&& g->pano.format != _fisheye_ff &&
 		g->pano.format != _stereographic 	&& g->pano.format != _mercator &&
 		g->pano.format != _trans_mercator 	&& g->pano.format != _sinusoidal &&
- 	        g->pano.format != _lambert              && g->pano.format != _lambertazimuthal
+ 	        g->pano.format != _lambert              && g->pano.format != _lambertazimuthal &&
+		g->pano.format != _albersequalareaconic
 	     ) 
 		    	err=11;
 		    

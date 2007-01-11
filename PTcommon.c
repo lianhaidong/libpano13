@@ -197,7 +197,7 @@ int panoPSDCreate(fullPath * fullPathImages, int numberImages,
         remove(outputFileName->name);
         rename(tempFile.name, outputFileName->name);
 
-	panoImageDispose(&image);
+	panoImageDispose(ptrImage);
     }
 
     if (!ptQuietFlag) {
@@ -501,7 +501,7 @@ void getROI(TrformStr * TrPtr, aPrefs * aP, PTRect * ROIRect)
     //needed here, but for now include some representative interior points as well.
     for (y = 0; y <= TrPtr->src->height; y += 1) {
         
-                x_jump = (y==0 || y==TrPtr->src->height) ? 1 : TrPtr->src->width/2;
+                x_jump = (y==0 || y==TrPtr->src->height || abs(y - TrPtr->src->height/2)<=5) ? 1 : TrPtr->src->width/2; 
                 
                 for (x = 0; x <= TrPtr->src->width; x += x_jump) {
                         //convert source coordinates to cartesian coordinates (i.e. origin at center of image)

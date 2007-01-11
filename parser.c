@@ -474,6 +474,9 @@ int ParseScript( char* script, AlignInfo *gl )
 						case 9:
 							gl->pano.format = _lambertazimuthal;
 							break;
+						case 10:
+							gl->pano.format = _albersequalareaconic;
+							break;
 						default:
 							PrintError( "Unknown panorama projection: %d", gl->pano.format );
 							return -1;
@@ -947,6 +950,9 @@ int readAdjust( aPrefs *p,  fullPath* sfile, int insert, sPrefs *sP )
 						case 9:
 							p->pano.format = _lambertazimuthal;
 							break;
+						case 10:
+							p->pano.format = _albersequalareaconic;
+							break;
 						default:
 							PrintError( "Unknown panorama projection: %d", p->pano.format );
 							return -1;
@@ -964,7 +970,7 @@ int readAdjust( aPrefs *p,  fullPath* sfile, int insert, sPrefs *sP )
 	
 	if( !seto  )
 	{
-		PrintError( "Syntax error in scriptfile" );
+	  PrintError( "Syntax error in scriptfile (readAdjust)");
 		free( script );
 		return -1;
 	}
@@ -1273,9 +1279,11 @@ static int ReadImageDescription( Image *imPtr, stBuf *sPtr, char *line )
 	stBuf sBuf;
 	char *ch = line;
 	char buf[LINE_LENGTH];
+	char *b;
 	int	 i;
 	int    cropping = 0;
 	int tempInt;
+	double tempDbl;
 	char typeParm;
 	
 	memcpy( &im, 	imPtr,	 sizeof(Image) );
@@ -1421,8 +1429,28 @@ static int ReadImageDescription( Image *imPtr, stBuf *sPtr, char *line )
 				   sscanf( buf, FMT_INT32","FMT_INT32","FMT_INT32","FMT_INT32, &im.selection.left, &im.selection.right, &im.selection.top, &im.selection.bottom );
 				   im.cP.cutFrame = TRUE;
 				   break;
-			default: 	ch++;
-						break;
+			case 'P':
+			    nextWord(buf, &ch);
+			    b = strtok(buf, " \"");
+			    if (b != NULL) {
+				while (b != NULL) {
+				    if (sscanf(b, "%lf", &tempDbl) == 1) {
+					if (++im.formatParamCount >= PANO_PROJECTION_MAX_PARMS) {
+					    PrintError("Illegal number of projection parameters. Maximum is %d", PANO_PROJECTION_MAX_PARMS);
+					    return -1;
+					}
+					im.formatParam[im.formatParamCount - 1] = tempDbl;
+					b = strtok(NULL, " \"");
+				    } else {
+					PrintError("Illegal value in P parameter %s", b);
+					return -1;
+				    }
+				}
+			    } 
+			    break;
+			default: 	
+			    ch++;
+			    break;
 		}
 	}
 

@@ -228,10 +228,11 @@ void SettMatrixDefaults( tMatrix *t )
 //------------------------------- Transformation functions --------------------------------------------
 
 
-#define 	distance	(*((double*)params))
+#define 	distanceparam	(*((double*)params))
 #define 	shift		(*((double*)params))
 #define		var0		((double*)params)[0]
 #define		var1		((double*)params)[1]
+#define		mp		((struct MakeParams*)params)
 
 // execute a stack of functions stored in stack
 
@@ -244,6 +245,7 @@ void execute_stack		( double x_dest, double y_dest, double* x_src, double* y_src
 		
 	while( (stack->func) != NULL )
 	{
+
 		(stack->func) ( xd, yd, x_src, y_src, stack->param );
 		xd = *x_src;	
 		yd = *y_src;
@@ -261,6 +263,7 @@ int execute_stack_new( double x_dest, double y_dest, double* x_src, double* y_sr
     while( (stack->func) != NULL )
     {
         if ( (stack->func) ( xd, yd, x_src, y_src, stack->param ) ) {
+	    //	    printf("Execute stack %f %f %f %f\n", xd, yd, *x_src, *y_src);
             xd = *x_src;
             yd = *y_src;
             stack++;
@@ -456,7 +459,7 @@ int deregister( double x_dest, double y_dest, double* x_src, double* y_src, void
 	
 int persp_sphere( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {
-	// params :  double Matrix[3][3], double distance
+	// params :  double Matrix[3][3], double distanceparam
 
 	register double theta,s,r;
 	double v[3];
@@ -503,7 +506,7 @@ int persp_sphere( double x_dest,double  y_dest, double* x_src, double* y_src, vo
 
 int persp_rect( double x_dest, double y_dest, double* x_src, double* y_src, void* params)
 {
-	// params :  double Matrix[3][3], double distance, double x-offset, double y-offset
+	// params :  double Matrix[3][3], double distanceparam, double x-offset, double y-offset
 
 	double v[3];
 	
@@ -523,26 +526,26 @@ int persp_rect( double x_dest, double y_dest, double* x_src, double* y_src, void
 int rect_pano( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {									
 								
-	*x_src = distance * tan( x_dest / distance ) ;
-	*y_src = y_dest / cos( x_dest / distance );
+	*x_src = distanceparam * tan( x_dest / distanceparam ) ;
+	*y_src = y_dest / cos( x_dest / distanceparam );
     return 1;
 }
 
 int pano_rect( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {	
-	*x_src = distance * atan ( x_dest / distance );
-	*y_src = y_dest * cos( *x_src / distance );
+	*x_src = distanceparam * atan ( x_dest / distanceparam );
+	*y_src = y_dest * cos( *x_src / distanceparam );
     return 1;
 }
 
 int rect_erect( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {	
-	// params: double distance
+	// params: double distanceparam
 
 	register double  phi, theta;
 
-	phi 	= x_dest / distance;
-	theta 	=  - y_dest / distance  + PI / 2.0;
+	phi 	= x_dest / distanceparam;
+	theta 	=  - y_dest / distanceparam  + PI / 2.0;
 	if(theta < 0)
 	{
 		theta = - theta;
@@ -569,48 +572,48 @@ int rect_erect( double x_dest,double  y_dest, double* x_src, double* y_src, void
 	*y_src = rho * sin( phi );
 #endif
 #if 1
-	*x_src = distance * tan(phi);
-	*y_src = distance / (tan( theta ) * cos(phi));
+	*x_src = distanceparam * tan(phi);
+	*y_src = distanceparam / (tan( theta ) * cos(phi));
 #endif
     return 1;
 }
 // This is the cylindrical projection
 int pano_erect( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {	
-	// params: double distance
+	// params: double distanceparam
 
 	*x_src = x_dest;
-	*y_src = distance * tan( y_dest / distance);
+	*y_src = distanceparam * tan( y_dest / distanceparam);
     return 1;
 }
 
 int erect_pano( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {	
-	// params: double distance
+	// params: double distanceparam
 
 	*x_src = x_dest;
-	*y_src = distance * atan( y_dest / distance);
+	*y_src = distanceparam * atan( y_dest / distanceparam);
     return 1;
 }
 
 /** convert from erect to lambert azimuthal */
 int lambertazimuthal_erect( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {
-    // params: distance
+    // params: distanceparam
     double phi, lambda,k1;
-    lambda = x_dest/distance;
-    phi = y_dest/distance;
+    lambda = x_dest/distanceparam;
+    phi = y_dest/distanceparam;
 
     if (abs(cos(phi) * cos(lambda) + 1.0) <= EPSLN) {
-      *x_src = distance * 2 ;
+      *x_src = distanceparam * 2 ;
       *y_src = 0;
       return 0;
     }
 
     k1 = sqrt(2.0 / (1 + cos(phi) * cos(lambda)));
 
-    *x_src = distance * k1 * cos(phi) * sin (lambda);
-    *y_src = distance * k1 * sin(phi);
+    *x_src = distanceparam * k1 * cos(phi) * sin (lambda);
+    *y_src = distanceparam * k1 * sin(phi);
 
     return 1;
 }
@@ -619,10 +622,10 @@ int lambertazimuthal_erect( double x_dest,double  y_dest, double* x_src, double*
 int erect_lambertazimuthal( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {
 
-    double x, y, r, ro,c;
+    double x, y, ro,c;
 
-    x = x_dest/distance;
-    y = y_dest/distance;
+    x = x_dest/distanceparam;
+    y = y_dest/distanceparam;
 
     assert(! isnan(x));
     assert(! isnan(y));
@@ -633,7 +636,7 @@ int erect_lambertazimuthal( double x_dest,double  y_dest, double* x_src, double*
 	return 0;
     }
 
-    ro = hypot(  x, y);
+    ro = hypot(x, y);
 
     if (fabs(ro) <= EPSLN)
     {
@@ -644,7 +647,7 @@ int erect_lambertazimuthal( double x_dest,double  y_dest, double* x_src, double*
 
     c = 2 * asin(ro / 2.0);
 
-    *y_src = distance * asin( (y * sin(c)) / ro);
+    *y_src = distanceparam * asin( (y * sin(c)) / ro);
 
 
     if (fabs(ro * cos(c)) <= EPSLN ) {
@@ -652,7 +655,7 @@ int erect_lambertazimuthal( double x_dest,double  y_dest, double* x_src, double*
       return 1;
     }
 
-    *x_src = distance * atan2( x * sin(c), (ro * cos(c)));
+    *x_src = distanceparam * atan2( x * sin(c), (ro * cos(c)));
 
     return 1;
 
@@ -663,18 +666,18 @@ int erect_lambertazimuthal( double x_dest,double  y_dest, double* x_src, double*
 /** convert from erect to mercator */
 int mercator_erect( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {
-    // params: distance
+    // params: distanceparam
     *x_src = x_dest;
-    *y_src = distance*log(tan(y_dest/distance)+1/cos(y_dest/distance));
+    *y_src = distanceparam*log(tan(y_dest/distanceparam)+1/cos(y_dest/distanceparam));
     return 1;
 }
 
 /** convert from mercator to erect */
 int erect_mercator( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {
-    // params: distance
+    // params: distanceparam
     *x_src = x_dest;
-    *y_src = distance*atan(sinh(y_dest/distance));
+    *y_src = distanceparam*atan(sinh(y_dest/distanceparam));
     return 1;
 }
 
@@ -682,18 +685,18 @@ int erect_mercator( double x_dest,double  y_dest, double* x_src, double* y_src, 
 /** convert from erect to lambert */
 int lambert_erect( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {
-    // params: distance
+    // params: distanceparam
     *x_src = x_dest;
-    *y_src = distance*sin(y_dest/distance);
+    *y_src = distanceparam*sin(y_dest/distanceparam);
     return 1;
 }
 
 /** convert from lambert to erect */
 int erect_lambert( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {
-    // params: distance
+    // params: distanceparam
     *x_src = x_dest;
-    *y_src = distance*asin(y_dest/distance);
+    *y_src = distanceparam*asin(y_dest/distanceparam);
     return 1;
 }
 
@@ -701,13 +704,13 @@ int erect_lambert( double x_dest,double  y_dest, double* x_src, double* y_src, v
 /** convert from erect to transverse mercator */
 int transmercator_erect( double x_dest,double  y_dest, double* x_src, double* y_src, void*  params)
 {
-    // params: distance
+    // params: distanceparam
     double B;
-    x_dest /= distance;
-    y_dest /= distance;
+    x_dest /= distanceparam;
+    y_dest /= distanceparam;
     B = cos(y_dest)*sin(x_dest);
-    *x_src = distance * atanh(B);
-    *y_src = distance * atan2(tan(y_dest), cos(x_dest));
+    *x_src = distanceparam * atanh(B);
+    *y_src = distanceparam * atan2(tan(y_dest), cos(x_dest));
 
     if (isinf(*x_src)) {
       return 0;
@@ -719,9 +722,9 @@ int transmercator_erect( double x_dest,double  y_dest, double* x_src, double* y_
 /** convert from erect to transverse mercator */
 int erect_transmercator( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {
-    // params: distance
-    x_dest /= distance;
-    y_dest /= distance;
+    // params: distanceparam
+    x_dest /= distanceparam;
+    y_dest /= distanceparam;
 
     if (fabs(y_dest) > PI ) {
         *y_src = 0;
@@ -730,17 +733,17 @@ int erect_transmercator( double x_dest,double  y_dest, double* x_src, double* y_
     }
 
 
-    *x_src = distance * atan2(sinh(x_dest),cos(y_dest));
-    *y_src = distance * asin(sin(y_dest)/cosh(x_dest));
+    *x_src = distanceparam * atan2(sinh(x_dest),cos(y_dest));
+    *y_src = distanceparam * asin(sin(y_dest)/cosh(x_dest));
     return 1;
 }
 
 /** convert from erect to sinusoidal */
 int sinusoidal_erect( double x_dest,double  y_dest, double* x_src, double* y_src, void*  params)
 {
-    // params: distance
+    // params: distanceparam
 
-    *x_src = distance * (x_dest/distance*cos(y_dest/distance));
+    *x_src = distanceparam * (x_dest/distanceparam*cos(y_dest/distanceparam));
     *y_src = y_dest;
     return 1;
 }
@@ -748,11 +751,11 @@ int sinusoidal_erect( double x_dest,double  y_dest, double* x_src, double* y_src
 /** convert from sinusoidal to erect */
 int erect_sinusoidal( double x_dest,double  y_dest, double* x_src, double* y_src, void*  params)
 {
-    // params: distance
+    // params: distanceparam
 
     *y_src = y_dest;
-    *x_src = x_dest/cos(y_dest/distance);
-    if (*x_src/distance < -PI || *x_src/distance > PI)
+    *x_src = x_dest/cos(y_dest/distanceparam);
+    if (*x_src/distanceparam < -PI || *x_src/distanceparam > PI)
 	return 0; 
     return 1;
 }
@@ -760,14 +763,14 @@ int erect_sinusoidal( double x_dest,double  y_dest, double* x_src, double* y_src
 /** convert from erect to stereographic */
 int stereographic_erect_old( double x_dest,double  y_dest, double* x_src, double* y_src, void*  params)
 {
-    // params: distance
-    double lon = x_dest / distance;
-    double lat = y_dest / distance;
+    // params: distanceparam
+    double lon = x_dest / distanceparam;
+    double lat = y_dest / distanceparam;
 
     // use: R = 1
     double k=2.0/(1+cos(lat)*cos(lon));
-    *x_src = distance * k*cos(lat)*sin(lon);
-    *y_src = distance * k*sin(lat);
+    *x_src = distanceparam * k*cos(lat)*sin(lon);
+    *y_src = distanceparam * k*sin(lat);
     return 1;
 }
 
@@ -777,8 +780,8 @@ int stereographic_erect( double x_dest,double  y_dest, double* x_src, double* y_
     double sinphi, cosphi, coslon;
     double g,ksp;
 
-    lon = x_dest / distance;
-    lat = y_dest / distance;
+    lon = x_dest / distanceparam;
+    lat = y_dest / distanceparam;
 
     sinphi = sin(lat);
     cosphi = cos(lat);
@@ -789,7 +792,7 @@ int stereographic_erect( double x_dest,double  y_dest, double* x_src, double* y_
     // point projects to infinity:
     //    if (fabs(g + 1.0) <= EPSLN)
 
-    ksp = distance * 2.0 / (1.0 + g);
+    ksp = distanceparam * 2.0 / (1.0 + g);
     *x_src = ksp * cosphi * sin(lon);
     *y_src = ksp * sinphi;
 
@@ -806,8 +809,8 @@ int erect_stereographic( double x_dest,double  y_dest, double* lon, double* lat,
 
     /* Inverse equations
      -----------------*/
-    double x = x_dest / distance;
-    double y = y_dest / distance;
+    double x = x_dest / distanceparam;
+    double y = y_dest / distanceparam;
     rh = sqrt(x * x + y * y);
     c = 2.0 * atan(rh / (2.0 * 1));
     sinc = sin(c);
@@ -820,14 +823,14 @@ int erect_stereographic( double x_dest,double  y_dest, double* lon, double* lat,
     }
     else
     {
-        *lat = asin((y * sinc) / rh) * distance;
+        *lat = asin((y * sinc) / rh) * distanceparam;
         con = HALF_PI;
    
         con = cosc;
         if ((fabs(cosc) < EPSLN) && (fabs(x) < EPSLN))
             return 0;
         else
-            *lon = atan2((x * sinc), (cosc * rh)) * distance;
+            *lon = atan2((x * sinc), (cosc * rh)) * distanceparam;
     }
     return 1;
 }
@@ -836,21 +839,278 @@ int erect_stereographic( double x_dest,double  y_dest, double* lon, double* lat,
 /** convert from stereographic to erect */
 int erect_stereographic_old( double x_dest,double  y_dest, double* x_src, double* y_src, void*  params)
 {
-    // params: distance
+    // params: distanceparam
 
     // use: R = 1
-    double p=sqrt(x_dest*x_dest + y_dest*y_dest) / distance;
+    double p=sqrt(x_dest*x_dest + y_dest*y_dest) / distanceparam;
     double c= 2.0*atan(p/2.0);
 
-    *x_src = distance * atan2(x_dest/distance*sin(c),(p*cos(c)));
-    *y_src = distance * asin(y_dest/distance*sin(c)/p);
+    *x_src = distanceparam * atan2(x_dest/distanceparam*sin(c),(p*cos(c)));
+    *y_src = distanceparam * asin(y_dest/distanceparam*sin(c)/p);
     return 1;
+}
+
+int albersEqualAreaConic_ParamCheck(Image *im) 
+{
+
+    //Parameters: phi1, phi2, phi0, n, C, rho0, yoffset
+    double phi1, phi2, n, C, rho0, phi0, y1, y2, y, twiceN;
+    double phi[] = {-PI/2, 0, PI/2};
+    double lambda[] = {-PI, 0, PI};
+    int i, j, first;
+
+    assert(PANO_PROJECTION_MAX_PARMS >= 2);
+
+    if (im->formatParamCount == 1) {
+	// WHen only one parameter provided, assume phi1=phi0
+	im->formatParamCount = 2;
+	im->formatParam[1] = im->formatParam[0];
+    }
+
+    if (im->formatParamCount == 0) {
+	im->formatParamCount = 2;
+	im->formatParam[0] = 0;  //phi1
+	im->formatParam[1] = -60; //phi2
+    }
+
+    if (im->precomputedCount == 0) {
+	im->precomputedCount = 10;
+
+	assert(PANO_PROJECTION_PRECOMPUTED_VALUES >=im->precomputedCount );
+
+
+	// First, invert standard parallels. 
+	// This is a hack, as the resulting projections look backwards to what they are supposed to be
+	// (with respect to maps)
+	
+	im->precomputedValue[0] =  -1.0 * im->formatParam[0];
+	im->precomputedValue[1] =  -1.0 * im->formatParam[1];
+
+	phi1 = im->precomputedValue[0] * PI / 180.0; //phi1 to rad
+	phi2 = im->precomputedValue[1] * PI / 180.0; //phi2 to rad
+
+	//Calculate the y at 6 different positions (lambda=-pi,0,+pi; phi=-pi/2,0,pi/2).
+	///Then calculate a yoffset so that the image is centered.
+	first = 1;
+	for (i = 0; i < 3; i++) for (j = 0; j < 3; j++) {
+	    y = sqrt(pow(cos(phi1), 0.2e1) + 0.2e1 * (sin(phi1) / 0.2e1 + sin(phi2) / 0.2e1) * sin(phi1)) / (sin(phi1) / 0.2e1 + sin(phi2) / 0.2e1) - sqrt(pow(cos(phi1), 0.2e1) + 0.2e1 * (sin(phi1) / 0.2e1 + sin(phi2) / 0.2e1) * sin(phi1) - 0.2e1 * (sin(phi1) / 0.2e1 + sin(phi2) / 0.2e1) * sin(phi[i])) / (sin(phi1) / 0.2e1 + sin(phi2) / 0.2e1) * cos((sin(phi1) / 0.2e1 + sin(phi2) / 0.2e1) * lambda[j]);
+	    if (!isnan(y)) {
+		if (first || y < y1) y1 = y;
+		if (first || y > y2) y2 = y;
+		first = 0;
+	    }
+	}
+	if (first) {
+	    y = 0;
+	} else {
+	    y = y1 + fabs(y1 - y2)/2.0;
+	}
+
+	// The stability of these operations should be improved
+	phi0 = 0;
+	twiceN = sin(phi1) + sin(phi2);
+	n = twiceN /2.0;
+	C = cos(phi1) * cos(phi1) + 2.0 * n * sin(phi1);
+	rho0 = sqrt(C - 2.0 * n * sin(phi0)) / n;
+
+	im->precomputedValue[0] = phi1;
+	im->precomputedValue[1] = phi2;
+	im->precomputedValue[2] = phi0;
+	im->precomputedValue[3] = n;
+	im->precomputedValue[4] = C;
+	im->precomputedValue[5] = rho0;
+	im->precomputedValue[6] = y;
+	im->precomputedValue[7] = n*n;
+	im->precomputedValue[8] = sin(phi1) + sin(phi2);
+	im->precomputedValue[9] = twiceN;
+
+	//	printf("Parms phi1 %f phi2 %f pho0 %f, n %f, C %f, rho0 %f, %f\n", 
+	//	       phi1, phi2, phi0, n, C, rho0, y);
+
+    }
+
+    for (i=0;i<im->precomputedCount;i++) {
+	assert(!isnan(im->precomputedValue[i]));
+    }
+    
+    if (im->precomputedCount > 0) return 1;
+    //    PrintError("false in alberts equal area parameters");
+    return 0;
+}
+
+/** convert from erect to albersequalareaconic */
+int albersequalareaconic_erect( double x_dest,double  y_dest, double* x_src, double* y_src, void *params)
+{
+    double yoffset, lambda, phi, lambda0, n, C, rho0, theta, rho;
+    double twiceN;
+
+    // Forward calculation
+
+
+    if (!albersEqualAreaConic_ParamCheck(mp->pn))  {
+	//	printf("REturning abert->erect 0\n");
+	return 0;
+    }
+
+    assert(!isnan(x_dest));
+    assert(!isnan(y_dest));
+
+    lambda = x_dest / mp->distance;
+    phi = y_dest / mp->distance;
+
+    if (lambda > PI) lambda-=2*PI;
+    if (lambda < -PI) lambda+=2*PI;
+
+    lambda0 = 0;
+
+    n = mp->pn->precomputedValue[3];
+    C = mp->pn->precomputedValue[4];
+    rho0 = mp->pn->precomputedValue[5];
+    yoffset = mp->pn->precomputedValue[6];
+    twiceN = mp->pn->precomputedValue[9];
+
+    theta = n * (lambda - lambda0);
+
+    
+    //    printf("value %f\n", (phi));
+    //    printf("value %f\n", sin(phi));
+    //    printf("value %f\n", C - 2.0 * n * sin(phi));
+    //assert(C - 2.0 * n * sin(phi) >=0);
+    rho = sqrt(C - twiceN * sin(phi)) / n;
+
+    *x_src = mp->distance * (rho * sin(theta));
+    *y_src = mp->distance * (rho0 - rho * cos(theta) - yoffset);
+
+    if (isnan(*x_src) ||
+	isnan(*y_src)) {
+	*x_src = 0;
+	*y_src = 0;
+	//	PrintError("false in alberts equal area 4");
+	return 0;
+    }
+
+    assert(!isnan(*x_src));
+    assert(!isnan(*y_src));
+
+    return 1;
+}
+
+/** convert from albersequalareaconic to erect */
+int erect_albersequalareaconic(double x_dest, double y_dest, double* x_src, double* y_src, void* params)
+{
+    double x, y, yoffset, lambda0, n, C, rho0, theta, phi, lambda, nsign;
+    double rho2; // rho^2
+    double n2; // n^2
+    double twiceN; // n * 2.0
+    
+    //  Inverse calculation
+
+    if (!albersEqualAreaConic_ParamCheck(mp->pn))  {
+	*x_src = 0;
+	*y_src = 0;
+	//	printf("false in alberts equal area\n");
+	return 0;
+    }
+
+    x = x_dest / mp->distance;
+    y = y_dest / mp->distance;
+
+    lambda0 = 0;
+
+    n = mp->pn->precomputedValue[3];
+    C = mp->pn->precomputedValue[4];
+    rho0 = mp->pn->precomputedValue[5];
+    yoffset = mp->pn->precomputedValue[6];
+    n2 = mp->pn->precomputedValue[7];
+    twiceN = mp->pn->precomputedValue[9];
+
+    y = y + yoffset;
+
+    rho2 = x*x + (rho0 - y)*(rho0 - y);
+    nsign = 1.0;
+
+    if (n < 0) nsign = -1.0;
+
+    theta = atan2(nsign * x, nsign * (rho0 - y));
+
+    phi = asin((C - rho2 * n2)/twiceN);
+
+    lambda = lambda0 + theta / n;
+    if (lambda > PI || lambda < -PI)  {
+	*x_src = 0;
+	*y_src = 0;
+	//	PrintError("false in alberts equal area 2");
+	return 0;
+    }
+
+    *x_src = mp->distance * lambda;
+    *y_src = mp->distance * phi;
+
+    if (isnan(*x_src) ||  
+	isnan(*y_src)) {
+	*x_src = 0;
+	*y_src = 0;
+	//	PrintError("false in alberts equal area 3");
+	return 0;
+    }
+
+    assert(!isnan(*x_src));
+    assert(!isnan(*y_src));
+
+    return 1;
+}
+
+int albersequalareaconic_distance(double* x_src, void* params) {
+    double x1, x2, y, phi1, phi2, lambda;
+
+    //    printf("alber distance\n");
+
+    if (!albersEqualAreaConic_ParamCheck(mp->pn))  {
+	*x_src = 0;
+	//	printf("false in alberts equal area distance 0\n");
+	return 0;
+    }
+
+    mp->distance = 1;
+    phi1 = mp->pn->precomputedValue[0];
+    phi2 = mp->pn->precomputedValue[1];
+
+    //lambda where x is a maximum.
+    if (phi1 == phi2  &&
+	phi1 == 0.0) {
+	// THIS IS A HACK...it needs to further studied
+	// why this when phi1==phi2==0 
+	// this functions return 0
+	// Avoid approximation error
+	PrintError("The Albers projection cannot be used for phi1==phi2==0. Use Lambert Cylindrical Equal Area instead");
+
+	*x_src = PI;
+	return 0;
+    }
+    lambda = fabs(PI / (sin(phi1) + sin(phi2)));
+    if (lambda > PI) lambda = PI;
+    albersequalareaconic_erect(lambda, -PI/2.0, &x1, &y, mp);
+    albersequalareaconic_erect(lambda, PI/2.0, &x2, &y, mp);
+    *x_src = max(fabs(x1), fabs(x2));
+
+    if (isnan(*x_src))  {
+	*x_src = 0;
+	PrintError("false in alberts equal area distance 1");
+	return 0;
+    }
+
+    assert(!isnan(*x_src));
+
+    //    printf("return albers distance %f\n", *x_src);
+
+    return 1;
+
 }
 
 
 int sphere_cp_erect( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {
-	// params: double distance, double b
+	// params: double distanceparam, double b
 
 	register double phi, theta;
 #if 0	
@@ -870,13 +1130,13 @@ int sphere_cp_erect( double x_dest,double  y_dest, double* x_src, double* y_src,
 
 int sphere_tp_erect( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {
-	// params: double distance
+	// params: double distanceparam
 
 	register double phi, theta, r,s;
 	double v[3];
 
-	phi 	= x_dest / distance;
-	theta 	=  - y_dest / distance  + PI / 2;
+	phi 	= x_dest / distanceparam;
+	theta 	=  - y_dest / distanceparam  + PI / 2;
 	if(theta < 0)
 	{
 		theta = - theta;
@@ -907,7 +1167,7 @@ int sphere_tp_erect( double x_dest,double  y_dest, double* x_src, double* y_src,
 	
 	r = sqrt( v[1]*v[1] + v[0]*v[0]);	
 
-	theta = distance * atan2( r , s * cos( phi ) );
+	theta = distanceparam * atan2( r , s * cos( phi ) );
 	
 	*x_src =  theta * v[0] / r;
 	*y_src =  theta * v[1] / r;
@@ -916,7 +1176,7 @@ int sphere_tp_erect( double x_dest,double  y_dest, double* x_src, double* y_src,
 
 int erect_sphere_cp( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {
-	// params: double distance, double b
+	// params: double distanceparam, double b
 
 	register double phi, theta;
 
@@ -937,24 +1197,24 @@ int erect_sphere_cp( double x_dest,double  y_dest, double* x_src, double* y_src,
 
 int rect_sphere_tp( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {
-	// params: double distance
+	// params: double distanceparam
 
 	register double rho, theta,r;
 
 #if 0	
-	theta = sqrt( x_dest * x_dest + y_dest * y_dest ) / distance;
+	theta = sqrt( x_dest * x_dest + y_dest * y_dest ) / distanceparam;
 	phi   = atan2( y_dest , x_dest );
 	
 	if( theta > PI /2.0  ||  theta < -PI /2.0 )
 		theta = PI /2.0 ;
 
-	rho = distance * tan( theta );
+	rho = distanceparam * tan( theta );
 
 	*x_src = rho * cos( phi );
 	*y_src = rho * sin( phi );
 #endif
 	r 		= sqrt( x_dest * x_dest + y_dest * y_dest );
-	theta 	= r / distance;
+	theta 	= r / distanceparam;
 	
 	if( theta >= PI /2.0   )
 		rho = 1.6e16 ;
@@ -969,7 +1229,7 @@ int rect_sphere_tp( double x_dest,double  y_dest, double* x_src, double* y_src, 
 
 int sphere_tp_rect( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {	
-	// params: double distance
+	// params: double distanceparam
 
 	register double  theta, r;
 
@@ -980,7 +1240,7 @@ int sphere_tp_rect( double x_dest,double  y_dest, double* x_src, double* y_src, 
 	*x_src = *((double*)params) * theta * cos( phi );
 	*y_src = *((double*)params) * theta * sin( phi );
 #endif
-	r 		= sqrt(x_dest*x_dest + y_dest*y_dest) / distance;
+	r 		= sqrt(x_dest*x_dest + y_dest*y_dest) / distanceparam;
 	if( r== 0.0 )
 		theta = 1.0;
 	else
@@ -993,7 +1253,7 @@ int sphere_tp_rect( double x_dest,double  y_dest, double* x_src, double* y_src, 
 
 int sphere_tp_pano( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {
-	// params: double distance
+	// params: double distanceparam
 
 	register double r, s, Phi, theta;
 	
@@ -1002,7 +1262,7 @@ int sphere_tp_pano( double x_dest,double  y_dest, double* x_src, double* y_src, 
 	double v[3];
 	
 	Phi = x_dest / *((double*)params);
-	Theta = PI /2.0 - atan( y_dest / distance );
+	Theta = PI /2.0 - atan( y_dest / distanceparam );
 	
 
 	v[2] = *((double*)params) * sin( Theta ) * cos( Phi );   //  x' -> z
@@ -1016,12 +1276,12 @@ int sphere_tp_pano( double x_dest,double  y_dest, double* x_src, double* y_src, 
 	*y_src = *((double*)params) * theta * sin( phi );
 #endif
 #if 1
-	Phi = x_dest / distance;
+	Phi = x_dest / distanceparam;
 		
-	s =  distance * sin( Phi ) ;	//  y' -> x
+	s =  distanceparam * sin( Phi ) ;	//  y' -> x
 	
 	r = sqrt( s*s + y_dest*y_dest );
-	theta = distance * atan2( r , (distance * cos( Phi )) ) / r;
+	theta = distanceparam * atan2( r , (distanceparam * cos( Phi )) ) / r;
 	
 	*x_src =  theta * s ;
 	*y_src =  theta * y_dest ;
@@ -1031,12 +1291,12 @@ int sphere_tp_pano( double x_dest,double  y_dest, double* x_src, double* y_src, 
 
 int pano_sphere_tp( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {
-	// params: double distance
+	// params: double distanceparam
 	register double r,s, theta;
 	double v[3];
 
 #if 0	
-	theta = sqrt( x_dest * x_dest + y_dest * y_dest ) / distance;
+	theta = sqrt( x_dest * x_dest + y_dest * y_dest ) / distanceparam;
 	phi   = atan2( y_dest , x_dest );
 
 	v[1] = *((double*)params) * sin( theta ) * cos( phi );   //  x' -> y
@@ -1051,9 +1311,9 @@ int pano_sphere_tp( double x_dest,double  y_dest, double* x_src, double* y_src, 
 #endif
 	
 	r = sqrt( x_dest * x_dest + y_dest * y_dest );
-	theta = r / distance;
+	theta = r / distanceparam;
 	if( theta == 0.0 )
-		s = 1.0 / distance;
+		s = 1.0 / distanceparam;
 	else
 		s = sin( theta ) /r;
 
@@ -1061,8 +1321,8 @@ int pano_sphere_tp( double x_dest,double  y_dest, double* x_src, double* y_src, 
 	v[0] =  cos( theta );				//  z' -> x
 
 
-	*x_src = distance * atan2( v[1], v[0] );
-	*y_src = distance * s * y_dest / sqrt( v[0]*v[0] + v[1]*v[1] );
+	*x_src = distanceparam * atan2( v[1], v[0] );
+	*y_src = distanceparam * s * y_dest / sqrt( v[0]*v[0] + v[1]*v[1] );
 
     return 1;
 }
@@ -1070,40 +1330,40 @@ int pano_sphere_tp( double x_dest,double  y_dest, double* x_src, double* y_src, 
 
 int sphere_cp_pano( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {
-	// params: double distance
+	// params: double distanceparam
 
 	register double phi, theta;
 	
 	
-	phi 	= -x_dest / (distance * PI / 2.0) ;
-	theta	= PI /2.0 + atan( y_dest / (distance * PI/2.0) );
+	phi 	= -x_dest / (distanceparam * PI / 2.0) ;
+	theta	= PI /2.0 + atan( y_dest / (distanceparam * PI/2.0) );
 
-	*x_src = distance * theta * cos( phi );
-	*y_src = distance * theta * sin( phi );
+	*x_src = distanceparam * theta * cos( phi );
+	*y_src = distanceparam * theta * sin( phi );
     return 1;
 }
 
 int erect_rect( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {
-	// params: double distance
+	// params: double distanceparam
 #if 0
-	theta = atan( sqrt(x_dest*x_dest + y_dest*y_dest) / distance );
+	theta = atan( sqrt(x_dest*x_dest + y_dest*y_dest) / distanceparam );
 	phi   = atan2( y_dest , x_dest );
 
 
-	v[1] = distance * sin( theta ) * cos( phi );   //  x' -> y
-	v[2] = distance * sin( theta ) * sin( phi );	//  y' -> z
-	v[0] = distance * cos( theta );				//  z' -> x
+	v[1] = distanceparam * sin( theta ) * cos( phi );   //  x' -> y
+	v[2] = distanceparam * sin( theta ) * sin( phi );	//  y' -> z
+	v[0] = distanceparam * cos( theta );				//  z' -> x
 	
 	theta = atan2( sqrt( v[0]*v[0] + v[1]*v[1] ) , v[2] );
 	phi   = atan2( v[1], v[0] );
 
-	*x_src = distance * phi;
-	*y_src = distance * (-theta + PI /2.0);
+	*x_src = distanceparam * phi;
+	*y_src = distanceparam * (-theta + PI /2.0);
 #endif
 
-	*x_src = distance * atan2( x_dest, distance );
-	*y_src = distance * atan2(  y_dest, sqrt( distance*distance + x_dest*x_dest ) );
+	*x_src = distanceparam * atan2( x_dest, distanceparam );
+	*y_src = distanceparam * atan2(  y_dest, sqrt( distanceparam*distanceparam + x_dest*x_dest ) );
 
     return 1;
 }
@@ -1111,7 +1371,7 @@ int erect_rect( double x_dest,double  y_dest, double* x_src, double* y_src, void
 
 int erect_sphere_tp( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {
-	// params: double distance
+	// params: double distanceparam
 
 	register double  theta,r,s;
 	double	v[3];
@@ -1135,9 +1395,9 @@ int erect_sphere_tp( double x_dest,double  y_dest, double* x_src, double* y_src,
 		*y_src = *((double*)params) * (-theta - PI /2.0);
 #endif
 	r = sqrt( x_dest * x_dest + y_dest * y_dest );
-	theta = r / distance;
+	theta = r / distanceparam;
 	if(theta == 0.0)
-		s = 1.0 / distance;
+		s = 1.0 / distanceparam;
 	else
 		s = sin( theta) / r;
 	
@@ -1145,14 +1405,14 @@ int erect_sphere_tp( double x_dest,double  y_dest, double* x_src, double* y_src,
 	v[0] =  cos( theta );				
 	
 
-	*x_src = distance * atan2( v[1], v[0] );
-	*y_src = distance * atan( s * y_dest /sqrt( v[0]*v[0] + v[1]*v[1] ) ); 
+	*x_src = distanceparam * atan2( v[1], v[0] );
+	*y_src = distanceparam * atan( s * y_dest /sqrt( v[0]*v[0] + v[1]*v[1] ) ); 
     return 1;
 }
 
 int mirror_sphere_cp( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {
-	// params: double distance, double b
+	// params: double distanceparam, double b
 
 	register double rho, phi, theta;
 
@@ -1168,7 +1428,7 @@ int mirror_sphere_cp( double x_dest,double  y_dest, double* x_src, double* y_src
 
 int mirror_erect( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {
-	// params: double distance, double b, double b2
+	// params: double distanceparam, double b, double b2
 
 	register double phi, theta, rho;
 	
@@ -1184,7 +1444,7 @@ int mirror_erect( double x_dest,double  y_dest, double* x_src, double* y_src, vo
 
 int mirror_pano( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {
-	// params: double distance, double b
+	// params: double distanceparam, double b
 
 	register double phi, theta, rho;
 	
@@ -1201,7 +1461,7 @@ int mirror_pano( double x_dest,double  y_dest, double* x_src, double* y_src, voi
 
 int sphere_cp_mirror( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {
-	// params: double distance, double b
+	// params: double distanceparam, double b
 
 	register double phi, theta, rho;
 

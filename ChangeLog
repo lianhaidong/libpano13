@@ -1,3 +1,22 @@
+2007-01-10  dmg  <dmg@uvic.ca>
+
+	* version.h (VERSION), configure.ac Upgraded to version 2.9.9
+	
+	* queryfeature.c: Updated labels for Lamberts to their full name.
+	
+	* parser.c: implemented option P (parameters to projection) as a
+	multivalue parameted
+
+	* panorama.h: Modified the Image struct to support parameters to
+	the projection and to support precomputation of values for the
+	projection (to speed up computation)
+	
+	* math.c, parser.c, panorama.h, adjust.c, filter.c,
+	queryfeature.c: Implemented Albers Conical Equal Area projection.
+
+	Most of these changes submitted by Michael Gross, reviewed and
+	slightly adapted by me.
+	
 2007-01-01  dmg  <dmg@uvic.ca>
 
 	* version.h (VERSION), configure.ac Upgraded to version 2.9.8

@@ -843,6 +843,8 @@ void SetImageDefaults(Image *im){
         im->dataSize            = 0;
         im->bitsPerPixel        = 0;
         im->format              = 0;
+	im->formatParamCount    = 0;
+	bzero(im->formatParam, sizeof(im->formatParam));
         im->dataformat          = _RGB;
         im->hfov                = 0.0;
         im->yaw                 = 0.0;
