@@ -41,10 +41,12 @@
 
 
 
+#include <assert.h>
 #include "filter.h"
 #include <locale.h>
 
 #include "ZComb.h"
+
 
 /* defined in adjust.c */
 int AddEdgePoints( AlignInfo *gl );
@@ -73,6 +75,7 @@ static int      ReadCoordinates(    CoordInfo   *cp, char *line );
 
 #define READ_OPT_VAR(var)       nextWord( buf, &li );           \
                                 MY_SSCANF( buf, "%d", &k);      \
+	printf("REading optimization var %s forimage %d\n", #var,k);\
                                 if( k<0 || k>= numIm )          \
                                 {                               \
                                     PrintError("Syntax error in script: Line %d\n\nIllegal image number: %ld", lineNum, k);\
@@ -144,6 +147,8 @@ int ParseScript( char* script, AlignInfo *gl )
     // end mask-from-focus Rik's hacking
     SetImageDefaults(&(gl->pano));  
     SetStitchDefaults(&(gl->st)); strcpy( gl->st.srcName, "buf" ); // Default: Use buffer 'buf' for stitching
+	printf("Number of images %d\n",gl-> numIm);
+
     for(i=0; i<gl->numIm; i++)
     {
         SetImageDefaults( &(gl->im[i]) );
@@ -170,7 +175,6 @@ int ParseScript( char* script, AlignInfo *gl )
 
         // parse line; use only if first character is i,p,v,c,m
     
-
         switch( line[0] )
         {
         case 'i':       // Image description
@@ -339,6 +343,10 @@ int ParseScript( char* script, AlignInfo *gl )
                                     sscanf( buf, FMT_INT32","FMT_INT32","FMT_INT32","FMT_INT32, &im->selection.left, &im->selection.right, &im->selection.top, &im->selection.bottom );
                                     im->cP.cutFrame = TRUE;
                                     break;
+						    case 'V':
+								// Ignore V variables in i
+								nextWord( buf, &li );       
+								break;
                             default: 
                                         li++;
                                         break;
@@ -346,6 +354,7 @@ int ParseScript( char* script, AlignInfo *gl )
                     }
 
                     numIm++;
+
                     break;  
         case 't':       // Triangle
                     li = &(line[1]);
