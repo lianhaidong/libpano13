@@ -1,5 +1,9 @@
 2007-01-10  dmg  <dmg@uvic.ca>
 
+	* parser.c (readAdjust): Images with 'i' were all done with the
+	first spec. This change fixes that problem (the parser should be
+	rewritten)
+
 	* version.h (VERSION), configure.ac Upgraded to version 2.9.10
 
 	* doc/stitch.txt: Updated the file to match latest version.

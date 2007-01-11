@@ -64,12 +64,13 @@ static int 		ReadCoordinates( 	CoordInfo	*cp, char *line );
 												return -1;							\
 											}										\
 
-
 #define READ_VAR(format, ptr )		nextWord( buf, &li );			\
 									MY_SSCANF( buf, format, ptr );
 									
 								
 								
+
+
 #define READ_OPT_VAR(var)		nextWord( buf, &li );			\
 								MY_SSCANF( buf, "%d", &k);		\
 								if( k<0 || k>= numIm )			\
@@ -374,7 +375,7 @@ int ParseScript( char* script, AlignInfo *gl )
 					gl->cpt[numPts].type = 0;	// default : optimize r
 					if(  ReadControlPoint( &(gl->cpt[numPts]), &(line[1]) ) != 0 )
 					{
-						PrintError("Syntax error in script: Line %d", lineNum);
+						PrintError("Syntax error in script in control point 'c': Line %d", lineNum);
 						return -1;
 					}
 					numPts++;
@@ -383,7 +384,7 @@ int ParseScript( char* script, AlignInfo *gl )
 		case 'm':		// Mode description
 					if( ReadModeDescription( &gl->sP, &(line[1]) ) != 0 )
 					{
-						PrintError( "Syntax error in line %d" , lineNum);
+						PrintError( "Syntax error in script in mode description 'm': line %d" , lineNum);
 						return -1;
 					}
 					break;
@@ -441,7 +442,7 @@ int ParseScript( char* script, AlignInfo *gl )
 					gl->pano.hfov		= 360.0;
 					if( ReadPanoramaDescription( &(gl->pano), &(gl->st), &(line[1]) ) != 0 )
 					{
-						PrintError( "Syntax error in line %d" , lineNum);
+					    PrintError( "Syntax error in panorama description p line: %d (%s)" , lineNum,line);
 						return -1;
 					}
 					switch (gl->pano.format) {
@@ -900,7 +901,7 @@ int readAdjust( aPrefs *p,  fullPath* sfile, int insert, sPrefs *sP )
 	    // if 'o' has been read then skip
 	    if (!seto  && !seti) {
 		if( ReadImageDescription( &(p->im), &(p->sBuf), &(line[1]) ) != 0 ) {
-		    PrintError("Syntax error in i-line %d", lineNum);
+		    PrintError("Syntax error in i-line %d (%s)", lineNum, line);
 		    free(script);
 		    return -1;
 		}
@@ -912,7 +913,7 @@ int readAdjust( aPrefs *p,  fullPath* sfile, int insert, sPrefs *sP )
 	    if( !seto ) { // Read only _one_ image
 		// 'o' has priority over 'i' lines
 		if( ReadImageDescription( &(p->im), &(p->sBuf), &(line[1]) ) != 0 ) {
-		    PrintError( "Syntax error in line %d" , lineNum);
+		    PrintError( "Syntax error parsing o-line %d (%s)" , lineNum, line);
 		    free( script );
 		    return -1;
 		}
@@ -922,7 +923,7 @@ int readAdjust( aPrefs *p,  fullPath* sfile, int insert, sPrefs *sP )
 	case 'm':		// Mode description
 	    if( ReadModeDescription( sP, &(line[1]) ) != 0 )
 		{
-		    PrintError( "Syntax error in line %d" , lineNum);
+		    PrintError( "Syntax error in m-line %d (%s)" , lineNum, line);
 		    free( script );
 		    return -1;
 		}
@@ -996,6 +997,17 @@ int readAdjust( aPrefs *p,  fullPath* sfile, int insert, sPrefs *sP )
     // Create and Write changed scriptfile if inserting
     
     if( insert ) {
+	char charToFind;
+	// dmg: this is the part that I hate the most about the parser:
+	// it rewrites the file over and over again, eating one line at at a time
+
+	if (seti)
+	    charToFind = 'i';
+
+	// 'o' has priority over 'i'
+	if (seto)
+	    charToFind = 'o';
+
 	seto = FALSE; ch = script;
 	
 	
@@ -1003,7 +1015,7 @@ int readAdjust( aPrefs *p,  fullPath* sfile, int insert, sPrefs *sP )
 	    {
 		while(*ch == '\n')
 		    ch++;
-		if( *ch == 'o' )
+		if( *ch == charToFind )
 		    seto = TRUE;
 		else
 		    {
@@ -1011,7 +1023,7 @@ int readAdjust( aPrefs *p,  fullPath* sfile, int insert, sPrefs *sP )
 			    ch++;
 		    }
 	    }
-	if( *ch == 'o' )  *ch = '!';
+	if( *ch == charToFind )  *ch = '!';
 	
 	// If this is the last image to convert: recover script file
 	
@@ -1020,7 +1032,7 @@ int readAdjust( aPrefs *p,  fullPath* sfile, int insert, sPrefs *sP )
 	while( *ch != 0 && !seto ) {
 	    while(*ch == '\n')
 		ch++;
-	    if( *ch == 'o' )
+	    if( *ch == charToFind )
 		seto = TRUE;
 	    else
 		{
@@ -1035,7 +1047,7 @@ int readAdjust( aPrefs *p,  fullPath* sfile, int insert, sPrefs *sP )
 		while(*ch == '\n')
 		    ch++;
 		if( *ch == '!' )
-		    *ch = 'o';
+		    *ch = charToFind;
 		else
 		    {
 			while(*ch != '\n' && *ch != 0)
@@ -1204,7 +1216,10 @@ int numLines( char* script, char first )
 
 #undef  MY_SSCANF
 #define MY_SSCANF( str, format, ptr )		if( sscanf( str, format, ptr ) != 1 )   \
-												return -1;							\
+	{								\
+	    PrintError("Syntax error in script: Could read value for variable");\
+	    return -1;							\
+	}
 
 #undef READ_VAR
 #define READ_VAR(format, ptr )		nextWord( buf, &ch );			\
@@ -1315,7 +1330,8 @@ static int ReadImageDescription( Image *imPtr, stBuf *sPtr, char *line )
 		break;
 	    case 'v':	READ_VAR( "%lf", &im.hfov );
 		break;
-	    case 'y':	READ_VAR( "%lf", &im.yaw);
+	    case 'y':	
+		READ_VAR( "%lf", &im.yaw);
 		break;
 	    case 'p':	READ_VAR( "%lf", &im.pitch);
 		break;
@@ -1430,7 +1446,8 @@ static int ReadImageDescription( Image *imPtr, stBuf *sPtr, char *line )
 		PrintError("Obsolete s parameter ignored in image description");
 		break;
 		
-	    case 'o':	ch++;
+	    case 'o':	
+		ch++;
 		im.cP.correction_mode |= correction_mode_morph;
 		break;
 	    case 'u':
@@ -1458,6 +1475,7 @@ static int ReadImageDescription( Image *imPtr, stBuf *sPtr, char *line )
 		ch++;
 		break;
 	    default:
+		printf("REturning...........\n");
 		PrintError("Illegal token in adjust line [%c]  rest of line [%s]", *ch, ch);
 		return -1;
 	    }
