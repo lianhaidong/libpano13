@@ -1,5 +1,8 @@
 2007-01-11  dmg  <dmg@uvic.ca>
 
+	* queryfeature.c, panorama.h (panoProjectionFormatCount): Added
+	function.
+
 	* version.h (VERSION), configure.ac Upgraded to version 2.9.12
 
 	* tools/panoinfo_unix.c: Output features of panos.

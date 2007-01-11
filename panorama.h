@@ -453,6 +453,7 @@ typedef struct
 
 
 int panoProjectionFeaturesQuery(int projection, pano_projection_features *features);
+int panoProjectionFormatCount(void);
 
 
 

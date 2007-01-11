@@ -306,10 +306,20 @@ char *panoFormatNames[PANO_FORMAT_COUNT] = {
     "Albers Equal Area Conic",
 };
 
+int panoProjectionFormatCount(void)
+{
+    // REturn the number of Projection formats available in the library
+    assert(sizeof(panoFormatNames) == PANO_FORMAT_COUNT * sizeof(char*));
+    return PANO_FORMAT_COUNT;
+}
 
 int panoProjectionFeaturesQuery(int projection, pano_projection_features *features)
 {
+    // Return information regarding the characteristics of each of the projections 
+    // in the library.
+
     int i;
+
     assert(features != NULL);
     assert(sizeof(panoFormatNames) == PANO_FORMAT_COUNT * sizeof(char*));
 
