@@ -28,8 +28,12 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+
+#include <assert.h>
+
 #include"../version.h"
 #include"../queryfeature.h"
+#include "../panorama.h"
 
 int main(int argc,char *argv[])
 {
@@ -95,5 +99,22 @@ int main(int argc,char *argv[])
 		free(value);
 	}
         printf(str2);
+
+	for (i=0; i< PANO_FORMAT_COUNT; i++) {
+	    int j;
+	    pano_projection_features features;
+	    if (!panoProjectionFeaturesQuery(i, &features) ) {
+		printf("Error trying to retreive features of projection index %d\n", i);
+		continue;
+	    } 
+	    printf("Projection index: %d name: %s\n", features.projection, features.name);
+	    printf("\t Max Hfov: %f max Vfov: %f\n", features.maxHFOV, features.maxVFOV);
+	    printf("\t number of parms: %d\n", features.numberOfParameters);
+	    for (j= 0; j< features.numberOfParameters; j++) {
+		printf("\t\tParm %d name %s min value %f max value %f\n", j, features.parm[j].name, features.parm[j].minValue, features.parm[j].maxValue);
+
+	    }
+	}
+
         return 0;
 }

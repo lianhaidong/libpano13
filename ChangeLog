@@ -1,3 +1,14 @@
+2007-01-11  dmg  <dmg@uvic.ca>
+
+	* version.h (VERSION), configure.ac Upgraded to version 2.9.12
+
+	* tools/panoinfo_unix.c: Output features of panos.
+
+	* panorama.h, queryfeature.c: Added functions to query features of each pano
+	format as needed by hugin.
+
+	* parser.c (ParseScript): Ignore K-type variables too.
+
 2007-01-10  dmg  <dmg@uvic.ca>
 
 	* version.h (VERSION), configure.ac Upgraded to version 2.9.11

@@ -253,6 +253,23 @@ enum
     _albersequalareaconic = 17
 };
 
+enum
+{                               // Enumerates external number of panorama f<index>
+    PANO_FORMAT_RECTILINEAR = 0,
+    PANO_FORMAT_PANORAMA = 1,
+    PANO_FORMAT_EQUIRECTANGULAR = 2,
+    PANO_FORMAT_FISHEYE_FF = 3,
+    PANO_FORMAT_STEREOGRAPHIC = 4,
+    PANO_FORMAT_MERCATOR = 5,
+    PANO_FORMAT_TRANS_MERCATOR = 6,
+    PANO_FORMAT_SINUSOIDAL = 7,
+    PANO_FORMAT_LAMBERT_EQUAL_AREA_CONIC = 8,
+    PANO_FORMAT_LAMBERT_AZIMUTHAL = 9,
+    PANO_FORMAT_ALBERS_EQUAL_AREA_CONIC = 10,
+};
+
+#define PANO_FORMAT_COUNT 11
+
 // A large rectangle
 
 typedef struct
@@ -411,7 +428,31 @@ typedef struct TrformStr TrformStr;
 							action;} } }
 
 
+// These structs are to be used to query the features of the different projection formats
 
+typedef struct
+{
+    double minValue;  // used only if float
+    double maxValue;
+    char *name; // name of the parameter (for the purpose of legibility)
+} pano_projection_parameter;
+
+
+
+typedef struct
+{
+    int projection;
+    double maxVFOV; // units in degrees
+    double maxHFOV;
+    char *name;
+    int numberOfParameters;
+    //  so far we dont have more than 3 parameters
+    pano_projection_parameter parm[PANO_PROJECTION_MAX_PARMS]; 
+} pano_projection_features;
+
+
+
+int panoProjectionFeaturesQuery(int projection, pano_projection_features *features);
 
 
 

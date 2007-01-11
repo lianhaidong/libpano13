@@ -2,6 +2,7 @@
    Feature querying functionality
    See queryfeature.h
 */
+#include <assert.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -287,4 +288,84 @@ void queryFeatures(int index,char** name,Tp12FeatureType* type)
     }
   }
 }
+
+//////////////////////////////////////////////////////////////////////
+
+
+char *panoFormatNames[PANO_FORMAT_COUNT] = {
+    "Rectilinear",
+    "Panorama",
+    "Equirectangular",
+    "Fisheye",
+    "Stereographic",
+    "Mercator",
+    "Trans Mercator",
+    "Sinusoidal",
+    "Lambert Equal Area Conical",
+    "Lambert Equal Area Azimuthal",
+    "Albers Equal Area Conic",
+};
+
+
+int panoProjectionFeaturesQuery(int projection, pano_projection_features *features)
+{
+    int i;
+    assert(features != NULL);
+    assert(sizeof(panoFormatNames) == PANO_FORMAT_COUNT * sizeof(char*));
+
+
+    if (projection < 0 || projection >= PANO_FORMAT_COUNT) 
+	return 0;
+
+
+    // Set defaults
+    bzero(features, sizeof (*features));
+
+    features->projection = projection;
+    features->maxHFOV = 360;
+    features->maxVFOV = 180;
+    features->name = panoFormatNames[projection];
+    switch (projection) {
+    case PANO_FORMAT_RECTILINEAR:
+	features->maxVFOV = 179;
+	features->maxHFOV = 179;
+	break;
+    case PANO_FORMAT_PANORAMA:
+    case PANO_FORMAT_EQUIRECTANGULAR:
+	break;
+    case PANO_FORMAT_FISHEYE_FF:
+	features->maxVFOV = 179;
+	features->maxHFOV = 179;
+	break;
+    case PANO_FORMAT_STEREOGRAPHIC:
+	features->maxHFOV = 340;
+	features->maxVFOV = 179;
+	break;
+    case PANO_FORMAT_MERCATOR:
+	break;
+    case PANO_FORMAT_TRANS_MERCATOR:
+	features->maxHFOV = 340;
+	features->maxVFOV = 179;
+	break;
+    case PANO_FORMAT_SINUSOIDAL:
+    case PANO_FORMAT_LAMBERT_EQUAL_AREA_CONIC:
+    case PANO_FORMAT_LAMBERT_AZIMUTHAL:
+	break;
+    case PANO_FORMAT_ALBERS_EQUAL_AREA_CONIC:
+	features->numberOfParameters = 2;
+	features->parm[0].name = "phi1";
+	features->parm[1].name = "phi2";
+	for (i=0;i<2;i++) {
+	    features->parm[i].minValue = -90;
+	    features->parm[i].maxValue = +90;
+	}
+	break;
+    default:
+	assert(0); // A projection is missing!
+	return 0;
+    }
+    return 1;
+}
+
+
 

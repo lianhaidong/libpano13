@@ -160,8 +160,8 @@ int main(int argc,char *argv[])
 		}
 	}
 
-
 	MessageBox((HWND)NULL, str2, "Pano12.dll properties and features", MB_OK);
+
 
 cleanup:
 	if(hDll)

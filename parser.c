@@ -343,6 +343,7 @@ int ParseScript( char* script, AlignInfo *gl )
                                     im->cP.cutFrame = TRUE;
                                     break;
 						    case 'V':
+						    case 'K':
 								// Ignore V variables in i
 								nextWord( buf, &li );       
 								break;
@@ -454,37 +455,37 @@ int ParseScript( char* script, AlignInfo *gl )
                         return -1;
                     }
                     switch (gl->pano.format) {
-                        case 0:
+                        case PANO_FORMAT_RECTILINEAR:
                             gl->pano.format = _rectilinear;
                             break;
-                        case 1:
+                        case PANO_FORMAT_PANORAMA:
                             gl->pano.format = _panorama;
                             break;
-                        case 2:
+                        case PANO_FORMAT_EQUIRECTANGULAR:
                             gl->pano.format = _equirectangular;
                             break;
-                        case 3:
+                        case PANO_FORMAT_FISHEYE_FF:
                             gl->pano.format = _fisheye_ff;
                             break;
-                        case 4:
+                        case PANO_FORMAT_STEREOGRAPHIC:
                             gl->pano.format = _stereographic;
                             break;
-                        case 5:
+                        case PANO_FORMAT_MERCATOR:
                             gl->pano.format = _mercator;
                             break;
-                        case 6:
+                        case PANO_FORMAT_TRANS_MERCATOR:
                             gl->pano.format = _trans_mercator;
                             break;
-                        case 7:
+                        case PANO_FORMAT_SINUSOIDAL:
                             gl->pano.format = _sinusoidal;
                             break;
-                        case 8:
+                        case PANO_FORMAT_LAMBERT_EQUAL_AREA_CONIC:
                             gl->pano.format = _lambert;
                             break;
-                        case 9:
+                        case PANO_FORMAT_LAMBERT_AZIMUTHAL:
                             gl->pano.format = _lambertazimuthal;
                             break;
-                        case 10:
+                        case PANO_FORMAT_ALBERS_EQUAL_AREA_CONIC:
                             gl->pano.format = _albersequalareaconic;
                             break;
                         default:
