@@ -1,5 +1,18 @@
 2007-01-10  dmg  <dmg@uvic.ca>
 
+	* version.h (VERSION), configure.ac Upgraded to version 2.9.10
+
+	* doc/stitch.txt: Updated the file to match latest version.
+	
+	* parser.c (readAdjust): Updated parser to accept adjustLine in
+	the i-line.
+	(nextWord): Make sure that it eats the closing quotes
+	(ReadPanoramaDescription): Forked this function from
+	ReadImageDescription. In the past both images (o and i lines)
+	and output format (p-line) were read with the same function.
+
+	* TODO (PTmender): Updated the file.
+
 	* version.h (VERSION), configure.ac Upgraded to version 2.9.9
 	
 	* queryfeature.c: Updated labels for Lamberts to their full name.

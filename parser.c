@@ -51,6 +51,7 @@ int AddEdgePoints( AlignInfo *gl );
 
 static int 		ReadControlPoint	( controlPoint * cptr, char *line);
 static int 		ReadImageDescription( Image *imPtr, stBuf *sPtr, char *line );
+static int 		ReadPanoramaDescription( Image *imPtr, stBuf *sPtr, char *line );
 static int 		ReadModeDescription ( sPrefs *sP, char *line );
 static int 		ReadCoordinates( 	CoordInfo	*cp, char *line );
 
@@ -438,7 +439,7 @@ int ParseScript( char* script, AlignInfo *gl )
 		case 'p':		// panorama 
 					gl->pano.format 	= 2; // _equirectangular by default
 					gl->pano.hfov		= 360.0;
-					if( ReadImageDescription( &(gl->pano), &(gl->st), &(line[1]) ) != 0 )
+					if( ReadPanoramaDescription( &(gl->pano), &(gl->st), &(line[1]) ) != 0 )
 					{
 						PrintError( "Syntax error in line %d" , lineNum);
 						return -1;
@@ -848,199 +849,211 @@ void WriteResults( char* script, fullPath *sfile,  AlignInfo *g, double ds( int 
 
 int readAdjust( aPrefs *p,  fullPath* sfile, int insert, sPrefs *sP )
 {
-	char*				script;
-	// Variables used by parser
+    char*				script;
+    // Variables used by parser
+    
+    char 				line[LINE_LENGTH], *ch;
+    int 				lineNum = 0;
+    int 				seto;
+    int 				seti;
+    
+    
+    setlocale(LC_ALL, "C");
+    
+    
+    // Set prefs and sBuf to defaults
+    
+    SetAdjustDefaults( p );
+    
+
+    
+    
+    script = LoadScript( sfile );
+    if( script == NULL )
+	return -1;
+    
+    
+    // Parse script	
+    
+    ch = script;
+    seto = FALSE;
+    seti = FALSE;
+    
+    while( *ch != 0 )	{
+	lineNum++;
 	
-	char 				line[LINE_LENGTH], *ch;
-	int 				lineNum = 0;
-	int 				seto;
+	while(*ch == '\n')
+	    ch++;
 	
-
-	setlocale(LC_ALL, "C");
-
-
-	// Set prefs and sBuf to defaults
-
-	SetAdjustDefaults( p );
-
-
-
-
-	script = LoadScript( sfile );
-	if( script == NULL )
-			return -1;
-
-
-	// Parse script	
+	// read a line of text into line[];
 	
-	ch = script;
-	seto = FALSE;
-
-	while( *ch != 0 )
-	{
-		lineNum++;
-
-		while(*ch == '\n')
-			ch++;
-
-		// read a line of text into line[];
-
-		nextLine( line, &ch );
-		// parse line; use only if first character is p,o,m
+	nextLine( line, &ch );
+	// parse line; use only if first character is p,o,m
 	
-		switch( line[0] )
-		{
-		case 'o':	// Image description
-					if( !seto ) // Read only _one_ image
-					{
-						if( ReadImageDescription( &(p->im), &(p->sBuf), &(line[1]) ) != 0 )
-						{
-							PrintError( "Syntax error in line %d" , lineNum);
-							free( script );
-							return -1;
-						}
-						seto = TRUE;
-					}
-					break;
-		case 'm':		// Mode description
-					if( ReadModeDescription( sP, &(line[1]) ) != 0 )
-					{
-						PrintError( "Syntax error in line %d" , lineNum);
-						free( script );
-						return -1;
-					}
-					break;
-		case 'p':		// panorama 
-					p->pano.format 	= 2; // _equirectangular by default
-					p->pano.hfov	= 360.0;
-					if( ReadImageDescription( &(p->pano), &(p->sBuf), &(line[1]) ) != 0 )
-					{
-						PrintError( "Syntax error in line %d" , lineNum);
-						free( script );
-						return -1;
-					}
-					switch (p->pano.format) {
-						case 0:
-							p->pano.format = _rectilinear;
-							break;
-						case 1:
-							p->pano.format = _panorama;
-							break;
-						case 2:
-							p->pano.format = _equirectangular;
-							break;
-						case 3:
-							p->pano.format = _fisheye_ff;
-							break;
-						case 4:
-							p->pano.format = _stereographic;
-							break;
-						case 5:
-							p->pano.format = _mercator;
-							break;
-						case 6:
-							p->pano.format = _trans_mercator;
-							break;
-						case 7:
-							p->pano.format = _sinusoidal;
-							break;
-						case 8:
-							p->pano.format = _lambert;
-							break;
-						case 9:
-							p->pano.format = _lambertazimuthal;
-							break;
-						case 10:
-							p->pano.format = _albersequalareaconic;
-							break;
-						default:
-							PrintError( "Unknown panorama projection: %d", p->pano.format );
-							return -1;
-					}
-					if( (p->pano.format == _rectilinear || p->pano.format == _trans_mercator) && p->pano.hfov >= 180.0 )
-					{
-						PrintError( "Destination image must have HFOV < 180" );
-						return -1;
-					}
-					break;
+	switch( line[0] ) {
+	case 'i':
+	    // The original i line was optional and it did not contain any information except
+	    // for the filename.
+	    // Hugin .pto files use the 'i' line instead of 'o' line.
 
-		 default: break;
+	    // 'o' has priority over 'i'
+	    // if 'o' has been read then skip
+	    if (!seto  && !seti) {
+		if( ReadImageDescription( &(p->im), &(p->sBuf), &(line[1]) ) != 0 ) {
+		    PrintError("Syntax error in i-line %d", lineNum);
+		    free(script);
+		    return -1;
 		}
-	}
-	
-	if( !seto  )
-	{
-	  PrintError( "Syntax error in scriptfile (readAdjust)");
-		free( script );
-		return -1;
-	}
-	
-	// Create and Write changed scriptfile if inserting
-
-	if( insert )
-	{
-		seto = FALSE; ch = script;
-
-
-		while( *ch != 0 && !seto )
-		{
-			while(*ch == '\n')
-				ch++;
-			if( *ch == 'o' )
-				seto = TRUE;
-			else
-			{
-				while(*ch != '\n' && *ch != 0)
-					ch++;
-			}
-		}
-		if( *ch == 'o' )  *ch = '!';
+		seti = TRUE;
 		
-		// If this is the last image to convert: recover script file
-
-		seto = FALSE; ch = script;
-
-		while( *ch != 0 && !seto )
-		{
-			while(*ch == '\n')
-				ch++;
-			if( *ch == 'o' )
-				seto = TRUE;
-			else
-			{
-				while(*ch != '\n' && *ch != 0)
-					ch++;
-			}
+	    }
+	    break;
+	case 'o':	// Image description
+	    if( !seto ) { // Read only _one_ image
+		// 'o' has priority over 'i' lines
+		if( ReadImageDescription( &(p->im), &(p->sBuf), &(line[1]) ) != 0 ) {
+		    PrintError( "Syntax error in line %d" , lineNum);
+		    free( script );
+		    return -1;
 		}
-		if( seto == FALSE ) // No more images to convert
+		seto = TRUE;
+	    }
+	    break;
+	case 'm':		// Mode description
+	    if( ReadModeDescription( sP, &(line[1]) ) != 0 )
 		{
-			ch = script;
-
-			while( *ch != 0  )
-			{
-				while(*ch == '\n')
-					ch++;
-				if( *ch == '!' )
-					*ch = 'o';
-				else
-				{
-					while(*ch != '\n' && *ch != 0)
-						ch++;
-				}
-			}
+		    PrintError( "Syntax error in line %d" , lineNum);
+		    free( script );
+		    return -1;
 		}
-			
-
-		if( WriteScript( script, sfile, 0 ) != 0 )
+	    break;
+	case 'p':		// panorama 
+	    p->pano.format 	= 2; // _equirectangular by default
+	    p->pano.hfov	= 360.0;
+	    if( ReadPanoramaDescription( &(p->pano), &(p->sBuf), &(line[1]) ) != 0 )
 		{
-			PrintError("Could not write scriptfile");
-			free( script );
-			return -1;
+		    PrintError( "Syntax error in line %d" , lineNum);
+		    free( script );
+		    return -1;
+		}
+	    switch (p->pano.format) {
+	    case 0:
+		p->pano.format = _rectilinear;
+		break;
+	    case 1:
+		p->pano.format = _panorama;
+		break;
+	    case 2:
+		p->pano.format = _equirectangular;
+		break;
+	    case 3:
+		p->pano.format = _fisheye_ff;
+		break;
+	    case 4:
+		p->pano.format = _stereographic;
+		break;
+	    case 5:
+		p->pano.format = _mercator;
+		break;
+	    case 6:
+		p->pano.format = _trans_mercator;
+		break;
+	    case 7:
+		p->pano.format = _sinusoidal;
+		break;
+	    case 8:
+		p->pano.format = _lambert;
+		break;
+	    case 9:
+		p->pano.format = _lambertazimuthal;
+		break;
+	    case 10:
+		p->pano.format = _albersequalareaconic;
+		break;
+	    default:
+		PrintError( "Unknown panorama projection: %d", p->pano.format );
+		return -1;
+	    }
+	    if( (p->pano.format == _rectilinear || p->pano.format == _trans_mercator) && p->pano.hfov >= 180.0 ) {
+		PrintError( "Destination image must have HFOV < 180" );
+		return -1;
+	    }
+	    break;
+	    
+	default: 
+	    //		     PrintError("Unknown line %s", line);
+	    // silently ignore any unknown lines
+	    break;
+	}
+    }
+    
+    if( ! (seto || seti) ) {
+	PrintError( "Syntax error in scriptfile (readAdjust). It contains no 'o' line");
+	free( script );
+	return -1;
+    }
+    
+    // Create and Write changed scriptfile if inserting
+    
+    if( insert ) {
+	seto = FALSE; ch = script;
+	
+	
+	while( *ch != 0 && !seto )
+	    {
+		while(*ch == '\n')
+		    ch++;
+		if( *ch == 'o' )
+		    seto = TRUE;
+		else
+		    {
+			while(*ch != '\n' && *ch != 0)
+			    ch++;
+		    }
+	    }
+	if( *ch == 'o' )  *ch = '!';
+	
+	// If this is the last image to convert: recover script file
+	
+	seto = FALSE; ch = script;
+	
+	while( *ch != 0 && !seto ) {
+	    while(*ch == '\n')
+		ch++;
+	    if( *ch == 'o' )
+		seto = TRUE;
+	    else
+		{
+		    while(*ch != '\n' && *ch != 0)
+			ch++;
 		}
 	}
-
-	free( script);
-	return 0;
+	if( seto == FALSE ) { // No more images to convert
+	    ch = script;
+	    
+	    while( *ch != 0  ) {
+		while(*ch == '\n')
+		    ch++;
+		if( *ch == '!' )
+		    *ch = 'o';
+		else
+		    {
+			while(*ch != '\n' && *ch != 0)
+			    ch++;
+		    }
+	    }
+	}
+	
+	
+	if( WriteScript( script, sfile, 0 ) != 0 )	    {
+	    PrintError("Could not write scriptfile");
+	    free( script );
+	    return -1;
+	}
+    }
+    
+    free( script);
+    return 0;
 }
 
 
@@ -1129,6 +1142,7 @@ void nextWord( register char* word, char** ch )
 		c++;
 		while( *c != '\"' && *c != 0 )
 			*word++ = *c++;
+		c++; // to eat last character
 	}
 	else
 	{
@@ -1275,6 +1289,8 @@ static int ReadControlPoint( controlPoint * cptr, char *line)
 
 static int ReadImageDescription( Image *imPtr, stBuf *sPtr, char *line )
 {
+    // This function parses the i- and -o lines
+
 	Image im;
 	stBuf sBuf;
 	char *ch = line;
@@ -1285,180 +1301,173 @@ static int ReadImageDescription( Image *imPtr, stBuf *sPtr, char *line )
 	int tempInt;
 	double tempDbl;
 	char typeParm;
+	char temp;
 	
 	memcpy( &im, 	imPtr,	 sizeof(Image) );
 	memcpy( &sBuf, 	sPtr,	 sizeof(stBuf ));
 	
 	//	printf("************************************* Before Cut Frame %d \n", im.cP.cutFrame);
-	while( *ch != 0)
-	{
-		switch(*ch)
-		{
-			case 'v':	READ_VAR( "%lf", &im.hfov );
-						break;
-			case 'a':	READ_VAR( "%lf", &(im.cP.radial_params[0][3]));
-						im.cP.radial 	= TRUE;
-						break;
-			case 'b':	READ_VAR("%lf", &(im.cP.radial_params[0][2]));
-						im.cP.radial 	= TRUE;
-						break;
-			case 'c':	READ_VAR("%lf", &(im.cP.radial_params[0][1]));
-						im.cP.radial	= TRUE;
-						break;
-			case 'f':	READ_VAR( FMT_INT32, &im.format );
-						if( im.format == _panorama || im.format == _equirectangular )
-							im.cP.correction_mode |= correction_mode_vertical;
-						break;
-			case 'y':	READ_VAR( "%lf", &im.yaw);
-						break;
-			case 'p':	READ_VAR( "%lf", &im.pitch);
-						break;
-			case 'r':	READ_VAR( "%lf", &im.roll);
-						break;
-			case 'd':	READ_VAR("%lf", &(im.cP.horizontal_params[0]));
-						im.cP.horizontal 	= TRUE;
-						break;
-			case 'e':	READ_VAR("%lf", &(im.cP.vertical_params[0]));
-						im.cP.vertical = TRUE;
-						break;
-			case 'g':	READ_VAR("%lf", &(im.cP.shear_x));
-						im.cP.shear 	= TRUE;
-						break;
-			case 't':	READ_VAR("%lf", &(im.cP.shear_y));
-						im.cP.shear = TRUE;
-						break;
-			case '+':	nextWord( buf, &ch );
-						sprintf( sBuf.srcName, "%s", buf);
-						break;
-			case '-':	nextWord( buf, &ch );
-						sprintf( sBuf.destName, "%s", buf );
-						break;
-			case 'u':	READ_VAR( "%d", &(sBuf.feather) );
-						break;
-			case 's':	READ_VAR( "%d", &sBuf.seam );
-						{
-							if(sBuf.seam != _dest)
-								sBuf.seam = _middle;
-						}
-						break;
-			case 'w':	READ_VAR( FMT_INT32, &im.width );
-						break;
-			case 'h':	READ_VAR( FMT_INT32, &im.height );
-						break;
-			case 'o':	ch++;
-						im.cP.correction_mode |= correction_mode_morph;
-						break;
-			case 'k':  // Colour correction
-						READ_VAR( "%d", &i );
-						// i &= 3;
-						sBuf.colcorrect |= i&3;
-						sBuf.colcorrect += (i+1)*4;
-						break;	
-			case 'm':  // Frame
-			    //THiS NEEDS A GOOD FIX...
-			    typeParm = *(ch+1);			    
-			    // first consume the parameter
-			    if (typeParm =='x' || typeParm == 'y') {
-				// Consume next character, then read parm
-				ch++;
-				READ_VAR( "%d", &tempInt);
-			    }
-			    else {
-				READ_VAR( "%d", &tempInt);
-			    }
-			    
-			    if (tempInt == 0) {
-				// value of zero, just ignore
-				break;
-			    } 
-
-			    // Sometimes this is specified to force a zero. In this case
-			    // issue a warning and ignore
-			    if (cropping) {
-				PrintError("Contradictory cropping specified. M cropping ignored\n");
-				break;
-			    }
-			    // Eat next token to avoid error
-			    cropping = 1;
-			    im.cP.cutFrame = TRUE;
-
-			    switch( typeParm ) {
-			    case 'x':
-				im.cP.fwidth = tempInt;
-				//READ_VAR( "%d", &im.cP.fwidth );
-				break;
-			    case 'y':
-				im.cP.fheight = tempInt;
-				//READ_VAR( "%d", &im.cP.fheight );
-				//im.cP.cutFrame = TRUE;
-				break;
-			    default:
-				im.cP.frame = tempInt;
-				READ_VAR( "%d", &(im.cP.frame) );
-				// im.cP.cutFrame = TRUE;											
-				break;
-			    }
-			    
-			    break;
-			case 'n':  // Name string (used for panorama format)
-						nextWord( buf, &ch );
-						strcpy( im.name, buf );
-						break;	
-			case 'S':  
-			  if (cropping) {
-			    PrintError("Contradictory cropping specified. S cropping ignored\n");
-			    // Eat next token
-			    nextWord( buf, &ch );		
-			    break;
-			  }
-			  cropping = 1;
-
-			           nextWord( buf, &ch );		
-				   sscanf( buf, FMT_INT32","FMT_INT32","FMT_INT32","FMT_INT32, &im.selection.left, &im.selection.right, &im.selection.top, &im.selection.bottom );
-				   break;
-			case 'C':  
-			  if (cropping) {
-			    PrintError("Contradictory cropping specified. C cropping ignored\n");
-			    // Eat next token
-			    nextWord( buf, &ch );		
-			    break;
-			  }
-			  cropping = 1;
-
-			  nextWord( buf, &ch );		
-				   sscanf( buf, FMT_INT32","FMT_INT32","FMT_INT32","FMT_INT32, &im.selection.left, &im.selection.right, &im.selection.top, &im.selection.bottom );
-				   im.cP.cutFrame = TRUE;
-				   break;
-			case 'P':
-			    nextWord(buf, &ch);
-			    b = strtok(buf, " \"");
-			    if (b != NULL) {
-				while (b != NULL) {
-				    if (sscanf(b, "%lf", &tempDbl) == 1) {
-					if (++im.formatParamCount >= PANO_PROJECTION_MAX_PARMS) {
-					    PrintError("Illegal number of projection parameters. Maximum is %d", PANO_PROJECTION_MAX_PARMS);
-					    return -1;
-					}
-					im.formatParam[im.formatParamCount - 1] = tempDbl;
-					b = strtok(NULL, " \"");
-				    } else {
-					PrintError("Illegal value in P parameter %s", b);
-					return -1;
-				    }
-				}
-			    } 
-			    break;
-			default: 	
-			    ch++;
-			    break;
+	while( *ch != 0) {
+	    switch(*ch) {
+	    case 'f':	READ_VAR( FMT_INT32, &im.format );
+		if( im.format == _panorama || im.format == _equirectangular )
+		    im.cP.correction_mode |= correction_mode_vertical;
+		break;
+	    case 'v':	READ_VAR( "%lf", &im.hfov );
+		break;
+	    case 'y':	READ_VAR( "%lf", &im.yaw);
+		break;
+	    case 'p':	READ_VAR( "%lf", &im.pitch);
+		break;
+	    case 'r':	READ_VAR( "%lf", &im.roll);
+		break;
+		
+		
+	    case 'a':	READ_VAR( "%lf", &(im.cP.radial_params[0][3]));
+		im.cP.radial 	= TRUE;
+		break;
+	    case 'b':	READ_VAR("%lf", &(im.cP.radial_params[0][2]));
+		im.cP.radial 	= TRUE;
+		break;
+	    case 'c':	READ_VAR("%lf", &(im.cP.radial_params[0][1]));
+		im.cP.radial	= TRUE;
+		break;
+	    case 'd':	READ_VAR("%lf", &(im.cP.horizontal_params[0]));
+		im.cP.horizontal 	= TRUE;
+		break;
+	    case 'e':	READ_VAR("%lf", &(im.cP.vertical_params[0]));
+		im.cP.vertical = TRUE;
+		break;
+	    case 'g':	READ_VAR("%lf", &(im.cP.shear_x));
+		im.cP.shear 	= TRUE;
+		break;
+	    case 't':	READ_VAR("%lf", &(im.cP.shear_y));
+		im.cP.shear = TRUE;
+		break;
+	    case '+':	nextWord( buf, &ch );
+		PrintError("Obsolete + parameter is ignored in image description");
+		sprintf( sBuf.srcName, "%s", buf);
+		break;
+	    case '-':	nextWord( buf, &ch );
+		PrintError("Obsolete - parameter is ignored in image description");
+		sprintf( sBuf.destName, "%s", buf );
+		break;
+		
+		
+	    case 'S':  
+		if (cropping) {
+		    PrintError("Contradictory cropping specified. S cropping ignored\n");
+		    // Eat next token
+		    nextWord( buf, &ch );		
+		    break;
 		}
+		cropping = 1;
+		
+		nextWord( buf, &ch );		
+		sscanf( buf, FMT_INT32","FMT_INT32","FMT_INT32","FMT_INT32, &im.selection.left, &im.selection.right, &im.selection.top, &im.selection.bottom );
+		break;
+	    case 'C':  
+		if (cropping) {
+		    PrintError("Contradictory cropping specified. C cropping ignored\n");
+		    // Eat next token
+		    nextWord( buf, &ch );		
+		    break;
+		}
+		cropping = 1;
+		
+		nextWord( buf, &ch );		
+		sscanf( buf, FMT_INT32","FMT_INT32","FMT_INT32","FMT_INT32, &im.selection.left, &im.selection.right, &im.selection.top, &im.selection.bottom );
+		im.cP.cutFrame = TRUE;
+		break;
+		
+	    case 'm':  // Frame
+		//THiS NEEDS A GOOD FIX...
+		typeParm = *(ch+1);			    
+		// first consume the parameter
+		if (typeParm =='x' || typeParm == 'y') {
+		    // Consume next character, then read parm
+		    ch++;
+		    READ_VAR( "%d", &tempInt);
+		}
+		else {
+		    READ_VAR( "%d", &tempInt);
+		}
+		
+		if (tempInt == 0) {
+		    // value of zero, just ignore
+		    break;
+		} 
+		
+		// Sometimes this is specified to force a zero. In this case
+		// issue a warning and ignore
+		if (cropping) {
+		    PrintError("Contradictory cropping specified. M cropping ignored\n");
+		    break;
+		}
+		// Eat next token to avoid error
+		cropping = 1;
+		im.cP.cutFrame = TRUE;
+		
+		switch( typeParm ) {
+		case 'x':
+		    im.cP.fwidth = tempInt;
+		    //READ_VAR( "%d", &im.cP.fwidth );
+		    break;
+		case 'y':
+		    im.cP.fheight = tempInt;
+		    //READ_VAR( "%d", &im.cP.fheight );
+		    //im.cP.cutFrame = TRUE;
+		    break;
+		default:
+		    im.cP.frame = tempInt;
+		    READ_VAR( "%d", &(im.cP.frame) );
+		    // im.cP.cutFrame = TRUE;											
+		    break;
+		}
+		
+		break;
+	    case 's':	READ_VAR( "%d", &sBuf.seam );
+		PrintError("Obsolete s parameter ignored in image description");
+		break;
+		
+	    case 'o':	ch++;
+		im.cP.correction_mode |= correction_mode_morph;
+		break;
+	    case 'u':
+		READ_VAR( "%d", &i );
+		PrintError("Feathering is ignored. Use PTmasker");
+		break;	
+	    case 'w':	READ_VAR( FMT_INT32, &im.width );
+		break;
+	    case 'h':	READ_VAR( FMT_INT32, &im.height );
+		break;
+	    case 'n':  // Name string (used for input image name)
+		nextWord( buf, &ch );
+		strcpy( im.name, buf );
+		break;	
+	    case 'K':
+	    case 'V':
+		// Used by Hugin. Silently ignore until next space. This way we can accept .pto files for processing
+		nextWord( buf, &ch );		
+		break;
+	    case ' ':
+	    case '\t':
+	    case '\n':
+	    case '\r':
+		// skip characters and tabs
+		ch++;
+		break;
+	    default:
+		PrintError("Illegal token in adjust line [%c]  rest of line [%s]", *ch, ch);
+		return -1;
+	    }
 	}
-
+	
 	//	printf("************************************* A Cut Frame %d \n", im.cP.cutFrame);
 	// Set 4th polynomial parameter
 					
 	im.cP.radial_params[0][0] = 1.0 - ( im.cP.radial_params[0][3] + im.cP.radial_params[0][2]
-																  + im.cP.radial_params[0][1] ) ;
+					    + im.cP.radial_params[0][1] ) ;
 	
 	SetEquColor( &im.cP );
 	SetCorrectionRadius( &im.cP );	
@@ -1470,6 +1479,109 @@ static int ReadImageDescription( Image *imPtr, stBuf *sPtr, char *line )
 	memcpy( sPtr,	&sBuf, sizeof(stBuf ) );
 	return 0;
 }
+
+static int ReadPanoramaDescription( Image *imPtr, stBuf *sPtr, char *line )
+{
+    //  This function parses the p- line
+
+	Image im;
+	stBuf sBuf;
+	char *ch = line;
+	char buf[LINE_LENGTH];
+	char *b;
+	int	 i;
+	int    cropping = 0;
+	int tempInt;
+	double tempDbl;
+	char typeParm;
+	char temp;
+	
+	memcpy( &im, 	imPtr,	 sizeof(Image) );
+	memcpy( &sBuf, 	sPtr,	 sizeof(stBuf ));
+	
+	//	printf("************************************* Before Cut Frame %d \n", im.cP.cutFrame);
+	while( *ch != 0) {
+	    switch(*ch) {
+	    case 'w':	READ_VAR( FMT_INT32, &im.width );
+		break;
+	    case 'h':	READ_VAR( FMT_INT32, &im.height );
+		break;
+	    case 'f':	READ_VAR( FMT_INT32, &im.format );
+		if( im.format == _panorama || im.format == _equirectangular )
+		    im.cP.correction_mode |= correction_mode_vertical;
+		break;
+	    case 'P':
+		nextWord(buf, &ch);
+		b = strtok(buf, " \"");
+		if (b != NULL) {
+		    while (b != NULL) {
+			if (sscanf(b, "%lf", &tempDbl) == 1) {
+			    if (++im.formatParamCount >= PANO_PROJECTION_MAX_PARMS) {
+				PrintError("Illegal number of projection parameters. Maximum is %d", PANO_PROJECTION_MAX_PARMS);
+				return -1;
+			    }
+			    im.formatParam[im.formatParamCount - 1] = tempDbl;
+			    b = strtok(NULL, " \"");
+			} else {
+			    PrintError("Illegal value in P parameter %s", b);
+			    return -1;
+			}
+		    }
+		} 
+		break;
+	    case 'v':	READ_VAR( "%lf", &im.hfov );
+		break;
+		
+	    case 'n':  // Name string (used for panorama format)
+		nextWord( buf, &ch );
+		strcpy( im.name, buf );
+		break;	
+		
+	    case 'u':  //Feather
+		READ_VAR( "%d", &i );
+		PrintError("Feathering is ignored. Use PTmasker");
+		break;	
+	    case 'k':  // Colour correction
+		READ_VAR( "%d", &i );
+		PrintError("Colour correction ignored (k). Use PTblender");
+		break;	
+	    case 'd':  // Colour correction
+		READ_VAR( "%d", &i );
+		PrintError("Colour correction ignored (d). Use PTblender");
+		break;	
+	    case 'b':  // Colour correction
+		READ_VAR( "%d", &i );
+		PrintError("Colour correction ignored parameter ignored (b). Use PTblender");
+		break;	
+	    case ' ':
+	    case '\t':
+	    case '\n':
+	    case '\r':
+		// skip characters and tabs
+		ch++;
+		break;
+	    default:
+		PrintError("Illegal token in 'p'-line [%d] [%c] [%s]", *ch, *ch, ch);
+		ch++;
+		break;
+	    }
+	}
+	
+	// I am not sure this is needed, but I am not sure it is not :)
+	// code inherited from ReadImageDescription
+	im.cP.radial_params[0][0] = 1.0 - ( im.cP.radial_params[0][3] + im.cP.radial_params[0][2]
+					    + im.cP.radial_params[0][1] ) ;
+	
+	SetEquColor( &im.cP );
+	SetCorrectionRadius( &im.cP );	
+	
+	memcpy( imPtr,	&im,   sizeof(Image) );
+	memcpy( sPtr,	&sBuf, sizeof(stBuf ) );
+	return 0;
+}
+
+
+
 
 // Parse a line describing modes
 

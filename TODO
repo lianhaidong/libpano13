@@ -64,6 +64,10 @@ panoinfo:
 
 PTmender:
 
+- The Albers projection is ignoring the field-of-view and it is
+  computing a 360 degrees in all cases.
+
+
 DESIRABLE:
 
 - PTmender is not properly calculating ROI for some images. In
