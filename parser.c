@@ -75,7 +75,6 @@ static int      ReadCoordinates(    CoordInfo   *cp, char *line );
 
 #define READ_OPT_VAR(var)       nextWord( buf, &li );           \
                                 MY_SSCANF( buf, "%d", &k);      \
-	printf("REading optimization var %s forimage %d\n", #var,k);\
                                 if( k<0 || k>= numIm )          \
                                 {                               \
                                     PrintError("Syntax error in script: Line %d\n\nIllegal image number: %ld", lineNum, k);\
