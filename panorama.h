@@ -444,6 +444,7 @@ typedef struct
 typedef struct
 {
     int projection;
+    int internalFormat; // internal id for Image.format
     double maxVFOV; // units in degrees
     double maxHFOV;
     char *name;
