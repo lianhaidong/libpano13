@@ -1,3 +1,19 @@
+2007-01-22  dmg  <dmg@uvic.ca>
+
+	* version.h (VERSION), configure.ac Upgraded to version 2.9.13
+
+	* queryfeature.c (panoProjectionFeaturesQuery): Mercator is 179
+	vfov max.
+
+	* file.c (CREATED_BY_PSD): This constant needs to be ODD in length
+
+	* queryfeature.c, panorama.h, math.c, adjust.c, filter.h,
+	parser.c: Added Miller Cylindrical.
+
+2007-01-15  dmg  <dmg@uvic.ca>
+
+	* tiff.c (panoTiffSetErrorHandler): Disable warnings in TIFF library.
+
 2007-01-11  dmg  <dmg@uvic.ca>
 
 	* queryfeature.c, panorama.h (panoProjectionFormatCount): Added

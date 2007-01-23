@@ -250,7 +250,8 @@ enum
     _sinusoidal = 14,
     _lambert    = 15,
     _lambertazimuthal  = 16,
-    _albersequalareaconic = 17
+    _albersequalareaconic = 17,
+    _millercylindrical = 18,
 };
 
 enum
@@ -266,9 +267,10 @@ enum
     PANO_FORMAT_LAMBERT_EQUAL_AREA_CONIC = 8,
     PANO_FORMAT_LAMBERT_AZIMUTHAL = 9,
     PANO_FORMAT_ALBERS_EQUAL_AREA_CONIC = 10,
+    PANO_FORMAT_MILLER_CYLINDRICAL = 11,
 };
 
-#define PANO_FORMAT_COUNT 11
+#define PANO_FORMAT_COUNT 12
 
 // A large rectangle
 

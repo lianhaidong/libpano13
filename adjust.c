@@ -678,6 +678,7 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
         case _panorama:
         case _lambert:
         case _mercator:
+	case _millercylindrical:
         case _sinusoidal:
             // horizontal pixels per degree
             mp->distance        = ((double) pn->width) / b;
@@ -783,6 +784,10 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
    	else if(pn->format == _mercator)
 	{
 		SetDesc(stack[i],	erect_mercator,		&(mp->distance)	); i++;	// Convert mercator to sphere
+    }
+   	else if(pn->format == _millercylindrical)
+	{
+		SetDesc(stack[i],	erect_millercylindrical,		&(mp->distance)	); i++;	// Convert miller to sphere
     }
    	else if(pn->format == _lambert)
 	{
@@ -945,6 +950,7 @@ void 	SetInvMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , 
         case _panorama:
         case _lambert:
         case _mercator:
+        case _millercylindrical:
         case _sinusoidal:
             // horizontal pixels per degree
             mp->distance        = ((double) pn->width) / b;
@@ -1118,6 +1124,10 @@ void 	SetInvMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , 
    	else if(pn->format == _mercator)
 	{
 		SetDesc(stack[i],	mercator_erect,		&(mp->distance)	); i++;	// Convert sphere to sphere
+    }
+   	else if(pn->format == _millercylindrical)
+	{
+		SetDesc(stack[i],	millercylindrical_erect,		&(mp->distance)	); i++;	// Convert sphere to sphere
     }
    	else if(pn->format == _lambert)
 	{

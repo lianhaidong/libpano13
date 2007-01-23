@@ -682,6 +682,34 @@ int erect_mercator( double x_dest,double  y_dest, double* x_src, double* y_src, 
 }
 
 
+/** convert from erect to miller */
+int millercylindrical_erect( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
+{
+    // params: distanceparam
+    double phi;
+
+    *x_src = x_dest;
+    phi = y_dest/distanceparam;
+
+   *y_src = distanceparam*log(tan(PI/4 +0.4 * phi))/0.8;
+    return 1;
+}
+
+
+/** convert from mercator to erect */
+int erect_millercylindrical( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
+{
+    double y;
+
+    *x_src = x_dest;
+    y = y_dest/distanceparam;
+
+    *y_src = 1.25 * atan(sinh(4 * y /5.0));
+    *y_src *= distanceparam;
+    return 1;
+}
+
+
 /** convert from erect to lambert */
 int lambert_erect( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {

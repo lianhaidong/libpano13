@@ -488,6 +488,9 @@ int ParseScript( char* script, AlignInfo *gl )
                         case PANO_FORMAT_ALBERS_EQUAL_AREA_CONIC:
                             gl->pano.format = _albersequalareaconic;
                             break;
+                        case PANO_FORMAT_MILLER_CYLINDRICAL:
+                            gl->pano.format = _millercylindrical;
+                            break;
                         default:
                             PrintError( "Unknown panorama projection: %d", gl->pano.format );
                             return -1;
@@ -880,7 +883,7 @@ int readAdjust( aPrefs *p,  fullPath* sfile, int insert, sPrefs *sP )
     
     script = LoadScript( sfile );
     if( script == NULL )
-    return -1;
+	return -1;
     
     
     // Parse script 
@@ -890,111 +893,114 @@ int readAdjust( aPrefs *p,  fullPath* sfile, int insert, sPrefs *sP )
     seti = FALSE;
     
     while( *ch != 0 )   {
-    lineNum++;
+	lineNum++;
     
-    while(*ch == '\n')
-        ch++;
+	while(*ch == '\n')
+	    ch++;
     
-    // read a line of text into line[];
+	// read a line of text into line[];
     
-    nextLine( line, &ch );
-    // parse line; use only if first character is p,o,m
+	nextLine( line, &ch );
+	// parse line; use only if first character is p,o,m
     
-    switch( line[0] ) {
-    case 'i':
-        // The original i line was optional and it did not contain any information except
-        // for the filename.
-        // Hugin .pto files use the 'i' line instead of 'o' line.
+	switch( line[0] ) {
+	case 'i':
+	    // The original i line was optional and it did not contain any information except
+	    // for the filename.
+	    // Hugin .pto files use the 'i' line instead of 'o' line.
 
-        // 'o' has priority over 'i'
-        // if 'o' has been read then skip
-        if (!seto  && !seti) {
-        if( ReadImageDescription( &(p->im), &(p->sBuf), &(line[1]) ) != 0 ) {
-            PrintError("Syntax error in i-line %d (%s)", lineNum, line);
-            free(script);
-            return -1;
-        }
-        seti = TRUE;
+	    // 'o' has priority over 'i'
+	    // if 'o' has been read then skip
+	    if (!seto  && !seti) {
+		if( ReadImageDescription( &(p->im), &(p->sBuf), &(line[1]) ) != 0 ) {
+		    PrintError("Syntax error in i-line %d (%s)", lineNum, line);
+		    free(script);
+		    return -1;
+		}
+		seti = TRUE;
         
-        }
-        break;
-    case 'o':   // Image description
-        if( !seto ) { // Read only _one_ image
-        // 'o' has priority over 'i' lines
-        if( ReadImageDescription( &(p->im), &(p->sBuf), &(line[1]) ) != 0 ) {
-            PrintError( "Syntax error parsing o-line %d (%s)" , lineNum, line);
-            free( script );
-            return -1;
-        }
-        seto = TRUE;
-        }
-        break;
-    case 'm':       // Mode description
-        if( ReadModeDescription( sP, &(line[1]) ) != 0 )
-        {
-            PrintError( "Syntax error in m-line %d (%s)" , lineNum, line);
-            free( script );
-            return -1;
-        }
-        break;
-    case 'p':       // panorama 
-        p->pano.format  = 2; // _equirectangular by default
-        p->pano.hfov    = 360.0;
-        if( ReadPanoramaDescription( &(p->pano), &(p->sBuf), &(line[1]) ) != 0 )
-        {
-            PrintError( "Syntax error in line %d" , lineNum);
-            free( script );
-            return -1;
-        }
-        switch (p->pano.format) {
-        case 0:
-        p->pano.format = _rectilinear;
-        break;
-        case 1:
-        p->pano.format = _panorama;
-        break;
-        case 2:
-        p->pano.format = _equirectangular;
-        break;
-        case 3:
-        p->pano.format = _fisheye_ff;
-        break;
-        case 4:
-        p->pano.format = _stereographic;
-        break;
-        case 5:
-        p->pano.format = _mercator;
-        break;
-        case 6:
-        p->pano.format = _trans_mercator;
-        break;
-        case 7:
-        p->pano.format = _sinusoidal;
-        break;
-        case 8:
-        p->pano.format = _lambert;
-        break;
-        case 9:
-        p->pano.format = _lambertazimuthal;
-        break;
-        case 10:
-        p->pano.format = _albersequalareaconic;
-        break;
-        default:
-        PrintError( "Unknown panorama projection: %d", p->pano.format );
-        return -1;
-        }
-        if( (p->pano.format == _rectilinear || p->pano.format == _trans_mercator) && p->pano.hfov >= 180.0 ) {
-        PrintError( "Destination image must have HFOV < 180" );
-        return -1;
-        }
-        break;
+	    }
+	    break;
+	case 'o':   // Image description
+	    if( !seto ) { // Read only _one_ image
+		// 'o' has priority over 'i' lines
+		if( ReadImageDescription( &(p->im), &(p->sBuf), &(line[1]) ) != 0 ) {
+		    PrintError( "Syntax error parsing o-line %d (%s)" , lineNum, line);
+		    free( script );
+		    return -1;
+		}
+		seto = TRUE;
+	    }
+	    break;
+	case 'm':       // Mode description
+	    if( ReadModeDescription( sP, &(line[1]) ) != 0 )
+		{
+		    PrintError( "Syntax error in m-line %d (%s)" , lineNum, line);
+		    free( script );
+		    return -1;
+		}
+	    break;
+	case 'p':       // panorama 
+	    p->pano.format  = 2; // _equirectangular by default
+	    p->pano.hfov    = 360.0;
+	    if( ReadPanoramaDescription( &(p->pano), &(p->sBuf), &(line[1]) ) != 0 )
+		{
+		    PrintError( "Syntax error in line %d" , lineNum);
+		    free( script );
+		    return -1;
+		}
+	    switch (p->pano.format) {
+	    case 0:
+		p->pano.format = _rectilinear;
+		break;
+	    case 1:
+		p->pano.format = _panorama;
+		break;
+	    case 2:
+		p->pano.format = _equirectangular;
+		break;
+	    case 3:
+		p->pano.format = _fisheye_ff;
+		break;
+	    case 4:
+		p->pano.format = _stereographic;
+		break;
+	    case 5:
+		p->pano.format = _mercator;
+		break;
+	    case 6:
+		p->pano.format = _trans_mercator;
+		break;
+	    case 7:
+		p->pano.format = _sinusoidal;
+		break;
+	    case 8:
+		p->pano.format = _lambert;
+		break;
+	    case 9:
+		p->pano.format = _lambertazimuthal;
+		break;
+	    case 10:
+		p->pano.format = _albersequalareaconic;
+		break;
+	    case 11:
+		p->pano.format = _millercylindrical;
+		break;
+	    default:
+		PrintError( "Unknown panorama projection: %d", p->pano.format );
+		return -1;
+	    }
+	    if( (p->pano.format == _rectilinear || p->pano.format == _trans_mercator) && p->pano.hfov >= 180.0 ) {
+		PrintError( "Destination image must have HFOV < 180" );
+		return -1;
+	    }
+	    break;
         
-    default: 
-        //           PrintError("Unknown line %s", line);
-        // silently ignore any unknown lines
-        break;
-    }
+	default: 
+	    //           PrintError("Unknown line %s", line);
+	    // silently ignore any unknown lines
+	    break;
+	}
     }
     
     if( ! (seto || seti) ) {

@@ -68,6 +68,7 @@ TStringFeature stringFeatures[]={
   {"PanoType8","Lambert Cylindrical Equal Area"},
   {"PanoType9","Lambert Azimuthal Equal Area"},
   {"PanoType10","Albers Conical Equal Area"},
+  {"PanoType11","Miller Cylindrical"},
   // Filter Types
   //   fix: Fixed Windowsize
   //   aa: Antialiasing filter with adaptive filter size
@@ -304,6 +305,7 @@ char *panoFormatNames[PANO_FORMAT_COUNT] = {
     "Lambert Equal Area Conical",
     "Lambert Equal Area Azimuthal",
     "Albers Equal Area Conic",
+    "Miller Cylindrical",
 };
 
 int panoProjectionFormatCount(void)
@@ -342,6 +344,7 @@ int panoProjectionFeaturesQuery(int projection, pano_projection_features *featur
 	break;
     case PANO_FORMAT_PANORAMA:
     case PANO_FORMAT_EQUIRECTANGULAR:
+    case PANO_FORMAT_MILLER_CYLINDRICAL:
 	break;
     case PANO_FORMAT_FISHEYE_FF:
 	features->maxVFOV = 179;
@@ -352,6 +355,7 @@ int panoProjectionFeaturesQuery(int projection, pano_projection_features *featur
 	features->maxVFOV = 179;
 	break;
     case PANO_FORMAT_MERCATOR:
+	features->maxVFOV = 179;
 	break;
     case PANO_FORMAT_TRANS_MERCATOR:
 	features->maxHFOV = 340;

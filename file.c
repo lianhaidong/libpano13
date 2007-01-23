@@ -193,7 +193,7 @@ int panoPSDPICTResourceWrite(file_spec fnum, unsigned char resource, unsigned ch
   return rtn;
 }
 
-#define CREATED_BY_PSD "Panotools  " VERSION
+#define CREATED_BY_PSD "Panotools " VERSION
 #define IPTC_VERSION_ID 0
 #define IPTC_ORIGINATING_PROGRAM_ID 0x41
 #define IPTC_DESCRIPTION_WRITER_ID  0x7a

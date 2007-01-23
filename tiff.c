@@ -1589,8 +1589,11 @@ void panoTiffSetErrorHandler(void)
     //../libpano12.a(dyces00121.o)(.text+0x0): first defined here
     // Make sure we have a tiff error handler
 
-#ifdef TOBEIMPLEMENTED
+  // Disable warnings in TIFF library
 
+    TIFFSetWarningHandler(NULL);
+
+#ifdef TOBEIMPLEMENTED
     TIFFSetWarningHandler(panoTiffErrorHandler);
     TIFFSetErrorHandler(panoTiffErrorHandler);
 
