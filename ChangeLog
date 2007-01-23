@@ -94,6 +94,14 @@
 
 2006-12-31 dangelo <pablo.dangelo@web.de>
 
+	* file.c (panoSingleFileExists): Added function to check if a single
+	file exists
+
+	* ptcommon.c (panoCreatePanorama): PTmender overwrites output files on
+	all platforms now
+	
+2006-12-31 dangelo <pablo.dangelo@web.de>
+
 	* ColourBrightness.c, file.c, PTcommon.c, ptstitch.c, queryfeature.c,
 	tiff.c, tools/PTmender.c: Cleanup signed vs unsigned warnings
 

@@ -1200,6 +1200,10 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
         sprintf(var40, "%04d", loopCounter);
         strcat(outputFileName, var40);
         panoReplaceExt(outputFileName, ".tif");
+        // remove output file, if it exists. 
+        if (panoSingleFileExists(outputFileName)) {
+            remove(outputFileName);
+        }
         rename(fullPathImages[loopCounter].name, outputFileName);
 
         
