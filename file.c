@@ -2511,6 +2511,18 @@ char *panoFileExists(fullPath *ptrFiles, int filesCount)
 
 }
 
+// Check if a file exists. Returns 1 if it does exist, 0 otherwise
+int panoSingleFileExists(char * filename)
+{
+    int i;
+    FILE *testFile;
+	if ((testFile = fopen(filename, "r"))!= NULL) {
+        fclose(testFile);
+	    return 1;
+    }
+    return 0;
+}
+
 
 
 
