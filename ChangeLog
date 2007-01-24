@@ -1,3 +1,7 @@
+2007-01-24 dangelo <pablo.dangelo@web.de>
+
+	* queryfeature.c: Forgot to set internal format id...
+
 2007-01-23 dangelo <pablo.dangelo@web.de>
 
 	* queryfeature.c, panorama.h: added internal format id to projection

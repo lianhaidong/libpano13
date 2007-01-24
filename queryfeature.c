@@ -308,6 +308,21 @@ char *panoFormatNames[PANO_FORMAT_COUNT] = {
     "Miller Cylindrical",
 };
 
+static int panoFormatID[PANO_FORMAT_COUNT] = {
+    _rectilinear,
+    _panorama,
+    _equirectangular,
+    _fisheye_ff,
+    _stereographic,
+    _mercator,
+    _trans_mercator,
+    _sinusoidal,
+    _lambert,
+    _lambertazimuthal,
+    _albersequalareaconic,
+    _millercylindrical
+    };
+
 int panoProjectionFormatCount(void)
 {
     // REturn the number of Projection formats available in the library
@@ -334,6 +349,7 @@ int panoProjectionFeaturesQuery(int projection, pano_projection_features *featur
     bzero(features, sizeof (*features));
 
     features->projection = projection;
+    features->internalFormat = panoFormatID[projection];
     features->maxHFOV = 360;
     features->maxVFOV = 180;
     features->name = panoFormatNames[projection];
