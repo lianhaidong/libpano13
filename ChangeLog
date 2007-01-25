@@ -1,5 +1,7 @@
 2007-01-25 dangelo <pablo.dangelo@web.de>
 
+	* queryfeature.c: Panorama (aka cylindrical) projection supports
+	only VFOV < 180
 	* filter.c: SetImageDefaults did not initialize precomputed
 	parameters to zero
 
