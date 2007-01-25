@@ -359,6 +359,8 @@ int panoProjectionFeaturesQuery(int projection, pano_projection_features *featur
 	features->maxHFOV = 179;
 	break;
     case PANO_FORMAT_PANORAMA:
+	features->maxVFOV = 179;
+	break;
     case PANO_FORMAT_EQUIRECTANGULAR:
     case PANO_FORMAT_MILLER_CYLINDRICAL:
 	break;
