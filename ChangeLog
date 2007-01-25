@@ -1,3 +1,8 @@
+2007-01-25 dangelo <pablo.dangelo@web.de>
+
+	* filter.c: SetImageDefaults did not initialize precomputed
+	parameters to zero
+
 2007-01-24 dangelo <pablo.dangelo@web.de>
 
 	* queryfeature.c: Forgot to set internal format id...
