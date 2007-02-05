@@ -295,14 +295,14 @@ void queryFeatures(int index,char** name,Tp12FeatureType* type)
 
 char *panoFormatNames[PANO_FORMAT_COUNT] = {
     "Rectilinear",
-    "Panorama",
+    "Cylindrical",
     "Equirectangular",
     "Fisheye",
     "Stereographic",
     "Mercator",
     "Trans Mercator",
     "Sinusoidal",
-    "Lambert Equal Area Conical",
+    "Lambert Cylindrical Equal Area",
     "Lambert Equal Area Azimuthal",
     "Albers Equal Area Conic",
     "Miller Cylindrical",
@@ -365,19 +365,19 @@ int panoProjectionFeaturesQuery(int projection, pano_projection_features *featur
     case PANO_FORMAT_MILLER_CYLINDRICAL:
 	break;
     case PANO_FORMAT_FISHEYE_FF:
-	features->maxVFOV = 179;
-	features->maxHFOV = 179;
+	features->maxVFOV = 360;
+	features->maxHFOV = 360;
 	break;
     case PANO_FORMAT_STEREOGRAPHIC:
-	features->maxHFOV = 340;
-	features->maxVFOV = 179;
+	features->maxHFOV = 359;
+	features->maxVFOV = 359;
 	break;
     case PANO_FORMAT_MERCATOR:
 	features->maxVFOV = 179;
 	break;
     case PANO_FORMAT_TRANS_MERCATOR:
-	features->maxHFOV = 340;
-	features->maxVFOV = 179;
+	features->maxHFOV = 179;
+	features->maxVFOV = 360;
 	break;
     case PANO_FORMAT_SINUSOIDAL:
     case PANO_FORMAT_LAMBERT_EQUAL_AREA_CONIC:
