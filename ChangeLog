@@ -1,3 +1,8 @@
+2007-04-23  Jim Watters <jwatters@photocreations.ca>
+
+	* adjust.c (SetMakeParams): Update scale[0] to use selected width
+	and height.  Fix issue using C crop
+	
 2007-02-05 dangelo <pablo.dangelo@web.de>
 
 	* queryfeature.c: fixed projection names and HFOV/VFOV limits.
