@@ -675,6 +675,7 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
             break;
         case _equirectangular:
         case _fisheye_ff:
+        case _fisheye_circ:
         case _panorama:
         case _lambert:
         case _mercator:
@@ -717,18 +718,20 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
         {
         case _rectilinear:
             // calculate distance for this projection
-            mp->scale[0] = (double) im->width / (2.0 * tan(a/2.0)) / mp->distance;
+            mp->scale[0] = (double) image_selection_width / (2.0 * tan(a/2.0)) / mp->distance;
             break;
         case _equirectangular:
         case _panorama:
         case _fisheye_ff:
         case _fisheye_circ:
-            mp->scale[0] = ((double) im->width) / a / mp->distance;
+        case _mercator:
+        case _sinusoidal:
+            mp->scale[0] = ((double) image_selection_width) / a / mp->distance;
             break;
         default:
             PrintError ("SetMakeParams: Unsupported input image projection");
             // no way to report an error back to the caller...
-            mp->scale[1] = 1;
+            mp->scale[0] = 1;
         }
         mp->scale[1]    = mp->scale[0];
 
@@ -947,6 +950,7 @@ void 	SetInvMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , 
             break;
         case _equirectangular:
         case _fisheye_ff:
+        case _fisheye_circ:
         case _panorama:
         case _lambert:
         case _mercator:
@@ -995,12 +999,14 @@ void 	SetInvMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , 
         case _panorama:
         case _fisheye_ff:
         case _fisheye_circ:
+        case _mercator:
+        case _sinusoidal:
             mp->scale[0] = ((double) im->width) / a / mp->distance;
             break;
         default:
             PrintError ("SetInvMakeParams: Unsupported input image projection");
             // no way to report an error back to the caller...
-            mp->scale[1] = 1;
+            mp->scale[0] = 1;
         }
         mp->scale[1]    = mp->scale[0];
 
@@ -1195,7 +1201,7 @@ void 	SetInvMakeParamsCorrect( struct fDesc *stack, struct MakeParams *mp, Image
         if(im->cP.cutFrame)
         {
 			imSel.width = im->selection.right  - im->selection.left;
-			imSel.width = im->selection.bottom - im->selection.top;
+			imSel.height = im->selection.bottom - im->selection.top;
 
 			mp->horizontal += (im->selection.right  + im->selection.left - im->width)/2.0;
 			mp->vertical   += (im->selection.bottom + im->selection.top  - im->height)/2.0;
