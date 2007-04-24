@@ -78,9 +78,9 @@ void dispatch (TrformStr *TrPtr, sPrefs *spref)
                 }
                 else
                 {
-                        if( readPrefs( version, _version ) != 0 || strcmp( version, VERSION ) != 0 )
+			if( readPrefs( version, _version ) != 0 || strcmp( version, PREF_VERSION ) != 0 )
                         {
-                                writePrefs( VERSION, _version );
+				writePrefs( PREF_VERSION, _version );
                                 SetSizeDefaults( spref);
                                 writePrefs( (char*)spref, _sizep );
                 
