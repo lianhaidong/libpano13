@@ -143,7 +143,7 @@ int readPrefs( char* pref, int selector )
 {
 
 	struct {
-		char						v[sizeof(VERSION)];
+		char						v[sizeof(PREF_VERSION)];
 		struct correct_Prefs		c;
 		struct remap_Prefs			r;
 		struct perspective_Prefs	p;
@@ -167,7 +167,7 @@ int readPrefs( char* pref, int selector )
 		}else{
 			switch( selector){
 				case _version:
-					memcpy( pref, &prf.v, sizeof( VERSION ) );
+					memcpy( pref, &prf.v, sizeof( PREF_VERSION ) );
 					break;
 				case _correct:
 					if( prf.c.magic != 20 ) 
@@ -226,7 +226,7 @@ int readPrefs( char* pref, int selector )
 void writePrefs( char* prefs, int selector ){
 
 	struct {
-		char						v[sizeof(VERSION)];
+		char						v[sizeof(PREF_VERSION)];
 		struct correct_Prefs		c;
 		struct remap_Prefs			r;
 		struct perspective_Prefs	p;
@@ -247,7 +247,7 @@ void writePrefs( char* prefs, int selector ){
 
 	switch( selector){
 		case _version:
-			memcpy( &prf.v,  prefs, sizeof( VERSION ) );
+			memcpy( &prf.v,  prefs, sizeof( PREF_VERSION ) );
 			break;
 		case _correct:
 			memcpy( &prf.c , prefs, sizeof(struct correct_Prefs)); 

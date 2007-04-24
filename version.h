@@ -26,8 +26,18 @@
 #endif
 
 //version of preferences file, used to verify data
+#ifndef PREF_VERSION
+#define PREF_VERSION "2.9.12 "
+#endif
+
+// String style of global version
 #ifndef VERSION
 #define VERSION "2.9.12 "
+#endif 
+
+// Numeric style of global version, same as VERSION with more precision
+#ifndef PTVERSION_FILEVERSIONNUMBER
+#define PTVERSION_FILEVERSIONNUMBER 2,9,7,-1
 #endif
 
 #ifndef PTVERSION_NAME_LONG
@@ -37,9 +47,6 @@
 #define LONGVERSION VERSION ", Copyright (c) 1998-2006, H. Dersch, der@fh-furtwangen.de"
 #endif
 
-#ifndef PTVERSION_FILEVERSIONNUMBER
-#define PTVERSION_FILEVERSIONNUMBER 2,9,7,-1
-#endif
 
 #ifndef PTVERSION_NAME_FILEVERSION
 #define PTVERSION_NAME_FILEVERSION "FileVersion"

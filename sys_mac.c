@@ -349,7 +349,7 @@ int readPrefs( char* pref, int selector )
 	{
 		case _version:
 			ResNumber = 134;
-			prefSize  = sizeof( VERSION );
+			prefSize  = sizeof( PREF_VERSION );
 			prefName  = "\pVersion Info";
 			break;
 		case _correct:
@@ -438,7 +438,7 @@ void writePrefs( char* pref, int selector )
 	{
 		case _version:
 			ResNumber = 134;
-			prefSize  = sizeof( VERSION );
+			prefSize  = sizeof( PREF_VERSION );
 			prefName  = "\pVersion Info";
 			break;
 		case _correct:
