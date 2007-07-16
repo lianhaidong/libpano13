@@ -71,6 +71,8 @@ caused annoying warnings about unknown tags while loading each tiff source image
 #define ID_MM  100
 #define ID_SM  101
 
+#define PREF_FILE_NAME "pano13.prf"
+
 HINSTANCE 	hDllInstance 	= NULL;
 HWND 		wndOwner 		= NULL;
 int 		dialogDone;
@@ -296,11 +298,11 @@ int readPrefs( char* pref, int selector )
 	if( c!= NULL )
 	{
 		c++;
-		strcpy( c,"pano12.prf" );
+		strcpy( c,PREF_FILE_NAME );
 	}
 	else
 	{
-		strcpy( prefname,".\\pano12.prf" );
+		strcpy( prefname,".\\"PREF_FILE_NAME );
 	}
 
 
@@ -396,11 +398,11 @@ void writePrefs( char* prefs, int selector )
 	if( c!= NULL )
 	{
 		c++;
-		strcpy( c,"pano12.prf" );
+		strcpy( c,PREF_FILE_NAME );
 	}
 	else
 	{
-		strcpy( prefname,".\\pano12.prf" );
+		strcpy( prefname,".\\"PREF_FILE_NAME );
 	}
 
 
