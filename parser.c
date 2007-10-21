@@ -1630,6 +1630,9 @@ static int ReadModeDescription( sPrefs *sP, char *line )
 
     setlocale(LC_ALL, "C");
     memcpy( &theSprefs,     sP,  sizeof(sPrefs) );
+
+    // set some default values
+    setFcnPanoHuberSigma(0);
     
     while( *ch != 0)
     {
