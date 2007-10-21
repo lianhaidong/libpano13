@@ -1,3 +1,8 @@
+2007-10-21 dangelo <pablo.dangelo@web.de>
+
+	* parser.c: reset robust estimator sigma (m parameter) to 0, if
+	it is not specified explicitly
+
 2007-04-23  Jim Watters <jwatters@photocreations.ca>
 
 	* adjust.c (SetMakeParams): Update scale[0] to use selected width
