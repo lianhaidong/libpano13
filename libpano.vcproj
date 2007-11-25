@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="Panotools"
+	Name="pano13"
 	ProjectGUID="{9B19A5C0-8DB0-448B-BF99-DC6374E9751B}"
 	RootNamespace="Panotools"
 	Keyword="MakeFileProj">

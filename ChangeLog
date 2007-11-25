@@ -1,3 +1,7 @@
+2007-10-25 dangelo <pablo.dangelo@web.de>
+
+	* libpano.vcproj: updated MSVC build, produce libs named libpano13
+
 2007-10-21 dangelo <pablo.dangelo@web.de>
 
 	* parser.c: reset robust estimator sigma (m parameter) to 0, if
