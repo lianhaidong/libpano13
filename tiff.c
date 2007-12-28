@@ -1398,7 +1398,7 @@ int panoTiffWrite(Image * im, char *fileName)
         PrintError("Illegal value for bits per pixel in TIFF image to write %s", fileName);
         return FALSE;
     }
-    im->metadata.bitsPerSample = im->bitsPerPixel/im->metadata.samplesPerPixel;
+    im->metadata.bitsPerSample = (uint16_t)im->bitsPerPixel/im->metadata.samplesPerPixel;
 
 
     tif = panoTiffCreate(fileName, &im->metadata);

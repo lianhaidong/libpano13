@@ -615,7 +615,7 @@ static void makeUcharImage( Image *image, double *re, int color )
 		dy = y * image->width;
 		for( x=0; x<image->width; x++)
 		{
-			data[ cy + bpp * x ] = gamma_correct( re[ dy + x ] * scale );
+			data[ cy + bpp * x ] = (unsigned char)(gamma_correct( re[ dy + x ] * scale ));
 		}
 	}
 	// Dangerous, but should be ok

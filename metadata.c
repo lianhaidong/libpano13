@@ -42,7 +42,7 @@ int panoMetadataUpdateFromImage(Image *im)
     im->metadata.imageWidth = im->width;
     im->metadata.imageHeight = im->height;
     im->metadata.bytesPerLine = im->bytesPerLine;
-    im->metadata.bitsPerSample = im->bitsPerPixel / 4;
+    im->metadata.bitsPerSample = (uint16_t)(im->bitsPerPixel / 4);
     im->metadata.samplesPerPixel = 4;
     im->metadata.bytesPerPixel = im->bitsPerPixel/8;
     im->metadata.bitsPerPixel = im->bitsPerPixel;

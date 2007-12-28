@@ -40,7 +40,7 @@
 // MSVC doesn't support round()
 #ifdef _MSC_VER
 //#define round(x) ( (int) (x+0.5) )
-#define round(x) x
+#define round(x) (int)(x)
 #endif
 
 FILE *debugFile;
@@ -1574,7 +1574,7 @@ void panoColourHSVtoRGB(double H,  double S, double V, int *pR, int *pG, int *pB
 
   if( fabs(S) < 0.000001 ) {
     // achromatic (grey)
-    *pR = *pG = *pB = V * 255;
+    *pR = (int)(*pG = *pB = V * 255);
     return;
   }
 
@@ -1619,9 +1619,9 @@ void panoColourHSVtoRGB(double H,  double S, double V, int *pR, int *pG, int *pB
     B = q;
     break;
   }
-  *pR = R * 255;
-  *pG = G *255;
-  *pB = B *255;
+  *pR = (int)(R * 255);
+  *pG = (int)(G * 255);
+  *pB = (int)(B * 255);
 }
 
 

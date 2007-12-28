@@ -50,6 +50,7 @@
 
 /* defined in adjust.c */
 int AddEdgePoints( AlignInfo *gl );
+void setFcnPanoHuberSigma(double sigma);
 
 static int      ReadControlPoint    ( controlPoint * cptr, char *line);
 static int      ReadImageDescription( Image *imPtr, stBuf *sPtr, char *line );
@@ -547,7 +548,7 @@ int ParseScript( char* script, AlignInfo *gl )
     
     if( gl->pano.width == 0 && gl->im[0].hfov != 0.0)  // Set default for panorama width based on first image
     {
-        gl->pano.width = ( gl->pano.hfov / gl->im[0].hfov ) * gl->im[0].width;
+        gl->pano.width = (pt_int32)(( gl->pano.hfov / gl->im[0].hfov ) * gl->im[0].width);
         gl->pano.width /= 10; gl->pano.width *= 10; // Round to multiple of 10
     }
 
@@ -1325,13 +1326,10 @@ static int ReadImageDescription( Image *imPtr, stBuf *sPtr, char *line )
     stBuf sBuf;
     char *ch = line;
     char buf[LINE_LENGTH];
-    char *b;
     int  i;
     int    cropping = 0;
     int tempInt;
-    double tempDbl;
     char typeParm;
-    char temp;
     
     memcpy( &im,    imPtr,   sizeof(Image) );
     memcpy( &sBuf,  sPtr,    sizeof(stBuf ));
@@ -1524,10 +1522,7 @@ static int ReadPanoramaDescription( Image *imPtr, stBuf *sPtr, char *line )
     char *b;
     int  i;
     int    cropping = 0;
-    int tempInt;
     double tempDbl;
-    char typeParm;
-    char temp;
     
     memcpy( &im,    imPtr,   sizeof(Image) );
     memcpy( &sBuf,  sPtr,    sizeof(stBuf ));
@@ -1967,7 +1962,6 @@ aPrefs* readAdjustLine( fullPath *theScript ){
 
 char *panoParserFindOLine(char *script, int index)
 {
-    char ch;
     char *ptr;
     int count = 0;
 

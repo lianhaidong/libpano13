@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "rgbe.h"
 #include "filter.h"
-
+#include "metadata.h"
 
 
 
@@ -61,9 +61,9 @@ int writeHDR( Image *im, fullPath *sfile)
 		gnorm = (1 / pow( 65535.0 , 2.2 )); 
 		for(i=0;i<(im->width * im->height); i++) {
 			if (im->bitsPerPixel==64) srcdata++; // skip alpha
-			*fdata++=pow((double)*srcdata++,2.2) * gnorm;
-			*fdata++=pow((double)*srcdata++,2.2) * gnorm;
-			*fdata++=pow((double)*srcdata++,2.2) * gnorm;
+			*fdata++=(float)(pow((double)*srcdata++,2.2) * gnorm);
+			*fdata++=(float)(pow((double)*srcdata++,2.2) * gnorm);
+			*fdata++=(float)(pow((double)*srcdata++,2.2) * gnorm);
 //			*fdata++=pow((double)*sdata++ * (1.0/65535.0);
 		}
 		fdata=(float *)data;
@@ -76,9 +76,9 @@ int writeHDR( Image *im, fullPath *sfile)
 		gnorm = (1 / pow( 255.0 , 2.2 )); 
 		for(i=0;i<(im->width * im->height); i++) {
 			if (im->bitsPerPixel==32) srcdata++; // skip alpha
-			*fdata++=pow((double)*srcdata++,2.2) * gnorm;
-			*fdata++=pow((double)*srcdata++,2.2) * gnorm;
-			*fdata++=pow((double)*srcdata++,2.2) * gnorm;
+			*fdata++=(float)(pow((double)*srcdata++,2.2) * gnorm);
+			*fdata++=(float)(pow((double)*srcdata++,2.2) * gnorm);
+			*fdata++=(float)(pow((double)*srcdata++,2.2) * gnorm);
 //			*fdata++=(*cdata++) * (1.0/255.0);
 		}
 		fdata=(float *)data;

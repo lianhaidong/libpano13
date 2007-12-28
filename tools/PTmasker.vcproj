@@ -36,6 +36,7 @@
 				OutputFile="$(OutDir)/PTmasker.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;$(WXWIDGETS_HOME)\lib\vc_lib&quot;"
+				IgnoreDefaultLibraryNames="LIBCMT"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/PTblender.pdb"
 				SubSystem="1"

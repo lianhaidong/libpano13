@@ -305,8 +305,8 @@ void filter( TrformStr *TrPtr, flfn func, flfn16 func16, void* params, int color
 
         // Variables used to convert screen coordinates to cartesian coordinates
         
-        int                             w2 = TrPtr->dest->width / 2.0 - 0.5;  // Steve's L
-        int                             h2 = TrPtr->dest->height / 2.0 - 0.5;  
+        int                             w2 = (int)(TrPtr->dest->width / 2.0 - 0.5);  // Steve's L
+        int                             h2 = (int)(TrPtr->dest->height / 2.0 - 0.5);  
 
         // Selection rectangle
         PTRect                  destRect;

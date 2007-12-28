@@ -48,7 +48,8 @@
 #include "PTcommon.h"
 #include "ptstitch.h"
 #include "pttiff.h"
-
+#include "ptfeather.h"
+#include "ZComb.h"
 
 #define PT_MASKER_USAGE "PTmasker [options] <tiffFiles>+\n\n"	\
                          "Options:\n"\
@@ -111,57 +112,57 @@ int main(int argc,char *argv[])
         // h       -> help
         // q       -> quiet?
         // k       -> base image, defaults to first
-	// s       -> compute seams
+        // s       -> compute seams
     
         switch(opt) {  // fhoqs    f: 102 h:104  111 113 115  o:f:hsq
-	case 'e':
-	    feather = strtol(optarg, NULL, 10);
-	    if (errno != 0) {
-		PrintError("Illegal value for feather");
-		return -1;
-	    }
-	    break;
-	case 'w':
-	    focusEstimationWindowSize = strtol(optarg, NULL, 10);
-	    if (errno != 0 || focusEstimationWindowSize <= 0) {
-		PrintError("Illegal value for focus estimation window size [%s]", optarg);
-		return -1;
-	    }
-	    break;
-	case 'm':
-	    focusEstimationMaskType = strtol(optarg, NULL, 10);
-	    if (errno != 0 || focusEstimationMaskType  <0 || focusEstimationMaskType > 2) {
-	      PrintError("Illegal value for focus estimation window type [%s]", optarg);
-		return -1;
-	    }
-	    break;
-	case 's':
-	    focusEstimationSmoothingWindowSize = strtol(optarg, NULL, 10);
-	    if (errno != 0 || focusEstimationSmoothingWindowSize <= 0) {
-		PrintError("Illegal value for focus estimation smoothing window size [%s]", optarg);
-		return -1;
-	    }
-	    break;
+        case 'e':
+            feather = strtol(optarg, NULL, 10);
+            if (errno != 0) {
+                PrintError("Illegal value for feather");
+                return -1;
+            }
+            break;
+        case 'w':
+            focusEstimationWindowSize = strtol(optarg, NULL, 10);
+            if (errno != 0 || focusEstimationWindowSize <= 0) {
+                PrintError("Illegal value for focus estimation window size [%s]", optarg);
+                return -1;
+            }
+            break;
+        case 'm':
+            focusEstimationMaskType = strtol(optarg, NULL, 10);
+            if (errno != 0 || focusEstimationMaskType  <0 || focusEstimationMaskType > 2) {
+              PrintError("Illegal value for focus estimation window type [%s]", optarg);
+                return -1;
+            }
+            break;
+        case 's':
+            focusEstimationSmoothingWindowSize = strtol(optarg, NULL, 10);
+            if (errno != 0 || focusEstimationSmoothingWindowSize <= 0) {
+                PrintError("Illegal value for focus estimation smoothing window size [%s]", optarg);
+                return -1;
+            }
+            break;
 
-	case 'p':
-	    if (strlen(optarg) < MAX_PATH_LENGTH) {
-		strcpy(outputPrefix, optarg);
-	    } else {
-		PrintError("Illegal length for output prefix");
-		return -1;
-	    }
-	    break;
+        case 'p':
+            if (strlen(optarg) < MAX_PATH_LENGTH) {
+                strcpy(outputPrefix, optarg);
+            } else {
+                PrintError("Illegal length for output prefix");
+                return -1;
+            }
+            break;
         case 'z':
-	    enableFocusEstimation = 1;
+            enableFocusEstimation = 1;
             break;
         case 'f':
-	    ptForceProcessing = 1;
+            ptForceProcessing = 1;
             break;
         case 'q':
             ptQuietFlag = 1;
             break;
-	case 'x':
-	    ptDeleteSources = 1;
+        case 'x':
+            ptDeleteSources = 1;
             break;
         case 'h':
             printf(PT_MASKER_USAGE);
@@ -188,31 +189,31 @@ int main(int argc,char *argv[])
     }
 
     if (enableFocusEstimation == 0) {
-	if (focusEstimationWindowSize != 0 ||
-	    focusEstimationSmoothingWindowSize != 0 ||
-	    focusEstimationMaskType != -1)  {
-	    PrintError("You should specify -z option in order to use options -m -w  or -s");
-	    return -1;
-	}
+      if (focusEstimationWindowSize != 0 ||
+        focusEstimationSmoothingWindowSize != 0 ||
+        focusEstimationMaskType != -1)  {
+        PrintError("You should specify -z option in order to use options -m -w  or -s");
+        return -1;
+      }
     } else {
-	if (feather == 0) {
-	    PrintError("-z requires feathering (use -e)");
-	    return -1;
-	}
+    if (feather == 0) {
+        PrintError("-z requires feathering (use -e)");
+        return -1;
+    }
 
-	if (filesCount == 1) {
-	    PrintError("-z requires more than one file, disabing -z");
-	    enableFocusEstimation = 0;
-	}
-	// At this point we know we are to do Z processing
-	// set defaults if no values are given
+    if (filesCount == 1) {
+        PrintError("-z requires more than one file, disabing -z");
+        enableFocusEstimation = 0;
+    }
+    // At this point we know we are to do Z processing
+    // set defaults if no values are given
 
-	if (focusEstimationWindowSize == 0)
-	    focusEstimationWindowSize = Z_DEFAULT_WINDOW_SIZE;
-	if (focusEstimationSmoothingWindowSize == 0)
-	    focusEstimationSmoothingWindowSize = Z_DEFAULT_SMOOTHING_WINDOW_SIZE;
-	if (focusEstimationMaskType == -1)
-	    focusEstimationMaskType =  Z_DEFAULT_MASK_TYPE;
+    if (focusEstimationWindowSize == 0)
+        focusEstimationWindowSize = Z_DEFAULT_WINDOW_SIZE;
+    if (focusEstimationSmoothingWindowSize == 0)
+        focusEstimationSmoothingWindowSize = Z_DEFAULT_SMOOTHING_WINDOW_SIZE;
+    if (focusEstimationMaskType == -1)
+        focusEstimationMaskType =  Z_DEFAULT_MASK_TYPE;
     }
 
     // Allocate memory for filenames
@@ -237,7 +238,7 @@ int main(int argc,char *argv[])
 
     // Generate output file names
     if (panoFileOutputNamesCreate(ptrOutputFiles, filesCount, outputPrefix) == 0) {
-	return -1;
+      return -1;
     }
 
 
