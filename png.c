@@ -1,7 +1,7 @@
 #include "filter.h"
 #include "png.h"
 #include "file.h"
-
+#include "metadata.h"
 
 int writePNG( Image *im, fullPath *sfile )
 {
@@ -72,8 +72,8 @@ int writePNG( Image *im, fullPath *sfile )
    	info_ptr->height 		= im->height;
 	info_ptr->bit_depth		= (im->bitsPerPixel > 32 ?  16 : 8);
 	info_ptr->color_type	= PNG_COLOR_TYPE_RGB;
-	info_ptr->channels		= im->bitsPerPixel / info_ptr->bit_depth;
-	info_ptr->pixel_depth	= im->bitsPerPixel;
+	info_ptr->channels		= (png_byte)(im->bitsPerPixel / info_ptr->bit_depth);
+	info_ptr->pixel_depth	= (png_byte)(im->bitsPerPixel);
 	info_ptr->rowbytes		= im->bytesPerLine;
 	info_ptr->interlace_type= 0;
 

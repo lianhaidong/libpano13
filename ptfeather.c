@@ -35,6 +35,7 @@
 #include "PTcommon.h"
 #include "ptstitch.h" 
 #include "metadata.h"
+#include "ptfeather.h"
 
 #include <assert.h>
 #include <float.h>
@@ -89,17 +90,17 @@ static void panoFeatherSnowPixel16Bit(unsigned char *pixel, int featherSize, int
     // Make sure we do the arithmetic in long long to avoid overflows
     randomComponent = ((rand() - RAND_MAX/2) * (0xfe00LL /featherSize)) / RAND_MAX;
     
-    newPixel = *pixel16  -  level  + randomComponent;
+    newPixel = (int)(*pixel16  -  level  + randomComponent);
 
     //    printf("Value %d newvalue %d Contribution %d Random %d\n", *pixel16, newPixel, level, randomComponent);
 
     if ( newPixel <= 0 ) 
-	// we can't make it zero. We rely on value 1 to know where the actual edge of an image is
-	*pixel16 = 0;
+      // we can't make it zero. We rely on value 1 to know where the actual edge of an image is
+      *pixel16 = 0;
     else if (newPixel > 0xffff)
-	*pixel16 = 0xffff;
+      *pixel16 = 0xffff;
     else {
-	*pixel16 = newPixel;
+      *pixel16 = newPixel;
     }
 }
 
@@ -311,67 +312,67 @@ void panoFeatherMaskReplace(Image* image, unsigned int from, unsigned int to)
 
 void panoFeatherChannelSave(unsigned char *channelBuffer, Image *image, int channel)
 {
-    // Copy a given channel to a preallocated buffer area
-    int i, j,k;
-    int bytesPerChannel;
-    unsigned char *imageData;
-    int bytesPerPixel;
+  // Copy a given channel to a preallocated buffer area
+  int i, j,k;
+  int bytesPerChannel;
+  unsigned char *imageData;
+  int bytesPerPixel;
 
-    bytesPerChannel = panoImageBytesPerSample(image);
-    imageData = panoImageData(image);
-    bytesPerPixel = panoImageBytesPerPixel(image);
+  bytesPerChannel = panoImageBytesPerSample(image);
+  imageData = panoImageData(image);
+  bytesPerPixel = panoImageBytesPerPixel(image);
 
-    for (i=0;i<panoImageWidth(image);i++) 
-	for (j=0;j<panoImageHeight(image);j++) {
-	    for (k=0;k<bytesPerChannel;k++) {
-		*(channelBuffer+k) = *(imageData + bytesPerChannel * channel + k);
-	    }
-	    channelBuffer += bytesPerChannel;
-	    imageData += bytesPerPixel;
-	}
+  for (i=0;i<panoImageWidth(image);i++) 
+    for (j=0;j<panoImageHeight(image);j++) {
+      for (k=0;k<bytesPerChannel;k++) {
+            *(channelBuffer+k) = *(imageData + bytesPerChannel * channel + k);
+      }
+      channelBuffer += bytesPerChannel;
+      imageData += bytesPerPixel;
+    }
 }
 
 void panoFeatherChannelMerge(unsigned char *channelBuffer, Image *image, int channel)
 {
-    // We merge two alpha channels using the  "multiply" operation.
+  // We merge two alpha channels using the  "multiply" operation.
 
-    // Copy a given channel to a preallocated buffer area
-    int i, j;
-    int bytesPerChannel;
-    unsigned char *imageData;
-    int bytesPerPixel;
-    unsigned int a, b;
-    unsigned long long int la, lb;
-    
-    // FIrst test the rest of the logic before we do this
+  // Copy a given channel to a preallocated buffer area
+  int i, j;
+  int bytesPerChannel;
+  unsigned char *imageData;
+  int bytesPerPixel;
+  unsigned int a, b;
+  unsigned long long int la, lb;
+  
+  // FIrst test the rest of the logic before we do this
 
-    bytesPerChannel = panoImageBytesPerSample(image);
-    imageData = panoImageData(image);
-    bytesPerPixel = panoImageBytesPerPixel(image);
+  bytesPerChannel = panoImageBytesPerSample(image);
+  imageData = panoImageData(image);
+  bytesPerPixel = panoImageBytesPerPixel(image);
 
-    for (i=0;i<panoImageWidth(image);i++) 
-	for (j=0;j<panoImageHeight(image);j++) {
-	    if (bytesPerChannel == 1) {
-		a = *(imageData);
-		b = *(channelBuffer);
+  for (i=0;i<panoImageWidth(image);i++) 
+  for (j=0;j<panoImageHeight(image);j++) {
+    if (bytesPerChannel == 1) {
+      a = *(imageData);
+      b = *(channelBuffer);
 
-		if (a < b) 
-		    *(imageData) = a;
-		else 
-		    *(imageData) = b;
-	    } else if (bytesPerChannel == 2) {
-		la = *((uint16_t*)imageData);
-		lb = *((uint16_t*)channelBuffer);
-		if (la < lb) 
-		    *((uint16_t*)imageData) = la;
-		else 
-		    *((uint16_t*)imageData) = lb;
-	    } else {
-		assert(0);
-	    }
-	    channelBuffer += bytesPerChannel;
-	    imageData += bytesPerPixel;
-	}
+      if (a < b) 
+          *(imageData) = a;
+      else 
+        *(imageData) = b;
+    } else if (bytesPerChannel == 2) {
+      la = *((uint16_t*)imageData);
+      lb = *((uint16_t*)channelBuffer);
+      if (la < lb) 
+        *((uint16_t*)imageData) = (uint16_t)(la);
+      else 
+        *((uint16_t*)imageData) = (uint16_t)(lb);
+    } else {
+        assert(0);
+    }
+    channelBuffer += bytesPerChannel;
+    imageData += bytesPerPixel;
+  }
 }
 
 void panoFeatherChannelSwap(unsigned char *channelBuffer, Image *image, int channel)

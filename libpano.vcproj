@@ -30,8 +30,7 @@
 				Detect64BitPortabilityProblems="FALSE"
 				DebugInformationFormat="0"
 				CallingConvention="0"
-				CompileAs="0"
-				DisableSpecificWarnings="4068;4244;4267"/>
+				CompileAs="0"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
@@ -82,14 +81,14 @@
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;$(WXWIDGETS_HOME)\src\zlib&quot;;&quot;$(WXWIDGETS_HOME)\src\png&quot;;&quot;$(WXWIDGETS_HOME)\src\tiff&quot;;&quot;$(WXWIDGETS_HOME)\src\jpeg&quot;;&quot;$(WXWIDGETS_HOME)\src&quot;;&quot;$(JDK_HOME)\include&quot;;&quot;$(JDK_HOME)\include\win32&quot;"
 				PreprocessorDefinitions="WIN32;__Win__;HasJava"
+				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				StructMemberAlignment="4"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="FALSE"
 				DebugInformationFormat="3"
 				CallingConvention="0"
-				CompileAs="0"
-				DisableSpecificWarnings="4068;4244;4267"/>
+				CompileAs="0"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
@@ -138,18 +137,20 @@
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;$(WXWIDGETS_HOME)\src\zlib&quot;;&quot;$(WXWIDGETS_HOME)\src\png&quot;;&quot;$(WXWIDGETS_HOME)\src\tiff&quot;;&quot;$(WXWIDGETS_HOME)\src\jpeg&quot;;&quot;$(WXWIDGETS_HOME)\src&quot;;&quot;$(JDK_HOME)\include&quot;;&quot;$(JDK_HOME)\include\win32&quot;"
 				PreprocessorDefinitions="WIN32;__Win__;HasJava"
+				MinimalRebuild="TRUE"
+				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
 				StructMemberAlignment="4"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="FALSE"
 				DebugInformationFormat="3"
 				CallingConvention="0"
-				CompileAs="0"
-				DisableSpecificWarnings="4068;4244;4267"/>
+				CompileAs="0"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
-				Name="VCLibrarianTool"/>
+				Name="VCLibrarianTool"
+				IgnoreAllDefaultLibraries="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
@@ -189,12 +190,12 @@
 				Detect64BitPortabilityProblems="FALSE"
 				DebugInformationFormat="0"
 				CallingConvention="0"
-				CompileAs="0"
-				DisableSpecificWarnings="4068;4244;4267"/>
+				CompileAs="0"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
-				Name="VCLibrarianTool"/>
+				Name="VCLibrarianTool"
+				IgnoreAllDefaultLibraries="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
@@ -355,10 +356,16 @@
 				RelativePath=".\fftn.h">
 			</File>
 			<File
+				RelativePath=".\file.h">
+			</File>
+			<File
 				RelativePath=".\filter.h">
 			</File>
 			<File
 				RelativePath=".\tools\compat_win32\getopt.h">
+			</File>
+			<File
+				RelativePath=".\metadata.h">
 			</File>
 			<File
 				RelativePath=".\panorama.h">

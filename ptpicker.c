@@ -359,7 +359,7 @@ JNIEXPORT void JNICALL Java_ptutils_CLoadImage
 		gl->numParam = numParam;
 		
 		// Set pano dimensionw
-		gl->pano.width = gl->im[n].width * gl->pano.hfov / gl->im[n].hfov;
+		gl->pano.width = (pt_int32)(gl->im[n].width * gl->pano.hfov / gl->im[n].hfov);
 		gl->pano.width /= 10; gl->pano.width *= 10;
 		
 			
@@ -371,16 +371,16 @@ JNIEXPORT void JNICALL Java_ptutils_CLoadImage
 		else	// Cylinder
 		{
 			if( gl->im[n].format == _rectilinear )
-				gl->pano.height = gl->im[n].height * cos( DEG_TO_RAD(dYaw) / 2.0 );
+				gl->pano.height = (pt_int32)(gl->im[n].height * cos( DEG_TO_RAD(dYaw) / 2.0 ));
 			else
 			{
 				double vfov = gl->im[n].hfov * (double)gl->im[n].height / (double)gl->im[n].width;
 				
 				
 				if( vfov < 180.0 )
-					gl->pano.height = gl->im[n].height * tan( DEG_TO_RAD(vfov) / 2.0 ) * cos( DEG_TO_RAD(dYaw) / 2.0 ) / ( DEG_TO_RAD(vfov) / 2.0);
+					gl->pano.height = (pt_int32)(gl->im[n].height * tan( DEG_TO_RAD(vfov) / 2.0 ) * cos( DEG_TO_RAD(dYaw) / 2.0 ) / ( DEG_TO_RAD(vfov) / 2.0));
 				else
-					gl->pano.height = gl->im[n].height * tan( DEG_TO_RAD(160.0) / 2.0 ) / ( DEG_TO_RAD(160.0) / 2.0);
+					gl->pano.height = (pt_int32)(gl->im[n].height * tan( DEG_TO_RAD(160.0) / 2.0 ) / ( DEG_TO_RAD(160.0) / 2.0));
 					
 				gl->pano.height /= 10; gl->pano.height *= 10; 
 			}

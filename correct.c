@@ -113,9 +113,9 @@ void 	correct	(TrformStr *TrPtr, cPrefs *prefs)
 		// MRDL 2003/08/25 Makes behavior consistent with lens distortion correction
 		// algorithm
         if( TrPtr->src->width < TrPtr->src->height )
-            sizesqr = (TrPtr->src->width/2.0) * (TrPtr->src->width/2.0);
+            sizesqr = (int)((TrPtr->src->width/2.0) * (TrPtr->src->width/2.0));
         else
-            sizesqr = (TrPtr->src->height/2.0) * (TrPtr->src->height/2.0);
+            sizesqr = (int)((TrPtr->src->height/2.0) * (TrPtr->src->height/2.0));
 
 		if( prefs->lum_params[0] ==  prefs->lum_params[1] &&
 			prefs->lum_params[1] ==  prefs->lum_params[2] )  // Color independent
@@ -161,12 +161,12 @@ void 	correct	(TrformStr *TrPtr, cPrefs *prefs)
 			if( prefs->width  )
 				destwidth 		= prefs->width;
 			else
-				destwidth 		= (double)TrPtr->src->width * (double)prefs->height / (double)TrPtr->src->height;
+				destwidth 		= (int)((double)TrPtr->src->width * (double)prefs->height / (double)TrPtr->src->height);
 			
 			if( prefs->height)
 				destheight 		= prefs->height;
 			else
-				destheight		= (double)TrPtr->src->height * (double)prefs->width / (double)TrPtr->src->width;
+				destheight		= (int)((double)TrPtr->src->height * (double)prefs->width / (double)TrPtr->src->width);
 		}
 		else
 		{
@@ -264,12 +264,12 @@ void 	correct	(TrformStr *TrPtr, cPrefs *prefs)
 			if( prefs->width  )
 				destwidth 		= prefs->width;
 			else
-				destwidth 		= (double)TrPtr->src->width * (double)prefs->height / (double)TrPtr->src->height;
+				destwidth 		= (int)((double)TrPtr->src->width * (double)prefs->height / (double)TrPtr->src->height);
 			
 			if( prefs->height)
 				destheight 		= prefs->height;
 			else
-				destheight		= (double)TrPtr->src->height * (double)prefs->width / (double)TrPtr->src->width;
+				destheight		= (int)((double)TrPtr->src->height * (double)prefs->width / (double)TrPtr->src->width);
 		}
 		
 		if( destwidth <= 0 || destheight <= 0 )

@@ -824,8 +824,7 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
             if (prefs->pano.width == 0) {
                 // if the pano did not set the width, then try to set it
                 if (prefs->im.hfov != 0.0) {
-                    prefs->pano.width =
-                        prefs->im.width * prefs->pano.hfov / prefs->im.hfov;
+                    prefs->pano.width = (pt_int32)(prefs->im.width * prefs->pano.hfov / prefs->im.hfov);
                     prefs->pano.width /= 10;    // Round to multiple of 10
                     prefs->pano.width *= 10;
                 }
@@ -1682,7 +1681,6 @@ int panoCroppingMain(int argc,char *argv[], int operation, char *version, char *
     int ptForceProcessing = 0;
     int filesCount;
     int retVal;
-    FILE *testFile;
     pano_cropping_parms croppingParms;
     char outputPrefix[MAX_PATH_LENGTH];
     int ptDeleteSources = 0;

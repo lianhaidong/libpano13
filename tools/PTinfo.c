@@ -59,11 +59,9 @@ int main(int argc,char *argv[])
 {
     char opt;
     fullPath *ptrInputFiles;
-    fullPath *ptrOutputFiles;
     int i;
     
     int counter;
-    char outputPrefix[MAX_PATH_LENGTH];
     int filesCount;
     int base = 0;
     int ptForceProcessing = 0;
@@ -82,7 +80,7 @@ int main(int argc,char *argv[])
         // h       -> help
         // q       -> quiet?
         // k       -> base image, defaults to first
-	// s       -> compute seams
+        // s       -> compute seams
     
         switch(opt) {  // fhoqs    f: 102 h:104  111 113 115  o:f:hsq
         case 'q':
@@ -122,8 +120,8 @@ int main(int argc,char *argv[])
     }
 
     for (i=0; i< filesCount ; i++) {
-	PrintError("Filename %d %s", i, ptrInputFiles[i].name);
-	panoTiffDisplayInfo(ptrInputFiles[i].name);
+      PrintError("Filename %d %s", i, ptrInputFiles[i].name);
+      panoTiffDisplayInfo(ptrInputFiles[i].name);
     }
     
     return 0;

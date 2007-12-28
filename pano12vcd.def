@@ -74,10 +74,10 @@ EXPORTS
 			FindFile	@70
 			DisposeAlignInfo	@71
 			showScript	@72
-			readImage	@73
-			writeImage	@74
+;			readImage	@73
+;			writeImage	@74
 			writeJPEG	@75
-			makeTempPath	@76
+;			makeTempPath	@76
 			MorphImageFile	@77
 			blendImages	@78
 			InterpolateImageFile	@79
@@ -174,6 +174,20 @@ EXPORTS
 			queryFeatureString @171
 			PT_setProgressFcn @172
 			PT_setInfoDlgFcn @173
-                        PT_setErrorFcn @174 
-                        execute_stack_new @175
-
+			PT_setErrorFcn @174
+			execute_stack_new @175
+			InsertFileName              @176
+;			VerifyTiffsAreCompatible    @177
+;			AddStitchingMasks           @178
+;			FlattenTIFF                 @179
+;			CreatePSD                   @180
+;			CreatePanorama              @181
+			ptQuietFlag                 @182
+;			ReplaceExt                  @183
+			ColourBrightness            @184
+;			TiffSetImageParameters      @185
+;			TiffGetImageParameters      @186
+			getCropInformationFromTiff  @187
+			setCropInformationInTiff    @188
+			writeCroppedTIFF            @189
+			dieWithError                @190

@@ -527,7 +527,9 @@ unsigned short gamma_correct( double pix )
     }                                                                   \
 ;
 
-
+// Turn the warning back on
+// warning C4244: '=' : conversion from 'unsigned short' to 'unsigned char', possible loss of data
+#pragma warning(default:4244)
 
 
 static double sinc( double x )
@@ -567,6 +569,12 @@ static double cubic12( double x )
 
 #define maxalpha  255
 #define threshold (maxalpha / 16)
+
+
+// Issue warning 4244 only once it shows up in many time in the RESAMPLE_N code 
+// warning C4244: '=' : conversion from 'unsigned short' to 'unsigned char', possible loss of data
+// Use the following line to supress the wanring until the code is cleaned up
+#pragma warning( once : 4244 )
 
 // Nearest neighbor sampling, nowhere used (yet)
 

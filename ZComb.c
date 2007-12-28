@@ -27,6 +27,7 @@
 // on 6/18/2004 and surrounding for more info. 
 
 #include "filter.h"
+#include "ZComb.h"
 
 #define ZCOMBLOGFILENAME "zcom_log.txt"
 

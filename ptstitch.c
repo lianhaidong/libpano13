@@ -1149,10 +1149,10 @@ static void panoStitchBlendLayers16Bit(unsigned char **imageDataBuffers, int cou
             // Set the value of the pixel
             for (i = 0; i < 3; i++) {
                 assert(colours[i] <= 0xffff && colours[i] >= 0);
-                *(u16ResultBuffer + pixelOffset + i) = colours[i];
+                *(u16ResultBuffer + pixelOffset + i) = (uint16_t)(colours[i]);
             }
             //      printf("Done loop 2\n");      
-            *(u16ResultBuffer + pixelOffset + 3) = alphaChannel;
+            *(u16ResultBuffer + pixelOffset + 3) = (uint16_t)(alphaChannel);
 
 
         }                       //(currentColumn < imageWidth)

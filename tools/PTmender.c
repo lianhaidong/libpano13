@@ -257,7 +257,6 @@ int main(int argc,char *argv[])
 
     fullPath scriptFileName;
     fullPath panoFileName;
-    int i;
 
     char opt;
 
