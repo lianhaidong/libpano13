@@ -48,7 +48,7 @@
 // Dynamically allocate scanline buffer in writeWhiteBackground,
 // to avoid buffer overflow and crash on large images.
 // Fix 16bit Radial Shift and Adjust - Kevin & Jim 2004 July
-
+// 2006 Max Lyons         - Various modifications
 #include <assert.h>
 #include "filter.h"
 
@@ -149,6 +149,7 @@ int panoPSDResourceWrite(file_spec fnum, pt_uint16 resource, pt_uint16 len, pt_u
   rtn += count;
   WRITEINT32(len); //size of the record (4 bytes)
   rtn += count;
+   
 
   if (dataLen > 0 && resourceData != NULL) {
     mywrite( fnum, dataLen, resourceData );
@@ -285,6 +286,7 @@ int panoPSDResourcesBlockWrite(Image *im, file_spec   fnum)
   return rtn;
 
 
+  
 }
 
 
@@ -1980,7 +1982,7 @@ char* LoadScript( fullPath* scriptFile )
 
     if( myopen( scriptFile, read_text, fnum ))
     {
-        PrintError("Error Opening Scriptfile");
+        PrintError("Error Opening Scriptfile: %s", scriptFile->name);
         goto _loadError;
     }
     
@@ -2002,7 +2004,7 @@ char* LoadScript( fullPath* scriptFile )
     }
     if( myopen( scriptFile, read_text, fnum ))
     {
-        PrintError("Error Opening Scriptfile");
+        PrintError("Error Opening Scriptfile: %s", scriptFile->name);
         goto _loadError;
     }
     

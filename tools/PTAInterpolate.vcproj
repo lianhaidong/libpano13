@@ -2,8 +2,8 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="PTmasker"
-	ProjectGUID="{20D1E094-A4B5-4294-85CE-229529065783}"
+	Name="PTAInterpolate"
+	ProjectGUID="{9D68379B-FD84-4B81-B25D-6126AF2ABDA0}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -33,12 +33,12 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="wxtiff.lib wxzlib.lib wxjpeg.lib wxpng.lib Ws2_32.lib"
-				OutputFile="$(OutDir)/PTmasker.exe"
+				OutputFile="$(OutDir)/PTAInterpolate.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;$(WXWIDGETS_HOME)\lib\vc_lib&quot;"
 				IgnoreDefaultLibraryNames="LIBCMT"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile="$(OutDir)/PTmasker.pdb"
+				ProgramDatabaseFile="$(OutDir)/PTAInterpolate.pdb"
 				SubSystem="1"
 				TargetMachine="1"/>
 			<Tool
@@ -82,7 +82,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="wxtiff.lib wxzlib.lib wxjpeg.lib wxpng.lib Ws2_32.lib"
-				OutputFile="$(OutDir)/PTmasker.exe"
+				OutputFile="$(OutDir)/PTAInterpolate.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;$(WXWIDGETS_HOME)\lib\vc_lib&quot;"
 				GenerateDebugInformation="TRUE"
@@ -120,7 +120,7 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
 			<File
-				RelativePath=".\PTmasker.c">
+				RelativePath=".\PTAInterpolate.c">
 			</File>
 		</Filter>
 		<Filter

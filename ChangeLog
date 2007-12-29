@@ -1,3 +1,10 @@
+2007-12-29 Jim Watters <jwatters@photocreations.ca>
+
+	* Added Max Lyons bug fixes to libpano
+	* Added Max Lyons PTAinterpolate project to replace PTInterpolate
+	* Removed incomplete version of PTStitcher that was replaced by PTMender
+	* Removed duplicate make files for panoinfo and ptoptimizer
+	
 2007-12-28 Jim Watters <jwatters@photocreations.ca>
 
 	* removed warning suppression from MSVC builds

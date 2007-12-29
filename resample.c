@@ -1174,6 +1174,20 @@ void MyTransForm( TrformStr *TrPtr, fDesc *fD, int color, int imageNum)
 	dest = *TrPtr->dest->data;
 	src  = *TrPtr->src->data; // is locked
 
+    //MRDL: There seems to be a strange bug somewhere that
+    //corrupts the first three bytes of each source image.
+    //Rather than looking like this (ARGB ARGB ARGB ARGB):
+    //   255 128 128 128   255 128 128 128   255 128 128 128   255 128 128 128
+    //They look like this:
+    //   255 255 255 255   255 128 255 128   255 128 128 255   255 128 128 128
+    //So fix up the first few bytes to workaround this if file is large than 3 bytes
+    if ((mix+1) * (miy+1) > 3)
+    {
+        memcpy( src                      , src + (BytesPerPixel * 3), BytesPerPixel);
+        memcpy( src + (BytesPerPixel * 1), src + (BytesPerPixel * 3), BytesPerPixel);
+        memcpy( src + (BytesPerPixel * 2), src + (BytesPerPixel * 3), BytesPerPixel);        
+    }
+    
 	if(TrPtr->mode & _show_progress){
 		switch(color){
 			case 0:
