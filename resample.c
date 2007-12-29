@@ -349,9 +349,9 @@ unsigned short gamma_correct( double pix )
 #define gamma_short(pix) (short)(gamma_correct(pix))
 #define gamma_float(pix) (float)(pix)
 
-#define degamma_char(pix) (char)(glu.DeGamma[pix])
-#define degamma_short(pix) (short)(glu.DeGamma[pix])
-#define degamma_float(pix) (float)(pix)
+#define degamma_char(pix) glu.DeGamma[pix]
+#define degamma_short(pix) glu.DeGamma[pix]
+#define degamma_float(pix) pix
 
 
 /////////// N x N Sampler /////////////////////////////////////////////
