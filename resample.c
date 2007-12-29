@@ -337,7 +337,7 @@ int SetUpGamma( double pgamma, unsigned int psize)
 
 unsigned short gamma_correct( double pix )
 {
-	int k = glu.ChannelStretch * pix;
+	int k = (int)(glu.ChannelStretch * pix);
 	if( k < 0 )
 		return 0;
 	if( k > glu.GammaSize - 1 )
@@ -345,13 +345,13 @@ unsigned short gamma_correct( double pix )
 	return (glu.Gamma)[ k ] ;
 }
 
-#define gamma_char(pix) gamma_correct(pix)
-#define gamma_short(pix) gamma_correct(pix)
-#define gamma_float(pix) pix
+#define gamma_char(pix) (char)(gamma_correct(pix))
+#define gamma_short(pix) (short)(gamma_correct(pix))
+#define gamma_float(pix) (float)(pix)
 
-#define degamma_char(pix) glu.DeGamma[pix]
-#define degamma_short(pix) glu.DeGamma[pix]
-#define degamma_float(pix) pix
+#define degamma_char(pix) (char)(glu.DeGamma[pix])
+#define degamma_short(pix) (short)(glu.DeGamma[pix])
+#define degamma_float(pix) (float)(pix)
 
 
 /////////// N x N Sampler /////////////////////////////////////////////
@@ -527,10 +527,6 @@ unsigned short gamma_correct( double pix )
     }                                                                   \
 ;
 
-// Turn the warning back on
-// warning C4244: '=' : conversion from 'unsigned short' to 'unsigned char', possible loss of data
-#pragma warning(default:4244)
-
 
 static double sinc( double x )
 {
@@ -569,12 +565,6 @@ static double cubic12( double x )
 
 #define maxalpha  255
 #define threshold (maxalpha / 16)
-
-
-// Issue warning 4244 only once it shows up in many time in the RESAMPLE_N code 
-// warning C4244: '=' : conversion from 'unsigned short' to 'unsigned char', possible loss of data
-// Use the following line to supress the wanring until the code is cleaned up
-#pragma warning( once : 4244 )
 
 // Nearest neighbor sampling, nowhere used (yet)
 
@@ -822,7 +812,6 @@ static void sinc1024_32( unsigned char *dst, unsigned char **rgb,
 #undef unsigned
 }
 		
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // FS+ start of functions used to compute the pixel tranform from dest to source using linear interpolation
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2292,10 +2281,10 @@ void transForm_aa( TrformStr *TrPtr, fDesc *fD,fDesc *finvD, int color, int imag
 				double weight,w,rd,gd,bd;
 				pt_uint32 *ptui;
 
-				bx=floor(orgDx + sw2);
-				ex=ceil(orgDx + sw2);
-				by=floor(orgDy + sh2);  
-				ey=ceil(orgDy + sh2);
+				bx = (int)(floor(orgDx + sw2));
+				ex = (int)(ceil(orgDx + sw2));
+				by = (int)(floor(orgDy + sh2));
+				ey = (int)(ceil(orgDy + sh2));
 				
 				// Clear only the modified floodfill markers
 				ptui=&ffIsInQueue[ptmod_first];
