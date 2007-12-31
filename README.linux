@@ -1,6 +1,6 @@
 Readme Sources
 
-This file discribes how to build the library libpano12.so
+This file discribes how to build the library libpano13.so
 for the Linux operating system. This library is required
 for running any of the Panorama Tools applications (PTStitcher, etc). 
 
@@ -67,7 +67,7 @@ The Java Development Kit  is required.
 It can be downloaded from www.javasoft.com,
 or may be contained on your Linux CD.
 
-Create a directory 'pano12', move the
+Create a directory 'pano13', move the
 file 'panosrc.tar.gz' into this directory,
 and unpack the file using the commands
 
@@ -79,7 +79,7 @@ and
 
 Then build the library using the command
 
- make -f makefile.linux libpano12.so
+ make -f makefile.linux libpano13.so
 
 
 Limits and Modifications:

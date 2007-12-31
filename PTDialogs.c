@@ -24,8 +24,9 @@
 #endif
 
 // dangelo: use sys ansi for windows as well..
+// Jim Watters 2007/12/29  need sys_win for dialogs to work in Windows
 #ifdef __Win__
-#include "sys_ansi.h"
+#include "sys_win.h"
 #endif
 
 #ifdef __Ansi__

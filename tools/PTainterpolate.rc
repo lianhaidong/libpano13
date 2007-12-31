@@ -26,8 +26,8 @@ BEGIN
     BEGIN
         BLOCK "040904b0"
         BEGIN
-            VALUE "Comments", "http://sourceforge.net/projects/panotools/"
-            VALUE "CompanyName", "http://wiki.panotools.org/"
+            VALUE "Comments", PTVERSION_COMMENT
+            VALUE "CompanyName", PTVERSION_COMPNAME
             VALUE "FileDescription", "PanoramaTools helper app, create in between images"
             VALUE "FileVersion", PTVERSION_FILEVERSION
             VALUE "InternalName", "PTInterpolate"

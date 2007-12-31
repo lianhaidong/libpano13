@@ -77,8 +77,8 @@ panoinfo_LDADD      = -l${PANOLIB}
 
 EXTRA_DIST = makefile.panoinfo.win32 makefile.ptoptimizer.win32 \
              README.PTmender PTStitcher.cpp PTStitcher.vcproj \
-             PTpano12.vcproj PTpano12_readme.txt PTpano12.dsp \
-             ptpano12.cpp ptpano12.h ptpano12.def
+             PTpano13.vcproj PTpano13_readme.txt PTpano13.dsp \
+             ptpano13.cpp ptpano13.h ptpano13.def
 
 MAINTAINERCLEANFILES = \
 	Makefile.in

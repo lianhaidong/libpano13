@@ -23,7 +23,7 @@
  *
  */
 
-// gcc -oPTOptimizer -I/usr/include/pano12 -lpano12 PTOptimizer.c
+// gcc -oPTOptimizer -I/usr/include/pano13 -lpano13 PTOptimizer.c
 
 
 #include "filter.h"

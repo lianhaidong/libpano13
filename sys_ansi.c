@@ -151,7 +151,7 @@ int readPrefs( char* pref, int selector )
 		struct size_Prefs			s;
 		panControls					pc;
 	} prf;
-	char* prefname = "pano12.prf";
+	char* prefname = "pano13.prf";
 	long size;
 
 	FILE 	*prfile;
@@ -236,7 +236,7 @@ void writePrefs( char* prefs, int selector ){
 	} prf;
 
 	FILE 	*prfile;
-	char* prefname = "pano12.prf";
+	char* prefname = "pano13.prf";
 
 
 
@@ -363,7 +363,7 @@ int makePathToHost ( fullPath *path ){
 // Fname is appended to host-directory path
 
 void MakeTempName( fullPath *destPath, char *fname ){
-	sprintf( destPath->name, "pano12.%s", fname );
+	sprintf( destPath->name, "pano13.%s", fname );
 }
 
 void ConvFileName( fullPath *fspec,char *string){

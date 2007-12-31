@@ -1,3 +1,8 @@
+2007-12-31 Jim Watters <jwatters@photocreations.ca>
+
+	* Update trunk to be pano13.  Create a name separation from pano12.
+	  Swepted many files.
+
 2007-12-29 Jim Watters <jwatters@photocreations.ca>
 
 	* Added Max Lyons bug fixes to libpano

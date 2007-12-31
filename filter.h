@@ -30,7 +30,7 @@
 #include <limits.h>
 
 #include "panorama.h"
-#include "tiffio.h"
+//#include "tiffio.h"
 
 #ifndef TRUE
 	#define TRUE 1

@@ -43,7 +43,7 @@
 
 #define		SetText( rNum, string, var )										\
 			sprintf(numString, string, var);									\
-			SetDlgItemText(hDlg, rNum, numString); 
+			SetDlgItemText(hDlg, rNum, numString);
 
 
 #define		GetLbl( rNum, string, length )									\
@@ -51,8 +51,7 @@
 
 #define		GetText( rNum, string, varaddr )									\
 			GetDlgItemText(hDlg, rNum, numString, 255);							\
-			sscanf( numString, string, varaddr );								
-
+			sscanf( numString, string, varaddr );
 
 #define		GenDialog( VarType, DlgRes, Title,  SetControl,SText,			\
 			GText, DlgAction, WinFunc)										\
@@ -115,7 +114,6 @@ BOOL WINAPI WinFunc(HWND hDlg, UINT wMsg, WPARAM wParam, LPARAM lParam)		\
 					break;													\
 			} 																\
 	return  TRUE;															\
-
 
 typedef LPSTR *Handle;
 

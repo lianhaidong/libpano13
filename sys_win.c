@@ -832,7 +832,7 @@ void MakeTempName( fullPath *destPath, char *fname )
 	char path[MAX_PATH_LENGTH];
 	char sname[256];
 
-	sprintf( sname, "pano12.%s", fname );
+	sprintf( sname, "pano13.%s", fname );
 	
 	path[0] = 0;
 	
@@ -907,6 +907,8 @@ int 	StringtoFullPath	(fullPath *path, char *filename){
 	}
 }
 
+#if defined _USRDLL
+// Only include the DLLMain with the dll build of pano13
 BOOL WINAPI
 DllMain (HANDLE hDll, DWORD dwReason, LPVOID lpReserved)
 {
@@ -937,4 +939,4 @@ DllMain (HANDLE hDll, DWORD dwReason, LPVOID lpReserved)
     }
     return TRUE;
 }
-
+#endif

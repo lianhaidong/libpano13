@@ -1,4 +1,4 @@
-# Makefile for libpano12.so
+# Makefile for libpano13.so
 
 sources = panorama.h filter.h fftn.h f2c.h pteditor.h  \
           ptutils.h sys_win.h version.h \
@@ -8,7 +8,7 @@ sources = panorama.h filter.h fftn.h f2c.h pteditor.h  \
           optimize.c morpher.c Triangulate.c \
 	  seamer.c ptpicker.c pteditor.c seamer_.c \
           tiff.c bmp.c jpeg.c png.c  multilayer.c \
-          Makefile pano12.rc pano12.def sys_ansi.c ppm.c
+          Makefile pano13.rc pano13.def sys_ansi.c ppm.c
 
 objects = filter.o parser.o  queryfeature.o correct.o perspect.o \
           adjust.o  remap.o lmdif.o  file.o math.o pan.o \
@@ -16,7 +16,7 @@ objects = filter.o parser.o  queryfeature.o correct.o perspect.o \
           morpher.o Triangulate.o seamer.o ptpicker.o pteditor.o \
           tiff.o jpeg.o png.o multilayer.o 
 
-winobj =  sys_win.o bmp.o pano12rc.o
+winobj =  sys_win.o bmp.o pano13rc.o
 
 ansobj =  sys_ansi.o ppm.o
 
@@ -27,13 +27,13 @@ CC = gcc
 CFLAGS = -O -I /usr/lib/java/include/ -I /usr/lib/java/include/genunix -I /usr/lib/java/include/linux -I /usr/lib/java/include/linux -D__Ansi__=1
 
 
-libpano12.so  : $(objects) $(ansobj)
-	$(CC) -lm -ljpeg -ltiff -lpng -shared -o libpano12.so $(objects) $(ansobj)	
+libpano13.so  : $(objects) $(ansobj)
+	$(CC) -lm -ljpeg -ltiff -lpng -shared -o libpano13.so $(objects) $(ansobj)	
 
 	
 panosrc.tar.gz	: $(sources) Makefile
 	tar cf panosrc.tar $(sources) Makefile
 	gzip panosrc.tar
 
-install : libpano12.so
-	mv libpano12.so /usr/lib/
+install : libpano13.so
+	mv libpano13.so /usr/lib/

@@ -3,7 +3,7 @@
    Initial version by Joost Nieuwenhuijse - joost@newhouse.nl
    GPL etc..
 
-   These functions can be used to determine properties of this specific pano12 library.
+   These functions can be used to determine properties of this specific pano13 library.
    Features are name/value pairs. The name is string and the value can be either an
    integer, double or string. Boolean values are encoded as integers (0=false, 1=true)
 

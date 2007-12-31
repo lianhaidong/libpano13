@@ -1,7 +1,7 @@
 /*
  *  PanoInfo Demo app
  *
- *  Display info from pano12 dll/library
+ *  Display info from pano13 dll/library
  *
  *  May 2004
  *
@@ -93,13 +93,13 @@ int main(int argc,char *argv[])
 	{
 		if((pfQFString) (PTVERSION_NAME_FILEVERSION, sResult, sizeof(sResult)/sizeof(sResult[0]) ))
 		{
-			sprintf(str1, "Pano12 file version:\t%s\n", sResult );
+			sprintf(str1, "pano13 file version:\t%s\n", sResult );
 			strcat(str2 ,str1);
 		}
 
 //		if((pfQFString) (PTVERSION_NAME_LONG, sResult, sizeof(sResult)/sizeof(sResult[0]) ))
 //		{
-//			sprintf(str1, "Pano12 version:\t%s\n\n", sResult );
+//			sprintf(str1, "pano13 version:\t%s\n\n", sResult );
 //			strcat(str2 ,str1);
 //		}
 
@@ -160,7 +160,7 @@ int main(int argc,char *argv[])
 		}
 	}
 
-	MessageBox((HWND)NULL, str2, "Pano12.dll properties and features", MB_OK);
+	MessageBox((HWND)NULL, str2, "pano13.dll properties and features", MB_OK);
 
 
 cleanup:

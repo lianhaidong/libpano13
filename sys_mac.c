@@ -772,7 +772,7 @@ void MakeTempName( fullPath *fspec, char *fname )
 		fspec->vRefNum 	= 0;
 		fspec->parID	= 0;
 	}
-	sprintf( (char*)fspec->name, "pano12.%s", fname );
+	sprintf( (char*)fspec->name, "pano13.%s", fname );
 	c2pstr( (char*)fspec->name );
 
 	if( ( FSpGetFInfo	(fspec,&fndrInfo) == noErr )	&&		// Don't accidentaly overwrite important stuff
