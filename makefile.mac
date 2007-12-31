@@ -19,7 +19,7 @@
 
 #############################################################################
 
-#   All functional code and resources are located in pano12.lib
+#   All functional code and resources are located in pano13.lib
 #   The code in the filters only translates the 68k-code-resource call
 #   from GraphicConverter into a call to the ppc-entry function 
 #   "filter_main" with an appropriate selector value.
@@ -28,7 +28,7 @@
 
 #        --------------   Definitions  -------------------------
 
-Lib_Exports		=		pano12.x
+Lib_Exports		=		pano13.x
 
 PPCInc			=		panorama.h filter.h fftn.h f2c.h PixMap.h pteditor.h  ¶
 						ptutils.h sys_mac.h version.h
@@ -40,7 +40,7 @@ PPCSrc			= 		filter.c parser.c queryfeature.c sys_mac.c  correct.c perspect.c ¶
 						seamer.c ptpicker.c pteditor.c seamer_.c	¶
 						tiff.c pict.c jpeg.c PixMap.c
 
-OtherSrc		=		filter.r Gimpmain.c bmp.c pano12.x pano12.def ppm.c resource.h ¶
+OtherSrc		=		filter.r Gimpmain.c bmp.c pano13.x pano13.def ppm.c resource.h ¶
 						sys_X11.c sys_X11.h sys_win.c sys_win.h sys_ansi.h sys_ansi.c ¶
 						
 
@@ -81,11 +81,11 @@ PPC_Libraries 	=	 	"{SharedLibraries}"InterfaceLib	¶
 
 # This shared library contains all functional code and resources
 
-pano12.lib ÄÄ {PPCObjs}  filter.r Makefile {Lib_Exports} {PPC_Libraries}
+pano13.lib ÄÄ {PPCObjs}  filter.r Makefile {Lib_Exports} {PPC_Libraries}
 	PPCLink -xm s -init __my_initialize -term __my_terminate ¶
 	-export  `ConvertExportList {Lib_Exports}`	¶
 	{PPCObjs}	{PPC_Libraries}  -o {targ}					# Create library 
-	MergeFragment -n pano12.lib -c -t pwpc -x {targ}  	    # use MergeFragment to create a library cfrg
+	MergeFragment -n pano13.lib -c -t pwpc -x {targ}  	    # use MergeFragment to create a library cfrg
 	Rez  -d SystemSevenOrLater=1 -a filter.r -o {Targ}      # Stuff all resources into library
 	setfile -c '????' -t 'shlb' {Targ}
 
@@ -95,6 +95,6 @@ Backup  Ä
 
 
 clean	Ä
-	Delete {PPCObjs} pano12.lib
+	Delete {PPCObjs} pano13.lib
 
 

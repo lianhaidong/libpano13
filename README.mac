@@ -1,6 +1,6 @@
 Readme Sources
 
-This file describes how to build the library pano12.lib
+This file describes how to build the library pano13.lib
 for the Macintosh operating system. This library is required
 for running the Panorama Tools plug-in and any of the
 Panorama Tools applications (PTStitcher, etc). 
@@ -50,7 +50,7 @@ downloaded from www.apple.com.
 
 The Java Development MRJ is required. It is also free
 and can be downloaded from www.apple.com.
-During the build of pano12.lib the java include
+During the build of pano13.lib the java include
 files have to be accessed by the MRC-compiler.
 
 
@@ -59,7 +59,7 @@ Building the Library:
 The source files of this distribution have to be unpacked.
 Open the Makefile (folder 'src') using MPW, and edit path settings
 for your system (eg the path to your MRJ-installation).
-In the directory 'src' issue the command 'Build pano12.lib'.
+In the directory 'src' issue the command 'Build pano13.lib'.
 There will be a couple of warning
 messages which are non-fatal and can be ignored.
 

@@ -37,6 +37,8 @@ KNOWN BUGS:
 ----------------------------------------------------------------------
 All tools:
 
+- Update make file to include resource files for version info.
+
 - Command line processing. All tools should have similar command line
   processing. This needs to be checked, and updated, if
   necessary. 

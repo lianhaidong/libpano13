@@ -1,6 +1,6 @@
 ;------------------------------------------------------------
 
-LIBRARY     pano12d
+LIBRARY     pano13
 
 EXPORTS
 			filter_main		@1

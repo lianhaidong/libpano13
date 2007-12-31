@@ -10,7 +10,7 @@ LIBS=$(LIBJPEG) $(LIBTIFF) $(LIBZ) $(LIBPNG)
 
 .PHONY: $(LIBS)
 
-all: $(LIBS) pano12.dll
+all: $(LIBS) pano13.dll
 
 ifeq "$(LIBJPEG)"  ""
 $(warning "No jpeg library found - assuming it is already installed")
@@ -60,7 +60,7 @@ sources = panorama.h filter.h fftn.h f2c.h pteditor.h \
           optimize.c morpher.c Triangulate.c \
           seamer.c ptpicker.c pteditor.c seamer_.c \
           tiff.c bmp.c jpeg.c png.c  multilayer.c ZComb.c hdrfile.c rgbe.c\
-          Makefile pano12.rc pano12.def sys_ansi.c ppm.c
+          Makefile pano13.rc pano13.def sys_ansi.c ppm.c
 
 objects = filter.o parser.o queryfeature.o sys_common.o PTcommon.o ColourBrightness.o correct.o perspect.o \
           adjust.o  remap.o lmdif.o  file.o math.o pan.o \
@@ -68,7 +68,7 @@ objects = filter.o parser.o queryfeature.o sys_common.o PTcommon.o ColourBrightn
           morpher.o Triangulate.o seamer.o ptpicker.o pteditor.o \
           tiff.o jpeg.o png.o multilayer.o ZComb.o hdrfile.o rgbe.o
 
-winobj =  sys_win.o bmp.o pano12rc.o
+winobj =  sys_win.o bmp.o pano13rc.o
 
 ansobj =  sys_ansi.o ppm.o
 
@@ -76,20 +76,20 @@ libDirs =  -L/usr/local/lib
 incDirs =  -I/usr/local/include -I$(JAVASDK)/include -I$(JAVASDK)/include/win32
 CC = gcc -O2 -mms-bitfields $(incDirs)
 
-pano12rc.o  : pano12.rc
-	windres  -i pano12.rc -o pano12rc.o
+pano13rc.o  : pano13.rc
+	windres  -i pano13.rc -o pano13rc.o
 
-pano12.dll  : $(objects) $(winobj)
-	dllwrap --enable-stdcall-fixup -o pano12.dll --def pano12.def $(objects) $(winobj) $(libDirs) $(incDirs) -lcomdlg32 -ljpeg -ltiff -lpng -lz -mwindows
-	strip pano12.dll
-	dlltool --dllname pano12.dll --def pano12.def --output-lib libpano12.a
+pano13.dll  : $(objects) $(winobj)
+	dllwrap --enable-stdcall-fixup -o pano13.dll --def pano13.def $(objects) $(winobj) $(libDirs) $(incDirs) -lcomdlg32 -ljpeg -ltiff -lpng -lz -mwindows
+	strip pano13.dll
+	dlltool --dllname pano13.dll --def pano13.def --output-lib libpano13.a
 
-install  : pano12.dll
-	mv pano12.dll C:/WINDOWS/SYSTEM32/pano12.dll
+install  : pano13.dll
+	mv pano13.dll C:/WINDOWS/SYSTEM32/pano13.dll
 
 .PHONY : clean
 clean :
-	-rm -f *.o pano12.dll libpano12.a panosrc.zip
+	-rm -f *.o pano13.dll libpano13.a panosrc.zip
 
 panosrc.zip : $(sources)
 	zip -R panosrc.zip $(sources)

@@ -16,63 +16,34 @@
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.  */
 
 /*------------------------------------------------------------*/
+#ifndef PTVERSIONINFO
+#define PTVERSIONINFO
 
-#ifndef VERS1
+
 #define VERS1 0x2
-#endif
-
-#ifndef VERS2
 #define VERS2 0x00
-#endif
 
 //version of preferences file, used to verify data
-#ifndef PREF_VERSION
 #define PREF_VERSION "2.9.12 "
-#endif
 
 // String style of global version
-#ifndef VERSION
-#define VERSION "2.9.12 "
-#endif 
+#define VERSION "2.9.13 "
 
 // Numeric style of global version, same as VERSION with more precision
-#ifndef PTVERSION_FILEVERSIONNUMBER
-#define PTVERSION_FILEVERSIONNUMBER 2,9,7,-1
-#endif
-
-#ifndef PTVERSION_NAME_LONG
+#define PTVERSION_FILEVERSIONNUMBER 2,9,13,0
 #define PTVERSION_NAME_LONG "LongVersion"
-#endif
-#ifndef LONGVERSION
 #define LONGVERSION VERSION ", Copyright (c) 1998-2006, H. Dersch, der@fh-furtwangen.de"
-#endif
 
-
-#ifndef PTVERSION_NAME_FILEVERSION
 #define PTVERSION_NAME_FILEVERSION "FileVersion"
-#endif
-#ifndef PTVERSION_FILEVERSION
 #define PTVERSION_FILEVERSION VERSION "\0"
-#endif
-
-#ifndef PROGRESS_VERSION
 #define PROGRESS_VERSION VERSION "\0"
-#endif
 
-#ifndef PTVERSION_NAME_LEGALCOPYRIGHT 
 #define PTVERSION_NAME_LEGALCOPYRIGHT "LegalCopyright"
-#endif
-#ifndef PTVERSION_LEGALCOPYRIGHT 
 #define PTVERSION_LEGALCOPYRIGHT "Copyright © 1999, 2000, 2001, 2005, 2006 Helmut Dersch\0"
-#endif
 
-#ifndef PTVERSION_NAME_COMMENT
 #define PTVERSION_NAME_COMMENT "Comments"
-#endif
-#ifndef PTVERSION_COMMENT
-# ifdef _MSC_VER
-#  define PTVERSION_COMMENT "MSVC\0"
-# else
-#  define PTVERSION_COMMENT "MinGW\0"
-# endif
-#endif
+
+#define PTVERSION_COMMENT "http://sourceforge.net/projects/panotools/"
+#define PTVERSION_COMPNAME "http://wiki.panotools.org/"
+
+#endif  //PTVERSIONINFO

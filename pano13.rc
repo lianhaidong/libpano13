@@ -315,12 +315,11 @@ BEGIN
     RADIOBUTTON     "Scale",324,58,43,59,8,0x00004000L  | 0x00020000L  | 0x00010000L 
 END
 
+#ifndef EXCLUDEPTVERSION
 1  VERSIONINFO
  FILEVERSION PTVERSION_FILEVERSIONNUMBER
  PRODUCTVERSION PTVERSION_FILEVERSIONNUMBER
  FILEFLAGSMASK 0x3fL
-
-
 
  FILEFLAGS 0x0L
 
@@ -332,12 +331,13 @@ BEGIN
     BEGIN
         BLOCK "040904b0"
         BEGIN
-			VALUE PTVERSION_NAME_COMMENT, PTVERSION_COMMENT
+            VALUE "Comments", PTVERSION_COMMENT
+            VALUE "CompanyName", PTVERSION_COMPNAME
             VALUE "FileDescription", "Panorama Tools Library\0"
             VALUE PTVERSION_NAME_FILEVERSION, PTVERSION_FILEVERSION
-            VALUE "InternalName", "pano12.dll\0"
+            VALUE "InternalName", "pano13.dll\0"
             VALUE PTVERSION_NAME_LEGALCOPYRIGHT, PTVERSION_LEGALCOPYRIGHT
-            VALUE "OriginalFilename", "pano12.dll\0"
+            VALUE "OriginalFilename", "pano13.dll\0"
             VALUE "ProductName", "Panorama Tools\0"
         END
     END
@@ -346,6 +346,7 @@ BEGIN
         VALUE "Translation", 0x409, 1200
     END
 END
+#endif
 
 LANGUAGE 0x09 , 0x01 
 #pragma code_page(1252)

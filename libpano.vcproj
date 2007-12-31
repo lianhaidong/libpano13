@@ -23,7 +23,7 @@
 				InlineFunctionExpansion="0"
 				FavorSizeOrSpeed="0"
 				AdditionalIncludeDirectories="&quot;$(WXWIDGETS_HOME)\src\zlib&quot;;&quot;$(WXWIDGETS_HOME)\src\png&quot;;&quot;$(WXWIDGETS_HOME)\src\tiff&quot;;&quot;$(WXWIDGETS_HOME)\src\jpeg&quot;;&quot;$(WXWIDGETS_HOME)\src&quot;;&quot;$(JDK_HOME)\include&quot;;&quot;$(JDK_HOME)\include\win32&quot;"
-				PreprocessorDefinitions="WIN32;__Win__;HasJava"
+				PreprocessorDefinitions="WIN32;__Win__;_USRDLL;HasJava"
 				RuntimeLibrary="2"
 				StructMemberAlignment="4"
 				WarningLevel="3"
@@ -37,16 +37,16 @@
 				Name="VCLinkerTool"
 				RegisterOutput="FALSE"
 				IgnoreImportLibrary="FALSE"
-				AdditionalDependencies="wxtiff.lib wxzlib.lib wxjpeg.lib wxpng.lib"
-				OutputFile="$(OutDir)/pano12.dll"
+				AdditionalDependencies="wxtiff.lib wxzlib.lib wxjpeg.lib wxpng.lib Ws2_32.lib"
+				OutputFile="$(OutDir)/pano13.dll"
 				LinkIncremental="0"
 				AdditionalLibraryDirectories="&quot;$(WXWIDGETS_HOME)\lib\vc_lib&quot;"
 				IgnoreAllDefaultLibraries="FALSE"
-				IgnoreDefaultLibraryNames=""
-				ModuleDefinitionFile="pano12vc.def"
+				IgnoreDefaultLibraryNames="LIBCMT"
+				ModuleDefinitionFile="pano13vc.def"
 				GenerateDebugInformation="FALSE"
 				EntryPointSymbol=""
-				ImportLibrary="$(OutDir)/pano12.lib"
+				ImportLibrary="$(OutDir)/pano13.lib"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"/>
@@ -58,7 +58,7 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				ResourceOutputFileName="$(IntDir)/pano12.res"/>
+				ResourceOutputFileName="$(IntDir)/pano13.res"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
@@ -80,7 +80,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;$(WXWIDGETS_HOME)\src\zlib&quot;;&quot;$(WXWIDGETS_HOME)\src\png&quot;;&quot;$(WXWIDGETS_HOME)\src\tiff&quot;;&quot;$(WXWIDGETS_HOME)\src\jpeg&quot;;&quot;$(WXWIDGETS_HOME)\src&quot;;&quot;$(JDK_HOME)\include&quot;;&quot;$(JDK_HOME)\include\win32&quot;"
-				PreprocessorDefinitions="WIN32;__Win__;HasJava"
+				PreprocessorDefinitions="WIN32;__Win__;_USRDLL;HasJava"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				StructMemberAlignment="4"
@@ -93,16 +93,16 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wxtiffd.lib wxzlibd.lib wxjpegd.lib wxpngd.lib"
-				OutputFile="$(OutDir)/pano12d.dll"
+				AdditionalDependencies="wxtiffd.lib wxzlibd.lib wxjpegd.lib wxpngd.lib Ws2_32.lib odbc32.lib odbccp32.lib version.lib"
+				OutputFile="$(OutDir)/pano13d.dll"
 				AdditionalLibraryDirectories="&quot;$(WXWIDGETS_HOME)\lib\vc_lib&quot;"
 				IgnoreAllDefaultLibraries="FALSE"
-				IgnoreDefaultLibraryNames=""
-				ModuleDefinitionFile="pano12vcd.def"
+				IgnoreDefaultLibraryNames="LIBCMTD"
+				ModuleDefinitionFile="pano13vcd.def"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/$(TargetName).pdb"
 				EntryPointSymbol=""
-				ImportLibrary="$(OutDir)/pano12.lib"
+				ImportLibrary="$(OutDir)/pano13.lib"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"/>
@@ -114,7 +114,7 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				ResourceOutputFileName="$(IntDir)/pano12d.res"/>
+				ResourceOutputFileName="$(IntDir)/pano13.res"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
@@ -136,7 +136,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;$(WXWIDGETS_HOME)\src\zlib&quot;;&quot;$(WXWIDGETS_HOME)\src\png&quot;;&quot;$(WXWIDGETS_HOME)\src\tiff&quot;;&quot;$(WXWIDGETS_HOME)\src\jpeg&quot;;&quot;$(WXWIDGETS_HOME)\src&quot;;&quot;$(JDK_HOME)\include&quot;;&quot;$(JDK_HOME)\include\win32&quot;"
-				PreprocessorDefinitions="WIN32;__Win__;HasJava"
+				PreprocessorDefinitions="WIN32;__Win__;_LIB;HasJava"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
@@ -161,7 +161,7 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				ResourceOutputFileName="$(IntDir)/pano12d.res"/>
+				ResourceOutputFileName=""/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
@@ -183,7 +183,7 @@
 				InlineFunctionExpansion="0"
 				FavorSizeOrSpeed="0"
 				AdditionalIncludeDirectories="&quot;$(WXWIDGETS_HOME)\src\zlib&quot;;&quot;$(WXWIDGETS_HOME)\src\png&quot;;&quot;$(WXWIDGETS_HOME)\src\tiff&quot;;&quot;$(WXWIDGETS_HOME)\src\jpeg&quot;;&quot;$(WXWIDGETS_HOME)\src&quot;;&quot;$(JDK_HOME)\include&quot;;&quot;$(JDK_HOME)\include\win32&quot;"
-				PreprocessorDefinitions="WIN32;__Win__;HasJava"
+				PreprocessorDefinitions="WIN32;__Win__;_LIB;HasJava"
 				RuntimeLibrary="0"
 				StructMemberAlignment="4"
 				WarningLevel="3"
@@ -206,7 +206,7 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				ResourceOutputFileName="$(IntDir)/pano12.res"/>
+				ResourceOutputFileName=""/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
@@ -327,10 +327,10 @@
 				RelativePath=".\seamer.c">
 			</File>
 			<File
-				RelativePath=".\sys_ansi.c">
+				RelativePath=".\sys_common.c">
 			</File>
 			<File
-				RelativePath=".\sys_common.c">
+				RelativePath=".\sys_win.c">
 			</File>
 			<File
 				RelativePath=".\tiff.c">
@@ -392,7 +392,7 @@
 				RelativePath=".\seamer.h">
 			</File>
 			<File
-				RelativePath=".\sys_ansi.h">
+				RelativePath=".\sys_win.h">
 			</File>
 			<File
 				RelativePath=".\version.h">
@@ -406,13 +406,22 @@
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}">
 			<File
-				RelativePath=".\pano12.rc">
+				RelativePath=".\pano13.rc">
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCResourceCompilerTool"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCResourceCompilerTool"/>
+				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\pano12vc.def">
-			</File>
-			<File
-				RelativePath=".\pano12vcd.def">
+				RelativePath=".\pano13vc.def">
 			</File>
 		</Filter>
 	</Files>

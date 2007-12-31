@@ -31,25 +31,25 @@ endif
 if HAVE_CYGWIN
 WIN_SRC =  sys_ansi.c bmp.c
 WIN_DEFS = -D__Win__=1
-WIN_LDFS = -mwindows -avoid-version -no-undefined -export-symbols $(srcdir)/libpano12.def 
+WIN_LDFS = -mwindows -avoid-version -no-undefined -export-symbols $(srcdir)/libpano13.def 
 
-$(PANO_WIN32_RESOURCE): pano12.rc
-	        $(top_srcdir)/build/win32/lt-compile-resource pano12.rc $@
+$(PANO_WIN32_RESOURCE): pano13.rc
+	        $(top_srcdir)/build/win32/lt-compile-resource pano13.rc $@
 
 install-exec-hook:
-	mv $(DESTDIR)$(bindir)/cygpano12.dll $(DESTDIR)$(bindir)/pano12.dll
+	mv $(DESTDIR)$(bindir)/cygpano13.dll $(DESTDIR)$(bindir)/pano13.dll
 endif
 
 if HAVE_MINGW
 WIN_SRC =  sys_ansi.c bmp.c
 WIN_DEFS = -D__Win__=1
-WIN_LDFS = -mwindows -avoid-version -no-undefined -export-symbols $(srcdir)/libpano12.def 
+WIN_LDFS = -mwindows -avoid-version -no-undefined -export-symbols $(srcdir)/libpano13.def 
 
-$(PANO_WIN32_RESOURCE): pano12.rc
-	        $(top_srcdir)/build/win32/lt-compile-resource pano12.rc $@
+$(PANO_WIN32_RESOURCE): pano13.rc
+	        $(top_srcdir)/build/win32/lt-compile-resource pano13.rc $@
 
 install-exec-hook:
-	mv $(DESTDIR)$(bindir)/libpano12.dll $(DESTDIR)$(bindir)/pano12.dll
+	mv $(DESTDIR)$(bindir)/libpano13.dll $(DESTDIR)$(bindir)/pano13.dll
 endif
 
 if HAVE_MAC
@@ -104,10 +104,10 @@ dist-hook:
 
 EXTRA_DIST =  gpl.txt README.linux README.windows README.mac \
 	      makefile.linux makefile.mac makefile.win32 \
-	      bootstrap filter.r pano12.def libpano12.def pano12.rc \
+	      bootstrap filter.r pano13.def libpano13.def pano13.rc \
 	      seamer_.c sys_X11.c sys_win.c bmp.c PixMap.c pict.c shell_mac.c \
 	      sys_mac.c ppm.c PixMap.h sys_ansi.c ppm.c ZComb.h adjust.h \
-	      pano12vc.def pano12vcd.def libpano.vcproj PanoTools.pbproj.tgz
+	      pano13vc.def pano13vcd.def libpano.vcproj PanoTools.pbproj.tgz
 
 MAINTAINERCLEANFILES = \
 	COPYING				\

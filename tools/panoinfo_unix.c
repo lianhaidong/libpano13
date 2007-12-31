@@ -1,7 +1,7 @@
 /*
  *  PanoInfo Demo app
  *
- *  Display info from pano12 dll/library
+ *  Display info from pano13 dll/library
  *
  *  May 2004
  *
@@ -23,7 +23,7 @@
  *
  */
 
-// gcc -Wall panoinfo_unix.c -L.. -lpano12 -o panoinfo
+// gcc -Wall panoinfo_unix.c -L.. -lpano13 -o panoinfo
 
 #include <stdio.h>
 #include <string.h>
@@ -57,7 +57,7 @@ int main(int argc,char *argv[])
 
 //		if(queryFeatureString (PTVERSION_NAME_LONG, sResult, sizeof(sResult)/sizeof(sResult[0]) ))
 //		{
-//			sprintf(str1, "Pano12 version:\t%s\n\n", sResult );
+//			sprintf(str1, "pano13 version:\t%s\n\n", sResult );
 //			strcat(str2 ,str1);
 //		}
 

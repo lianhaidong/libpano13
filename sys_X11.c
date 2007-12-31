@@ -141,7 +141,7 @@ int readPrefs( char* pref, int selector )
 	home_dir = getenv ("HOME");
 	if (!home_dir)
 		return -1;
-	sprintf (prefname, "%s/.gimp/pano12.prf", home_dir);
+	sprintf (prefname, "%s/.gimp/pano13.prf", home_dir);
 
 
 	if( (prfile = fopen( prefname, "rb" )) != NULL )
@@ -242,7 +242,7 @@ void writePrefs( char* prefs, int selector )
 	home_dir = getenv ("HOME");
 	if (!home_dir)
 		return ;
-	sprintf (prefname, "%s/.gimp/pano12.prf", home_dir);
+	sprintf (prefname, "%s/.gimp/pano13.prf", home_dir);
 
 	if( (prfile = fopen( prefname, "rb" )) != NULL )
 	{
