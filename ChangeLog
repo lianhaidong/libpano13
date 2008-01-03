@@ -1,3 +1,8 @@
+2008-01-03 Pablo d'Angelo
+
+	* tools/Makefile.am: Only compile PTAinterpolate if java (and thus
+	ptpicker.h) is available.
+
 2007-12-31 Jim Watters <jwatters@photocreations.ca>
 
 	* Update trunk to be pano13.  Create a name separation from pano12.

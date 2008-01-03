@@ -35,7 +35,12 @@ endif
 AM_CPPFLAGS = $(JAVA_FLAGS) $(LIN_DEFS) $(DAR_DEFS) $(TIFF_FLAGS) $(JPEG_FLAGS)
 AM_LDFLAGS  = -L${top_builddir}
 
+# PTAInterpolate can only be compiled with ptpicker.h, which in turn depends on java
+if HasJava
 bin_PROGRAMS = panoinfo PTAInterpolate PToptimizer PTmender PTblender PTtiff2psd PTuncrop PTtiffdump PTroller PTcrop PTmasker PTinfo
+else
+bin_PROGRAMS = panoinfo PToptimizer PTmender PTblender PTtiff2psd PTuncrop PTtiffdump PTroller PTcrop PTmasker PTinfo
+endif
 
 PTinfo_SOURCES = PTinfo.c 
 PTinfo_LDADD = -l${PANOLIB} -ltiff
