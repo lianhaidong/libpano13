@@ -1619,9 +1619,7 @@ static int ReadModeDescription( sPrefs *sP, char *line )
     char *ch = line;
     char buf[LINE_LENGTH];
     double sigma = 0;
-    // FS+
     int n;
-    // FS-
 
     setlocale(LC_ALL, "C");
     memcpy( &theSprefs,     sP,  sizeof(sPrefs) );
@@ -1645,15 +1643,14 @@ static int ReadModeDescription( sPrefs *sP, char *line )
                         if(theSprefs.optCreatePano != 0)
                             theSprefs.optCreatePano = TRUE;
                         break;
-            // FS+ 
-            // IMPORTANT: fastTransformStep is initialized to 0 in filter.c, function SetSizeDefaults()
             case 'f':   READ_VAR( "%d", &n );
-                        if( n == 0 || n == 1 ) {
-                            if( n == 0 ) fastTransformStep = FAST_TRANSFORM_STEP_NORMAL;    
-                            if( n == 1 ) fastTransformStep = FAST_TRANSFORM_STEP_MORPH;
-                        }
+                        if( n == 0 ) 
+                          theSprefs.fastStep = FAST_TRANSFORM_STEP_NORMAL;    
+                        else if( n == 1 ) 
+                          theSprefs.fastStep = FAST_TRANSFORM_STEP_MORPH;
+                        else
+                          theSprefs.fastStep = FAST_TRANSFORM_STEP_NONE;
                         break;
-            // FS-
             case 'm':   READ_VAR( "%lf", &sigma);
                         setFcnPanoHuberSigma(sigma);
                         break;
@@ -1915,14 +1912,15 @@ aPrefs* readAdjustLine( fullPath *theScript ){
     }
 
     // Use modevalues read from script
-    aP->interpolator = sP.interpolator;
-    aP->gamma   = sP.gamma;
+    aP->interpolator  = sP.interpolator;
+    aP->gamma         = sP.gamma;
+    aP->fastStep      = sP.fastStep;
                 
     // Parse script again, now reading triangles if morphing requested
     if( aP->im.cP.correction_mode & correction_mode_morph ){
         char*               script;
         AlignInfo           ainf;
-        int             nIm, nPts; // Number of image being processed
+        int                 nIm, nPts; // Number of image being processed
         Image               im[2];
                     
         script = LoadScript( theScript) ;

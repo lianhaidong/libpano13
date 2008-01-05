@@ -293,15 +293,22 @@
 #define		kSetCreateOptions_Snone				49
 
 
-#define kSetIntp	400
-#define kPoly	3
-#define kSp16	4
-#define kSp36	5
-#define kSinc	6
-#define kBil	9
-#define kNN	    10
-#define kSetIntp_Gamma	11
-#define kSp64	12
+#define kSetIntpPrefs_Gamma  1
+#define kSetIntpPrefs_Poly 2
+//#define kSetIntpPrefs_Sp16 2
+#define kSetIntpPrefs_Sp36 3
+#define kSetIntpPrefs_Sp64 4
+#define kSetIntpPrefs_Sinc256 5
+#define kSetIntpPrefs_AAHammering 6
+#define kSetIntpPrefs_AAGaussian 7
+#define kSetIntpPrefs_AAQuadratic 8
+#define kSetIntpPrefs_AAMitchell 9
+#define kSetIntpPrefs_AALauczos2 10
+#define kSetIntpPrefs_AALauczos3 11
+#define kSetIntpPrefs_FastTNorm 12
+#define kSetIntpPrefs_FastTMed 13
+#define kSetIntpPrefs_FastTFast 14
+#define kSetIntpPrefs_SetIntp 400
 
 
 #define		kSetSizePrefs_dlg					(can_resize ? 350 : 360)

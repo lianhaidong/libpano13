@@ -401,20 +401,21 @@ typedef struct Image Image;
 
 struct TrformStr                // This structure holds all image information
 {
-    Image *src;                 // Source image, must be supplied on entry
-    Image *dest;                // Destination image data, valid if success = 1 
-    pt_int32 success;           // 0 - no, 1 - yes 
+    Image          *src;        // Source image, must be supplied on entry
+    Image          *dest;       // Destination image data, valid if success = 1 
+    pt_int32        success;    // 0 - no, 1 - yes 
 
 
-    pt_int32 tool;              // Panorama Tool requested
-    pt_int32 mode;              // how to run transformation
-    void *data;                 // data for tool requested.
+    pt_int32        tool;       // Panorama Tool requested
+    pt_int32        mode;       // how to run transformation
+    void           *data;       // data for tool requested.
     // Required only if mode = _usedata; then it
     // must point to valid preferences structure
     // for requested tool (see filter.h).
 
-    pt_int32 interpolator;      // Select interpolator
-    double gamma;               // Gamma value for internal gamma correction
+    pt_int32        interpolator;// Select interpolator
+    double          gamma;      // Gamma value for internal gamma correction
+    int             fastStep;   // 0 no fast Transformation (default), FAST_TRANSFORM_STEP_MORPH, FAST_TRANSFORM_STEP_NORMAL
 };
 
 typedef struct TrformStr TrformStr;

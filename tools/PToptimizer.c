@@ -52,7 +52,7 @@ int main(int argc,char *argv[])
 
 	if(argc != 2)
 	{
-                printf(PT_OPTIMIZER_VERSION);
+		printf(PT_OPTIMIZER_VERSION);
 		printf("Usage: %s /path/to/script.txt\n", argv[0]);
 		exit(1);
 	}
@@ -80,8 +80,13 @@ int main(int argc,char *argv[])
 				RunLMOptimizer( &opt );
 				ainf.data		= opt.message;
 				WriteResults( script, &infile, &ainf, distSquared, 0);
-        			exit(0);
+				exit(0);
 			}
+      //TODO: if optCreatePano is 1 then should call stitcher  OR  the option removed
+      //if (ainf.sP.optCreatePano == 1)
+      //{
+      //   Stitch();
+      //}
 			DisposeAlignInfo( &ainf );
 		}
 		free( script );

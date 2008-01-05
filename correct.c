@@ -59,6 +59,7 @@ void 	correct	(TrformStr *TrPtr, cPrefs *prefs)
 	double  xdoff, ydoff;
 	Image	im, *dest, *src;
 	fDesc	fD;
+    fDesc	fDinv;
 
 	im.data = NULL; 
 
@@ -491,24 +492,7 @@ void 	correct	(TrformStr *TrPtr, cPrefs *prefs)
 				SetDesc(stack[i],resize,scale_params); i++;
 			}
 
-			if( prefs->shear )
-			{
-				shear_params[0] = prefs->shear_x / TrPtr->src->height;
-				shear_params[1] = prefs->shear_y / TrPtr->src->width;
-				SetDesc(stack[i],shear,shear_params); i++;
-			}
-
-			if (prefs->horizontal)
-			{
-				SetDesc(stack[i],horiz,&(prefs->horizontal_params[color]) ); i++;
-			}
-
-			if (prefs->vertical)
-			{
-				SetDesc(stack[i],vert,&(prefs->vertical_params[color])); i++;
-			}
-
-
+            // JMW 2008/01/03 make the order the same as Adjust doing correct
 			if( prefs->radial )
 			{
 				switch( prefs->correction_mode)
@@ -528,7 +512,25 @@ void 	correct	(TrformStr *TrPtr, cPrefs *prefs)
 					radial_params[j] = prefs->radial_params[color][j];
 				radial_params[5] = prefs->radial_params[color][4];
 			}
-			if( prefs->cutFrame )
+
+			if (prefs->vertical)
+			{
+				SetDesc(stack[i],vert,&(prefs->vertical_params[color])); i++;
+			}
+
+			if (prefs->horizontal)
+			{
+				SetDesc(stack[i],horiz,&(prefs->horizontal_params[color]) ); i++;
+			}
+
+			if( prefs->shear )
+			{
+				shear_params[0] = prefs->shear_x / TrPtr->src->height;
+				shear_params[1] = prefs->shear_y / TrPtr->src->width;
+				SetDesc(stack[i],shear,shear_params); i++;
+			}
+            
+            if( prefs->cutFrame )
 			{
 				if( xoff != 0 )
 				{
@@ -541,9 +543,8 @@ void 	correct	(TrformStr *TrPtr, cPrefs *prefs)
 					ydoff = (double)yoff + 0.5 * ( prefs->fheight - TrPtr->src->height) ;
 					SetDesc(stack[i],vert,&ydoff); i++;
 				}
-				
-
 			}
+
 			stack[i].func = (trfn)NULL;
 
 			if( 	!prefs->resize 		&&
@@ -560,8 +561,6 @@ void 	correct	(TrformStr *TrPtr, cPrefs *prefs)
 				fD.func = execute_stack_new; fD.param = stack;
 				transForm( TrPtr,  &fD, k);
 			}
-            
-            
             
             switch(k) // We use k as control var for a little statemachine:
             {

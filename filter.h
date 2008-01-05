@@ -102,11 +102,9 @@ enum{
 extern int JavaUI; // Flag to indicate use of java dialogs
 void JPrintError( char* text );
 
-
-extern int fastTransformStep;		// defined in resample.c
 #define FAST_TRANSFORM_STEP_NORMAL	40
 #define FAST_TRANSFORM_STEP_MORPH	6
-// FS-
+#define FAST_TRANSFORM_STEP_NONE    0
 
 struct PTPoint
 {
@@ -234,20 +232,21 @@ enum{										// Enumerates for aPrefs.mode
 		_useScript = 8,						// else use options
 	};
 
-struct adjust_Prefs{		//  Preferences structure for tool adjust
-		pt_int32	magic;	//  File validity check, must be 50
-		pt_int32	mode;	//  What to do: create Panorama etc?
-		Image	im;	//  Image to be inserted/extracted
-		Image	pano;	//  Panorama to be created/ used for extraction
-		
-		stBuf	sBuf;
-		fullPath scriptFile;	// On Mac: Cast to FSSpec; else: full path to scriptFile
-		int     nt;	// morphing triangles
-		PTTriangle 	*ts; // Source triangles
-		PTTriangle 	*td; // Destination triangles
+struct adjust_Prefs{                  //  Preferences structure for tool adjust
+    pt_int32            magic;        //  File validity check, must be 50
+    pt_int32            mode;         //  What to do: create Panorama etc?
+    Image               im;           //  Image to be inserted/extracted
+    Image               pano;         //  Panorama to be created/ used for extraction
 
-		int interpolator;
-		double gamma;		
+    stBuf               sBuf;
+    fullPath            scriptFile;   // On Mac: Cast to FSSpec; else: full path to scriptFile
+    int                 nt;           // morphing triangles
+    PTTriangle         *ts;           // Source triangles
+    PTTriangle         *td;           // Destination triangles
+
+    int                 interpolator; // Which interpolator to use 
+    double              gamma;        // Gamma correction value
+    int                 fastStep;     // 0 no fast Transformation (default), FAST_TRANSFORM_STEP_MORPH, FAST_TRANSFORM_STEP_NORMAL
 };
 		
 		
@@ -266,22 +265,23 @@ union panoPrefs{
 typedef union panoPrefs panoPrefs;
 
 
-struct size_Prefs{								// Preferences structure for 'pref' dialog
-		pt_int32			magic;					//  File validity check; must be 70
-		int				displayPart;			// Display cropped/framed image ?
-		int				saveFile;				// Save to tempfile? 0-no, 1-yes
-		fullPath		sFile;					// Full path to file (short name)
-		int				launchApp;				// Open sFile ?
-		fullPath		lApp;					// the Application to launch
-		int				interpolator;			// Which interpolator to use 
-		double			gamma;					// Gamma correction value
-		int				noAlpha;				// If new file is created: Don't save mask (Photoshop LE)
-		int				optCreatePano;			// Optimizer creates panos? 0  no/ 1 yes
-		} ;
+struct size_Prefs{                      // Preferences structure for 'pref' dialog
+    pt_int32        magic;              //  File validity check; must be 70
+    int             displayPart;        // Display cropped/framed image ?
+    int             saveFile;           // Save to tempfile? 0-no, 1-yes
+    fullPath        sFile;              // Full path to file (short name)
+    int             launchApp;          // Open sFile ?
+    fullPath        lApp;               // the Application to launch
+    int             interpolator;       // Which interpolator to use 
+    double          gamma;              // Gamma correction value
+    int             noAlpha;            // If new file is created: Don't save mask (Photoshop LE)
+    int             optCreatePano;      // Optimizer creates panos? 0  no/ 1 yes
+    int             fastStep;           // 0 no fast Transformation (default), FAST_TRANSFORM_STEP_MORPH, FAST_TRANSFORM_STEP_NORMAL
+} ;
 
 typedef struct size_Prefs sPrefs;
-		
-		
+
+
 
 #if 0
 struct controlPoint{							// Control Points to adjust images

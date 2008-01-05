@@ -181,12 +181,22 @@
 #define		kSetCreateOptions_Snone				257
 #define		kSetCreateOptions_Pan				101
 
-#define kSetIntp_Gamma  305
-#define kPoly 350	
-#define kSp16 351	
-#define kSp36 352	
-#define kSinc 353	
-#define kSetIntp "INTPOL"
+#define kSetIntpPrefs_Gamma  300
+#define kSetIntpPrefs_Poly 350
+//#define kSetIntpPrefs_Sp16 351
+#define kSetIntpPrefs_Sp36 352
+#define kSetIntpPrefs_Sp64 353
+#define kSetIntpPrefs_Sinc256 354
+#define kSetIntpPrefs_AAHammering 360
+#define kSetIntpPrefs_AAGaussian 361
+#define kSetIntpPrefs_AAQuadratic 362
+#define kSetIntpPrefs_AAMitchell 370
+#define kSetIntpPrefs_AALauczos2 371
+#define kSetIntpPrefs_AALauczos3 372
+#define kSetIntpPrefs_FastTNorm 380
+#define kSetIntpPrefs_FastTMed 381
+#define kSetIntpPrefs_FastTFast 382
+#define kSetIntpPrefs_SetIntp "INTPOL"
 
 #define		kSetFourierOptions_dlg				"FOURIEROPT"
 #define		kSetFourierOptions_PSDname			305

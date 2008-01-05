@@ -58,6 +58,7 @@ caused annoying warnings about unknown tags while loading each tiff source image
 // FS-
 
 #include "sys_win.h"
+#include "direct.h"
 
 #define CG_IDD_PROGRESS                 101
 #define CG_IDS_PROGRESS_CAPTION         102
@@ -70,8 +71,6 @@ caused annoying warnings about unknown tags while loading each tiff source image
 #define ID_PRG 100
 #define ID_MM  100
 #define ID_SM  101
-
-#define PREF_FILE_NAME "pano13.prf"
 
 HINSTANCE 	hDllInstance 	= NULL;
 HWND 		wndOwner 		= NULL;
@@ -195,7 +194,7 @@ int ProgressIntern( int command, char* argument ){
 int infoDlgIntern ( int command, char* argument )	// Display info: same argumenmts as progress
 {
 	char 				text[256];
-	static char			mainMessage[256];						
+	static char			mainMessage[256];
 	static HWND hwDlg;
 
 	MSG	msg;
@@ -268,11 +267,56 @@ int infoDlgIntern ( int command, char* argument )	// Display info: same argumenm
 
 	}
 	return TRUE;
-}				
+}
 
+// Applications will use this path and name to store and retrieve preferences
+BOOL GetPrefsFileName( char *prefname )
+{
+  char Modfname[_MAX_PATH], *name, *appData;
+  char OldDir[_MAX_PATH];
 
+  GetModuleFileName( NULL, Modfname, _MAX_PATH );
+  name = strrchr( Modfname, '.' );
+  if( name!= NULL )
+  {
+    *name = '\0';
+  }
+  name = strrchr( Modfname, '\\' );
+  if( name!= NULL )
+  {
+    name++;
+  }
+  else
+  {
+    name = Modfname;
+  }
 
+  appData = getenv ("APPDATA");
+  if (!appData )
+  {
+    appData = "c:";
+  }
 
+  sprintf( prefname, "%s\\PanoTools", appData, name );
+
+  /* Get the current working directory: */
+  if( getcwd( OldDir, _MAX_PATH ) != NULL )
+  {
+    // Test to see if the panotools folder exist
+    if(-1 == chdir(prefname) )
+    {
+      // If not create the folder
+      mkdir(prefname);
+    }
+    // go back from where we came
+    chdir(OldDir);
+  }
+
+  // Add file name to path
+  sprintf( prefname, "%s\\PanoTools\\%s.prf", appData, name );
+
+  return TRUE;
+}
 
 
 int readPrefs( char* pref, int selector )
@@ -287,25 +331,12 @@ int readPrefs( char* pref, int selector )
 		struct size_Prefs			s;
 		panControls					pc;
 	} prf;
-	char prefname[256], *c;
-	long size;
+	char  prefname[256];
+	long  size;
+	FILE *prfile;
+	int   result = 0;
 
-	FILE 	*prfile;
-	int result = 0;
-
-	GetModuleFileName( NULL, prefname, 256 );
-	c = strrchr( prefname, '\\' );
-	if( c!= NULL )
-	{
-		c++;
-		strcpy( c,PREF_FILE_NAME );
-	}
-	else
-	{
-		strcpy( prefname,".\\"PREF_FILE_NAME );
-	}
-
-
+	GetPrefsFileName( prefname );
 
 	if( (prfile = fopen( prefname, "rb" )) != NULL )
 	{
@@ -374,9 +405,6 @@ int readPrefs( char* pref, int selector )
 }
 
 
-
-
-
 void writePrefs( char* prefs, int selector )
 {
 
@@ -390,22 +418,10 @@ void writePrefs( char* prefs, int selector )
 		panControls					pc;
 	} prf;
 
-	FILE 	*prfile;
-	char prefname[256], *c;
+	FILE *prfile;
+	char  prefname[256];
 
-	GetModuleFileName( NULL, prefname, 256 );
-	c = strrchr( prefname, '\\' );
-	if( c!= NULL )
-	{
-		c++;
-		strcpy( c,PREF_FILE_NAME );
-	}
-	else
-	{
-		strcpy( prefname,".\\"PREF_FILE_NAME );
-	}
-
-
+	GetPrefsFileName( prefname );
 
 	if( (prfile = fopen( prefname, "rb" )) != NULL )
 	{
@@ -451,6 +467,10 @@ void writePrefs( char* prefs, int selector )
 		fwrite( &prf, sizeof(prf), 1 , prfile);
 		fclose(prfile);
 	}
+  else
+  {
+    PrintError( "Could not save settings to file %s", prefname);
+  }
 }
 
 
@@ -829,21 +849,28 @@ int makePathToHost ( fullPath *path )
 
 void MakeTempName( fullPath *destPath, char *fname )
 {
-	char path[MAX_PATH_LENGTH];
-	char sname[256];
+	char  sname[256];
+	char *temp_dir;
 
 	sprintf( sname, "pano13.%s", fname );
-	
-	path[0] = 0;
-	
-	GetModuleFileName( NULL, path, 256 );
-	GetShortPathName( path, destPath->name, 256 );
+
+  temp_dir = getenv ("TEMP");
+	if (!temp_dir )
+  {
+    temp_dir = getenv ("TMP");
+	  if (!temp_dir )
+    {
+      temp_dir = "c:\\";
+    }
+  }
+
+  //GetModuleFileName( NULL, path, 256 );
+	GetShortPathName( temp_dir, destPath->name, 256 );
 
 	if( strrchr( destPath->name, '\\' ) != NULL )
 		sprintf( strrchr( destPath->name, '\\' )+1, "%s", sname );
 	else
 		sprintf( destPath->name, "C:\\%s", sname );
-	
 }
 
 void ConvFileName( fullPath *fspec,char *string)

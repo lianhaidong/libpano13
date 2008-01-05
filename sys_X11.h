@@ -881,29 +881,50 @@ void WinFunc (GtkWidget *widget, gpointer data)									\
 
 //-------------------- Interpolator Selection ------------------------------
 	
-#define kPoly	0
-#define kSp16	1
-#define kSp36	2
-#define kSinc	3
-#define kSetIntp_Gamma	4
-#define kSetIntp						\
-    MAKE_TABLE(3, 5); 													\
-																		\
-    MAKE_TEXTLABEL("<- Faster", 		table, 2, 3, 1, 2);				\
-    MAKE_TEXTLABEL("Better ->", 		table, 2, 3, 2, 3);				\
-																		\
-    box = gtk_vbox_new(FALSE, 4);										\
-    gtk_container_border_width(GTK_CONTAINER(box), 5);					\
-    gtk_table_attach(GTK_TABLE(table), box, 0, 2, 0, 4,					\
-        GTK_FILL | GTK_EXPAND, GTK_FILL, 5, 0);							\
-	gtk_widget_show (box);												\
-    group = NULL;														\
-    MAKE_RADIO_BUTTON( kPoly,    "Polynomial")							\
-    MAKE_RADIO_BUTTON( kSp16,    "Spline 16 pixels")					\
-    MAKE_RADIO_BUTTON( kSp36,    "Spline 36 pixels")					\
-    MAKE_RADIO_BUTTON( kSinc,    "Sinc  256 pixels")					\
-	MAKE_TEXTLABEL("Gamma:", 	  table, 0, 1, 4, 5);					\
-	MAKE_TEXT_WID( kSetIntp_Gamma , 	1, 2, 4, 5 );					\
+#define kSetIntpPrefs_Poly          0
+#define kSetIntpPrefs_Sp36          1
+#define kSetIntpPrefs_Sp64			2
+#define kSetIntpPrefs_Sinc256		3
+#define kSetIntpPrefs_AAHammering   4
+#define kSetIntpPrefs_AAGaussian    5
+#define kSetIntpPrefs_AAQuadratic   6
+#define kSetIntpPrefs_AAMitchell    7
+#define kSetIntpPrefs_AALauczos2    8
+#define kSetIntpPrefs_AALauczos3    9
+#define kSetIntpPrefs_FastTNorm		10
+#define kSetIntpPrefs_FastTMed		11
+#define kSetIntpPrefs_FastTFast		12
+#define kSetIntpPrefs_Gamma	        13
+#define kSetIntpPrefs_SetIntp													\
+	MAKE_TABLE(3, 6);												\
+                                                                        \
+    MAKE_TEXTLABEL("<- Faster",         table, 2, 3, 1, 2);             \
+    MAKE_TEXTLABEL("Better ->",         table, 2, 3, 2, 3);             \
+                                                                        \
+    box = gtk_vbox_new(FALSE, 4);                                       \
+    gtk_container_border_width(GTK_CONTAINER(box), 5);                  \
+    gtk_table_attach(GTK_TABLE(table), box, 0, 2, 0, 4,                 \
+        GTK_FILL | GTK_EXPAND, GTK_FILL, 5, 0);                         \
+    gtk_widget_show (box);                                              \
+    group = NULL;                                                       \
+	MAKE_RADIO_BUTTON( kSetIntpPrefs_Poly,	  _("Polynomial 16 pixels"))	\
+	MAKE_RADIO_BUTTON( kSetIntpPrefs_Sp36,	  _("Spline		36 pixels"))	\
+	MAKE_RADIO_BUTTON( kSetIntpPrefs_Sp64,	  _("Spline		64 pixels"))	\
+	MAKE_RADIO_BUTTON( kSetIntpPrefs_Sinc256,  _("Sinc		256 pixels"))	\
+	MAKE_RADIO_BUTTON( kSetIntpPrefs_AAHammering,  _("Hammering		1.0"))	\
+	MAKE_RADIO_BUTTON( kSetIntpPrefs_AAGaussian,  _("Gaussian	1.2"))	\
+	MAKE_RADIO_BUTTON( kSetIntpPrefs_AAQuadratic,  _("Quadratic	1.5"))	\
+	MAKE_RADIO_BUTTON( kSetIntpPrefs_AAMitchell,  _("Mitchell	2.0"))	\
+	MAKE_RADIO_BUTTON( kSetIntpPrefs_AALauczos2,  _("Lauczos2	2.0"))	\
+	MAKE_RADIO_BUTTON( kSetIntpPrefs_AALauczos3,  _("Lauczos3	3.0"))	\
+																	\
+	MAKE_BFRAME(table, _("Interpolation speed:"), 0, 2, 4, 5, 3);	\
+	MAKE_RADIO_BUTTON( kSetIntpPrefs_FastTNorm, _("Normal") )		\
+	MAKE_RADIO_BUTTON( kSetIntpPrefs_FastTMed,  _("Medium") )		\
+	MAKE_RADIO_BUTTON( kSetIntpPrefs_FastTFast, _("Fast") )			\
+																	\
+	MAKE_TEXTLABEL(_("Gamma:"),		  table, 0, 1, 5, 6);			\
+	MAKE_TEXT_WID( kSetIntpPrefs_Gamma ,		1, 2, 5, 6 );
 
 
 

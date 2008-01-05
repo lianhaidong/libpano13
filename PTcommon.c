@@ -782,8 +782,9 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
 
 
 
-        transform.interpolator = prefs->interpolator;
-        transform.gamma = prefs->gamma;
+        transform.interpolator  = prefs->interpolator;
+        transform.gamma         = prefs->gamma;
+        transform.fastStep      = prefs->fastStep;
         
         if (ptQuietFlag == 0) {
             sprintf(tmpStr, "Converting Image %d / %d", (loopCounter + 1),
@@ -1014,6 +1015,7 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
 	    printf("Prefs pano: hvof %f, vfov %f pitch %f, roll %f\n", prefs->pano.hfov, prefs->pano.yaw, prefs->pano.pitch, prefs->pano.roll);
 	    printf("Prefs Interpolator %d:\n", prefs->interpolator);
 	    printf("Prefs Gamma %d:\n", prefs->gamma);
+        printf("Prefs FastT %d:/n,  prefs->fastStep);
 	    */
 
             MakePano(&transform, prefs);

@@ -171,6 +171,7 @@ JNIEXPORT void JNICALL Java_pteditor_CExtract
 	Tr.mode					= _usedata + _show_progress + _honor_valid;
 	Tr.interpolator			= spref.interpolator;
 	Tr.gamma				= spref.gamma;
+    Tr.fastStep             = spref.fastStep;
 	Tr.data					= (void*) &ap;
 
 	Tr.success = 1;
@@ -261,6 +262,7 @@ JNIEXPORT void JNICALL Java_pteditor_CInsert
 	Tr.mode					= _usedata + _show_progress + _destSupplied;
 	Tr.interpolator			= spref.interpolator;
 	Tr.gamma				= spref.gamma;
+    Tr.fastStep             = spref.fastStep;
 	Tr.data					= (void*) &ap;
 
 	Tr.success = 1;

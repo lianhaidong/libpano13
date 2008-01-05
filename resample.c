@@ -110,24 +110,13 @@ void transForm_aa( TrformStr *TrPtr, fDesc *fD,fDesc *finvD, int color, int imag
 
 
 // Arrays used for Gamma correction
-
-
 PTGamma glu; // Lookup table
-
-
-// FS+
-// used for fast pixel transform. It is the width of the starting step for linear interpolation
-// a value of 0 disables the fast transform
-int fastTransformStep = 0;
 
 // prototype to avoid a warning: the function is defined in morpher.c
 int getLastCurTriangle();
 
-// FS-
-
 
 // Some locally needed math functions
-
 static double 	sinc		( double x );
 static double 	cubic01		( double x );
 static double 	cubic12		( double x ); 
@@ -945,11 +934,9 @@ void ComputePartialRowCoords( double *ax, double *ay, int *trinum, char *avalid,
 // the array elements lie in the interval [0, asize], the image elements in [destRect.left, destRect.right]: the offset parameter
 //   is used for the conversion
 void ComputeRowCoords( double *ax, double *ay, int *trinum, char *avalid, pt_int32 asize, long offset, double w2, double y_d, 
-						  fDesc *fD, double sw2, double sh2, double min_x, double max_x, double min_y, double max_y ) {
+						  fDesc *fD, double sw2, double sh2, double min_x, double max_x, double min_y, double max_y, int STEP_WIDTH) {
 
-	// initial distance betwen correctly computed points. The distance will be reduced if needed.
-//	int STEP_WIDTH = 40;
-	int STEP_WIDTH = fastTransformStep;
+	// STEP_WIDTH is initial distance betwen correctly computed points. The distance will be reduced if needed.
 
 	pt_int32 x;
 
@@ -1064,7 +1051,7 @@ void MyTransForm( TrformStr *TrPtr, fDesc *fD, int color, int imageNum)
 	char *avalid = NULL;			// is the pixel valid?
 	double maxErrX, maxErrY;
 	long offset;
-//	int useFastTransform;	// true if we will use the new fast pixel transformation
+    int FastTransform = TrPtr->fastStep; // non 0 if we will use the new fast pixel transformation
 	int evaluateError = FALSE;		// true if we want to write a file with the transformation errors
 	// FS-
 	//////////////////////////////////////////////////////////////////////////
@@ -1276,14 +1263,16 @@ void MyTransForm( TrformStr *TrPtr, fDesc *fD, int color, int imageNum)
 			while( !feof(fp) && buf != NULL ) {
 				//s = strupr( buf );	commented out because it causes linking problems with the microsoft compiler
 				if( strncmp( s, "FAST_TRANSFORM", 14 )  == 0 )
-					fastTransformStep = FAST_TRANSFORM_STEP_NORMAL;
+					FastTransform = FAST_TRANSFORM_STEP_NORMAL;
+				if( strncmp( s, "MORPH_TRANSFORM", 15 )  == 0 )
+					FastTransform = FAST_TRANSFORM_STEP_MORPH;
 				if( strncmp( s, "EVALUATE_ERROR", 14 )  == 0 )
 					evaluateError = TRUE;
 				s = fgets( buf, 98, fp );
 			}
 			fclose( fp );
 		}
-		if( fastTransformStep == 0 ) evaluateError = FALSE;	// only evaluate error if fast transform is activated
+		if( FastTransform == 0 ) evaluateError = FALSE;	// only evaluate error if fast transform is activated
 	}
 	// FS-
 
@@ -1311,8 +1300,8 @@ void MyTransForm( TrformStr *TrPtr, fDesc *fD, int color, int imageNum)
 		cy  = (y-destRect.top) * TrPtr->dest->bytesPerLine;	
 		
 		// FS+ computes the transform for this row using linear interpolation
-		if( fastTransformStep != 0 || evaluateError )
-			ComputeRowCoords( ax, ay, trinum, avalid, destRect.right - destRect.left + 1, offset, w2, y_d, fD, sw2, sh2, min_x, max_x, min_y, max_y );
+		if( FastTransform != 0 || evaluateError )
+			ComputeRowCoords( ax, ay, trinum, avalid, destRect.right - destRect.left + 1, offset, w2, y_d, fD, sw2, sh2, min_x, max_x, min_y, max_y, FastTransform);
 		// FS-
 
 		for(x=destRect.left; x<destRect.right; x++){
@@ -1321,7 +1310,7 @@ void MyTransForm( TrformStr *TrPtr, fDesc *fD, int color, int imageNum)
 			coeff = cy  + BytesPerPixel * (x-destRect.left);		
 
 			// FS+
-			if( fastTransformStep == 0 || evaluateError ) {
+			if( FastTransform == 0 || evaluateError ) {
 				// Convert destination screen coordinates to cartesian coordinates.			
 				x_d = (double) x - w2 ;
 				

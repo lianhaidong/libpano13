@@ -373,26 +373,45 @@ BEGIN
     CHECKBOX        "(d) Don't Save Mask (Photoshop LE)",220,21,116,129,12
 END
 
-INTPOL DIALOG DISCARDABLE  0, 0, 187, 125
+INTPOL DIALOG DISCARDABLE  0, 0, 187, 262
 STYLE 0x80L  | 0x80000000L  | 0x00C00000L  | 0x00080000L 
-CAPTION "Bicubic Interpolator"
+CAPTION "Interpolator"
 FONT 8, "MS Sans Serif"
 BEGIN
-    DEFPUSHBUTTON   "OK",1 ,90,92,50,14
-    PUSHBUTTON      "Cancel",2 ,24,92,50,14
-    RADIOBUTTON     "Polynomial           16 Pixels",350,21,29,99,8,
+    DEFPUSHBUTTON   "OK",1 ,90,238,50,14
+    PUSHBUTTON      "Cancel",2 ,24,238,50,14
+    GROUPBOX        "Interpolator Options",100,8,9,167,142
+    RADIOBUTTON     "Polynomial           16 Pixels",350,16,25,99,8,
                     0x00004000L  | 0x00020000L  | 0x00010000L 
-    RADIOBUTTON     "Spline                  16 Pixels",351,21,40,96,8,
+    RADIOBUTTON     "Spline                  36 Pixels",352,16,36,98,8,
+                    0x00004000L  | 0x00010000L 
+    RADIOBUTTON     "Spline                  64 Pixels",353,16,47,98,8,
+                    0x00004000L  | 0x00010000L 
+    RADIOBUTTON     "Sinc                    256Pixels",354,16,58,99,8,
+                    0x00004000L  | 0x00010000L 
+    RADIOBUTTON     "Hammering         AA smooth 1.0",360,16,73,131,8,
+                    0x00004000L  | 0x00010000L 
+    RADIOBUTTON     "Gaussian            AA smooth 1.25",361,16,84,131,8,
+                    0x00004000L  | 0x00010000L 
+    RADIOBUTTON     "Quadratic           AA smooth  1.5",362,16,95,131,8,
+                    0x00004000L  | 0x00010000L 
+    RADIOBUTTON     "Mitchell               AA sharp 2.0",370,16,111,131,8,
+                    0x00004000L  | 0x00010000L 
+    RADIOBUTTON     "Lauczos2            AA sharp 2.0",371,16,122,131,8,
+                    0x00004000L  | 0x00010000L 
+    RADIOBUTTON     "Lauczos3            AA sharp 3.0",372,16,133,131,8,
+                    0x00004000L  | 0x00010000L 
+    LTEXT           "  <- Faster",223,122,33,47,8,NOT 0x00020000L 
+    LTEXT           "Better ->",224,128,47,31,8,NOT 0x00020000L 
+    GROUPBOX        "Fast Transformation",101,8,159,167,52
+    RADIOBUTTON     "Off",380,16,171,78,10,
                     0x00004000L  | 0x00020000L  | 0x00010000L 
-    RADIOBUTTON     "Spline                  36 Pixels",352,21,51,98,8,
-                    0x00004000L  | 0x00020000L  | 0x00010000L 
-    RADIOBUTTON     "Sinc                    256Pixels",353,21,62,99,8,
-                    0x00004000L  | 0x00020000L  | 0x00010000L 
-    LTEXT           "Interpolator Options:",6,21,15,137,8,NOT 0x00020000L 
-    LTEXT           "  <- Faster",223,127,39,47,8,NOT 0x00020000L 
-    LTEXT           "Better ->",224,133,53,31,8,NOT 0x00020000L 
-    EDITTEXT        305,60,73,26,12
-    LTEXT           "Gamma:",20,25,74,31,8,NOT 0x00020000L 
+    RADIOBUTTON     "Some",381,16,183,78,10,
+                    0x00004000L  | 0x00010000L 
+    RADIOBUTTON     "Fast",382,16,195,78,10,
+                    0x00004000L  | 0x00010000L 
+    LTEXT           "Gamma:",20,13,220,31,8,NOT 0x00020000L 
+    EDITTEXT        300,56,219,26,12
 END
 
 105 DIALOG DISCARDABLE  0, 0, 201, 117
