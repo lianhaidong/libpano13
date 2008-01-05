@@ -80,10 +80,8 @@ PToptimizer_LDADD   = -l${PANOLIB}
 panoinfo_SOURCES    = $(WIN_SRC) $(LIN_SRC) $(DAR_SRC)
 panoinfo_LDADD      = -l${PANOLIB}
 
-EXTRA_DIST = makefile.panoinfo.win32 makefile.ptoptimizer.win32 \
-             README.PTmender PTStitcher.cpp PTStitcher.vcproj \
-             PTpano13.vcproj PTpano13_readme.txt PTpano13.dsp \
-             ptpano13.cpp ptpano13.h ptpano13.def
+EXTRA_DIST = README.PTmender 
+               
 
 MAINTAINERCLEANFILES = \
 	Makefile.in

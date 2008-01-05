@@ -174,8 +174,10 @@ o f2 r0   p0    y180   v183    a0 b-0.1 c0  S100,600,100,800
 #                   22 - Blackman/Bessel
 #                   23 - Blackman/sinc
 #                   
-# f0		   Invoke Faster Transformation also invoked by creating a file named "pano12_opt.txt" 
-#                   in the same foler as project with a line FAST_TRANSFORM
+# f0		   Invoke Faster Transformation. Increase the speed of transformation with the side effect a little distortion
+#                   0 Fastest speed, some distortion
+#                   1 Some speed, little distortion
+#                   - anything else turns off Faster Transformation (default)
 
 m g1.5 i6 f0
 

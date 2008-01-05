@@ -104,10 +104,10 @@ dist-hook:
 
 EXTRA_DIST =  gpl.txt README.linux README.windows README.mac \
 	      makefile.linux makefile.mac makefile.win32 \
-	      bootstrap filter.r pano13.def libpano13.def pano13.rc \
+	      bootstrap filter.r libpano13.def pano13.rc \
 	      seamer_.c sys_X11.c sys_win.c bmp.c PixMap.c pict.c shell_mac.c \
 	      sys_mac.c ppm.c PixMap.h sys_ansi.c ppm.c ZComb.h adjust.h \
-	      pano13vc.def pano13vcd.def libpano.vcproj PanoTools.pbproj.tgz
+	      pano13vc.def libpano.vcproj PanoTools.pbproj.tgz
 
 MAINTAINERCLEANFILES = \
 	COPYING				\

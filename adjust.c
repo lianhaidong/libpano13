@@ -98,12 +98,14 @@ void adjust(TrformStr *TrPtr, aPrefs *prefs)
 
 				TrPtr->interpolator = aP.interpolator;
 				TrPtr->gamma	    = aP.gamma;
+                TrPtr->fastStep     = aP.fastStep;
 					
 #if 0
 				int readmode = 1;
 				aPtr = &aP;
 				gsPrPtr->interpolator 	= TrPtr->interpolator;
 				gsPrPtr->gamma			= TrPtr->gamma;
+                gsPrPtr->fastStep	    = TrPtr->fastStep;
 				if( TrPtr->mode & _destSupplied ){
 					PTRect* p = &TrPtr->dest->selection;
 					if( !(p->bottom == 0 && p->right == 0) &&
@@ -125,6 +127,7 @@ void adjust(TrformStr *TrPtr, aPrefs *prefs)
 				// Use modevalues read from script
 				TrPtr->interpolator = gsPrPtr->interpolator;
 				TrPtr->gamma		= gsPrPtr->gamma;
+                TrPtr->fastStep     = gsPrPtr->fastStep;
 				
 				// Parse script again, now reading triangles if morphing requested
 				if( aPtr->im.cP.correction_mode & correction_mode_morph )
@@ -2188,26 +2191,24 @@ void ColCorrect( Image *im, double ColCoeff[3][2] )
 void SetAdjustDefaults( aPrefs *prefs )
 {
 
-	prefs->magic		=	50;					//	File validity check, must be 50
-	prefs->mode			= 	_insert;			//	
-	
-	SetImageDefaults( &(prefs->im) );
-	SetImageDefaults( &(prefs->pano) );
-	
-	SetStitchDefaults( &(prefs->sBuf) );	
+    prefs->magic        =   50;                 //  File validity check, must be 50
+    prefs->mode         =   _insert;            //  
+    
+    SetImageDefaults( &(prefs->im) );
+    SetImageDefaults( &(prefs->pano) );
+    
+    SetStitchDefaults( &(prefs->sBuf) );    
 
-	memset( &(prefs->scriptFile), 0, sizeof( fullPath ) );
-	
-	prefs->nt = 0;
-	prefs->ts = NULL;
-	prefs->td = NULL;
-	
-	prefs->interpolator = _poly3;
-	prefs->gamma = 1.0;
+    memset( &(prefs->scriptFile), 0, sizeof( fullPath ) );
+    
+    prefs->nt           = 0;
+    prefs->ts           = NULL;
+    prefs->td           = NULL;
+    
+    prefs->interpolator = _spline36;
+    prefs->gamma        = 1.0;
+    prefs->fastStep     = FAST_TRANSFORM_STEP_NONE;
 }
-
-
-
 
 				
 

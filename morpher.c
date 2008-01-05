@@ -212,8 +212,9 @@ int MorphImage( Image *src, Image *dst, PTTriangle *ts, PTTriangle *td, int nt )
 	
 
 	Tr.mode					= _show_progress;
-	Tr.interpolator			= _poly3;
+	Tr.interpolator			= _spline36;
 	Tr.gamma				= 1.0;
+    Tr.fastStep             = FAST_TRANSFORM_STEP_NONE;
 	Tr.src					= src;
 	Tr.dest					= dst;
 	Tr.success				= 1;

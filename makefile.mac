@@ -40,7 +40,7 @@ PPCSrc			= 		filter.c parser.c queryfeature.c sys_mac.c  correct.c perspect.c ¶
 						seamer.c ptpicker.c pteditor.c seamer_.c	¶
 						tiff.c pict.c jpeg.c PixMap.c
 
-OtherSrc		=		filter.r Gimpmain.c bmp.c pano13.x pano13.def ppm.c resource.h ¶
+OtherSrc		=		filter.r Gimpmain.c bmp.c pano13.x libpano13.def ppm.c resource.h ¶
 						sys_X11.c sys_X11.h sys_win.c sys_win.h sys_ansi.h sys_ansi.c ¶
 						
 

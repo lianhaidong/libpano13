@@ -1216,8 +1216,9 @@ JNIEXPORT void JNICALL Java_ptutils_CAlignPoint
 	
 	pc_Tr->tool					= _adjust;
 	pc_Tr->mode					= _usedata + _destSupplied;
-	pc_Tr->interpolator			= _poly3;
+	pc_Tr->interpolator			= _spline36;
 	pc_Tr->gamma				= 1.0;
+    pc_Tr->fastStep             = FAST_TRANSFORM_STEP_NONE;
 	pc_Tr->data					= (void*) pc_adj;
 
 	opt.numVars 		= 4;

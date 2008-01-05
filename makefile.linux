@@ -8,7 +8,7 @@ sources = panorama.h filter.h fftn.h f2c.h pteditor.h  \
           optimize.c morpher.c Triangulate.c \
 	  seamer.c ptpicker.c pteditor.c seamer_.c \
           tiff.c bmp.c jpeg.c png.c  multilayer.c \
-          Makefile pano13.rc pano13.def sys_ansi.c ppm.c
+          Makefile pano13.rc libpano13.def sys_ansi.c ppm.c
 
 objects = filter.o parser.o  queryfeature.o correct.o perspect.o \
           adjust.o  remap.o lmdif.o  file.o math.o pan.o \

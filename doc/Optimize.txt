@@ -24,6 +24,20 @@
 #                  1 - Cylindrical (for Printing and QTVR)
 #                  2 - Equirectangular ( for Spherical panos), default
 #                  3 - full-frame fisheye
+#                  4 - stereographic
+#                  5 - mercator
+#                  6 - transverse mercator
+#                  7 - sinusoidal
+#                  8 - Lambert Equal Area Cylindrical
+#                  9 - Lambert Azimuthal
+#                 10 - Albers Equal Area Conical
+#
+# P"p1 p2 ..."    Optional parameters for some projections
+#
+#                 for f10 - 0, 1 or 2 parameters corresponding to the
+#                 standard parallels.  If no parms specified
+#                 defaults to <20,60>. If one given P1 == P2
+#
 # v360         horizontal field of view of panorama (default 360)
 # nPICT        Panorama file format, one of:
 #                  PICT          pict-file on macs, bmp-file on win (default)
@@ -49,6 +63,7 @@
 #                                  VRML-object for PTStereo
 #                  QTVR          Apple QTVR-panomovie. Use only with f1
 #                  3DMF          3DMF-object (PTStereo).
+#
 # n"QTVR w400 h300 c1"           additional viewer options in a quoted string together with format
 #              the following options are recognized:
 #                  w(width) and h(height) of viewer window (only QTVR on Macs)
@@ -109,7 +124,7 @@ p w800 nPSD_mask -buf
 #                  of the line scanner relative to the film transport
 #                  g - horizontal shear
 #                  t - vertical shear
-# u10          (obsolete, globally used on p line) specify width of feather for stitching. default:10
+
 # S100,600,100,800   Selection(l,r,t,b), Only pixels inside the rectangle will be used for conversion.
 #                       Original image size is used for all image parameters
 #                       (e.g. field-of-view) refer to the original image.
@@ -123,13 +138,6 @@ p w800 nPSD_mask -buf
 #                   0-middle of overlap('blend' ,default)
 #                   1- at edge of image ('paste').
 # o            (the small letter). Morph-to-fit using control points.
-# k0           (obsolete, use p line correction still used with plugin)
-#                  attempt color/brightness correction when merging image and buffer, one of:
-#                  0 - no correction(default);
-#                  1 - change image;
-#                  2 - change buffer;
-#                  3 - change both
-#                  this feature does not work very well!
 # X10          World coordinates of camera position, only used for PTStereo
 # Y200         If the camera is aligned (yaw = pitch = roll = 0.0),
 # Z-13.5       X is coordinate to the right, Y vertically up and

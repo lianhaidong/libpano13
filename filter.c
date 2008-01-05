@@ -120,7 +120,8 @@ void dispatch (TrformStr *TrPtr, sPrefs *spref)
                                         else
                                         {
                                                 TrPtr->interpolator = spref->interpolator;
-                                                TrPtr->gamma            = spref->gamma;
+                                                TrPtr->gamma        = spref->gamma;
+                                                TrPtr->fastStep     = spref->fastStep;
                                                         
                                                 writePrefs( (char*)prPtr, TrPtr->tool );
                                                 writePrefs( (char*)spref, _sizep );
@@ -935,21 +936,17 @@ int HaveEqualSize( Image *im1, Image *im2 )
 
 void SetSizeDefaults( sPrefs *pref)
 {
-        
-        pref->magic                     = 70;                   // File validity check; must be 70
-        pref->displayPart       = TRUE;                 // Display cropped/framed image ?
-        pref->saveFile          = FALSE;                // Save to tempfile?
-        pref->launchApp         = FALSE;                // Open sFile ?
-        pref->interpolator      = _poly3;
-        makePathForResult( &(pref->sFile) );
-        makePathToHost ( &(pref->lApp) );
-        pref->gamma                     = 1.0;
-        pref->noAlpha           = FALSE;                        // Check only for Photoshop LE
-        pref->optCreatePano = TRUE;
-
-        // FS+
-        fastTransformStep = 0;  // the value will be changed in parser.c
-        // FS-
+    pref->magic             = 70;                   // File validity check; must be 70
+    pref->displayPart       = TRUE;                 // Display cropped/framed image ?
+    pref->saveFile          = FALSE;                // Save to tempfile?
+    pref->launchApp         = FALSE;                // Open sFile ?
+    pref->interpolator      = _spline36;            //
+    makePathForResult( &(pref->sFile) );
+    makePathToHost ( &(pref->lApp) );
+    pref->gamma             = 1.0;
+    pref->noAlpha           = FALSE;                // Check only for Photoshop LE
+    pref->optCreatePano     = TRUE;
+    pref->fastStep          = FAST_TRANSFORM_STEP_NONE; // the value will be changed in parser.c
 }
 
 

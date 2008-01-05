@@ -60,7 +60,7 @@ sources = panorama.h filter.h fftn.h f2c.h pteditor.h \
           optimize.c morpher.c Triangulate.c \
           seamer.c ptpicker.c pteditor.c seamer_.c \
           tiff.c bmp.c jpeg.c png.c  multilayer.c ZComb.c hdrfile.c rgbe.c\
-          Makefile pano13.rc pano13.def sys_ansi.c ppm.c
+          Makefile pano13.rc libpano13.def sys_ansi.c ppm.c
 
 objects = filter.o parser.o queryfeature.o sys_common.o PTcommon.o ColourBrightness.o correct.o perspect.o \
           adjust.o  remap.o lmdif.o  file.o math.o pan.o \
@@ -80,9 +80,9 @@ pano13rc.o  : pano13.rc
 	windres  -i pano13.rc -o pano13rc.o
 
 pano13.dll  : $(objects) $(winobj)
-	dllwrap --enable-stdcall-fixup -o pano13.dll --def pano13.def $(objects) $(winobj) $(libDirs) $(incDirs) -lcomdlg32 -ljpeg -ltiff -lpng -lz -mwindows
+	dllwrap --enable-stdcall-fixup -o pano13.dll --def libpano13.def $(objects) $(winobj) $(libDirs) $(incDirs) -lcomdlg32 -ljpeg -ltiff -lpng -lz -mwindows
 	strip pano13.dll
-	dlltool --dllname pano13.dll --def pano13.def --output-lib libpano13.a
+	dlltool --dllname pano13.dll --def libpano13.def --output-lib libpano13.a
 
 install  : pano13.dll
 	mv pano13.dll C:/WINDOWS/SYSTEM32/pano13.dll
