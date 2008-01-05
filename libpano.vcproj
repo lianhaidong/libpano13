@@ -98,7 +98,7 @@
 				AdditionalLibraryDirectories="&quot;$(WXWIDGETS_HOME)\lib\vc_lib&quot;"
 				IgnoreAllDefaultLibraries="FALSE"
 				IgnoreDefaultLibraryNames="LIBCMTD"
-				ModuleDefinitionFile="pano13vcd.def"
+				ModuleDefinitionFile="pano13vc.def"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/$(TargetName).pdb"
 				EntryPointSymbol=""
