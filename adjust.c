@@ -257,7 +257,8 @@ void adjust(TrformStr *TrPtr, aPrefs *prefs)
 			TrPtr->mode				|= _honor_valid;
 			CopyPosition( TrPtr->src,  &(aPtr->im) );
 			CopyPosition( TrPtr->dest, &(aPtr->pano) );
-			addAlpha( TrPtr->src ); // Add alpha channel to indicate valid data
+      // JMW 2008/01/07 Alpha is valid data don't override it with blank data
+//			addAlpha( TrPtr->src ); // Add alpha channel to indicate valid data
 			
 			aPtr->mode = prefs->mode; // For checkparam
 			MakePano( TrPtr,  aPtr );
@@ -330,7 +331,7 @@ void adjust(TrformStr *TrPtr, aPrefs *prefs)
 			aPtr->pano.height	= TrPtr->src->height;				//  height of panorama
 			
 			CopyPosition( TrPtr->src, &(aPtr->pano) );
-			addAlpha( TrPtr->src ); 
+//			addAlpha( TrPtr->src ); 
 				
 			if( *(aPtr->sBuf.destName) != 0 ) // save buffer image
 			{

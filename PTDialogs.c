@@ -749,33 +749,71 @@ int	SetPanPrefs(  panControls *thePrefs )
  
 int SetInterpolator( sPrefs *thePrefs) 
 {
-	GenDialog( sPrefs,  kSetIntp, "Bicubic Interpolation Options",
-			{
-				CheckButton( kPoly,  localPrefs.interpolator == _poly3 );																			
-				CheckButton( kSp16,  localPrefs.interpolator == _spline16 );																		
-				CheckButton( kSp36,  localPrefs.interpolator == _spline36 );																			
-				CheckButton( kSinc,  localPrefs.interpolator == _sinc256 );																			
-			 },
-			 {
-			 	SetText( kSetIntp_Gamma, 	"%g", 	localPrefs.gamma);
-			 },
-			 {
-			 	GetText( kSetIntp_Gamma, 	"%lf",  &localPrefs.gamma);
-			 }, 
-			 {
-				case kPoly:
-					localPrefs.interpolator = _poly3;
-					break;
-				case kSp16:
-					localPrefs.interpolator = _spline16;
-					break;
-				case kSp36:
-					localPrefs.interpolator = _spline36;
-					break;
-				case kSinc:
-					localPrefs.interpolator = _sinc256;
-					break;
-			 }, SetIntp )	
+  GenDialog( sPrefs,  kSetIntpPrefs_SetIntp, "Interpolation Options",
+      {
+        CheckButton( kSetIntpPrefs_Poly,        localPrefs.interpolator == _poly3 );
+        CheckButton( kSetIntpPrefs_Sp36,        localPrefs.interpolator == _spline36 );
+        CheckButton( kSetIntpPrefs_Sp64,        localPrefs.interpolator == _spline64 );
+        CheckButton( kSetIntpPrefs_Sinc256,     localPrefs.interpolator == _sinc256 );
+        CheckButton( kSetIntpPrefs_AAHammering, localPrefs.interpolator == _aahamming );
+        CheckButton( kSetIntpPrefs_AAGaussian,  localPrefs.interpolator == _aagaussian );
+        CheckButton( kSetIntpPrefs_AAQuadratic, localPrefs.interpolator == _aaquadratic );
+        CheckButton( kSetIntpPrefs_AAMitchell,  localPrefs.interpolator == _aamitchell );
+        CheckButton( kSetIntpPrefs_AALauczos2,  localPrefs.interpolator == _aalanczos2 );
+        CheckButton( kSetIntpPrefs_AALauczos3,  localPrefs.interpolator == _aalanczos3 );
+        CheckButton( kSetIntpPrefs_FastTNorm,   localPrefs.fastStep == FAST_TRANSFORM_STEP_NONE );
+        CheckButton( kSetIntpPrefs_FastTMed,    localPrefs.fastStep == FAST_TRANSFORM_STEP_MORPH );
+        CheckButton( kSetIntpPrefs_FastTFast,   localPrefs.fastStep == FAST_TRANSFORM_STEP_NORMAL );
+      },
+      {
+        SetText( kSetIntpPrefs_Gamma, 	"%g", 	localPrefs.gamma);
+      },
+      {
+        GetText( kSetIntpPrefs_Gamma, 	"%lf",  &localPrefs.gamma);
+      }, 
+      {
+        case kSetIntpPrefs_Poly:
+        localPrefs.interpolator = _poly3;
+        break;
+        case kSetIntpPrefs_Sp36:
+        localPrefs.interpolator = _spline36;
+        break;
+        case kSetIntpPrefs_Sp64:
+        localPrefs.interpolator = _spline64;
+        break;
+        case kSetIntpPrefs_Sinc256:
+        localPrefs.interpolator = _sinc256;
+        break;
+        case kSetIntpPrefs_AAHammering:
+        localPrefs.interpolator = _aahamming;
+        break;
+        case kSetIntpPrefs_AAGaussian:
+        localPrefs.interpolator = _aagaussian;
+        break;
+        case kSetIntpPrefs_AAQuadratic:
+        localPrefs.interpolator = _aaquadratic;
+        break;
+        case kSetIntpPrefs_AAMitchell:
+        localPrefs.interpolator = _aamitchell;
+        break;
+        case kSetIntpPrefs_AALauczos2:
+        localPrefs.interpolator = _aalanczos2;
+        break;
+        case kSetIntpPrefs_AALauczos3:
+        localPrefs.interpolator = _aalanczos3;
+        break;
+
+        case kSetIntpPrefs_FastTNorm:
+        localPrefs.fastStep = FAST_TRANSFORM_STEP_NONE;
+        break;
+        case kSetIntpPrefs_FastTMed:
+        localPrefs.fastStep = FAST_TRANSFORM_STEP_MORPH;
+        break;
+        case kSetIntpPrefs_FastTFast:
+        localPrefs.fastStep = FAST_TRANSFORM_STEP_NORMAL;
+        break;
+      }, 
+      SetIntp ) 
 }
 
 
@@ -784,7 +822,7 @@ int SetInterpolator( sPrefs *thePrefs)
 
 int setSizePrefs( sPrefs *thePrefs, int can_resize ) 
 {
-	GenDialog( sPrefs, kSetSizePrefs_dlg, "",
+	GenDialog( sPrefs, kSetSizePrefs_dlg, "Preferences",
 			{
 				CheckButton( kSetSizePrefs_Crop,  localPrefs.displayPart );																			
 				CheckButton( kSetSizePrefs_SFile,  localPrefs.saveFile );
@@ -829,7 +867,7 @@ int setSizePrefs( sPrefs *thePrefs, int can_resize )
 
 int setSizePrefs( sPrefs *thePrefs, int can_resize ) 
 {
-	GenDialog( sPrefs, kSetSizePrefs_dlg, "",
+	GenDialog( sPrefs, kSetSizePrefs_dlg, "Preferences",
 			{
 				CheckButton( kSetSizePrefs_Crop,  	localPrefs.displayPart );																			
 				CheckButton( kSetSizePrefs_SFile,  	localPrefs.saveFile );
@@ -886,7 +924,7 @@ int setSizePrefs( sPrefs *thePrefs, int can_resize )
 
 int setSizePrefs( sPrefs *thePrefs, int can_resize ) 
 {
-	GenDialog( sPrefs, kSetSizePrefs_dlg, "",
+	GenDialog( sPrefs, kSetSizePrefs_dlg, "Preferences",
 			{
 				CheckButton( kSetSizePrefs_Crop,  localPrefs.displayPart );																			
 				CheckButton( kSetSizePrefs_SFile,  localPrefs.saveFile );

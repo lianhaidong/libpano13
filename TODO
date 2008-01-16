@@ -39,7 +39,7 @@ All tools:
 
 - Update make file to include resource files for version info.
 
-- correct.c, morpher.c, perspective.c, and remap are all using transForm 
+- perspective.c, and remap.c are all using transForm 
   instead of the new transformEx.  This is needed to take advantage of the 
   new AntiAliasing functions.   Requires creating inverse stack.
 

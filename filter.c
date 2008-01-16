@@ -188,6 +188,7 @@ void DoTransForm( TrformStr *TrPtr, panoPrefs *prPtr )
 //              case _interpolate:              
 //                      interp      (TrPtr, &prPtr->iP);
 //                      break;
+#if 0
                 case _panright:
                 case _panleft:
                 case _panup:
@@ -199,6 +200,7 @@ void DoTransForm( TrformStr *TrPtr, panoPrefs *prPtr )
                 case _increment:
                         pan(TrPtr,  &prPtr->pc);
                         break;
+#endif
         }
         Progress( _disposeProgress, "" ); 
         return;
