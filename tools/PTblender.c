@@ -53,15 +53,16 @@
 
 #define PT_BLENDER_USAGE "PTblender [options] <tiffFiles>+\n\n"\
                          "Options:\n"\
-                         "\t-p <prefix>\tPrefix for output filename. Defaults to blended%%4d\n"\
-                         "\t-k <index>\tIndex to image to use as a reference (0-based, defaults to 0)\n"\
-                         "\t-t [0,1,2]\tType of colour correction: 0 full (default), 1 brightness only, 2 colour only\n"\
-                         "\t-c\t\tOutput curves smooth\t\t(Output one per each corrected file)\n"\
-                         "\t-m\t\tOutput curves arbitrary map\t(Output one per each corrected file)\n"\
-                         "\t-f\t\fForce processing (ignore warnings)\n"\
-                         "\t-x\t\tDelete source files (use with care)\n"\
-                         "\t-q\t\tQuiet run\n"\
-                         "\t-h\t\tShow this message\n"\
+                         "  -p <prefix>\tPrefix for output filename. Defaults to blended%%4d\n"\
+                         "  -k <index>\tIndex to image to use as a reference (0-based, defaults to 0)\n"\
+                         "  -t [0,1,2]\tType of colour correction:\n"\
+                         "  \t\t\t 0 full (default), 1 brightness only, 2 colour only\n"\
+                         "  -c\t\tOutput curves smooth (Output 1 per each corrected file)\n"\
+                         "  -m\t\tOutput curves arbitrary map (Output 1 per each corrected file)\n"\
+                         "  -f\t\tForce processing (ignore warnings)\n"\
+                         "  -x\t\tDelete source files (use with care)\n"\
+                         "  -q\t\tQuiet run\n"\
+                         "  -h\t\tShow this message\n"\
                          "\n"
 
 #define PT_BLENDER_VERSION "PTblender Version " VERSION ", originally written by Helmut Dersch, rewritten by Daniel M German\n"
@@ -82,7 +83,7 @@ int main(int argc,char *argv[])
     int base = 0;
     int outputCurvesType = 0; // if 1 => create Photoshop curve files (.acv)
     int typeCorrection = 0;
-    int ptForceProcessing;
+    int ptForceProcessing = 0;
     int ptDeleteSources = 0;
 
     ptrInputFiles = NULL;

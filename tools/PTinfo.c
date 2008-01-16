@@ -58,19 +58,10 @@
 int main(int argc,char *argv[])
 {
     char opt;
-    fullPath *ptrInputFiles;
+    fullPath *ptrInputFiles = NULL;
     int i;
-    
-    int counter;
-    int filesCount;
+    int filesCount = 0;
     int base = 0;
-    int ptForceProcessing = 0;
-    int feather = 0;
-    int ptDeleteSources = 0;
-
-    ptrInputFiles = NULL;
-
-    counter = 0;
 
     printf(PT_INFO_VERSION);
 
