@@ -1,5 +1,11 @@
 #include "filter.h"
-#include "sys_win.h"
+
+#ifdef __Ansi__
+  #include "sys_ansi.h"
+#elif defined (__Win__)
+  #include "sys_win.h"
+#endif
+
 #include "metadata.h"
 #include "file.h"
 

@@ -2438,7 +2438,7 @@ int panoImageRead(Image * im, fullPath * sfile)
         return panoTiffRead(im, sfile->name);
     } 
     else if (strcmp( extension, "bmp" ) == 0 ) {
-#ifdef __Win__		
+#ifdef WIN32		
 		return panoBMPRead(  im, sfile );
 #else
 		PrintError("BMP is not a supported format in this operating system");

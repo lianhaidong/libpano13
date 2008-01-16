@@ -12,7 +12,7 @@
 	</Platforms>
 	<Configurations>
 		<Configuration
-			Name="DLL Release|Win32"
+			Name="Release DLL CMD|Win32"
 			OutputDirectory="$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
@@ -23,7 +23,7 @@
 				InlineFunctionExpansion="0"
 				FavorSizeOrSpeed="0"
 				AdditionalIncludeDirectories="&quot;$(WXWIDGETS_HOME)\src\zlib&quot;;&quot;$(WXWIDGETS_HOME)\src\png&quot;;&quot;$(WXWIDGETS_HOME)\src\tiff&quot;;&quot;$(WXWIDGETS_HOME)\src\jpeg&quot;;&quot;$(WXWIDGETS_HOME)\src&quot;;&quot;$(JDK_HOME)\include&quot;;&quot;$(JDK_HOME)\include\win32&quot;"
-				PreprocessorDefinitions="WIN32;__Win__;_USRDLL;HasJava"
+				PreprocessorDefinitions="WIN32;_CONSOLE;_USRDLL;HasJava"
 				RuntimeLibrary="2"
 				StructMemberAlignment="4"
 				WarningLevel="3"
@@ -71,7 +71,7 @@
 				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
 		</Configuration>
 		<Configuration
-			Name="DLL Debug|Win32"
+			Name="Debug DLL CMD|Win32"
 			OutputDirectory="$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
@@ -80,7 +80,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;$(WXWIDGETS_HOME)\src\zlib&quot;;&quot;$(WXWIDGETS_HOME)\src\png&quot;;&quot;$(WXWIDGETS_HOME)\src\tiff&quot;;&quot;$(WXWIDGETS_HOME)\src\jpeg&quot;;&quot;$(WXWIDGETS_HOME)\src&quot;;&quot;$(JDK_HOME)\include&quot;;&quot;$(JDK_HOME)\include\win32&quot;"
-				PreprocessorDefinitions="WIN32;__Win__;_USRDLL;HasJava"
+				PreprocessorDefinitions="WIN32;_CONSOLE;_USRDLL;HasJava"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				StructMemberAlignment="4"
@@ -94,7 +94,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="wxtiffd.lib wxzlibd.lib wxjpegd.lib wxpngd.lib Ws2_32.lib odbc32.lib odbccp32.lib version.lib"
-				OutputFile="$(OutDir)/pano13d.dll"
+				OutputFile="$(OutDir)/pano13.dll"
 				AdditionalLibraryDirectories="&quot;$(WXWIDGETS_HOME)\lib\vc_lib&quot;"
 				IgnoreAllDefaultLibraries="FALSE"
 				IgnoreDefaultLibraryNames="LIBCMTD"
@@ -127,7 +127,7 @@
 				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
 		</Configuration>
 		<Configuration
-			Name="Debug|Win32"
+			Name="Debug LIB CMD|Win32"
 			OutputDirectory="$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="4"
@@ -136,7 +136,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;$(WXWIDGETS_HOME)\src\zlib&quot;;&quot;$(WXWIDGETS_HOME)\src\png&quot;;&quot;$(WXWIDGETS_HOME)\src\tiff&quot;;&quot;$(WXWIDGETS_HOME)\src\jpeg&quot;;&quot;$(WXWIDGETS_HOME)\src&quot;;&quot;$(JDK_HOME)\include&quot;;&quot;$(JDK_HOME)\include\win32&quot;"
-				PreprocessorDefinitions="WIN32;__Win__;_LIB;HasJava"
+				PreprocessorDefinitions="WIN32;_CONSOLE;_LIB;HasJava"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
@@ -172,7 +172,7 @@
 				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
 		</Configuration>
 		<Configuration
-			Name="Release|Win32"
+			Name="Release LIB CMD|Win32"
 			OutputDirectory="$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="4"
@@ -183,7 +183,7 @@
 				InlineFunctionExpansion="0"
 				FavorSizeOrSpeed="0"
 				AdditionalIncludeDirectories="&quot;$(WXWIDGETS_HOME)\src\zlib&quot;;&quot;$(WXWIDGETS_HOME)\src\png&quot;;&quot;$(WXWIDGETS_HOME)\src\tiff&quot;;&quot;$(WXWIDGETS_HOME)\src\jpeg&quot;;&quot;$(WXWIDGETS_HOME)\src&quot;;&quot;$(JDK_HOME)\include&quot;;&quot;$(JDK_HOME)\include\win32&quot;"
-				PreprocessorDefinitions="WIN32;__Win__;_LIB;HasJava"
+				PreprocessorDefinitions="WIN32;_CONSOLE;_LIB;HasJava"
 				RuntimeLibrary="0"
 				StructMemberAlignment="4"
 				WarningLevel="3"
@@ -211,6 +211,211 @@
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
+		<Configuration
+			Name="Debug LIB GUI|Win32"
+			OutputDirectory="$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="4"
+			CharacterSet="0">
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="0"
+				AdditionalIncludeDirectories="&quot;$(WXWIDGETS_HOME)\src\zlib&quot;;&quot;$(WXWIDGETS_HOME)\src\png&quot;;&quot;$(WXWIDGETS_HOME)\src\tiff&quot;;&quot;$(WXWIDGETS_HOME)\src\jpeg&quot;;&quot;$(WXWIDGETS_HOME)\src&quot;;&quot;$(JDK_HOME)\include&quot;;&quot;$(JDK_HOME)\include\win32&quot;"
+				PreprocessorDefinitions="WIN32;_WINDOWS;_LIB;HasJava"
+				MinimalRebuild="TRUE"
+				BasicRuntimeChecks="3"
+				RuntimeLibrary="1"
+				StructMemberAlignment="4"
+				WarningLevel="3"
+				Detect64BitPortabilityProblems="FALSE"
+				DebugInformationFormat="3"
+				CallingConvention="0"
+				CompileAs="0"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLibrarianTool"
+				IgnoreAllDefaultLibraries="TRUE"/>
+			<Tool
+				Name="VCMIDLTool"/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				ResourceOutputFileName=""/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
+		<Configuration
+			Name="Debug DLL GUI|Win32"
+			OutputDirectory="$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="2"
+			CharacterSet="0">
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="0"
+				AdditionalIncludeDirectories="&quot;$(WXWIDGETS_HOME)\src\zlib&quot;;&quot;$(WXWIDGETS_HOME)\src\png&quot;;&quot;$(WXWIDGETS_HOME)\src\tiff&quot;;&quot;$(WXWIDGETS_HOME)\src\jpeg&quot;;&quot;$(WXWIDGETS_HOME)\src&quot;;&quot;$(JDK_HOME)\include&quot;;&quot;$(JDK_HOME)\include\win32&quot;"
+				PreprocessorDefinitions="WIN32;_WINDOWS;_USRDLL;HasJava"
+				BasicRuntimeChecks="3"
+				RuntimeLibrary="3"
+				StructMemberAlignment="4"
+				WarningLevel="3"
+				Detect64BitPortabilityProblems="FALSE"
+				DebugInformationFormat="3"
+				CallingConvention="0"
+				CompileAs="0"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="wxtiffd.lib wxzlibd.lib wxjpegd.lib wxpngd.lib Ws2_32.lib odbc32.lib odbccp32.lib version.lib"
+				OutputFile="$(OutDir)/pano13.dll"
+				AdditionalLibraryDirectories="&quot;$(WXWIDGETS_HOME)\lib\vc_lib&quot;"
+				IgnoreAllDefaultLibraries="FALSE"
+				IgnoreDefaultLibraryNames="LIBCMTD"
+				ModuleDefinitionFile="pano13vc.def"
+				GenerateDebugInformation="TRUE"
+				ProgramDatabaseFile="$(OutDir)/$(TargetName).pdb"
+				EntryPointSymbol=""
+				ImportLibrary="$(OutDir)/pano13.lib"
+				TargetMachine="1"/>
+			<Tool
+				Name="VCMIDLTool"/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				ResourceOutputFileName="$(IntDir)/pano13.res"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
+		<Configuration
+			Name="Release LIB GUI|Win32"
+			OutputDirectory="$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="4"
+			CharacterSet="0">
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="2"
+				InlineFunctionExpansion="0"
+				FavorSizeOrSpeed="0"
+				AdditionalIncludeDirectories="&quot;$(WXWIDGETS_HOME)\src\zlib&quot;;&quot;$(WXWIDGETS_HOME)\src\png&quot;;&quot;$(WXWIDGETS_HOME)\src\tiff&quot;;&quot;$(WXWIDGETS_HOME)\src\jpeg&quot;;&quot;$(WXWIDGETS_HOME)\src&quot;;&quot;$(JDK_HOME)\include&quot;;&quot;$(JDK_HOME)\include\win32&quot;"
+				PreprocessorDefinitions="WIN32;_WINDOWS;_LIB;HasJava"
+				RuntimeLibrary="0"
+				StructMemberAlignment="4"
+				WarningLevel="3"
+				Detect64BitPortabilityProblems="FALSE"
+				DebugInformationFormat="0"
+				CallingConvention="0"
+				CompileAs="0"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLibrarianTool"
+				IgnoreAllDefaultLibraries="TRUE"/>
+			<Tool
+				Name="VCMIDLTool"/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				ResourceOutputFileName=""/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
+		<Configuration
+			Name="Release DLL GUI|Win32"
+			OutputDirectory="$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="2"
+			CharacterSet="0">
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="2"
+				InlineFunctionExpansion="0"
+				FavorSizeOrSpeed="0"
+				AdditionalIncludeDirectories="&quot;$(WXWIDGETS_HOME)\src\zlib&quot;;&quot;$(WXWIDGETS_HOME)\src\png&quot;;&quot;$(WXWIDGETS_HOME)\src\tiff&quot;;&quot;$(WXWIDGETS_HOME)\src\jpeg&quot;;&quot;$(WXWIDGETS_HOME)\src&quot;;&quot;$(JDK_HOME)\include&quot;;&quot;$(JDK_HOME)\include\win32&quot;"
+				PreprocessorDefinitions="WIN32;_WINDOWS;_USRDLL;HasJava"
+				RuntimeLibrary="2"
+				StructMemberAlignment="4"
+				WarningLevel="3"
+				Detect64BitPortabilityProblems="FALSE"
+				DebugInformationFormat="0"
+				CallingConvention="0"
+				CompileAs="0"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"
+				RegisterOutput="FALSE"
+				IgnoreImportLibrary="FALSE"
+				AdditionalDependencies="wxtiff.lib wxzlib.lib wxjpeg.lib wxpng.lib Ws2_32.lib"
+				OutputFile="$(OutDir)/pano13.dll"
+				LinkIncremental="0"
+				AdditionalLibraryDirectories="&quot;$(WXWIDGETS_HOME)\lib\vc_lib&quot;"
+				IgnoreAllDefaultLibraries="FALSE"
+				IgnoreDefaultLibraryNames="LIBCMT"
+				ModuleDefinitionFile="pano13vc.def"
+				GenerateDebugInformation="FALSE"
+				EntryPointSymbol=""
+				ImportLibrary="$(OutDir)/pano13.lib"
+				TargetMachine="1"/>
+			<Tool
+				Name="VCMIDLTool"/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				ResourceOutputFileName="$(IntDir)/pano13.res"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
 			<Tool
 				Name="VCManagedWrapperGeneratorTool"/>
 			<Tool
@@ -279,9 +484,6 @@
 				RelativePath=".\optimize.c">
 			</File>
 			<File
-				RelativePath=".\pan.c">
-			</File>
-			<File
 				RelativePath=".\parser.c">
 			</File>
 			<File
@@ -327,10 +529,61 @@
 				RelativePath=".\seamer.c">
 			</File>
 			<File
+				RelativePath=".\sys_ansi.c">
+				<FileConfiguration
+					Name="Debug LIB GUI|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCLCompilerTool"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug DLL GUI|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCLCompilerTool"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release LIB GUI|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCLCompilerTool"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release DLL GUI|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCLCompilerTool"/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath=".\sys_common.c">
 			</File>
 			<File
 				RelativePath=".\sys_win.c">
+				<FileConfiguration
+					Name="Release DLL CMD|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCLCompilerTool"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug DLL CMD|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCLCompilerTool"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug LIB CMD|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCLCompilerTool"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release LIB CMD|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCLCompilerTool"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\tiff.c">
@@ -392,7 +645,58 @@
 				RelativePath=".\seamer.h">
 			</File>
 			<File
+				RelativePath=".\sys_ansi.h">
+				<FileConfiguration
+					Name="Debug LIB GUI|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug DLL GUI|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release LIB GUI|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release DLL GUI|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath=".\sys_win.h">
+				<FileConfiguration
+					Name="Release DLL CMD|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug DLL CMD|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug LIB CMD|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release LIB CMD|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\version.h">
@@ -408,13 +712,25 @@
 			<File
 				RelativePath=".\pano13.rc">
 				<FileConfiguration
-					Name="Debug|Win32"
+					Name="Debug LIB CMD|Win32"
 					ExcludedFromBuild="TRUE">
 					<Tool
 						Name="VCResourceCompilerTool"/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32"
+					Name="Release LIB CMD|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCResourceCompilerTool"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug LIB GUI|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCResourceCompilerTool"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release LIB GUI|Win32"
 					ExcludedFromBuild="TRUE">
 					<Tool
 						Name="VCResourceCompilerTool"/>
