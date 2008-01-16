@@ -37,19 +37,24 @@
 typedef unsigned char Boolean;
 
 // Create a definition if we're on a Windows machine:
-#ifndef __Win__
-#if (defined(MSDOS) || defined(WIN32))
-#define __Win__			1
-#endif
+#ifndef __Ansi__
+  #if (defined(MSDOS) || defined(_CONSOLE) || defined(__DOS__) || defined(__MSDOS__))
+    #define __Ansi__      1
+  #endif
 #endif
 
+#ifndef __Win__
+  #if (defined(_WINDOWS) || defined(WINDOWS))
+    #define __Win__     1
+  #endif
+#endif
 
 // Create a definition if we're on a Macintosh:
 #ifndef __Mac__
-#if (defined(macintosh) || defined(__MC68K__) || defined(__powerc))
-#define __Mac__			1
-#define PT_BIGENDIAN		1
-#endif
+  #if (defined(macintosh) || defined(__MC68K__) || defined(__powerc))
+    #define __Mac__     1
+    #define PT_BIGENDIAN    1
+  #endif
 #endif
 
 
@@ -76,7 +81,7 @@ typedef unsigned char Boolean;
 
 #else // __Mac__, use ANSI-filefunctions
 
-#ifdef __Win__
+#ifdef _WIN32
 #ifndef __NO_SYSTEM__
 #include <windows.h>            // including this causes problems with libjpeg
 #endif
