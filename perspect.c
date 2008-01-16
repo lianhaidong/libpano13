@@ -123,7 +123,8 @@ void perspective(TrformStr *TrPtr, pPrefs *prefs)
 	if( fD.func != NULL)
 	{
 		fD.param = params;
-		transForm( TrPtr, &fD, 0 );
+		//transFormEx( TrPtr, &fD, &fD, 0, 1 );
+        transForm( TrPtr, &fD, 0 );
 	}
 	else
 		TrPtr->success = 0;

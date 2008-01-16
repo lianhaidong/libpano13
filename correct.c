@@ -50,7 +50,8 @@ void 	correct	(TrformStr *TrPtr, cPrefs *prefs)
 										// and source width/2 (4) and correctionradius (5)
 	double  lum_params[2];				// parameters to correct luminance variation	
 
-	struct  fDesc stack[10];			// Parameters for execute stack function
+    struct  fDesc stack[10];            // Parameters for execute stack function
+    struct  fDesc stackinv[10];         // Parameters for execute stack function
 
 	int		destwidth, destheight;
 	int 	xoff = 0, yoff = 0;
@@ -558,8 +559,19 @@ void 	correct	(TrformStr *TrPtr, cPrefs *prefs)
 			}
 			else if( TrPtr->success != 0 && i != 0 )
 			{
-				fD.func = execute_stack_new; fD.param = stack;
-				transForm( TrPtr,  &fD, k);
+                // Copy and reverse the stack to make the inverse stack
+                int ii = 0;
+                while(i)
+                {
+                  stackinv[ii] = stack[i-1];
+                  i--;
+                  ii++;
+                }
+                stackinv[ii].func = (trfn)NULL;
+
+				fD.func    = execute_stack_new; fD.param    = stack;
+                fDinv.func = execute_stack_new; fDinv.param = stackinv;
+                transFormEx( TrPtr, &fD, &fDinv, k, 1 );
 			}
             
             switch(k) // We use k as control var for a little statemachine:

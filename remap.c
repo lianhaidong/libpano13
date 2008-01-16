@@ -343,7 +343,8 @@ void remap(TrformStr *TrPtr, rPrefs *r_prefs)
 
   if( fD.func != NULL)
   {
-    transForm( TrPtr, &fD, 0 );
+    transFormEx( TrPtr, &fD, &fD, 0, 1 );
+    //transForm( TrPtr, &fD, 0 );
   }
   else
     TrPtr->success = 0;

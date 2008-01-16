@@ -764,7 +764,7 @@ BOOL APIENTRY DLLInit(HANDLE hInstance, DWORD fdwReason, LPVOID lpReserved)
 {
 
 	if (fdwReason == DLL_PROCESS_ATTACH)
-		hDllInstance = hInstance;
+		hDllInstance = (HINSTANCE)hInstance;
 
 	return TRUE;   // Indicate that the DLL was initialized successfully.
 }
@@ -942,7 +942,7 @@ DllMain (HANDLE hDll, DWORD dwReason, LPVOID lpReserved)
     switch (dwReason)
     {
         case DLL_PROCESS_ATTACH:
-	    hDllInstance = hDll;
+	    hDllInstance = (HINSTANCE)hDll;
            // Code to run when the DLL is loaded
 
 			// FS+
