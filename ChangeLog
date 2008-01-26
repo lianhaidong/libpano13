@@ -1,3 +1,8 @@
+2008-01-26 Jim Watters <jwatters@photocreations.ca>
+
+	* Fix some warning messages
+	* sys_common.c and filter.h Updated printError functions to use Const char (submitted by Simon Oosthoek)
+	
 2008-01-04 Jim Watters <jwatters@photocreations.ca>
 
 	* Added FastTransform to the data structures removed as global variable

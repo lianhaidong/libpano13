@@ -1984,7 +1984,7 @@ void transForm_aa( TrformStr *TrPtr, fDesc *fD,fDesc *finvD, int color, int imag
 	ffQueueItem *ffStack;
 	int			srcWidth; 
 	int			srcHeight; 
-	unsigned int *ffIsInQueue;
+	pt_uint32 *ffIsInQueue;
 
 	int ccx,ccy;
 	double d,sd,ox,oy;
