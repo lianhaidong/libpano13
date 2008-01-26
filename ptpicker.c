@@ -23,8 +23,8 @@ void SetAlignInfoDefaults( AlignInfo *a);
 	#define HELPERS ":Helpers:"
 #endif
  
-#ifdef __Win__ || __Ansi__
-	#undef HELPERS
+#ifdef WIN32
+  #undef HELPERS
 	#define HELPERS "Helpers\\"
 #endif
 

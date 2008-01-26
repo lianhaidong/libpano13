@@ -556,9 +556,9 @@ void PT_setProgressFcn(int (*ptr)(int, char *));           // set custom progres
 int 	Progress( int command, char* argument );	// Progress Reporting 
 void PT_setInfoDlgFcn(int (*ptr)(int, char *));            // set custom info callback
 int 	infoDlg ( int command, char* argument );	// Display info: same argumenmts as progress
-void PT_setErrorFcn( void (*ptr)( char* , va_list va));         // set custom error function
-void  	PrintError( char* fmt, ...);				// Error Reporting
-void dieWithError(char*fmt, ...);
+void PT_setErrorFcn( void (*ptr)( const char* , va_list va));         // set custom error function
+void  	PrintError( const char* fmt, ...);				// Error Reporting
+void dieWithError(const char*fmt, ...);
 
 int 	ccommand( char ***argvPtr);					// Shell for standalone programs
 
@@ -1032,4 +1032,5 @@ void panoDumpMetadata(pano_ImageMetadata * metadata, char *message);
 
 // number of different temporary files
 #define MAX_TEMP_TRY    1000000
+
 

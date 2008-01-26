@@ -31,13 +31,13 @@ static int (*g_progressFcn)(int, char *) = NULL;
 
 static int (*g_infoDlgFcn)(int, char *) = NULL;
 
-static void  (*g_printErrorFcn)(char* , va_list va) = NULL;
+static void  (*g_printErrorFcn)(const char* , va_list va) = NULL;
 
 int ProgressIntern( int command, char* argument );
-void PrintErrorIntern(char*fmt, va_list va);
+void PrintErrorIntern(const char*fmt, va_list va);
 int infoDlgIntern( int command, char* argument );
 
-void PT_setErrorFcn(void (*ptr)(char *, va_list va))
+void PT_setErrorFcn(void (*ptr)(const char *, va_list va))
 {
     g_printErrorFcn = ptr;
 }
@@ -55,7 +55,7 @@ void PT_setInfoDlgFcn(int (*ptr)(int, char *))
 /**
  * Print an error message and then exit program
  */
-void dieWithError(char*fmt, ...)
+void dieWithError(const char*fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
@@ -71,7 +71,7 @@ void dieWithError(char*fmt, ...)
     exit(1);
 }
 
-void PrintError(char*fmt, ...)
+void PrintError(const char*fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
