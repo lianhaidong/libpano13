@@ -2410,7 +2410,7 @@ int panoFileMakeTemp(fullPath * path)
 // Read an image
 int panoImageRead(Image * im, fullPath * sfile)
 {
-    char *ext, extension[4];
+    char *ext, extension[5];
     int i;
 
     assert(sfile != NULL);
@@ -2418,14 +2418,14 @@ int panoImageRead(Image * im, fullPath * sfile)
     
     printf("Filename %s\n", sfile->name);
     ext = strrchr(sfile->name, '.');
-    if (ext == NULL || strlen(ext) != 4) {
+    if (ext == NULL || strlen(ext) < 4 || strlen(ext) > 5) {
 	PrintError("Unsupported file format [%s]: must have extension JPG, PNG, TIF, BMP or HDR", sfile);
 	return 0;
     }
     ext++;
     strcpy(extension, ext);
     // convert to lowercase
-    for (i = 0; i < 3; i++)
+    for (i = 0; i < 4; i++)
         extension[i] = tolower(extension[i]);
     
     if (strcmp(extension, "ppm") == 0) {
@@ -2434,7 +2434,7 @@ int panoImageRead(Image * im, fullPath * sfile)
     else if (strcmp(extension, "jpg") == 0) {
         return panoJPEGRead(im, sfile);
     } 
-    else if (strcmp(extension, "tif") == 0) {
+    else if (strcmp(extension, "tif") == 0 || strcmp(extension, "tiff") == 0) {
         return panoTiffRead(im, sfile->name);
     } 
     else if (strcmp( extension, "bmp" ) == 0 ) {
