@@ -1,3 +1,8 @@
+2008-08-11  dmg  <dmg@uvic.ca>
+
+	* bootstrap (have_libtool): Added support for 2.2.* version of
+	libtool. Patch submitted by Neil Shephard.
+	
 2008-01-26 Jim Watters <jwatters@photocreations.ca>
 
 	* Fix some warning messages
