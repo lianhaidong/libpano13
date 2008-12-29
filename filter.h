@@ -849,6 +849,8 @@ int erect_albersequalareaconic	( double x_dest,double  y_dest, double* x_src, do
 int albersequalareaconic_distance	( double *x_src, void* params );
 int millercylindrical_erect		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
 int erect_millercylindrical		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
+int panini_erect		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
+int erect_panini		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
 
 
 int mirror_sphere_cp	( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	

@@ -69,6 +69,7 @@ TStringFeature stringFeatures[]={
   {"PanoType9","Lambert Azimuthal Equal Area"},
   {"PanoType10","Albers Conical Equal Area"},
   {"PanoType11","Miller Cylindrical"},
+  {"PanoType12","Panini"},
   // Filter Types
   //   fix: Fixed Windowsize
   //   aa: Antialiasing filter with adaptive filter size
@@ -363,6 +364,7 @@ int panoProjectionFeaturesQuery(int projection, pano_projection_features *featur
 	break;
     case PANO_FORMAT_EQUIRECTANGULAR:
     case PANO_FORMAT_MILLER_CYLINDRICAL:
+    case PANO_FORMAT_PANINI:
 	break;
     case PANO_FORMAT_FISHEYE_FF:
 	features->maxVFOV = 360;

@@ -492,6 +492,9 @@ int ParseScript( char* script, AlignInfo *gl )
                         case PANO_FORMAT_MILLER_CYLINDRICAL:
                             gl->pano.format = _millercylindrical;
                             break;
+                        case PANO_FORMAT_PANINI:
+                            gl->pano.format = _panini;
+                            break;
                         default:
                             PrintError( "Unknown panorama projection: %d", gl->pano.format );
                             return -1;
@@ -986,6 +989,9 @@ int readAdjust( aPrefs *p,  fullPath* sfile, int insert, sPrefs *sP )
 		break;
 	    case 11:
 		p->pano.format = _millercylindrical;
+		break;
+	    case 12:
+		p->pano.format = _panini;
 		break;
 	    default:
 		PrintError( "Unknown panorama projection: %d", p->pano.format );

@@ -1,3 +1,11 @@
+2008-12-29  dmg  <dmg@uvic.ca>
+
+	* panorama.h, math.c, adjust.c, queryfeature.c, filter.h,
+	parser.c: Added panini projection. the credit goes to Thomas
+	Sharpless who rediscovered it, and to Bruno Postle, who did the
+	original math.
+
+
 2008-08-11  dmg  <dmg@uvic.ca>
 
 	* bootstrap (have_libtool): Added support for 2.2.* version of
