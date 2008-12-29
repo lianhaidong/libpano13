@@ -710,6 +710,50 @@ int erect_millercylindrical( double x_dest,double  y_dest, double* x_src, double
 }
 
 
+/** convert from erect to panini */
+int panini_erect( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
+{
+    // params: distanceparam
+  // this is the inverse
+
+    double phi, lambdaHalf;
+
+    phi = y_dest/distanceparam;
+    lambdaHalf = x_dest/ (distanceparam*2);
+
+    *x_src = distanceparam * 2 * tan (lambdaHalf);
+    double temp  = cos(lambdaHalf);
+    *y_src = distanceparam *  phi / (temp * temp);
+
+    return 1;
+}
+
+
+/** convert from panini to erect */
+int erect_panini( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
+{
+    double y;
+    double x;
+    double lambdaHalf;
+    double temp;
+
+    double phi;
+    y = y_dest/distanceparam;
+    x = x_dest/distanceparam;
+
+    temp = cos(x/2);
+    phi = y * temp * temp;
+
+    *x_src = 2 * atan2(x,2) * distanceparam;
+    *y_src = phi * distanceparam;
+
+    return 1;
+}
+
+
+
+
+
 /** convert from erect to lambert */
 int lambert_erect( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {
