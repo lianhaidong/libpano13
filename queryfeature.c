@@ -70,6 +70,7 @@ TStringFeature stringFeatures[]={
   {"PanoType10","Albers Conical Equal Area"},
   {"PanoType11","Miller Cylindrical"},
   {"PanoType12","Panini"},
+  {"PanoType13","Architectural"},
   // Filter Types
   //   fix: Fixed Windowsize
   //   aa: Antialiasing filter with adaptive filter size
@@ -308,6 +309,7 @@ char *panoFormatNames[PANO_FORMAT_COUNT] = {
     "Albers Equal Area Conic",
     "Miller Cylindrical",
     "Panini",
+    "Architectural",
 };
 
 static int panoFormatID[PANO_FORMAT_COUNT] = {
@@ -323,7 +325,8 @@ static int panoFormatID[PANO_FORMAT_COUNT] = {
     _lambertazimuthal,
     _albersequalareaconic,
     _millercylindrical,
-    _panini
+    _panini,
+    _architectural,
     };
 
 int panoProjectionFormatCount(void)
@@ -366,6 +369,7 @@ int panoProjectionFeaturesQuery(int projection, pano_projection_features *featur
 	break;
     case PANO_FORMAT_EQUIRECTANGULAR:
     case PANO_FORMAT_MILLER_CYLINDRICAL:
+    case PANO_FORMAT_ARCHITECTURAL:
 	break;
     case PANO_FORMAT_PANINI:
 	features->maxVFOV = 179;

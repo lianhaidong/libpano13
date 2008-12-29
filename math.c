@@ -695,6 +695,39 @@ int millercylindrical_erect( double x_dest,double  y_dest, double* x_src, double
     return 1;
 }
 
+/** convert from erect to miller */
+int arch_erect( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
+{
+    // params: distanceparam
+    double phi;
+
+    phi = y_dest/distanceparam;
+    if (phi < 0) {
+        millercylindrical_erect(x_dest, y_dest, x_src, y_src, params);
+    } else {
+        lambert_erect(x_dest, y_dest, x_src, y_src, params);
+    }
+
+    return 1;
+}
+
+/** convert from erect to miller */
+int erect_arch( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
+{
+    // params: distanceparam
+    double y;
+
+    y = y_dest/distanceparam;
+    if (y < 0) {
+        erect_millercylindrical(x_dest, y_dest, x_src, y_src, params);
+    } else {
+        erect_lambert(x_dest, y_dest, x_src, y_src, params);
+    }
+
+    return 1;
+}
+
+
 
 /** convert from mercator to erect */
 int erect_millercylindrical( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)

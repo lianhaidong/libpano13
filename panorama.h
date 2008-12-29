@@ -258,6 +258,7 @@ enum
     _albersequalareaconic = 17,
     _millercylindrical = 18,
     _panini = 19,
+    _architectural = 20,
 };
 
 enum
@@ -275,9 +276,10 @@ enum
     PANO_FORMAT_ALBERS_EQUAL_AREA_CONIC = 10,
     PANO_FORMAT_MILLER_CYLINDRICAL = 11,
     PANO_FORMAT_PANINI = 12,
+    PANO_FORMAT_ARCHITECTURAL = 13,
 };
 
-#define PANO_FORMAT_COUNT 13
+#define PANO_FORMAT_COUNT 14
 
 // A large rectangle
 

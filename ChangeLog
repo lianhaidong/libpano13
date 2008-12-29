@@ -1,5 +1,8 @@
 2008-12-29  dmg  <dmg@phosphorus>
 
+	* panorama.h, math.c, adjust.c, queryfeature.c, filter.h: Finally
+	added the architectural.
+
 	* queryfeature.c (panoProjectionFeaturesQuery): Added querying
 	features for panini; this will allow Hugin to use it.
 

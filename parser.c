@@ -495,6 +495,9 @@ int ParseScript( char* script, AlignInfo *gl )
                         case PANO_FORMAT_PANINI:
                             gl->pano.format = _panini;
                             break;
+                        case PANO_FORMAT_ARCHITECTURAL:
+                            gl->pano.format = _architectural;
+                            break;
                         default:
                             PrintError( "Unknown panorama projection: %d", gl->pano.format );
                             return -1;
@@ -992,6 +995,9 @@ int readAdjust( aPrefs *p,  fullPath* sfile, int insert, sPrefs *sP )
 		break;
 	    case 12:
 		p->pano.format = _panini;
+		break;
+	    case 13:
+		p->pano.format = _architectural;
 		break;
 	    default:
 		PrintError( "Unknown panorama projection: %d", p->pano.format );
