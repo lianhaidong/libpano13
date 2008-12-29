@@ -307,6 +307,7 @@ char *panoFormatNames[PANO_FORMAT_COUNT] = {
     "Lambert Equal Area Azimuthal",
     "Albers Equal Area Conic",
     "Miller Cylindrical",
+    "Panini",
 };
 
 static int panoFormatID[PANO_FORMAT_COUNT] = {
@@ -321,7 +322,8 @@ static int panoFormatID[PANO_FORMAT_COUNT] = {
     _lambert,
     _lambertazimuthal,
     _albersequalareaconic,
-    _millercylindrical
+    _millercylindrical,
+    _panini
     };
 
 int panoProjectionFormatCount(void)
@@ -364,8 +366,11 @@ int panoProjectionFeaturesQuery(int projection, pano_projection_features *featur
 	break;
     case PANO_FORMAT_EQUIRECTANGULAR:
     case PANO_FORMAT_MILLER_CYLINDRICAL:
-    case PANO_FORMAT_PANINI:
 	break;
+    case PANO_FORMAT_PANINI:
+	features->maxVFOV = 179;
+	features->maxHFOV = 230;
+        break;
     case PANO_FORMAT_FISHEYE_FF:
 	features->maxVFOV = 360;
 	features->maxHFOV = 360;
