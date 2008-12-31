@@ -665,6 +665,8 @@ int 	cutTheFrame	( Image *dest, Image *src, int width, int height, int showprogr
 			PrintError("Could not allocate %ld bytes", dest->dataSize );
 			return -1;
 		}
+
+    memset(&TrCrop, 0, sizeof(TrformStr));
 		TrCrop.src 	= src;
 		TrCrop.dest = dest;
 		TrCrop.success = 0;

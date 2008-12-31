@@ -861,6 +861,12 @@ void SetImageDefaults(Image *im){
         im->selection.bottom    = 0;
         im->selection.left      = 0;
         im->selection.right     = 0;
+        im->cropInformation.cropped_height  = 0;
+        im->cropInformation.cropped_width   = 0;
+        im->cropInformation.full_height     = 0;
+        im->cropInformation.full_width      = 0;
+        im->cropInformation.x_offset        = 0;
+        im->cropInformation.y_offset        = 0;
         panoSetMetadataDefaults(&im->metadata);
 }
 

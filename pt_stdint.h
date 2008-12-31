@@ -16,8 +16,18 @@ typedef unsigned int              uint32_t;
 
 #  define vsnprintf _vsnprintf
 #  define snprintf _snprintf
+
+#ifdef _CPLUSPLUS
+/* define if your compiler understands inline commands */
+#define INLINE _inline
+#else
+#define INLINE
+#endif
+
+
 # else
 #  include <stdint.h>
+#define INLINE inline
 # endif
 
 #endif

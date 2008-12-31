@@ -210,7 +210,7 @@ int MorphImage( Image *src, Image *dst, PTTriangle *ts, PTTriangle *td, int nt )
 		return -1;
 	}
 	
-
+  memset(&Tr, 0, sizeof(TrformStr));
 	Tr.mode					= _show_progress;
 	Tr.interpolator			= _spline36;
 	Tr.gamma				= 1.0;
