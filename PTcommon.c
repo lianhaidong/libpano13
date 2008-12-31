@@ -670,6 +670,7 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
     SetImageDefaults(&resultPanorama);
 
     //transform structure holds input and output images, and some miscellaneous other information
+    memset(&transform, 0, sizeof(TrformStr));
     transform.src = &image1;    // Input image
     transform.dest = &resultPanorama;   // Output image
     transform.mode = 8;         // How to run transformation
@@ -1018,7 +1019,7 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
         printf("Prefs FastT %d:/n,  prefs->fastStep);
 	    */
 
-            MakePano(&transform, prefs);
+            MyMakePano(&transform, prefs, loopCounter);
 
             if (transform.success == 0) {       // Error 
                 PrintError("Error converting image");

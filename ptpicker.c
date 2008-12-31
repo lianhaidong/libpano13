@@ -1155,6 +1155,7 @@ JNIEXPORT void JNICALL Java_ptutils_CAlignPoint
 	w_seek 	= h_seek 	= (int)(sqrt((double) (*env)->GetArrayLength(env, jseek))+0.5);	
 	
 	pc_Tr 	= (TrformStr *) malloc(sizeof(TrformStr));
+  memset(pc_Tr, 0, sizeof(TrformStr));
 	pc_reg 	= &reg;
 	pc_adj	= (aPrefs*) malloc(sizeof(aPrefs));
 	SetAdjustDefaults(pc_adj);

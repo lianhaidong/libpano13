@@ -163,7 +163,8 @@ JNIEXPORT void JNICALL Java_pteditor_CExtract
 
 	if( readPrefs( (char*) &spref, _sizep ) != 0 )
 		SetSizeDefaults	( &spref );
-	
+
+	memset(&Tr, 0, sizeof(TrformStr));
 	Tr.src 	= pano;
 	Tr.dest	= &dest;
 
@@ -255,6 +256,7 @@ JNIEXPORT void JNICALL Java_pteditor_CInsert
 	if( readPrefs( (char*) &spref, _sizep ) != 0 )
 		SetSizeDefaults	( &spref );
 	
+  memset(&Tr, 0, sizeof(TrformStr));
 	Tr.src 	= &src;
 	Tr.dest	= &dest;
 
