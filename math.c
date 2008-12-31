@@ -658,7 +658,6 @@ int erect_lambertazimuthal( double x_dest,double  y_dest, double* x_src, double*
     *x_src = distanceparam * atan2( x * sin(c), (ro * cos(c)));
 
     return 1;
-
 }
 
 
@@ -749,13 +748,13 @@ int panini_erect( double x_dest,double  y_dest, double* x_src, double* y_src, vo
     // params: distanceparam
   // this is the inverse
 
-    double phi, lambdaHalf;
+    double phi, lambdaHalf, temp;
 
     phi = y_dest/distanceparam;
     lambdaHalf = x_dest/ (distanceparam*2);
 
     *x_src = distanceparam * 2 * tan (lambdaHalf);
-    double temp  = cos(lambdaHalf);
+    temp  = cos(lambdaHalf);
     *y_src = distanceparam *  phi / (temp * temp);
 
     return 1;
@@ -767,7 +766,6 @@ int erect_panini( double x_dest,double  y_dest, double* x_src, double* y_src, vo
 {
     double y;
     double x;
-    double lambdaHalf;
     double temp;
 
     double phi;
@@ -1233,6 +1231,7 @@ int sphere_cp_erect( double x_dest,double  y_dest, double* x_src, double* y_src,
     return 1;
 }
 
+
 int sphere_tp_erect( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {
 	// params: double distanceparam
@@ -1279,6 +1278,7 @@ int sphere_tp_erect( double x_dest,double  y_dest, double* x_src, double* y_src,
     return 1;
 }
 
+
 int erect_sphere_cp( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {
 	// params: double distanceparam, double b
@@ -1299,6 +1299,7 @@ int erect_sphere_cp( double x_dest,double  y_dest, double* x_src, double* y_src,
 	*y_src = theta - var1;
     return 1;
 }
+
 
 int rect_sphere_tp( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {
@@ -1332,6 +1333,7 @@ int rect_sphere_tp( double x_dest,double  y_dest, double* x_src, double* y_src, 
     return 1;
 }
 
+
 int sphere_tp_rect( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {	
 	// params: double distanceparam
@@ -1355,6 +1357,7 @@ int sphere_tp_rect( double x_dest,double  y_dest, double* x_src, double* y_src, 
 	*y_src =  theta * y_dest ;
     return 1;
 }
+
 
 int sphere_tp_pano( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {
@@ -1393,6 +1396,7 @@ int sphere_tp_pano( double x_dest,double  y_dest, double* x_src, double* y_src, 
 #endif
     return 1;
 }
+
 
 int pano_sphere_tp( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {
@@ -1447,6 +1451,7 @@ int sphere_cp_pano( double x_dest,double  y_dest, double* x_src, double* y_src, 
 	*y_src = distanceparam * theta * sin( phi );
     return 1;
 }
+
 
 int erect_rect( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {
@@ -1515,6 +1520,7 @@ int erect_sphere_tp( double x_dest,double  y_dest, double* x_src, double* y_src,
     return 1;
 }
 
+
 int mirror_sphere_cp( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {
 	// params: double distanceparam, double b
@@ -1531,6 +1537,7 @@ int mirror_sphere_cp( double x_dest,double  y_dest, double* x_src, double* y_src
     return 1;
 }
 
+
 int mirror_erect( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {
 	// params: double distanceparam, double b, double b2
@@ -1546,6 +1553,7 @@ int mirror_erect( double x_dest,double  y_dest, double* x_src, double* y_src, vo
 	*y_src = rho * sin( phi );
     return 1;
 }
+
 
 int mirror_pano( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {
@@ -1564,6 +1572,7 @@ int mirror_pano( double x_dest,double  y_dest, double* x_src, double* y_src, voi
     return 1;
 }
 
+
 int sphere_cp_mirror( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {
 	// params: double distanceparam, double b
@@ -1580,6 +1589,83 @@ int sphere_cp_mirror( double x_dest,double  y_dest, double* x_src, double* y_src
     return 1;
 }
 
+/*
+int sphere_tp_mirror( double x_dest,double  y_dest, double* x_src, double* y_src, void* params);
+{
+  return 1;
+}
+
+int mirror_sphere_tp( double x_dest,double  y_dest, double* x_src, double* y_src, void* params);
+{
+  return 1;
+}
+*/
+
+int sphere_tp_equisolid( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
+{
+  // params: double distance
+
+  register double phi, theta, rho;
+
+  rho = sqrt( x_dest*x_dest + y_dest*y_dest );
+  
+  theta = 2.0 * asin( rho/(2.0*((double*)params)[0]) );
+  phi   = atan2( y_dest , x_dest );
+
+  *x_src = ((double*)params)[0] * theta * cos( phi );
+  *y_src = ((double*)params)[0] * theta * sin( phi );
+  return 1;
+}
+
+
+int equisolid_sphere_tp( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
+{
+  // params: double distance
+
+  register double rho, phi, theta;
+
+  theta = sqrt( x_dest * x_dest + y_dest * y_dest ) / ((double*)params)[0];
+  phi   = atan2( y_dest , x_dest );
+  
+  rho = 2.0 * ((double*)params)[0] * sin( theta / 2.0 );
+  
+  *x_src = rho * cos( phi );
+  *y_src = rho * sin( phi );
+  return 1;
+}
+
+int sphere_tp_orthographic( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
+{
+  // params: double distance
+
+  register double phi, theta, rho;
+
+  rho = sqrt( x_dest*x_dest + y_dest*y_dest );
+  
+  theta = 1.0 * asin( rho/(1.0*((double*)params)[0]) );
+  phi   = atan2( y_dest , x_dest );
+
+  *x_src = ((double*)params)[0] * theta * cos( phi );
+  *y_src = ((double*)params)[0] * theta * sin( phi );
+  return 1;
+}
+
+
+int orthographic_sphere_tp( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
+{
+  // params: double distance
+
+  register double rho, phi, theta;
+
+  theta = sqrt( x_dest * x_dest + y_dest * y_dest ) / ((double*)params)[0];
+  phi   = atan2( y_dest , x_dest );
+  
+  rho = 1.0 * ((double*)params)[0] * sin( theta / 1.0 );
+  
+  *x_src = rho * cos( phi );
+  *y_src = rho * sin( phi );
+  return 1;
+}
 
 int shift_scale_rotate( double x_dest,double  y_dest, double* x_src, double* y_src, void* params){
 	// params: double shift_x, shift_y, scale, cos_phi, sin_phi
@@ -1591,14 +1677,6 @@ int shift_scale_rotate( double x_dest,double  y_dest, double* x_src, double* y_s
 	*y_src = (x * ((double*)params)[4] + y * ((double*)params)[3]) * ((double*)params)[2];
     return 1;
 }
-
-
-
-
-
-
-
-
 
 
 

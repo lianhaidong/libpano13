@@ -232,23 +232,24 @@ enum
     _fremoveBlurr,
     _nf_internal,
     _nf_custom,
-    _fresize
+    _fresize,
+    _flogtransform
 };
 
 
 enum
 {                               // Enumerates for Image.format
-    _rectilinear = 0,
-    _panorama = 1,
-    _fisheye_circ = 2,
-    _fisheye_ff = 3,
+    _rectilinear = 0,           // (Standand) FOV (rectilinear) =  2 * arctan (frame size/(focal length * 2))
+    _panorama = 1,              // Cylindrical
+    _fisheye_circ = 2,          // fisheye-equidistance Circular
+    _fisheye_ff = 3,            // fisheye-equidistance Full Frame
     _equirectangular = 4,
-    _spherical_cp = 5,
-    _spherical_tp = 6,
-    _mirror = 7,
-    _orthographic = 8,
+    _spherical_cp = 5,          // Fisheye-Horizontal is an image shot with the camera held horizontally. The equator is now in the center of the image.
+    _spherical_tp = 6,          // Fisheye-vertical is an image shot with the camera held vertically up.  The panorama is extracted from the circumpherence of the image. 
+    _mirror = 7,                // convex mirror. This is the reflection of a convex, spherical image. The horizontal field of view is calculated using the formula HFov = 2*arcsin(radius of mirror/radius of curvature of mirror)
+    _orthographic = 8,          // fisheye-orthographic FOV  (orthogonal fisheye) = 2 * arcsin (frame size/(focal length *2)
     _cubic = 9,
-    _stereographic = 10,
+    _stereographic = 10,        // fisheye stereographic FOV (stereographic fisheye) = 4 * arctan (frame size/(focal length * 4))
     _mercator = 11,
     _trans_mercator = 12,
     _trans_panorama = 13,
@@ -259,6 +260,7 @@ enum
     _millercylindrical = 18,
     _panini = 19,
     _architectural = 20,
+    _equisolid   = 21,          // fisheye-equisolid  FOV (equisolid fisheye) = 4 * arcsin (frame size/(focal length * 4))
 };
 
 enum
@@ -277,9 +279,25 @@ enum
     PANO_FORMAT_MILLER_CYLINDRICAL = 11,
     PANO_FORMAT_PANINI = 12,
     PANO_FORMAT_ARCHITECTURAL = 13,
+    PANO_FORMAT_ORTHOGRAPHIC = 14,
+    PANO_FORMAT_EQUISOLID = 15,
 };
 
-#define PANO_FORMAT_COUNT 14
+#define PANO_FORMAT_COUNT 16
+
+enum
+{                               // Enumerates external number of image f<index>
+    IMAGE_FORMAT_RECTILINEAR = 0,
+    IMAGE_FORMAT_PANORAMA = 1,
+    IMAGE_FORMAT_FISHEYE_EQUIDISTANCECIRC = 2,
+    IMAGE_FORMAT_FISHEYE_EQUIDISTANCEFF = 3,
+    IMAGE_FORMAT_EQUIRECTANGULAR = 4,
+    IMAGE_FORMAT_MIRROR = 7,
+    IMAGE_FORMAT_FISHEYE_ORTHOGRAPHIC = 8,
+    IMAGE_FORMAT_FISHEYE_STEREOGRAPHIC = 10,
+    IMAGE_FORMAT_FISHEYE_EQUISOLID = 19,
+};
+#define IMAGE_FORMAT_COUNT 9
 
 // A large rectangle
 

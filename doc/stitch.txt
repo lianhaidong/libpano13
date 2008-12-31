@@ -19,17 +19,23 @@
 # w1000        width in pixels
 # h600         height in pixels (default: width/2)
 # f0           projection format,
-#                  0 - rectilinear (for printing and viewing)
+#                  0 - Rectilinear (for printing and viewing)
 #                  1 - Cylindrical (for Printing and QTVR)
 #                  2 - Equirectangular ( for Spherical panos), default
-#                  3 - full-frame fisheye
-#                  4 - stereographic
-#                  5 - mercator
-#                  6 - transverse mercator
-#                  7 - sinusoidal
+#                  3 - Fisheye Equidistance full-frame
+#                  4 - Fisheye Stereographic full-frame
+#                  5 - Mercator
+#                  6 - Transverse Mercator
+#                  7 - Sinusoidal
 #                  8 - Lambert Equal Area Cylindrical
 #                  9 - Lambert Azimuthal
 #                 10 - Albers Equal Area Conical
+#                 11 - Miller Cylindrical
+#                 12 - Panini (for wide angle printing and viewing)
+#                 13 - Architectural (combines Miller Cylindrical and Lambert Azimuthal)
+#                 14 - Fisheye Orthographic full-frame
+#                 15 - Fisheye Equisolid full-frame
+
 #
 # P"p1 p2 ..."    Optional parameters for some projections
 #
@@ -94,11 +100,16 @@ i n"photo1.jpg"
 # The 'o' lines describe input images. One line per image is required
 # The width and height of the image is obtained from image
 # f0           projection format,
-#                  0 - rectilinear (normal lenses)
+#                  0 - Rectilinear (normal lenses)
 #                  1 - Panoramic (Scanning cameras like Noblex)
-#                  2 - Circular fisheye
-#                  3 - full-frame fisheye
-#                  4 - PSphere, equirectangular
+#                  2 - Fisheye Equidistance Circular
+#                  3 - Fisheye Equidistance full-frame
+#                  4 - Equirectangular (Spherical panos)
+#                  7 - Mirror
+#                  8 - Fisheye Orthographic (This is only allowed in PTStereo and
+#                         for the first image. This indicates a map or ground plan)
+#                 10 - Fisheye Stereographic
+#                 19 - Fisheye Equisolid
 # v82          horizontal field of view of image (required)
 # y0           yaw angle (required)
 # p43          pitch angle (required)

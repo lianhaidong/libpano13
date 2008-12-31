@@ -46,15 +46,35 @@ TStringFeature stringFeatures[]={
   // If a lens type is unavailable, set its name to ""
   {"LensType0","Normal (rectilinear)"},
   {"LensType1","Cylindrical"},
-  {"LensType2","Circular"},
-  {"LensType3","Full Frame"},
+  {"LensType2","Fisheye Equidistance Circular"},
+  {"LensType3","Fisheye Equidistance Full Frame"},
   {"LensType4","Equirectangular"},
+  {"LensType5",""},//"_spherical_cp"},
+  {"LensType6",""},//"_spherical_tp"},
+  {"LensType7","Mirror"},
+  {"LensType8","Fisheye Orthographic"},
+  {"LensType9",""},//"_cubic"},
+  {"LensType10","Fisheye Stereographic"},  // fisheye stereographic
+  {"LensType11",""},//"_mercator"},
+  {"LensType12",""},//"_trans_mercator"},
+  {"LensType13",""},//"_trans_panorama"},
+  {"LensType14",""},//"_sinusoidal"},
+  {"LensType15",""},//"_lambert"},
+  {"LensType16",""},//"_lambertazimuthal"},
+  {"LensType17",""},//"_albersequalareaconic"},
+  {"LensType18",""},//"_millercylindrical"},
+  {"LensType19","Fisheye Equisolid"},
+
   // Source lens type crop format (C)ircle or (R)ectangle:
   {"LensMask0","R"},
   {"LensMask1","R"},
   {"LensMask2","C"},
   {"LensMask3","R"},
   {"LensMask4","R"},
+  {"LensMask7","C"},
+  {"LensMask8","C"},
+  {"LensMask10","C"},
+  {"LensMask19","C"},
   // Pano lens type names 
   // If a lens type is unavailable, set its name to ""
   {"PanoType0","Normal (rectilinear)"},
@@ -71,6 +91,8 @@ TStringFeature stringFeatures[]={
   {"PanoType11","Miller Cylindrical"},
   {"PanoType12","Panini"},
   {"PanoType13","Architectural"},
+  {"PanoType14","Architectural"},
+  {"PanoType15","Architectural"},
   // Filter Types
   //   fix: Fixed Windowsize
   //   aa: Antialiasing filter with adaptive filter size

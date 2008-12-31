@@ -859,9 +859,15 @@ int erect_arch		( double x_dest,double  y_dest, double* x_src, double* y_src, vo
 int mirror_sphere_cp	( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
 int mirror_pano		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
 int sphere_cp_mirror	( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
-int sphere_tp_pano		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
 
+int sphere_tp_pano		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
 int pano_sphere_tp		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
+//int sphere_tp_mirror( double x_dest,double  y_dest, double* x_src, double* y_src, void* params);
+//int mirror_sphere_tp( double x_dest,double  y_dest, double* x_src, double* y_src, void* params);
+int sphere_tp_equisolid( double x_dest,double  y_dest, double* x_src, double* y_src, void* params);
+int equisolid_sphere_tp( double x_dest,double  y_dest, double* x_src, double* y_src, void* params);
+int sphere_tp_orthographic( double x_dest,double  y_dest, double* x_src, double* y_src, void* params);
+int orthographic_sphere_tp( double x_dest,double  y_dest, double* x_src, double* y_src, void* params);
 
 int rotate_erect		( double x_dest, double y_dest, double* x_src, double* y_src, void* params );
 int inv_radial			( double x_dest, double y_dest, double* x_src, double* y_src, void* params );

@@ -1,3 +1,10 @@
+2008-01-26 Jim Watters <jwatters@photocreations.ca>
+
+	* adjust.c, filter.h, math.c, panorama.h, parser.c & queryfeateature.c
+	added mirror, equisolid, orthographic, and stereographic as input image formats
+	added equisolid, orthographic, stereographic as output panorama formats
+
+
 2008-12-29  dmg  <dmg@phosphorus>
 
 	* panorama.h, math.c, adjust.c, queryfeature.c, filter.h: Finally

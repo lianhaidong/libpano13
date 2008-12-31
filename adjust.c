@@ -565,9 +565,9 @@ void ExtractStill( TrformStr *TrPtr , aPrefs *aP )
 
 void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Image *pn, int color )
 {
-	int 		i;
-	double		a,b;						// field of view in rad
-        double          tx,ty, tpara;               // temporary variables
+  int         i;
+  double      a,b;                        // field of view in rad
+  double      tx,ty, tpara;               // temporary variables
 /* Joost Nieuwenhuijse, 3 feb 2005: Fix for cropping bug
    If a script containing the 'C' crop parameter was stitched by PTStitcher,
    it would fail if the cropping area is partially outside the source image.
@@ -583,45 +583,45 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
    and vertical offset are added to compensate for the shift of the center of the
    crop area relative to the center of the image.
 */
-        int image_selection_width=im->width;
-        int image_selection_height=im->height;
-	mp->im = im;
-	mp->pn = pn;
-        if(im->cP.horizontal)
-        {
-          mp->horizontal=im->cP.horizontal_params[color];
-        }
-        else
-        {
-          mp->horizontal=0;
-        }
-        if(im->cP.vertical)
-        {
-          mp->vertical=im->cP.vertical_params[color];
-        }
-        else
-        {
-          mp->vertical=0;
-        }
-        if( (im->selection.left != 0) || (im->selection.top != 0) || (im->selection.bottom != 0) || (im->selection.right != 0) )
-        {
-          if(im->cP.cutFrame)
-          {
-            image_selection_width  = im->selection.right  - im->selection.left;
-            image_selection_height = im->selection.bottom - im->selection.top;
-            mp->horizontal += (im->selection.right  + im->selection.left - im->width)/2.0;
-            mp->vertical   += (im->selection.bottom + im->selection.top  - im->height)/2.0;
-          }
-        }
+  int image_selection_width=im->width;
+  int image_selection_height=im->height;
+  mp->im = im;
+  mp->pn = pn;
+  if(im->cP.horizontal)
+  {
+    mp->horizontal=im->cP.horizontal_params[color];
+  }
+  else
+  {
+    mp->horizontal=0;
+  }
+  if(im->cP.vertical)
+  {
+    mp->vertical=im->cP.vertical_params[color];
+  }
+  else
+  {
+    mp->vertical=0;
+  }
+  if( (im->selection.left != 0) || (im->selection.top != 0) || (im->selection.bottom != 0) || (im->selection.right != 0) )
+  {
+    if(im->cP.cutFrame)
+    {
+      image_selection_width  = im->selection.right  - im->selection.left;
+      image_selection_height = im->selection.bottom - im->selection.top;
+      mp->horizontal += (im->selection.right  + im->selection.left - im->width)/2.0;
+      mp->vertical   += (im->selection.bottom + im->selection.top  - im->height)/2.0;
+    }
+  }
 
-	a	=	 DEG_TO_RAD( im->hfov );	// field of view in rad
-	b	=	 DEG_TO_RAD( pn->hfov );
+  a   =    DEG_TO_RAD( im->hfov );    // field of view in rad
+  b   =    DEG_TO_RAD( pn->hfov );
 
-	SetMatrix(  	- DEG_TO_RAD( im->pitch ),
-					0.0,
-					- DEG_TO_RAD( im->roll ),
-					mp->mt,
-					0 );
+  SetMatrix( - DEG_TO_RAD( im->pitch ),
+             0.0,
+             - DEG_TO_RAD( im->roll ),
+             mp->mt,
+             0 );
 
 #if 0
         switch (pn->format)
@@ -671,273 +671,303 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
   * Added more output projection types. Broke mp->distance and mp->scale factor calculation
   * into separate parts, making it easier to add new projection types
  */
-        // calculate distance
-        switch (pn->format)
-        {
-        case _rectilinear:
-            mp->distance        = (double) pn->width / (2.0 * tan(b/2.0));
-            break;
-        case _equirectangular:
-        case _fisheye_ff:
-        case _fisheye_circ:
-        case _panorama:
-        case _lambert:
-        case _mercator:
-	case _millercylindrical:
-        case _sinusoidal:
-            // horizontal pixels per degree
-            mp->distance        = ((double) pn->width) / b;
-            break;
-        case _panini: 
-	    tpara = 1;
-	    panini_erect(b/2.0, 0.0, &tx, &ty, & tpara);
-            mp->distance = pn->width/(2.0*tx);
-            break;
-        case _architectural: 
-	    tpara = 1;
-	    arch_erect(b/2.0, 0.0, &tx, &ty, & tpara);
-            mp->distance = pn->width/(2.0*tx);
-            break;
-        case _lambertazimuthal: 
-	    tpara = 1;
-	    lambertazimuthal_erect(b/2.0, 0.0, &tx, &ty, & tpara);
-            mp->distance = pn->width/(2.0*tx);
-            break;
-        case _stereographic:
-            tpara = 1;
-            stereographic_erect(b/2.0, 0.0, &tx, &ty, & tpara);
-            mp->distance = pn->width/(2.0*tx);
-            break;
-        case _trans_mercator:
-            tpara = 1;
-            transmercator_erect(b/2.0, 0.0, &tx, &ty, &tpara);
-            mp->distance = pn->width/(2.0*tx);
-            break;
-	case _albersequalareaconic:
-	    mp->distance = 1.0;
-	    //albersequalareaconic_erect(1.924913116, -PI/2.0, &tx, &ty, mp); //b/2.0
-	    albersequalareaconic_distance(&tx, mp);
-	    mp->distance = pn->width/(2.0*tx);
-	    break;
-        default:
-            // unknown
-            PrintError ("SetMakeParams: Unsupported panorama projection");
-            // no way to report an error back to the caller...
-            mp->distance = 1;
-        }
+  // calculate distance
+  switch (pn->format)
+  {
+    case _rectilinear:
+      mp->distance        = (double) pn->width / (2.0 * tan(b/2.0));
+      break;
+    case _equirectangular:
+    case _fisheye_ff:
+    case _fisheye_circ:
+    case _panorama:
+    case _lambert:
+    case _mercator:
+    case _millercylindrical:
+    case _sinusoidal:
+    case _mirror:
+      // horizontal pixels per degree
+      mp->distance        = ((double) pn->width) / b;
+      break;
+    case _panini: 
+      tpara = 1;
+      panini_erect(b/2.0, 0.0, &tx, &ty, & tpara);
+      mp->distance = pn->width/(2.0*tx);
+      break;
+    case _architectural: 
+      tpara = 1;
+      arch_erect(b/2.0, 0.0, &tx, &ty, & tpara);
+      mp->distance = pn->width/(2.0*tx);
+      break;
+    case _lambertazimuthal: 
+      tpara = 1;
+      lambertazimuthal_erect(b/2.0, 0.0, &tx, &ty, & tpara);
+      mp->distance = pn->width/(2.0*tx);
+      break;
+    case _stereographic:
+      tpara = 1;
+      stereographic_erect(b/2.0, 0.0, &tx, &ty, & tpara);
+      mp->distance = pn->width/(2.0*tx);
+      break;
+    case _trans_mercator:
+      tpara = 1;
+      transmercator_erect(b/2.0, 0.0, &tx, &ty, &tpara);
+      mp->distance = pn->width/(2.0*tx);
+      break;
+    case _albersequalareaconic:
+      mp->distance = 1.0;
+      //albersequalareaconic_erect(1.924913116, -PI/2.0, &tx, &ty, mp); //b/2.0
+      albersequalareaconic_distance(&tx, mp);
+      mp->distance = pn->width/(2.0*tx);
+      break;
+    case _equisolid:
+      mp->distance  = (double) pn->width / (4.0 * sin(b/4.0));
+      break;
+    case _orthographic:
+      mp->distance  = (double) pn->width / (2.0 * sin(b/2.0));
+      break;
+    default:
+      // unknown
+      PrintError ("SetMakeParams: Unsupported panorama projection");
+      // no way to report an error back to the caller...
+      mp->distance = 1;
+      break;
+  }
 
-        // calculate final scaling factor, that reverses the mp->distance
-        // scaling and applies the required output scaling factor
-        switch (im->format)
-        {
-        case _rectilinear:
-            // calculate distance for this projection
-            mp->scale[0] = (double) image_selection_width / (2.0 * tan(a/2.0)) / mp->distance;
-            break;
-        case _equirectangular:
-        case _panorama:
-        case _fisheye_ff:
-        case _fisheye_circ:
-        case _mercator:
-        case _sinusoidal:
-            mp->scale[0] = ((double) image_selection_width) / a / mp->distance;
-            break;
-        default:
-            PrintError ("SetMakeParams: Unsupported input image projection");
-            // no way to report an error back to the caller...
-            mp->scale[0] = 1;
-        }
-        mp->scale[1]    = mp->scale[0];
+  // calculate final scaling factor, that reverses the mp->distance
+  // scaling and applies the required output scaling factor
+  switch (im->format)
+  {
+    case _rectilinear:
+      // calculate distance for this projection
+      mp->scale[0] = (double) image_selection_width / (2.0 * tan(a/2.0)) / mp->distance;
+      break;
+    case _equirectangular:
+    case _panorama:
+    case _fisheye_ff:
+    case _fisheye_circ:
+    case _mercator:
+    case _sinusoidal:
+      mp->scale[0] = ((double) image_selection_width) / a / mp->distance;
+      break;
+    case _equisolid:
+    case _mirror:
+      mp->scale[0] = (double) image_selection_width / (4.0 * sin(a/4.0)) / mp->distance;
+      break;
+    case _orthographic:
+      mp->scale[0] = (double) image_selection_width / (2.0 * sin(a/2.0)) / mp->distance;
+      break;
+    case _stereographic:
+      mp->scale[0] = (double) image_selection_width / (4.0 * tan(a/4.0)) / mp->distance;
+      break;
+    default:
+      PrintError ("SetMakeParams: Unsupported input image projection");
+      // no way to report an error back to the caller...
+      mp->scale[0] = 1;
+      break;
+    }
+    mp->scale[1]    = mp->scale[0];
 
-//        printf("new params: mp->distance: %lf, mp->scale: %lf\n\n", mp->distance, mp->scale[0]);
+//  printf("new params: mp->distance: %lf, mp->scale: %lf\n\n", mp->distance, mp->scale[0]);
 
-	mp->shear[0] 	= im->cP.shear_x / image_selection_height;
-	mp->shear[1] 	= im->cP.shear_y / image_selection_width;
-	mp->rot[0]		= mp->distance * PI;								// 180 in screenpoints
-	mp->rot[1]		= -im->yaw *  mp->distance * PI / 180.0; 			//    rotation angle in screenpoints
+    mp->shear[0]    = im->cP.shear_x / image_selection_height;
+    mp->shear[1]    = im->cP.shear_y / image_selection_width;
+    mp->rot[0]      = mp->distance * PI;                                // 180 in screenpoints
+    mp->rot[1]      = -im->yaw *  mp->distance * PI / 180.0;            // rotation angle in screenpoints
 
+    /*
+    printf("Image format %d\n", im->format);
+    printf("shear[0] %f\n", mp->shear[0]);
+    printf("shear[1] %f\n", mp->shear[1]);
+    printf("rot[0] %f\n", mp->rot[0]);
+    printf("rot[1] %f\n", mp->rot[1]);
+    printf("scale[0] %f\n", mp->rot[0]);
+    */
 
-	/*
-	printf("Image format %d\n", im->format);
-	printf("shear[0] %f\n", mp->shear[0]);
-	printf("shear[1] %f\n", mp->shear[1]);
-	printf("rot[0] %f\n", mp->rot[0]);
-	printf("rot[1] %f\n", mp->rot[1]);
-	printf("scale[0] %f\n", mp->rot[0]);
-	*/
+    mp->perspect[0] = (void*)(mp->mt);
+    mp->perspect[1] = (void*)&(mp->distance);
+            
+    for(i=0; i<4; i++)
+      mp->rad[i]  = im->cP.radial_params[color][i];
+    mp->rad[5] = im->cP.radial_params[color][4];
 
-
-	mp->perspect[0] = (void*)(mp->mt);
-	mp->perspect[1] = (void*)&(mp->distance);
-			
-	for(i=0; i<4; i++)
-		mp->rad[i] 	= im->cP.radial_params[color][i];
-	mp->rad[5] = im->cP.radial_params[color][4];
-
-	if( (im->cP.correction_mode & 3) == correction_mode_radial )
-		mp->rad[4] 	= ( (double)( image_selection_width < image_selection_height ? image_selection_width : image_selection_height) ) / 2.0;
-	else
-		mp->rad[4] 	= ((double) image_selection_height) / 2.0;
-
+    if( (im->cP.correction_mode & 3) == correction_mode_radial )
+      mp->rad[4]  = ( (double)( image_selection_width < image_selection_height ? image_selection_width : image_selection_height) ) / 2.0;
+    else
+      mp->rad[4]  = ((double) image_selection_height) / 2.0;
 
 // Joost: removed, see above
-//	mp->horizontal 	= im->cP.horizontal_params[color];
-//	mp->vertical 	= im->cP.vertical_params[color];
+//  mp->horizontal  = im->cP.horizontal_params[color];
+//  mp->vertical  = im->cP.vertical_params[color];
 
-	i = 0;
+    i = 0;
 
-	if(pn->format == _rectilinear)									// rectilinear panorama
-	{
-		SetDesc(stack[i],	erect_rect,		&(mp->distance)	); i++;	// Convert rectilinear to equirect
-	}
-	else if(pn->format == _panorama)
-	{
-		SetDesc(stack[i],	erect_pano,		&(mp->distance)	); i++;	// Convert panoramic to equirect
-	}
-	else if(pn->format == _fisheye_circ || pn->format == _fisheye_ff)
-	{
-		SetDesc(stack[i],	erect_sphere_tp,		&(mp->distance)	); i++;	// Convert panoramic to sphere
-	}
-   	else if(pn->format == _mercator)
-	{
-		SetDesc(stack[i],	erect_mercator,		&(mp->distance)	); i++;	// Convert mercator to sphere
+    if(pn->format == _rectilinear)                                  // rectilinear panorama
+    {
+      SetDesc(stack[i],   erect_rect,             &(mp->distance) ); i++;   // Convert rectilinear to equirect
     }
-   	else if(pn->format == _millercylindrical)
-	{
-		SetDesc(stack[i],	erect_millercylindrical,		&(mp->distance)	); i++;	// Convert miller to sphere
+    else if(pn->format == _panorama)
+    {
+      SetDesc(stack[i],   erect_pano,             &(mp->distance) ); i++;   // Convert panoramic to equirect
     }
-   	else if(pn->format == _panini)
-	{
-		SetDesc(stack[i],	erect_panini,		&(mp->distance)	); i++;	// Convert panini to sphere
+    else if(pn->format == _fisheye_circ || pn->format == _fisheye_ff)
+    {
+      SetDesc(stack[i],   erect_sphere_tp,        &(mp->distance) ); i++; // Convert fisheye to equirect
     }
-   	else if(pn->format == _architectural)
-	{
-		SetDesc(stack[i],	erect_arch,		&(mp->distance)	); i++;	// Convert arch to sphere
+    else if(pn->format == _equisolid)
+    {
+      SetDesc(stack[i],   sphere_tp_equisolid,    &(mp->distance) ); i++; // Convert fisheye equisolid to spherical
+      SetDesc(stack[i],   erect_sphere_tp,        &(mp->distance) ); i++; // Convert spherical to equirect
     }
-   	else if(pn->format == _lambert)
-	{
-		SetDesc(stack[i],	erect_lambert,		&(mp->distance)	); i++;	// Convert lambert to sphere
+    else if(pn->format == _mirror)
+    {
+      SetDesc(stack[i],   sphere_cp_mirror,       &(mp->distance) ); i++; // Convert mirror to spherical
+      SetDesc(stack[i],   erect_sphere_cp,        &(mp->distance) ); i++; // Convert spherical to equirect
     }
-   	else if(pn->format == _lambertazimuthal)
-	{
-		SetDesc(stack[i],	erect_lambertazimuthal,		&(mp->distance)	); i++;	// Convert lambert to sphere
+    else if(pn->format == _orthographic)
+    {
+      SetDesc(stack[i],   sphere_tp_orthographic, &(mp->distance) ); i++; // Convert fisheye orthographic to spherical
+      SetDesc(stack[i],   erect_sphere_tp,        &(mp->distance) ); i++; // Convert spherical to equirect
     }
-   	else if(pn->format == _trans_mercator)
-	{
-		SetDesc(stack[i], erect_transmercator, &(mp->distance)	); i++;	// Convert transverse mercator to sphere
+    else if(pn->format == _mercator)
+    {
+      SetDesc(stack[i],   erect_mercator,         &(mp->distance) ); i++; // Convert mercator to equirect
     }
-	else if(pn->format == _stereographic)
-	{
-		SetDesc(stack[i], erect_stereographic, &(mp->distance) ); i++;	// Convert stereographic to sphere
+    else if(pn->format == _millercylindrical)
+    {
+      SetDesc(stack[i],   erect_millercylindrical, &(mp->distance) ); i++; // Convert miller to equirect
     }
-   	else if(pn->format == _sinusoidal)
-	{
-		SetDesc(stack[i],	erect_sinusoidal,		&(mp->distance)	); i++;	// Convert sinusoidal to sphere
-	}
-   	else if(pn->format == _albersequalareaconic)
-	{
-		SetDesc(stack[i],	erect_albersequalareaconic,		mp	); i++;	// Convert albersequalareaconic to sphere
-	}
-   	else if(pn->format == _equirectangular) 
-	{
-		// no conversion needed		
+    else if(pn->format == _panini)
+    {
+    SetDesc(stack[i],     erect_panini,           &(mp->distance) ); i++; // Convert panini to sphere
+    }
+    else if(pn->format == _architectural)
+    {
+      SetDesc(stack[i],   erect_arch,             &(mp->distance) ); i++; // Convert arch to sphere
+    }
+    else if(pn->format == _lambert)
+    {
+      SetDesc(stack[i],   erect_lambert,          &(mp->distance) ); i++; // Convert lambert to equirect
+    }
+    else if(pn->format == _lambertazimuthal)
+    {
+      SetDesc(stack[i],   erect_lambertazimuthal, &(mp->distance) ); i++; // Convert lambert to equirect
+    }
+    else if(pn->format == _trans_mercator)
+    {
+      SetDesc(stack[i],   erect_transmercator,    &(mp->distance)  ); i++; // Convert transverse mercator to equirect
+    }
+    else if(pn->format == _stereographic)
+    {
+      SetDesc(stack[i],   erect_stereographic,    &(mp->distance) ); i++;  // Convert stereographic to equirect
+    }
+    else if(pn->format == _sinusoidal)
+    {
+      SetDesc(stack[i],   erect_sinusoidal,       &(mp->distance) ); i++; // Convert sinusoidal to equirect
+    }
+    else if(pn->format == _albersequalareaconic)
+    {
+      SetDesc(stack[i],   erect_albersequalareaconic,     mp  ); i++; // Convert albersequalareaconic to equirect
+    }
+    else if(pn->format == _equirectangular) 
+    {
+      // no conversion needed     
     } else {
-		PrintError("Projection type %d not supported, using equirectangular", pn->format);
-	}
+      PrintError("Projection type %d not supported, using equirectangular", pn->format);
+    }
 
+    SetDesc(  stack[i],   rotate_erect,           mp->rot         ); i++; // Rotate equirect. image horizontally
+    SetDesc(  stack[i],   sphere_tp_erect,        &(mp->distance) ); i++; // Convert spherical image to equirect.
+    SetDesc(  stack[i],   persp_sphere,           mp->perspect    ); i++; // Perspective Control spherical Image
 
-	SetDesc(	stack[i],	rotate_erect,		mp->rot			); i++;	// Rotate equirect. image horizontally
-	SetDesc(	stack[i],	sphere_tp_erect,	&(mp->distance)	); i++;	// Convert spherical image to equirect.
-	SetDesc(	stack[i],	persp_sphere,		mp->perspect	); i++;	// Perspective Control spherical Image
+    if(im->format      == _rectilinear)                                    // rectilinear image
+    {
+      SetDesc(stack[i],   rect_sphere_tp,         &(mp->distance) ); i++; // Convert rectilinear to spherical
+    }
+    else if(im->format == _panorama)                                   //  pamoramic image
+    {
+      SetDesc(stack[i],   pano_sphere_tp,         &(mp->distance) ); i++; // Convert panoramic to spherical
+    }
+    else if(im->format == _equirectangular)                            //  equirectangular image
+    {
+      SetDesc(stack[i],   erect_sphere_tp,        &(mp->distance) ); i++; // Convert equirectangular to spherical
+    }
 
-	if(im->format 		== _rectilinear)									// rectilinear image
-	{
-		SetDesc(stack[i],	rect_sphere_tp,		&(mp->distance)	); i++;	// Convert rectilinear to spherical
-	}
-	else if	(im->format 	== _panorama)									//  pamoramic image
-	{
-		SetDesc(stack[i],	pano_sphere_tp,		&(mp->distance)	); i++;	// Convert panoramic to spherical
-	}
-	else if	(im->format 	== _equirectangular)							//  PSphere image
-	{
-		SetDesc(stack[i],	erect_sphere_tp,	&(mp->distance)	); i++;	// Convert PSphere to spherical
-	}
+    SetDesc(  stack[i],   resize,                 mp->scale       ); i++; // Scale image
 
-	SetDesc(	stack[i],	resize,				mp->scale		); i++; // Scale image
+    if( im->cP.radial )
+    {
+      switch( im->cP.correction_mode & 3 )
+      {
+        case correction_mode_radial:    SetDesc(stack[i],radial,mp->rad);     i++; break;
+        case correction_mode_vertical:  SetDesc(stack[i],vertical,mp->rad);   i++; break;
+        case correction_mode_deregister:SetDesc(stack[i],deregister,mp->rad); i++; break;
+      }
+    }
+    if (mp->vertical != 0.0)
+    {
+      SetDesc(stack[i],   vert,                   &(mp->vertical));   i++;
+    }
+    if (mp->horizontal != 0.0)
+    {
+      SetDesc(stack[i],   horiz,                  &(mp->horizontal)); i++;
+    }
+    if( im->cP.shear )
+    {
+      SetDesc( stack[i],  shear,                  mp->shear       ); i++;
+    }
 
-	if( im->cP.radial )
-	{
-		switch( im->cP.correction_mode & 3 )
-	{
-			case correction_mode_radial:    SetDesc(stack[i],radial,mp->rad); 	  i++; break;
-			case correction_mode_vertical:  SetDesc(stack[i],vertical,mp->rad);   i++; break;
-			case correction_mode_deregister:SetDesc(stack[i],deregister,mp->rad); i++; break;
-		}
-	}
-//	if (  im->cP.vertical)
-	if (mp->vertical != 0.0)
-	{
-		SetDesc(stack[i],vert,				&(mp->vertical)); 	i++;
-	}
-//	if ( im->cP.horizontal )
-	if (mp->horizontal != 0.0)
-		{
-		SetDesc(stack[i],horiz,				&(mp->horizontal)); i++;
-		}
-	if( im->cP.shear )
-	{
-		SetDesc( stack[i],shear,			mp->shear		); i++;
-	}
-
-	stack[i].func  = (trfn)NULL;
+    stack[i].func  = (trfn)NULL;
 
 // print stack for debugging
 #if 0
-	printf( "Rotate params: %lg  %lg\n" , mp->rot[0], mp->rot[1]);
-	printf( "Distance     : %lg\n" , mp->distance);
-	printf( "Perspect params: %lg  %lg  %lg\n",a, beta , gammar );  	
-	if(aP->format 		== _rectilinear)									// rectilinear image
-	{
-		printf( "Rectilinear\n" );  	
-	}
-	else if	(aP->format 	== _panorama)									//  pamoramic image
-	{
-		printf( "Panorama\n" );
-	}
-	else
-		printf( "Fisheye\n" );  	
-	
-	printf( "Scaling     : %lg\n" , mp->scale[0]);
+    printf( "Rotate params: %lg  %lg\n" , mp->rot[0], mp->rot[1]);
+    printf( "Distance     : %lg\n" , mp->distance);
+    printf( "Perspect params: %lg  %lg  %lg\n",a, beta , gammar );      
+    if(aP->format       == _rectilinear)                                    // rectilinear image
+    {
+      printf( "Rectilinear\n" );      
+    }
+    else if (aP->format     == _panorama)                                   //  pamoramic image
+    {
+      printf( "Panorama\n" );
+    }
+    else
+    {
+      printf( "Fisheye\n" );      
+    }
 
-	if(  aP->correct )
-	{
-		printf( "Correct:\n" );  	
-		if( aP->c_prefs.shear )
-		{
-			printf( "Shear: %lg\n", mp->shear );  	
-		}
-		if ( aP->c_prefs.horizontal )
-		{
-			printf( "horiz:%lg\n", mp->horizontal );  
-		}
-		if (  aP->c_prefs.vertical)
-		{
-			printf( "vert:%lg\n", mp->vertical );  
-		}
-		if( aP->c_prefs.radial )
-		{
-			printf( "Polynomial:\n" );  	
-			if( aP->c_prefs.isScanningSlit )
-			{
-				printf( "Scanning Slit:\n" );  	
-			}
-			else
-			{
-				printf( "Radial:\n" );  	
-				printf( "Params: %lg %lg %lg %lg %lg\n", mp->rad[0],mp->rad[1],mp->rad[2],mp->rad[3],mp->rad[4] );  	
-			}
-		}
-	}
+    printf( "Scaling     : %lg\n" , mp->scale[0]);
+
+    if(  aP->correct )
+    {
+      printf( "Correct:\n" );     
+      if( aP->c_prefs.shear )
+      {
+        printf( "Shear: %lg\n", mp->shear );    
+      }
+      if ( aP->c_prefs.horizontal )
+      {
+        printf( "horiz:%lg\n", mp->horizontal );  
+      }
+      if (  aP->c_prefs.vertical)
+      {
+        printf( "vert:%lg\n", mp->vertical );  
+      }
+      if( aP->c_prefs.radial )
+      {
+        printf( "Polynomial:\n" );      
+        if( aP->c_prefs.isScanningSlit )
+        {
+          printf( "Scanning Slit:\n" );   
+        }
+        else
+        {
+          printf( "Radial:\n" );      
+          printf( "Params: %lg %lg %lg %lg %lg\n", mp->rad[0],mp->rad[1],mp->rad[2],mp->rad[3],mp->rad[4] );      
+        }
+      }
+    }
 
 #endif
 }
@@ -945,280 +975,297 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
 
 // Set inverse Makeparameters depending on adjustprefs, color and source image
 
-void 	SetInvMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Image *pn, int color )
+void  SetInvMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Image *pn, int color )
 {
 
-	int 		i;
-	double		a,b;							// field of view in rad
-	double      tx,ty,tpara;
+  int     i;
+  double    a,b;              // field of view in rad
+  double      tx,ty,tpara;
 
-	a =	 DEG_TO_RAD( im->hfov );	// field of view in rad		
-	b =	 DEG_TO_RAD( pn->hfov );
-
-
-	mp->im = im;
-	mp->pn = pn;
-	SetMatrix( 	DEG_TO_RAD( im->pitch ), 
-				0.0, 
-				DEG_TO_RAD( im->roll ), 
-				mp->mt, 
-				1 );
-
-        // dangelo: added mercator, sinusoidal and stereographic projection
-        switch (pn->format)
-        {
-        case _rectilinear:
-            mp->distance        = (double) pn->width / (2.0 * tan(b/2.0));
-            break;
-        case _equirectangular:
-        case _fisheye_ff:
-        case _fisheye_circ:
-        case _panorama:
-        case _lambert:
-        case _mercator:
-        case _millercylindrical:
-        case _sinusoidal:
-            // horizontal pixels per degree
-            mp->distance        = ((double) pn->width) / b;
-            break;
-	case _lambertazimuthal:
-	    tpara = 1;
-	    lambertazimuthal_erect(b/2.0, 0.0, &tx, &ty, & tpara);
-	    mp->distance = pn->width/(2.0*tx);
-            break;
-	case _panini:
-	    tpara = 1;
-	    panini_erect(b/2.0, 0.0, &tx, &ty, & tpara);
-	    mp->distance = pn->width/(2.0*tx);
-            break;
-	case _architectural:
-	    tpara = 1;
-	    arch_erect(b/2.0, 0.0, &tx, &ty, & tpara);
-	    mp->distance = pn->width/(2.0*tx);
-            break;
-        case _stereographic:
-            tpara = 1;
-            stereographic_erect(b/2.0, 0.0, &tx, &ty, & tpara);
-            mp->distance = pn->width/(2.0*tx);
-            break;
-        case _trans_mercator:
-            tpara = 1;
-            transmercator_erect(b/2.0, 0.0, &tx, &ty, & tpara);
-            mp->distance = pn->width/(2.0*tx);
-            break;
-        case _albersequalareaconic:
-            mp->distance = 1.0;
-            //albersequalareaconic_erect(1.924913116, -PI/2.0, &tx, &ty, mp);  //b/2.0
-	    albersequalareaconic_distance(&tx, mp);
-            mp->distance = pn->width/(2.0*tx);
-            break;
-        default:
-            // unknown
-            PrintError ("SetInvMakeParams: Unsupported panorama projection");
-            // no way to report an error back to the caller...
-            mp->distance = 1;
-        }
-
-        // calculate final scaling factor, that reverses the mp->distance
-        // scaling and applies the required output scaling factor
-        switch (im->format)
-        {
-        case _rectilinear:
-            // calculate distance for this projection
-            mp->scale[0] = (double) im->width / (2.0 * tan(a/2.0)) / mp->distance;
-            break;
-        case _equirectangular:
-        case _panorama:
-        case _fisheye_ff:
-        case _fisheye_circ:
-        case _mercator:
-        case _sinusoidal:
-            mp->scale[0] = ((double) im->width) / a / mp->distance;
-            break;
-        default:
-            PrintError ("SetInvMakeParams: Unsupported input image projection");
-            // no way to report an error back to the caller...
-            mp->scale[0] = 1;
-        }
-        mp->scale[1]    = mp->scale[0];
-
-        /*
-	if(pn->format == _rectilinear)									// rectilinear panorama
-	{
-		mp->distance 	= (double) pn->width / (2.0 * tan(b/2.0));
-		if(im->format == _rectilinear)										// rectilinear image
-		{
-			mp->scale[0] = ((double)pn->hfov / im->hfov) * 
-						   (a /(2.0 * tan(a/2.0))) * ((double)im->width/(double) pn->width)
-						   * 2.0 * tan(b/2.0) / b; 
-
-		}
-		else 																//  pamoramic or fisheye image
-		{
-			mp->scale[0] = ((double)pn->hfov / im->hfov) * ((double)im->width/ (double) pn->width)
-						   * 2.0 * tan(b/2.0) / b; 
-		}
-	}
-	else																// equirectangular or panoramic 
-	{
-		mp->distance 	= ((double) pn->width) / b;
-		if(im->format == _rectilinear)										// rectilinear image
-		{
-			mp->scale[0] = ((double)pn->hfov / im->hfov) * (a /(2.0 * tan(a/2.0))) * ((double)im->width)/ ((double) pn->width); 
-
-		}
-		else 																//  pamoramic or fisheye image
-		{
-			mp->scale[0] = ((double)pn->hfov / im->hfov) * ((double)im->width)/ ((double) pn->width); 
-		}
-	}
-        */
-
-	mp->shear[0] 	= -im->cP.shear_x / im->height;
-	mp->shear[1] 	= -im->cP.shear_y / im->width;
-	
-	mp->scale[0] = 1.0 / mp->scale[0];
-	mp->scale[1] 	= mp->scale[0];
-	mp->horizontal 	= -im->cP.horizontal_params[color];
-	mp->vertical 	= -im->cP.vertical_params[color];
-	for(i=0; i<4; i++)
-		mp->rad[i] 	= im->cP.radial_params[color][i];
-	mp->rad[5] = im->cP.radial_params[color][4];
-	
-	switch( im->cP.correction_mode & 3 )
-	{
-		case correction_mode_radial: mp->rad[4] = ((double)(im->width < im->height ? im->width : im->height) ) / 2.0;break;
-		case correction_mode_vertical: 
-		case correction_mode_deregister: mp->rad[4] = ((double) im->height) / 2.0;break;
-	}
-
-	mp->rot[0]		= mp->distance * PI;								// 180 in screenpoints
-	mp->rot[1]		= im->yaw *  mp->distance * PI / 180.0; 			//    rotation angle in screenpoints
-
-	mp->perspect[0] = (void*)(mp->mt);
-	mp->perspect[1] = (void*)&(mp->distance);
+  a =  DEG_TO_RAD( im->hfov );  // field of view in rad   
+  b =  DEG_TO_RAD( pn->hfov );
 
 
+  mp->im = im;
+  mp->pn = pn;
+  SetMatrix( DEG_TO_RAD( im->pitch ), 
+             0.0, 
+             DEG_TO_RAD( im->roll ), 
+             mp->mt, 
+             1 );
+
+  // dangelo: added mercator, sinusoidal and stereographic projection
+  switch (pn->format)
+  {
+    case _rectilinear:
+      mp->distance        = (double) pn->width / (2.0 * tan(b/2.0));
+      break;
+    case _equirectangular:
+    case _fisheye_ff:
+    case _fisheye_circ:
+    case _panorama:
+    case _lambert:
+    case _mercator:
+    case _millercylindrical:
+    case _sinusoidal:
+    case _mirror:
+      // horizontal pixels per rads
+      mp->distance        = ((double) pn->width) / b;
+      break;
+    case _lambertazimuthal:
+      tpara = 1;
+      lambertazimuthal_erect(b/2.0, 0.0, &tx, &ty, & tpara);
+      mp->distance = pn->width/(2.0*tx);
+      break;
+    case _panini:
+      tpara = 1;
+      panini_erect(b/2.0, 0.0, &tx, &ty, & tpara);
+      mp->distance = pn->width/(2.0*tx);
+      break;
+    case _architectural:
+      tpara = 1;
+      arch_erect(b/2.0, 0.0, &tx, &ty, & tpara);
+      mp->distance = pn->width/(2.0*tx);
+      break;
+    case _stereographic:
+      tpara = 1;
+      stereographic_erect(b/2.0, 0.0, &tx, &ty, & tpara);
+      mp->distance = pn->width/(2.0*tx);
+      break;
+    case _trans_mercator:
+      tpara = 1;
+      transmercator_erect(b/2.0, 0.0, &tx, &ty, & tpara);
+      mp->distance = pn->width/(2.0*tx);
+      break;
+    case _albersequalareaconic:
+      mp->distance = 1.0;
+      //albersequalareaconic_erect(1.924913116, -PI/2.0, &tx, &ty, mp);  //b/2.0
+    albersequalareaconic_distance(&tx, mp);
+      mp->distance = pn->width/(2.0*tx);
+      break;
+    case _equisolid:
+      mp->distance  = (double) pn->width / (4.0 * sin(b/4.0));
+      break;
+    case _orthographic:
+      mp->distance  = (double) pn->width / (2.0 * sin(b/2.0));
+      break;
+    default:
+      // unknown
+      PrintError ("SetInvMakeParams: Unsupported panorama projection");
+      // no way to report an error back to the caller...
+      mp->distance = 1;
+      break;
+  }
+
+  // calculate final scaling factor, that reverses the mp->distance
+  // scaling and applies the required output scaling factor
+  switch (im->format)
+  {
+    case _rectilinear:
+      // calculate distance for this projection
+      mp->scale[0] = (double) im->width / (2.0 * tan(a/2.0)) / mp->distance;
+      break;
+    case _equirectangular:
+    case _panorama:
+    case _fisheye_ff:
+    case _fisheye_circ:
+    case _mercator:
+    case _sinusoidal:
+      mp->scale[0] = ((double) im->width) / a / mp->distance;
+      break;
+    case _equisolid:
+    case _mirror:
+      mp->scale[0] = (double) im->width / (4.0 * sin(a/4.0)) / mp->distance;
+      break;
+    case _orthographic:
+      mp->scale[0] = (double) im->width / (2.0 * sin(a/2.0)) / mp->distance;
+      break;
+    case _stereographic:
+      mp->scale[0] = (double) im->width / (4.0 * tan(a/4.0)) / mp->distance;
+      break;
+   default:
+      PrintError ("SetInvMakeParams: Unsupported input image projection");
+      // no way to report an error back to the caller...
+      mp->scale[0] = 1;
+      break;
+  }
+  mp->scale[1]    = mp->scale[0];
+
+  mp->shear[0]  = -im->cP.shear_x / im->height;
+  mp->shear[1]  = -im->cP.shear_y / im->width;
+  
+  mp->scale[0] = 1.0 / mp->scale[0];
+  mp->scale[1]  = mp->scale[0];
+  mp->horizontal  = -im->cP.horizontal_params[color];
+  mp->vertical  = -im->cP.vertical_params[color];
+  for(i=0; i<4; i++)
+    mp->rad[i]  = im->cP.radial_params[color][i];
+  mp->rad[5] = im->cP.radial_params[color][4];
+  
+  switch( im->cP.correction_mode & 3 )
+  {
+    case correction_mode_radial: mp->rad[4] = ((double)(im->width < im->height ? im->width : im->height) ) / 2.0;break;
+    case correction_mode_vertical: 
+    case correction_mode_deregister: mp->rad[4] = ((double) im->height) / 2.0;break;
+  }
+
+  mp->rot[0]    = mp->distance * PI;                // 180 in screenpoints
+  mp->rot[1]    = im->yaw *  mp->distance * PI / 180.0;       //    rotation angle in screenpoints
+
+  mp->perspect[0] = (void*)(mp->mt);
+  mp->perspect[1] = (void*)&(mp->distance);
 
 
-	i = 0;	// Stack counter
-		
-		// Perform radial correction
-	if( im->cP.shear )
-	{
-		SetDesc( stack[i],shear,			mp->shear		); i++;
-	}
-		
-	if ( im->cP.horizontal )
-	{
-		SetDesc(stack[i],horiz,				&(mp->horizontal)); i++;
-	}
-	if (  im->cP.vertical)
-	{
-		SetDesc(stack[i],vert,				&(mp->vertical)); 	i++;
-	}
-	if(   im->cP.radial )
-	{
-		switch( im->cP.correction_mode & 3)
-		{
-			case correction_mode_radial:   SetDesc(stack[i],inv_radial,mp->rad); 	i++; break;
-			case correction_mode_vertical: SetDesc(stack[i],inv_vertical,mp->rad); 	i++; break;
-			case correction_mode_deregister: break;
-		}
-	}
-	
-	SetDesc(	stack[i],	resize,				mp->scale		); i++; // Scale image
-	
-	if(im->format 		== _rectilinear)									// rectilinear image
-	{
-		SetDesc(stack[i],	sphere_tp_rect,		&(mp->distance)	); i++;	// 
-	}
-	else if	(im->format 	== _panorama)									//  pamoramic image
-	{
-		SetDesc(stack[i],	sphere_tp_pano,		&(mp->distance)	); i++;	// Convert panoramic to spherical
-	}
-	else if	(im->format 	== _equirectangular)							//  PSphere image
-	{
-		SetDesc(stack[i],	sphere_tp_erect,	&(mp->distance)	); i++;	// Convert Psphere to spherical
-	}
-
-
-	SetDesc(	stack[i],	persp_sphere,		mp->perspect	); i++;	// Perspective Control spherical Image
-	SetDesc(	stack[i],	erect_sphere_tp,	&(mp->distance)	); i++;	// Convert spherical image to equirect.
-	SetDesc(	stack[i],	rotate_erect,		mp->rot			); i++;	// Rotate equirect. image horizontally
-
-	if(pn->format == _rectilinear)									// rectilinear panorama
-	{
-		SetDesc(stack[i],	rect_erect,		&(mp->distance)	); i++;	// Convert rectilinear to spherical
-	}
-	else if(pn->format == _panorama)
-	{
-		SetDesc(stack[i],	pano_erect,		&(mp->distance)	); i++;	// Convert rectilinear to spherical
-	}
-	else if(pn->format == _fisheye_circ || pn->format == _fisheye_ff )
-	{
-		SetDesc(stack[i],	sphere_tp_erect,		&(mp->distance)	); i++;	// Convert rectilinear to spherical
-	}
-   	else if(pn->format == _mercator)
-	{
-		SetDesc(stack[i],	mercator_erect,		&(mp->distance)	); i++;	// Convert sphere to sphere
+  i = 0;  // Stack counter
+    
+    // Perform radial correction
+  if( im->cP.shear )
+  {
+    SetDesc( stack[i],shear,      mp->shear   ); i++;
+  }
+    
+  if ( im->cP.horizontal )
+  {
+    SetDesc(stack[i],horiz,       &(mp->horizontal)); i++;
+  }
+  if (  im->cP.vertical)
+  {
+    SetDesc(stack[i],vert,        &(mp->vertical));   i++;
+  }
+  if(   im->cP.radial )
+  {
+    switch( im->cP.correction_mode & 3)
+    {
+      case correction_mode_radial:   SetDesc(stack[i],inv_radial,mp->rad);  i++; break;
+      case correction_mode_vertical: SetDesc(stack[i],inv_vertical,mp->rad);  i++; break;
+      case correction_mode_deregister: break;
     }
-   	else if(pn->format == _millercylindrical)
-	{
-		SetDesc(stack[i],	millercylindrical_erect,		&(mp->distance)	); i++;	// Convert sphere to sphere
-    }
-   	else if(pn->format == _panini)
-	{
-		SetDesc(stack[i],	panini_erect,		&(mp->distance)	); i++;	// Convert panini to sphere
-    }
-   	else if(pn->format == _architectural)
-	{
-		SetDesc(stack[i],	arch_erect,		&(mp->distance)	); i++;	// Convert arch to sphere
-    }
-   	else if(pn->format == _lambert)
-	{
-		SetDesc(stack[i],	lambert_erect,		&(mp->distance)	); i++;	// Convert sphere to lambert
-    }
-   	else if(pn->format == _lambertazimuthal)
-	{
-		SetDesc(stack[i],	lambertazimuthal_erect,		&(mp->distance)	); i++;	// Convert sphere to lambert azimuthal
-    }
-   	else if(pn->format == _trans_mercator)
-	{
-		SetDesc(stack[i],	transmercator_erect,		&(mp->distance)	); i++;	// Convert sphere to transverse mercator
-    }
-	else if(pn->format == _stereographic)
-	{
-		SetDesc(stack[i],	stereographic_erect,		&(mp->distance)	); i++;	// Convert sphere to stereographic
-    }
-   	else if(pn->format == _sinusoidal)
-	{
-		SetDesc(stack[i],	sinusoidal_erect,		&(mp->distance)	); i++;	// Convert sphere to sinusoidal
-	}
-   	else if(pn->format == _albersequalareaconic)
-	{
-		SetDesc(stack[i],	albersequalareaconic_erect,		mp	); i++;	// Convert sphere to albersequalareaconic
-	}
-   	else if(pn->format == _equirectangular) 
-	{
-		// no conversion needed		
-    } else {
-		PrintError("Projection type %d not supported, using equirectangular", pn->format);
-	}
-	
-	stack[i].func = (trfn)NULL;
+  }
+  
+  SetDesc(  stack[i], resize,       mp->scale   ); i++; // Scale image
+  
+  if(im->format     == _rectilinear)                  // rectilinear image
+  {
+    SetDesc(stack[i], sphere_tp_rect,   &(mp->distance) ); i++; // Convert rectilinear to spherical
+  }
+  else if (im->format   == _panorama)                 //  pamoramic image
+  {
+    SetDesc(stack[i], sphere_tp_pano,   &(mp->distance) ); i++; // Convert panoramic to spherical
+  }
+  else if (im->format   == _equirectangular)          //  equirectangular image
+  {
+    SetDesc(stack[i], sphere_tp_erect,  &(mp->distance) ); i++; // Convert equirectangular to spherical
+  }
+  else if (im->format   == _mirror)                   //  Mirror image
+  {
+//todo    SetDesc(stack[i], sphere_tp_mirror,  &(mp->distance) ); i++; // Convert mirror to spherical
+  }
+  else if (im->format   == _equisolid)                //  Fisheye equisolid image
+  {
+    SetDesc(stack[i], sphere_tp_equisolid,  &(mp->distance) ); i++; // Convert equisolid to spherical
+  }
+  else if (im->format   == _orthographic)             //  Fisheye orthographic image
+  {
+    SetDesc(stack[i], sphere_tp_orthographic,  &(mp->distance) ); i++; // Convert orthographic to spherical
+  }
+  else if (im->format   == _stereographic)             //  Fisheye orthographic image
+  {
+    //SetDesc(stack[i], sphere_tp_stereographic,  &(mp->distance) ); i++; // Convert stereographic to spherical
+  }
+
+
+  SetDesc(  stack[i], persp_sphere,   mp->perspect  ); i++; // Perspective Control spherical Image
+  SetDesc(  stack[i], erect_sphere_tp,  &(mp->distance) ); i++; // Convert spherical image to equirect.
+  SetDesc(  stack[i], rotate_erect,   mp->rot     ); i++; // Rotate equirect. image horizontally
+
+  if(pn->format == _rectilinear)                  // rectilinear panorama
+  {
+    SetDesc(stack[i], rect_erect,   &(mp->distance) ); i++; // Convert equirectangular to rectilinear
+  }
+  else if(pn->format == _panorama)
+  {
+    SetDesc(stack[i], pano_erect,   &(mp->distance) ); i++; // Convert equirectangular to Cylindrical panorama
+  }
+  else if(pn->format == _fisheye_circ || pn->format == _fisheye_ff )
+  {
+    SetDesc(stack[i], sphere_tp_erect,    &(mp->distance) ); i++; // Convert equirectangular to spherical
+  }
+  else if(pn->format == _mercator)
+  {
+    SetDesc(stack[i], mercator_erect,   &(mp->distance) ); i++; // Convert equirectangular to mercator
+  }
+  else if(pn->format == _millercylindrical)
+  {
+    SetDesc(stack[i], millercylindrical_erect,    &(mp->distance) ); i++; // Convert equirectangular to miller cylindrical
+  }
+  else if(pn->format == _panini)
+  {
+    SetDesc(stack[i], panini_erect,  &(mp->distance) ); i++; // Convert panini to sphere
+  }
+  else if(pn->format == _architectural)
+  {
+    SetDesc(stack[i], arch_erect,   &(mp->distance) ); i++; // Convert arch to sphere
+  }
+  else if(pn->format == _lambert)
+  {
+    SetDesc(stack[i], lambert_erect,    &(mp->distance) ); i++; // Convert equirectangular to lambert
+  }
+  else if(pn->format == _lambertazimuthal)
+  {
+    SetDesc(stack[i], lambertazimuthal_erect,   &(mp->distance) ); i++; // Convert equirectangular to lambert azimuthal
+  }
+  else if(pn->format == _trans_mercator)
+  {
+    SetDesc(stack[i], transmercator_erect,    &(mp->distance) ); i++; // Convert equirectangular to transverse mercator
+  }
+  else if(pn->format == _mirror)
+  {
+    SetDesc(stack[i], mirror_erect,    &(mp->distance) ); i++; // Convert equirectangular to mirror
+  }
+  else if(pn->format == _stereographic)
+  {
+    SetDesc(stack[i], stereographic_erect,    &(mp->distance) ); i++; // Convert equirectangular to stereographic
+  }
+    else if(pn->format == _sinusoidal)
+  {
+    SetDesc(stack[i], sinusoidal_erect,   &(mp->distance) ); i++; // Convert equirectangular to sinusoidal
+  }
+  else if(pn->format == _albersequalareaconic)
+  {
+    SetDesc(stack[i], albersequalareaconic_erect,   mp  ); i++; // Convert equirectangular to albersequalareaconic
+  }
+  else if(pn->format == _equisolid )
+  {
+    SetDesc(stack[i], sphere_tp_erect,    &(mp->distance) ); i++; // Convert equirectangular to spherical
+    SetDesc(stack[i], equisolid_sphere_tp,    &(mp->distance) ); i++; // Convert spherical to equisolid
+  }
+  else if(pn->format == _orthographic )
+  {
+    SetDesc(stack[i], sphere_tp_erect,    &(mp->distance) ); i++; // Convert equirectangular to spherical
+    SetDesc(stack[i], orthographic_sphere_tp,    &(mp->distance) ); i++; // Convert spherical to orthographic
+  }
+  else if(pn->format == _equirectangular) 
+  {
+    // no conversion needed   
+  }
+  else 
+  {
+    PrintError("Projection type %d not supported, using equirectangular", pn->format);
+  }
+  
+  stack[i].func = (trfn)NULL;
 }
 
-void 	SetInvMakeParamsCorrect( struct fDesc *stack, struct MakeParams *mp, Image *im , Image *pn, int color )
+void SetInvMakeParamsCorrect( struct fDesc *stack, struct MakeParams *mp, Image *im , Image *pn, int color )
 {
 /* Thomas Rauscher, Sep 2005: Transfered the changes of Joost Nieuwenhuijse for MakeParams
    to the inverse function. This has broken the optimizer, now there are two functions.
 */
 
-	Image imSel;	/* create a tempory copy of the image to manipulate */
-	memcpy( &imSel, im, sizeof(Image));
+  Image imSel; /* create a tempory copy of the image to manipulate */
+  memcpy( &imSel, im, sizeof(Image));
 
-	if(im->cP.horizontal)
+  if(im->cP.horizontal)
     {
         mp->horizontal = im->cP.horizontal_params[color];
     }
@@ -2569,7 +2616,7 @@ int CheckParams( AlignInfo *g )
 				"Image height must be positive",
 				"Field of View must be positive",
 				"Field of View must be smaller than 180 degrees in rectilinear Images",
-				"Unsupported Image Format (must be 0,1,2,3 or 4)",
+				"Unsupported Image Format (must be 0,1,2,3,4,7,8,10,14 or 19)",
 				"Panorama Width must be positive",
 				"Panorama Height must be positive",
 				"Field of View must be smaller than 180 degrees in rectilinear Panos",
@@ -2590,9 +2637,12 @@ int CheckParams( AlignInfo *g )
 		if( g->im[i].height <= 0 )		err = 4;
 		if( g->im[i].hfov   <= 0.0 )	err = 5;
 		if( g->im[i].format == _rectilinear && g->im[i].hfov >= 180.0 )	err = 6;
-		if( g->im[i].format != _rectilinear && g->im[i].format != _panorama &&
-		    g->im[i].format != _fisheye_circ && g->im[i].format != _fisheye_ff && g->im[i].format != _equirectangular)
-										err = 7;
+		if( g->im[i].format != _rectilinear     && g->im[i].format != _panorama &&
+        g->im[i].format != _fisheye_circ    && g->im[i].format != _fisheye_ff && 
+        g->im[i].format != _equirectangular && g->im[i].format != _orthographic &&
+        g->im[i].format != _mirror          && g->im[i].format != _stereographic && 
+        g->im[i].format != _equisolid)
+            err = 7;
 	}
 	
 	// Check Panorama specs
@@ -2603,13 +2653,12 @@ int CheckParams( AlignInfo *g )
 	if( g->pano.format == _rectilinear && g->pano.hfov >= 180.0 )	err = 10;
 	
 	
-	if( g->pano.format != _rectilinear 		&& g->pano.format != _panorama &&
-		g->pano.format != _equirectangular 	&& g->pano.format != _fisheye_ff &&
-		g->pano.format != _stereographic 	&& g->pano.format != _mercator &&
-		g->pano.format != _trans_mercator 	&& g->pano.format != _sinusoidal &&
- 	        g->pano.format != _lambert              && g->pano.format != _lambertazimuthal &&
-		g->pano.format != _albersequalareaconic
-	     ) 
+	if( g->pano.format != _rectilinear        && g->pano.format != _panorama &&
+      g->pano.format != _equirectangular    && g->pano.format != _fisheye_ff &&
+      g->pano.format != _stereographic      && g->pano.format != _mercator &&
+      g->pano.format != _trans_mercator     && g->pano.format != _sinusoidal &&
+      g->pano.format != _lambert            && g->pano.format != _lambertazimuthal &&
+      g->pano.format != _albersequalareaconic) 
 		    	err=11;
 		    
 	// Check Control Points

@@ -229,17 +229,20 @@ int ParseScript( char* script, AlignInfo *gl )
                                         READ_VAR( "%d", &k );
                                         switch (k)
                                         {
-                                            case 0:   im->format = _rectilinear;    break;
-                                            case 1:   im->format = _panorama;
+                                          case IMAGE_FORMAT_RECTILINEAR:                im->format = _rectilinear;    break;
+                                          case IMAGE_FORMAT_PANORAMA:                   im->format = _panorama;
                                                         im->cP.correction_mode |= correction_mode_vertical;
                                                         break;
-                                            case 2:   im->format = _fisheye_circ;   break;
-                                            case 3:   im->format = _fisheye_ff;     break;
-                                            case 4:   im->format = _equirectangular;
+                                          case IMAGE_FORMAT_FISHEYE_EQUIDISTANCECIRC:   im->format = _fisheye_circ;   break;
+                                          case IMAGE_FORMAT_FISHEYE_EQUIDISTANCEFF:     im->format = _fisheye_ff;     break;
+                                          case IMAGE_FORMAT_EQUIRECTANGULAR:            im->format = _equirectangular;
                                                         im->cP.correction_mode |= correction_mode_vertical;
                                                         break;
-                                            case 8:   im->format = _orthographic; break;
-                                            default:  PrintError("Syntax error in script: Line %d", lineNum);
+                                          case IMAGE_FORMAT_MIRROR:                     im->format = _mirror; break;
+                                          case IMAGE_FORMAT_FISHEYE_ORTHOGRAPHIC:       im->format = _orthographic; break;
+                                          case IMAGE_FORMAT_FISHEYE_STEREOGRAPHIC:      im->format = _stereographic; break;
+                                          case IMAGE_FORMAT_FISHEYE_EQUISOLID:          im->format = _equisolid; break;
+                                          default:  PrintError("Syntax error in script: Line %d", lineNum);
                                                         return -1;
                                                         break;
                                         }
@@ -645,11 +648,23 @@ void WriteResults( char* script, fullPath *sfile,  AlignInfo *g, double ds( int 
     sprintf( line, "\n# Panorama description\n" );strcat( res, line );
     switch( g->pano.format )
     {
-                case _mercator:             format = 4; break;
-                case _equirectangular:      format = 2; break;
-        case _rectilinear:          format = 0; break;
-        case _panorama:             format = 1; break;
-        default:            format = -1; break;
+        case _rectilinear:            format = PANO_FORMAT_RECTILINEAR; break;
+        case _panorama:               format = PANO_FORMAT_PANORAMA; break;
+        case _equirectangular:        format = PANO_FORMAT_EQUIRECTANGULAR; break;
+        case _fisheye_ff:             format = PANO_FORMAT_FISHEYE_FF; break;
+        case _stereographic:          format = PANO_FORMAT_STEREOGRAPHIC; break;
+        case _mercator:               format = PANO_FORMAT_MERCATOR; break;
+        case _trans_mercator:         format = PANO_FORMAT_TRANS_MERCATOR; break;
+        case _sinusoidal:             format = PANO_FORMAT_SINUSOIDAL; break;
+        case _lambert:                format = PANO_FORMAT_LAMBERT_EQUAL_AREA_CONIC; break;
+        case _lambertazimuthal:       format = PANO_FORMAT_LAMBERT_AZIMUTHAL; break;
+        case _albersequalareaconic:   format = PANO_FORMAT_ALBERS_EQUAL_AREA_CONIC; break;
+        case _millercylindrical:      format = PANO_FORMAT_MILLER_CYLINDRICAL; break;
+        case _panini:                 format = PANO_FORMAT_PANINI; break;
+        case _architectural:          format = PANO_FORMAT_ARCHITECTURAL; break;
+        case _orthographic:           format = PANO_FORMAT_ORTHOGRAPHIC; break;
+        case _equisolid:              format = PANO_FORMAT_EQUISOLID; break;
+        default:                      format = -1; break;
     }
         
     sprintf( line, "# p f%d w"FMT_INT32" h"FMT_INT32" v%g n\"%s\"\n\n", format, g->pano.width, g->pano.height, g->pano.hfov, g->pano.name );strcat( res, line );
@@ -663,12 +678,16 @@ void WriteResults( char* script, fullPath *sfile,  AlignInfo *g, double ds( int 
     {
         switch( g->im[i].format )
         {
-            case _rectilinear       : format = 0; break;
-            case _panorama          : format = 1; break;
-            case _fisheye_circ      : format = 2; break;
-            case _fisheye_ff        : format = 3; break;
-            case _equirectangular   : format = 4; break;
-            default: break;
+            case _rectilinear:        format = IMAGE_FORMAT_RECTILINEAR; break;
+            case _panorama:           format = IMAGE_FORMAT_PANORAMA; break;
+            case _fisheye_circ:       format = IMAGE_FORMAT_FISHEYE_EQUIDISTANCECIRC; break;
+            case _fisheye_ff:         format = IMAGE_FORMAT_FISHEYE_EQUIDISTANCEFF; break;
+            case _equirectangular:    format = IMAGE_FORMAT_EQUIRECTANGULAR; break;
+            case _mirror:             format = IMAGE_FORMAT_MIRROR; break;
+            case _orthographic:       format = IMAGE_FORMAT_FISHEYE_ORTHOGRAPHIC; break;
+            case _stereographic:      format = IMAGE_FORMAT_FISHEYE_STEREOGRAPHIC; break;
+            case _equisolid:          format = IMAGE_FORMAT_FISHEYE_EQUISOLID; break;
+            default:                  format = -1; break;
         }
         sprintf( cmd, "o f%d ", format );
 
@@ -956,53 +975,59 @@ int readAdjust( aPrefs *p,  fullPath* sfile, int insert, sPrefs *sP )
 		    free( script );
 		    return -1;
 		}
-	    switch (p->pano.format) {
-	    case 0:
-		p->pano.format = _rectilinear;
-		break;
-	    case 1:
-		p->pano.format = _panorama;
-		break;
-	    case 2:
-		p->pano.format = _equirectangular;
-		break;
-	    case 3:
-		p->pano.format = _fisheye_ff;
-		break;
-	    case 4:
-		p->pano.format = _stereographic;
-		break;
-	    case 5:
-		p->pano.format = _mercator;
-		break;
-	    case 6:
-		p->pano.format = _trans_mercator;
-		break;
-	    case 7:
-		p->pano.format = _sinusoidal;
-		break;
-	    case 8:
-		p->pano.format = _lambert;
-		break;
-	    case 9:
-		p->pano.format = _lambertazimuthal;
-		break;
-	    case 10:
-		p->pano.format = _albersequalareaconic;
-		break;
-	    case 11:
-		p->pano.format = _millercylindrical;
-		break;
-	    case 12:
-		p->pano.format = _panini;
-		break;
-	    case 13:
-		p->pano.format = _architectural;
-		break;
-	    default:
-		PrintError( "Unknown panorama projection: %d", p->pano.format );
-		return -1;
-	    }
+      switch (p->pano.format) {
+        case PANO_FORMAT_RECTILINEAR:
+          p->pano.format = _rectilinear;
+          break;
+        case PANO_FORMAT_PANORAMA:
+          p->pano.format = _panorama;
+          break;
+        case PANO_FORMAT_EQUIRECTANGULAR:
+          p->pano.format = _equirectangular;
+          break;
+        case PANO_FORMAT_FISHEYE_FF:
+          p->pano.format = _fisheye_ff;
+          break;
+        case PANO_FORMAT_STEREOGRAPHIC:
+          p->pano.format = _stereographic;
+          break;
+        case PANO_FORMAT_MERCATOR:
+          p->pano.format = _mercator;
+          break;
+        case PANO_FORMAT_TRANS_MERCATOR:
+          p->pano.format = _trans_mercator;
+          break;
+        case PANO_FORMAT_SINUSOIDAL:
+          p->pano.format = _sinusoidal;
+          break;
+        case PANO_FORMAT_LAMBERT_EQUAL_AREA_CONIC:
+          p->pano.format = _lambert;
+          break;
+        case PANO_FORMAT_LAMBERT_AZIMUTHAL:
+          p->pano.format = _lambertazimuthal;
+          break;
+        case PANO_FORMAT_ALBERS_EQUAL_AREA_CONIC:
+          p->pano.format = _albersequalareaconic;
+          break;
+        case PANO_FORMAT_MILLER_CYLINDRICAL:
+          p->pano.format = _millercylindrical;
+          break;
+        case PANO_FORMAT_PANINI:
+          p->pano.format = _panini;
+          break;
+        case PANO_FORMAT_ARCHITECTURAL:
+          p->pano.format = _architectural;
+          break;
+        case PANO_FORMAT_ORTHOGRAPHIC:
+          p->pano.format = _orthographic;
+          break;
+        case PANO_FORMAT_EQUISOLID:
+          p->pano.format = _equisolid;
+          break;
+        default:
+          PrintError( "Unknown panorama projection: %d", p->pano.format );
+          return -1;
+        }
 	    if( (p->pano.format == _rectilinear || p->pano.format == _trans_mercator) && p->pano.hfov >= 180.0 ) {
 		PrintError( "Destination image must have HFOV < 180" );
 		return -1;
