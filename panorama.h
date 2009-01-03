@@ -261,6 +261,7 @@ enum
     _panini = 19,
     _architectural = 20,
     _equisolid   = 21,          // fisheye-equisolid  FOV (equisolid fisheye) = 4 * arcsin (frame size/(focal length * 4))
+    _equipanini = 22,
 };
 
 enum
@@ -281,9 +282,10 @@ enum
     PANO_FORMAT_ARCHITECTURAL = 13,
     PANO_FORMAT_ORTHOGRAPHIC = 14,
     PANO_FORMAT_EQUISOLID = 15,
+    PANO_FORMAT_EQUI_PANINI = 16,
 };
 
-#define PANO_FORMAT_COUNT 16
+#define PANO_FORMAT_COUNT 17
 
 enum
 {                               // Enumerates external number of image f<index>

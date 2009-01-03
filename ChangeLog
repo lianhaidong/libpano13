@@ -1,3 +1,13 @@
+2009-01-02  dmg  <dmg@phosphorus>
+
+	* * adjust.c, filter.h, math.c, panorama.h, parser.c &
+	queryfeateature.c:
+
+	Fixed the panini (or should we call it pannini) and renamed
+	previous projection as equirectangular panini. It might have to
+	change its name
+	
+
 2008-01-26 Jim Watters <jwatters@photocreations.ca>
 
 	* adjust.c, filter.h, math.c, panorama.h, parser.c & queryfeateature.c

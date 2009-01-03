@@ -748,14 +748,23 @@ int panini_erect( double x_dest,double  y_dest, double* x_src, double* y_src, vo
     // params: distanceparam
   // this is the inverse
 
-    double phi, lambdaHalf, temp;
+    double phi, lambdaHalf, temp,y,x;
 
     phi = y_dest/distanceparam;
     lambdaHalf = x_dest/ (distanceparam*2);
+    x = 2 * tan (lambdaHalf);
 
-    *x_src = distanceparam * 2 * tan (lambdaHalf);
+    // Conver from central cylindrical
+    phi = tan(phi);
+
+    *x_src = distanceparam * x;
     temp  = cos(lambdaHalf);
-    *y_src = distanceparam *  phi / (temp * temp);
+    
+    y = tan(phi) / (temp * temp);
+    
+    // At this point we have mapped to central cylindrical, now to equirectangular
+      
+    *y_src = distanceparam *  y;
 
     return 1;
 }
@@ -768,14 +777,72 @@ int erect_panini( double x_dest,double  y_dest, double* x_src, double* y_src, vo
     double x;
     double temp;
 
+    double  lambda;
+
     double phi;
     y = y_dest/distanceparam;
     x = x_dest/distanceparam;
-
-    temp = cos(x/2);
+    lambda = atan(x/2);
+ 
+    // then project from opposite edge of the cylinder
+    temp = cos(lambda);
     phi = y * temp * temp;
 
-    *x_src = 2 * atan2(x,2) * distanceparam;
+    // First convert to central cylindrical
+    phi  = atan( phi);
+
+    *x_src = 2 * lambda * distanceparam;
+    *y_src = phi * distanceparam;
+
+    return 1;
+}
+
+
+
+/** convert from erect to equi panini */
+int equipanini_erect( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
+{
+    // params: distanceparam
+  // this is the inverse
+
+    double phi, lambdaHalf, temp,y,x;
+
+    phi = y_dest/distanceparam;
+    lambdaHalf = x_dest/ (distanceparam*2);
+    x = 2 * tan (lambdaHalf);
+
+    *x_src = distanceparam * x;
+    temp  = cos(lambdaHalf);
+    
+    y = tan(phi) / (temp * temp);
+    
+    // At this point we have mapped to central cylindrical, now to equirectangular
+      
+    *y_src = distanceparam *  y;
+
+    return 1;
+}
+
+
+/** convert from equi panini to erect */
+int erect_equipanini( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
+{
+    double y;
+    double x;
+    double temp;
+
+    double  lambda;
+
+    double phi;
+    y = y_dest/distanceparam;
+    x = x_dest/distanceparam;
+    lambda = atan(x/2);
+ 
+    // then project from opposite edge of the cylinder
+    temp = cos(lambda);
+    phi = y * temp * temp;
+
+    *x_src = 2 * lambda * distanceparam;
     *y_src = phi * distanceparam;
 
     return 1;

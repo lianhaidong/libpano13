@@ -93,7 +93,10 @@ TStringFeature stringFeatures[]={
   {"PanoType13","Architectural"},
   {"PanoType14","Orthographic"},
   {"PanoType15","Equisolid"},
+  {"PanoType16","Equirectangular Panini"},
+
   // Filter Types
+
   //   fix: Fixed Windowsize
   //   aa: Antialiasing filter with adaptive filter size
   // Filter Names 
@@ -334,6 +337,7 @@ char *panoFormatNames[PANO_FORMAT_COUNT] = {
     "Architectural",
     "Orthographic",
     "Equisolid",
+    "Equirectangular Panini",
 };
 
 static int panoFormatID[PANO_FORMAT_COUNT] = {
@@ -353,7 +357,9 @@ static int panoFormatID[PANO_FORMAT_COUNT] = {
     _architectural,
     _orthographic,
     _equisolid,
+    _equipanini,
     };
+
 
 int panoProjectionFormatCount(void)
 {
@@ -398,6 +404,10 @@ int panoProjectionFeaturesQuery(int projection, pano_projection_features *featur
     case PANO_FORMAT_ARCHITECTURAL:
 	break;
     case PANO_FORMAT_PANINI:
+	features->maxVFOV = 179;
+	features->maxHFOV = 230;
+        break;
+    case PANO_FORMAT_EQUI_PANINI:
 	features->maxVFOV = 179;
 	features->maxHFOV = 230;
         break;
