@@ -694,6 +694,11 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
       panini_erect(b/2.0, 0.0, &tx, &ty, & tpara);
       mp->distance = pn->width/(2.0*tx);
       break;
+    case _equipanini: 
+      tpara = 1;
+      equipanini_erect(b/2.0, 0.0, &tx, &ty, & tpara);
+      mp->distance = pn->width/(2.0*tx);
+      break;
     case _architectural: 
       tpara = 1;
       arch_erect(b/2.0, 0.0, &tx, &ty, & tpara);
@@ -840,6 +845,10 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
     else if(pn->format == _panini)
     {
     SetDesc(stack[i],     erect_panini,           &(mp->distance) ); i++; // Convert panini to sphere
+    }
+    else if(pn->format == _equipanini)
+    {
+    SetDesc(stack[i],     erect_equipanini,           &(mp->distance) ); i++; // Convert equipanini to sphere
     }
     else if(pn->format == _architectural)
     {
@@ -1022,6 +1031,11 @@ void  SetInvMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , 
       panini_erect(b/2.0, 0.0, &tx, &ty, & tpara);
       mp->distance = pn->width/(2.0*tx);
       break;
+    case _equipanini:
+      tpara = 1;
+      equipanini_erect(b/2.0, 0.0, &tx, &ty, & tpara);
+      mp->distance = pn->width/(2.0*tx);
+      break;
     case _architectural:
       tpara = 1;
       arch_erect(b/2.0, 0.0, &tx, &ty, & tpara);
@@ -1201,6 +1215,10 @@ void  SetInvMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , 
   else if(pn->format == _panini)
   {
     SetDesc(stack[i], panini_erect,  &(mp->distance) ); i++; // Convert panini to sphere
+  }
+  else if(pn->format == _equipanini)
+  {
+    SetDesc(stack[i], equipanini_erect,  &(mp->distance) ); i++; // Convert panini to sphere
   }
   else if(pn->format == _architectural)
   {

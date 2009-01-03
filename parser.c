@@ -498,6 +498,9 @@ int ParseScript( char* script, AlignInfo *gl )
                         case PANO_FORMAT_PANINI:
                             gl->pano.format = _panini;
                             break;
+                        case PANO_FORMAT_EQUI_PANINI:
+                            gl->pano.format = _equipanini;
+                            break;
                         case PANO_FORMAT_ARCHITECTURAL:
                             gl->pano.format = _architectural;
                             break;
@@ -661,6 +664,7 @@ void WriteResults( char* script, fullPath *sfile,  AlignInfo *g, double ds( int 
         case _albersequalareaconic:   format = PANO_FORMAT_ALBERS_EQUAL_AREA_CONIC; break;
         case _millercylindrical:      format = PANO_FORMAT_MILLER_CYLINDRICAL; break;
         case _panini:                 format = PANO_FORMAT_PANINI; break;
+        case _equipanini:             format = PANO_FORMAT_EQUI_PANINI; break;
         case _architectural:          format = PANO_FORMAT_ARCHITECTURAL; break;
         case _orthographic:           format = PANO_FORMAT_ORTHOGRAPHIC; break;
         case _equisolid:              format = PANO_FORMAT_EQUISOLID; break;
@@ -1014,6 +1018,9 @@ int readAdjust( aPrefs *p,  fullPath* sfile, int insert, sPrefs *sP )
           break;
         case PANO_FORMAT_PANINI:
           p->pano.format = _panini;
+          break;
+        case PANO_FORMAT_EQUI_PANINI:
+          p->pano.format = _equipanini;
           break;
         case PANO_FORMAT_ARCHITECTURAL:
           p->pano.format = _architectural;

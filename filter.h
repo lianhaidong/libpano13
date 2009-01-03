@@ -851,6 +851,8 @@ int millercylindrical_erect		( double x_dest,double  y_dest, double* x_src, doub
 int erect_millercylindrical		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
 int panini_erect		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
 int erect_panini		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
+int equipanini_erect		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
+int erect_equipanini		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
 
 int arch_erect		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
 int erect_arch		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
