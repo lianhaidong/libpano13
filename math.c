@@ -792,7 +792,7 @@ int erect_panini( double x_dest,double  y_dest, double* x_src, double* y_src, vo
     phi  = atan( phi);
 
     *x_src = 2 * lambda * distanceparam;
-    *y_src = phi * distanceparam;
+    *y_src = atan(phi) * distanceparam;
 
     return 1;
 }
@@ -843,7 +843,7 @@ int erect_equipanini( double x_dest,double  y_dest, double* x_src, double* y_src
     phi = y * temp * temp;
 
     *x_src = 2 * lambda * distanceparam;
-    *y_src = phi * distanceparam;
+    *y_src = atan(phi) * distanceparam;
 
     return 1;
 }

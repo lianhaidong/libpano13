@@ -1,3 +1,7 @@
+2009-01-17 Thomas Modes
+
+	* match.c: fix reverse calculation for pannini
+
 2009-01-02  dmg  <dmg@phosphorus>
 
 	* * adjust.c, filter.h, math.c, panorama.h, parser.c &
