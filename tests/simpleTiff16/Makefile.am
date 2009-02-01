@@ -1,5 +1,7 @@
-EXTRA_DIST = reference 060520_3398.TIF \
+EXTRA_DIST = 060520_3398.TIF \
              ChangeLog simple.txt
+
+SUBDIRS = reference
 
 MAINTAINERCLEANFILES = \
 	Makefile.in
