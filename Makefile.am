@@ -53,8 +53,8 @@ install-exec-hook:
 endif
 
 if HAVE_MAC
-MAC_SRC =  PixMap.c pict.c shell_mac.c sys_mac.c ppm.c
-MAC_HDR =  PixMap.h
+MAC_SRC =  shell_mac.c sys_mac.c ppm.c
+MAC_HDR =  
 
 install-exec-hook:
 	@true
@@ -102,11 +102,11 @@ dist-hook:
 	rm -rf `find $(distdir) -name CVS`
 	rm -rf `find $(distdir) -name .cvsignore`
 
-EXTRA_DIST =  gpl.txt README.linux README.windows README.mac \
-	      makefile.linux makefile.mac makefile.win32 \
+EXTRA_DIST =  gpl.txt README.linux README.windows \
+	      makefile.linux makefile.win32 \
 	      bootstrap filter.r libpano13.def pano13.rc \
-	      seamer_.c sys_X11.c sys_win.c bmp.c PixMap.c pict.c shell_mac.c \
-	      sys_mac.c ppm.c PixMap.h sys_ansi.c ppm.c ZComb.h adjust.h \
+	      seamer_.c sys_X11.c sys_win.c bmp.c shell_mac.c \
+	      sys_mac.c ppm.c sys_ansi.c ppm.c ZComb.h adjust.h \
 	      pano13vc.def libpano.vcproj PanoTools.pbproj.tgz
 
 MAINTAINERCLEANFILES = \
