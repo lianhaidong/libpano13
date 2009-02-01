@@ -1,8 +1,10 @@
-EXTRA_DIST = reference 051221_6054_750.jpg 051221_6055_750.jpg \
+EXTRA_DIST = 051221_6054_750.jpg 051221_6055_750.jpg \
              ChangeLog README.txt simple.pto simple.txt
 
 MAINTAINERCLEANFILES = \
 	Makefile.in
+
+SUBDIRS = reference
 
 all:
 
