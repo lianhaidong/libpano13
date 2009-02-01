@@ -66,10 +66,10 @@
                          "\t\t\t2  blended masks, stack of nested masks\n"\
                          "\t\t\t\t2 is default & strongly recommended -- this option includes a smoothing computation that seems to help a lot.\n"\
                          "\t-w <integer>\t\tFocus estimation window size. Only available if -z\n"\
-                         "\t\t\tRecommended value is 0.5% of image width, e.g. 4 pixels for an 800-pixel image\n."\
+                         "\t\t\tRecommended value is 0.5%% of image width, e.g. 4 pixels for an 800-pixel image\n."\
                          "\t\t\tComputation cost for focus estimation increases proportional to N^2.  Default w4.\n"\
                          "\t-s <integer>\t\tSmoothing window size,  Only available if -z\n"\
-                         "\t\t\tRecommended value is 0.5% of image width, e.g. 4 pixels for an 800-pixel image\n."\
+                         "\t\t\tRecommended value is 0.5%% of image width, e.g. 4 pixels for an 800-pixel image\n."\
                          "\t\t\tComputation cost for focus estimation increases proportional to N^2.  Default w4.\n"\
                          "\n"
 
