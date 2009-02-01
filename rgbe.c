@@ -2,6 +2,10 @@
  * WHILE THE AUTHORS HAVE TRIED TO ENSURE THE PROGRAM WORKS CORRECTLY,
  * IT IS STRICTLY USE AT YOUR OWN RISK.  */
 
+/* Copyright (c) 1995 Bruce Walter <bjw@graphics.cornell.edu>
+   The license of these files has been clarified by Bruce Walter during
+   a private email conversation.  These files are public domain. */
+
 #include "rgbe.h"
 #include <math.h>
 #include <stdlib.h>
