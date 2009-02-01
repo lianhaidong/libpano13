@@ -75,7 +75,7 @@ dnl now find the java dirs
   failed=0;
   passed=0;
   JAVA_OLD_CPPFLAGS=$CPPFLAGS
-  case "${target_os}" in
+  case "${host_os}" in
     linux*)
       java_extra_inc=linux
       ;;
