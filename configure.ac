@@ -6,7 +6,7 @@ AC_INIT([pano13], [2.9.12], BUG-REPORT-ADDRESS)
 AC_CONFIG_SRCDIR([PTDialogs.c])
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_HEADER([config.h])
-AC_CANONICAL_TARGET
+AC_CANONICAL_HOST
 AM_INIT_AUTOMAKE([no-define dist-bzip2 dist-zip])
 AC_DISABLE_STATIC
 
@@ -21,11 +21,11 @@ AC_PROG_MAKE_SET
 dnl
 dnl  Check the operating system
 dnl
-case "${target_os}" in
+case "${host_os}" in
   "")
     PANO_WIN32_RESOURCE=
     HSYS=unknown
-    HCPU="${target_cpu}"
+    HCPU="${host_cpu}"
 	;;
   linux*)
     PANO_WIN32_RESOURCE=
@@ -33,7 +33,7 @@ case "${target_os}" in
     dnl
 	dnl Check the cpu to allow lib/lib64 decisions
 	dnl
-	case "${target_cpu}" in
+	case "${host_cpu}" in
 	  "")
 		HCPU=unknown
 		;;
@@ -41,19 +41,19 @@ case "${target_os}" in
 		HCPU=amd64
 		;;
 	  *)
-		HCPU="${target_cpu}"
+		HCPU="${host_cpu}"
 		;;
 	esac
 	;;
   *darwin*)
     PANO_WIN32_RESOURCE=
     HSYS=darwin
-    HCPU="${target_cpu}"
+    HCPU="${host_cpu}"
     ;;
   *mingw32*)
     PANO_WIN32_RESOURCE=pano13.lo
     HSYS=mingw32
-    HCPU="${target_cpu}"
+    HCPU="${host_cpu}"
     ;;
   *cygwin*)
     PANO_WIN32_RESOURCE=pano13.lo
@@ -62,12 +62,12 @@ case "${target_os}" in
     CXXFLAGS="-mno-cygwin $CXXFLAGS"
     LDFLAGS="-mno-cygwin $LDFLAGS"
     HSYS=cygwin
-    HCPU="${target_cpu}"
+    HCPU="${host_cpu}"
     ;;
   *)
     PANO_WIN32_RESOURCE=
-    HSYS="${target_os}"
-    HCPU="${target_cpu}"
+    HSYS="${host_os}"
+    HCPU="${host_cpu}"
     ;;
 esac
 
@@ -153,7 +153,6 @@ echo "libpano is configured as follows. Please verify that this configuration"
 echo "matches your expectations."
 echo ""
 echo "Host system type : $host"
-echo "Target os : $target_os"
 echo ""
 echo "                  Option                        Value"
 echo "-------------------------------------------------------------------------"
