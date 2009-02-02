@@ -857,6 +857,12 @@ int erect_equipanini		( double x_dest,double  y_dest, double* x_src, double* y_s
 int arch_erect		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
 int erect_arch		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
 
+int biplane_erect		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
+int erect_biplane		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
+int biplane_distance ( double width, double b, void* params );
+int triplane_erect		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
+int erect_triplane		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
+int triplane_distance ( double width, double b, void* params );
 
 int mirror_sphere_cp	( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
 int mirror_pano		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	

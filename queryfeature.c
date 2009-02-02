@@ -94,6 +94,8 @@ TStringFeature stringFeatures[]={
   {"PanoType14","Orthographic"},
   {"PanoType15","Equisolid"},
   {"PanoType16","Equirectangular Panini"},
+  {"PanoType17","Biplane"},
+  {"PanoType18","Triplane"},
 
   // Filter Types
 
@@ -338,6 +340,8 @@ char *panoFormatNames[PANO_FORMAT_COUNT] = {
     "Orthographic",
     "Equisolid",
     "Equirectangular Panini",
+	"Biplane",
+	"Triplane",
 };
 
 static int panoFormatID[PANO_FORMAT_COUNT] = {
@@ -358,6 +362,8 @@ static int panoFormatID[PANO_FORMAT_COUNT] = {
     _orthographic,
     _equisolid,
     _equipanini,
+	_biplane,
+	_triplane,
     };
 
 
@@ -441,6 +447,22 @@ int panoProjectionFeaturesQuery(int projection, pano_projection_features *featur
 	    features->parm[i].maxValue = +90;
 	}
 	break;
+	case PANO_FORMAT_BIPLANE:
+        features->maxVFOV = 179;
+        features->maxHFOV = 359;
+		features->numberOfParameters = 1;
+		features->parm[0].name = "alpha";
+		features->parm[0].minValue=1;
+		features->parm[0].maxValue=179;
+		break;
+	case PANO_FORMAT_TRIPLANE:
+	    features->maxVFOV = 179;
+        features->maxHFOV = 359;
+        features->numberOfParameters = 1;
+		features->parm[0].name = "alpha";
+		features->parm[0].minValue=1;
+		features->parm[0].maxValue=120;
+		break;
     default:
 	assert(0); // A projection is missing!
 	return 0;

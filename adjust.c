@@ -730,7 +730,13 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
       break;
     case _orthographic:
       mp->distance  = (double) pn->width / (2.0 * sin(b/2.0));
-      break;
+       break;
+	case _biplane:
+	  biplane_distance(pn->width,b,mp);
+	  break;
+	case _triplane:
+	  triplane_distance(pn->width,b,mp);
+	  break;
     default:
       // unknown
       PrintError ("SetMakeParams: Unsupported panorama projection");
@@ -878,6 +884,14 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
     {
       SetDesc(stack[i],   erect_albersequalareaconic,     mp  ); i++; // Convert albersequalareaconic to equirect
     }
+	else if(pn->format == _biplane)
+	{
+	  SetDesc(stack[i], erect_biplane, mp ); i++;  // Convert biplane to equirect
+	}
+	else if(pn->format == _triplane)
+	{
+      SetDesc(stack[i], erect_triplane, mp ); i++;  // Convert triplane to equirect
+	}
     else if(pn->format == _equirectangular) 
     {
       // no conversion needed     
@@ -1063,7 +1077,12 @@ void  SetInvMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , 
     case _orthographic:
       mp->distance  = (double) pn->width / (2.0 * sin(b/2.0));
       break;
-    default:
+	case _biplane:
+	  biplane_distance(pn->width,b,mp);
+	  break;
+	case _triplane:
+	  triplane_distance(pn->width,b,mp);
+	  break;    default:
       // unknown
       PrintError ("SetInvMakeParams: Unsupported panorama projection");
       // no way to report an error back to the caller...
@@ -1262,7 +1281,14 @@ void  SetInvMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , 
     SetDesc(stack[i], sphere_tp_erect,    &(mp->distance) ); i++; // Convert equirectangular to spherical
     SetDesc(stack[i], orthographic_sphere_tp,    &(mp->distance) ); i++; // Convert spherical to orthographic
   }
-  else if(pn->format == _equirectangular) 
+  else if(pn->format == _biplane)
+  {
+    SetDesc(stack[i], biplane_erect, mp ); i++;  // Convert equirectangular to biplane
+  }
+  else if(pn->format == _triplane)
+  {
+    SetDesc(stack[i], triplane_erect, mp ); i++;  // Convert equirectangular to biplane
+  }  else if(pn->format == _equirectangular) 
   {
     // no conversion needed   
   }
