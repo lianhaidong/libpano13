@@ -504,6 +504,12 @@ int ParseScript( char* script, AlignInfo *gl )
                         case PANO_FORMAT_ARCHITECTURAL:
                             gl->pano.format = _architectural;
                             break;
+						case PANO_FORMAT_BIPLANE:
+							gl->pano.format = _biplane;
+							break;
+						case PANO_FORMAT_TRIPLANE:
+							gl->pano.format = _triplane;
+							break;
                         default:
                             PrintError( "Unknown panorama projection: %d", gl->pano.format );
                             return -1;
@@ -668,6 +674,8 @@ void WriteResults( char* script, fullPath *sfile,  AlignInfo *g, double ds( int 
         case _architectural:          format = PANO_FORMAT_ARCHITECTURAL; break;
         case _orthographic:           format = PANO_FORMAT_ORTHOGRAPHIC; break;
         case _equisolid:              format = PANO_FORMAT_EQUISOLID; break;
+		case _biplane:                format = PANO_FORMAT_BIPLANE; break;
+		case _triplane:               format = PANO_FORMAT_TRIPLANE; break;
         default:                      format = -1; break;
     }
         
@@ -1030,6 +1038,12 @@ int readAdjust( aPrefs *p,  fullPath* sfile, int insert, sPrefs *sP )
           break;
         case PANO_FORMAT_EQUISOLID:
           p->pano.format = _equisolid;
+          break;
+		case PANO_FORMAT_BIPLANE:
+          p->pano.format = _biplane;
+          break;
+		case PANO_FORMAT_TRIPLANE:
+	      p->pano.format = _triplane;
           break;
         default:
           PrintError( "Unknown panorama projection: %d", p->pano.format );
