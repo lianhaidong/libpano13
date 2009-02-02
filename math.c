@@ -575,7 +575,19 @@ int rect_erect( double x_dest,double  y_dest, double* x_src, double* y_src, void
 	*x_src = distanceparam * tan(phi);
 	*y_src = distanceparam / (tan( theta ) * cos(phi));
 #endif
-    return 1;
+        // normalize phi to be in the -PI, PI range
+        while(phi <= -PI)
+            phi += 2*PI;
+        while(phi > PI)
+            phi -= 2*PI;
+
+        // check if the point is "in front" of the camera
+        if (phi < -PI/2.0 || phi > PI/2.0) {
+            // behind, transform considered invalid
+            return 0;
+        } else
+            return 1;
+
 }
 // This is the cylindrical projection
 int pano_erect( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
@@ -1544,6 +1556,149 @@ int erect_rect( double x_dest,double  y_dest, double* x_src, double* y_src, void
 
     return 1;
 }
+
+/** convert from erect to biplane */
+int biplane_erect		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params )
+{
+	double x,offset;
+	if (fabs(x_dest / mp->distance) > mp->pn->precomputedValue[0]+DEG_TO_RAD(89))
+	{
+		*x_src = 0;
+		*y_src = 0;
+		return 0;
+	}
+	if(x_dest<0)
+	{
+		x = x_dest + mp->pn->precomputedValue[0] * mp->distance;
+		offset = -mp->pn->precomputedValue[1];
+	}
+	else
+	{
+		x = x_dest - mp->pn->precomputedValue[0] * mp->distance;
+		offset = mp->pn->precomputedValue[1];
+	}
+	rect_erect(x,y_dest,x_src,y_src,&mp->distance);
+	*x_src += offset;
+	return 1;
+}
+
+/** convert from biplane to erect */
+int erect_biplane		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params )
+{
+	double x, offset;
+	if(fabs(x_dest)>mp->pn->precomputedValue[1]+mp->distance*57)  // 57 = tan(89)
+	{
+		*x_src = 0;
+		*y_src = 0;
+		return 0;
+	}
+	if(x_dest<0)
+	{
+		x=x_dest + mp->pn->precomputedValue[1];
+		offset = - mp->pn->precomputedValue[0];
+	}
+	else
+	{
+		x=x_dest - mp->pn->precomputedValue[1];
+		offset = mp->pn->precomputedValue[0]; 
+	} 
+	erect_rect(x,y_dest,x_src,y_src,&mp->distance);
+	*x_src += offset * mp->distance;
+	return 1;
+}
+
+
+int biplane_distance ( double width, double b, void* params )
+{
+	if(mp->pn->formatParamCount==0)
+	{
+		mp->pn->formatParamCount = 1;
+		mp->pn->formatParam[0] = 45;
+	};
+	mp->pn->formatParam[0]= max( min(mp->pn->formatParam[0], 179), 1);
+
+	mp->pn->precomputedCount = 2;
+	mp->pn->precomputedValue[0] = DEG_TO_RAD(mp->pn->formatParam[0]) / 2;  // angle in rad
+	mp->distance = (double) width / (2.0 * (tan(mp->pn->precomputedValue[0])+tan(b/2.0 - mp->pn->precomputedValue[0])));
+	mp->pn->precomputedValue[1]=mp->distance*tan(mp->pn->precomputedValue[0]);  // offset
+	return 1;
+}
+
+int triplane_erect		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params )
+{
+	double x,offset;
+	if(fabs(x_dest / mp->distance)> mp->pn->precomputedValue[0] + DEG_TO_RAD(89))
+	{
+		*x_src = 0;
+		*y_src = 0;
+		return 0;
+	};
+	if(x_dest < -mp->pn->precomputedValue[0] / 2)
+	{
+		x=x_dest -mp->pn->precomputedValue[0] * mp->distance;
+		offset = mp->pn->precomputedValue[1];
+	}
+	else if (x_dest < mp->pn->precomputedValue[0] / 2)
+	{
+		x=x_dest;
+		offset=0;
+	}
+	else
+	{
+		x=x_dest + mp->pn->precomputedValue[0] * mp->distance;
+		offset = - mp->pn->precomputedValue[1];
+	}
+	rect_erect(x,y_dest,x_src,y_src,&mp->distance);
+	*x_src += offset;
+	return 1;
+}
+
+int erect_triplane		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params )
+{
+	double x, offset;
+	if(fabs(x_dest) > 2* mp->pn->precomputedValue[1] + 57 * mp->distance )
+	{
+		*x_src = 0;
+		*y_src = 0;
+		return 0;
+	};
+	if(x_dest < -mp->pn->precomputedValue[1])
+	{
+		x=x_dest + 2 * mp->pn->precomputedValue[1];
+		offset = - mp->pn->precomputedValue[0];
+	}
+	else if (x_dest < mp->pn->precomputedValue[1])
+	{
+		x=x_dest;
+		offset=0;
+	}
+	else
+	{
+		x=x_dest - 2 * mp->pn->precomputedValue[1];
+		offset = + mp->pn->precomputedValue[0];
+	}
+	erect_rect(x,y_dest,x_src ,y_src,&mp->distance);
+	*x_src += offset * mp->distance;
+	return 1;
+}
+
+int triplane_distance ( double width, double b, void* params )
+{
+	if(mp->pn->formatParamCount==0)
+	{
+		mp->pn->formatParamCount = 1;
+		mp->pn->formatParam[0] = 45;
+	};
+	mp->pn->formatParam[0] = max( min(mp->pn->formatParam[0], 120), 1);
+
+	mp->pn->precomputedCount = 2;
+	mp->pn->precomputedValue[0] = DEG_TO_RAD(mp->pn->formatParam[0]);  // angle in rad
+	mp->distance = (double) width / (4.0 * tan(mp->pn->precomputedValue[0]/2.0) + 2 * tan(b/2.0 - mp->pn->precomputedValue[0]));
+	mp->pn->precomputedValue[1]=mp->distance*tan(mp->pn->precomputedValue[0]/2.0);  // offset
+	return 1;
+}
+
+
 
 
 int erect_sphere_tp( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)

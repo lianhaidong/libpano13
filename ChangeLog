@@ -1,3 +1,10 @@
+2009-02-02 22:24  dangelo
+
+	* math.c: rect_erect: equirect -> rectilinear projection: reject
+	points behind the camera (fixes some problems with hugins fast
+	preview). Applied dualplane and triplane projection patch (by unknown
+	author).
+
 2009-02-01 23:34  brunopostle
 
 	* tools/PTmasker.c: fix for invalid format specification, bug
