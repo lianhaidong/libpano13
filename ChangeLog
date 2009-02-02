@@ -1,39 +1,117 @@
-2009-01-17 Thomas Modes
+2009-02-01 23:34  brunopostle
 
-	* match.c: fix reverse calculation for pannini
+	* tools/PTmasker.c: fix for invalid format specification, bug
+	  #2163676 (Stanislav Brabec)
 
-2009-01-02  dmg  <dmg@phosphorus>
+2009-02-01 23:24  brunopostle
 
-	* * adjust.c, filter.h, math.c, panorama.h, parser.c &
-	queryfeateature.c:
+	* configure.ac, m4/ax_check_java.m4: autotools cross-compile
+	  support, bug #2491104 (Diego E. Petteno)
 
-	Fixed the panini (or should we call it pannini) and renamed
-	previous projection as equirectangular panini. It might have to
-	change its name
-	
+2009-02-01 23:15  brunopostle
 
-2008-01-26 Jim Watters <jwatters@photocreations.ca>
+	* f2c.h, jpegicc.c, jpegicc.h, rgbe.c, rgbe.h: Fix vague licensing,
+	  bug #1877526 (Cyril Brulebois)
 
-	* adjust.c, filter.h, math.c, panorama.h, parser.c & queryfeateature.c
-	added mirror, equisolid, orthographic, and stereographic as input image formats
-	added equisolid, orthographic, stereographic as output panorama formats
+2009-02-01 22:48  brunopostle
 
+	* Makefile.am, configure.ac, man, man/Makefile.am, man/PTblender.1,
+	  man/PTblender.pod, man/PTcrop.1, man/PTcrop.pod, man/PTinfo.1,
+	  man/PTinfo.pod, man/PTmasker.1, man/PTmasker.pod, man/PTmender.1,
+	  man/PTmender.pod, man/PToptimizer.1, man/PToptimizer.pod,
+	  man/PTroller.1, man/PTroller.pod, man/PTtiff2psd.1,
+	  man/PTtiff2psd.pod, man/PTtiffdump.1, man/PTtiffdump.pod,
+	  man/PTuncrop.1, man/PTuncrop.pod, man/panoinfo.1,
+	  man/panoinfo.pod: add missing manpages bug #1877534 (Cyril
+	  Brulebois)
 
-2008-12-29  dmg  <dmg@phosphorus>
+2009-02-01 21:18  brunopostle
 
-	* panorama.h, math.c, adjust.c, queryfeature.c, filter.h: Finally
-	added the architectural.
+	* configure.ac, tests/simpleStitch/Makefile.am,
+	  tests/simpleStitch/reference/Makefile.am,
+	  tests/simpleTiff16/Makefile.am,
+	  tests/simpleTiff16/reference/Makefile.am: Don't ship .svn dirs in
+	  tarball bug #1861174 (Cyril Brulebois)
 
-	* queryfeature.c (panoProjectionFeaturesQuery): Added querying
-	features for panini; this will allow Hugin to use it.
+2009-02-01 17:59  brunopostle
 
-2008-12-29  dmg  <dmg@uvic.ca>
+	* Makefile.am, PixMap.c, PixMap.h, README.mac, makefile.mac,
+	  pict.c: Remove GPL incompatible files (bug #1861841), this
+	  removes mac classic support
+	  and hopefully doesn't break anything in OS X.
 
-	* panorama.h, math.c, adjust.c, queryfeature.c, filter.h,
-	parser.c: Added panini projection. the credit goes to Thomas
-	Sharpless who rediscovered it, and to Bruno Postle, who did the
-	original math.
+2009-02-01 17:37  brunopostle
 
+	* bootstrap: support libtool-2.0 bug #2011492
+
+2009-01-17 22:35  brunopostle
+
+	* ChangeLog, math.c: fix reverse calculation for pannini (Thomas
+	  Modes)
+
+2009-01-08 23:47  brunopostle
+
+	* queryfeature.c: maximum field of view for pannini should be
+	  equivalent to related projections
+
+2009-01-03 07:22  dmg
+
+	* ChangeLog, adjust.c, filter.h, math.c, panorama.h, parser.c,
+	  queryfeature.c: 2009-01-02 dmg <dmg@phosphorus>
+	  
+	  * * adjust.c, filter.h, math.c, panorama.h, parser.c &
+	  queryfeateature.c:
+	  
+	  Fixed the panini (or should we call it pannini) and renamed
+	  previous projection as equirectangular panini. It might have to
+	  change its name
+
+2008-12-31 16:12  jim0watters
+
+	* queryfeature.c: Add missing projections for
+	  panoProjectionFeaturesQuery c/o Yuv
+
+2008-12-31 05:59  jim0watters
+
+	* ., ChangeLog, adjust.c, doc/Optimize.txt, doc/stitch.txt,
+	  filter.h, math.c, panorama.h, parser.c, queryfeature.c: adjust.c,
+	  filter.h, math.c, panorama.h, parser.c & queryfeateature.c
+	  added mirror, equisolid, orthographic, and stereographic as input
+	  image formats
+	  added equisolid, orthographic, stereographic as output panorama
+	  formats
+	  add some more defines to panorama.h to help image and pano
+	  formats
+
+2008-12-31 05:25  jim0watters
+
+	* PTcommon.c, correct.c, filter.c, morpher.c, pt_stdint.h,
+	  pteditor.c, ptpicker.c: Initialize TrformStr structure before use
+
+2008-12-29 23:05  dmg
+
+	* ChangeLog, adjust.c, filter.h, math.c, panorama.h, parser.c,
+	  queryfeature.c: 2008-12-29 dmg <dmg@phosphorus>
+	  
+	  * panorama.h, math.c, adjust.c, queryfeature.c, filter.h: Finally
+	  added the architectural.
+
+2008-12-29 21:37  dmg
+
+	* ChangeLog, queryfeature.c: 2008-12-29 dmg <dmg@phosphorus>
+	  
+	  * queryfeature.c (panoProjectionFeaturesQuery): Added querying
+	  features for panini; this will allow Hugin to use it
+
+2008-12-29 12:07  dmg
+
+	* ChangeLog, adjust.c, filter.h, math.c, panorama.h, parser.c,
+	  queryfeature.c: 2008-12-29 dmg <dmg@uvic.ca>
+	  
+	  * panorama.h, math.c, adjust.c, queryfeature.c, filter.h,
+	  parser.c: Added panini projection. the credit goes to Thomas
+	  Sharpless who rediscovered it, and to Bruno Postle, who did the
+	  original math.
 
 2008-08-11  dmg  <dmg@uvic.ca>
 
