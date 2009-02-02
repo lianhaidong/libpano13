@@ -2,7 +2,10 @@
 
 	* math.c: rect_erect: equirect -> rectilinear projection: reject
 	points behind the camera (fixes some problems with hugins fast
-	preview). Applied dualplane and triplane projection patch (by unknown
+	preview).
+	
+	* math.c, adjust.c, filter.h, panorama.h, parser.c, queryfeature.c:
+	Applied dualplane and triplane projection patch (by unknown
 	author).
 
 2009-02-01 23:34  brunopostle
