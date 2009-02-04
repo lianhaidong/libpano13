@@ -840,8 +840,9 @@ void WriteResults( char* script, fullPath *sfile,  AlignInfo *g, double ds( int 
         // Print optimum positions for points in panorama
         for( i=0; i<g->numPts; i++ )
         {
-            double x[2],y[2],xd,yd;
-            
+            double x[2],y[2],xd,yd,d,D[2];
+
+            EvaluateControlPointErrorAndComponents(i,&d,D);
             // write only normal control points, not horizontals, verticals, or lines
             if (g->cpt[i].type == 0)
             {
@@ -852,8 +853,8 @@ void WriteResults( char* script, fullPath *sfile,  AlignInfo *g, double ds( int 
                 {
                     xd = (x[0]+x[1]) / 2.0;
                     yd = (y[0]+y[1]) / 2.0;
-                    line += sprintf( line, "C i%d  x%g y%g X%g Y%g\n", g->cpt[i].num[0] , x[0], y[0], xd, yd );
-                    line += sprintf( line, "C i%d  x%g y%g X%g Y%g\n", g->cpt[i].num[1] , x[1], y[1], xd, yd );
+                    line += sprintf( line, "C i%d c%d  x%g y%g X%g Y%g  D%g Dx%g Dy%g\n", g->cpt[i].num[0], i, x[0], y[0], xd, yd, d, D[0], D[1] );
+                    line += sprintf( line, "C i%d c%d  x%g y%g X%g Y%g  D%g Dx%g Dy%g\n", g->cpt[i].num[1], i, x[1], y[1], xd, yd, d, D[0], D[1] );
                 }
             }
         }
