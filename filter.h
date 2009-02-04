@@ -968,6 +968,7 @@ extern sPrefs			*gsPrPtr;
 	#include "sys_mac.h"
 	
 	#define			file_spec							short
+	#define			nfile_spec							short
 	#define			myopen( path, perm, fspec )			( FSpOpenDF( path, perm, &fspec ) != noErr )
 	#define			mywrite( fspec, count, data )		FSWrite	(fspec, &count, data) 
 	#define 		myread(  fspec, count, data )		FSRead  (fspec, &count, data) 
@@ -983,6 +984,7 @@ extern sPrefs			*gsPrPtr;
 			
 #else // __Mac__, use ANSI-filefunctions
 	#define		file_spec			FILE*
+	#define		nfile_spec			int
 	#define		myopen( path, perm, fspec )	( (fspec = fopen( (path)->name, perm )) == NULL)
 	#define		mywrite( fspec, count, data )	count = fwrite( data, 1, count, fspec)
 	#define 	myread( fspec, count, data )	count = fread( data, 1, count, fspec ) 
@@ -1009,12 +1011,12 @@ extern sPrefs			*gsPrPtr;
 #endif
 
 /* ENDIAN aware file i/o funtions.  Used for reading and writing photoshop files */
-Boolean panoWriteUCHAR(file_spec fnum, UCHAR   theChar );
-Boolean panoWriteSHORT(file_spec fnum, USHORT  theShort );
-Boolean panoWriteINT32(file_spec fnum, ULONG   theLong );
-Boolean panoReadUCHAR (file_spec fnum, UCHAR  *pChar );
-Boolean panoReadSHORT (file_spec fnum, USHORT *pShort );
-Boolean panoReadINT32 (file_spec fnum, ULONG  *pLong );
+Boolean panoWriteUCHAR(nfile_spec fnum, UCHAR   theChar );
+Boolean panoWriteSHORT(nfile_spec fnum, USHORT  theShort );
+Boolean panoWriteINT32(nfile_spec fnum, ULONG   theLong );
+Boolean panoReadUCHAR (nfile_spec fnum, UCHAR  *pChar );
+Boolean panoReadSHORT (nfile_spec fnum, USHORT *pShort );
+Boolean panoReadINT32 (nfile_spec fnum, ULONG  *pLong );
     
 
 #define PANO_DEFAULT_PIXELS_PER_RESOLUTION  150.0

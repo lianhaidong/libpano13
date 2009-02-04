@@ -1285,22 +1285,22 @@ void panoDumpMetadata(pano_ImageMetadata * metadata, char *message)
 }
 
 /* ENDIAN aware file i/o funtions.  Used for reading and writing photoshop files */
-Boolean panoWriteUCHAR(file_spec fnum, UCHAR theChar )
+Boolean panoWriteUCHAR(nfile_spec fnum, UCHAR theChar )
 { 
-    return write( fnum, 1, &theChar ) == 1;
+    return write( fnum, &theChar, 1 ) == 1;
 }
 
-Boolean panoWriteSHORT(file_spec fnum, USHORT theShort )
+Boolean panoWriteSHORT(nfile_spec fnum, USHORT theShort )
 {
     char data[2], *d;
     d = data;
     
     assert(sizeof(USHORT) == 2);
     SHORTNUMBER( theShort, d );
-    return write( fnum, 2, data ) == 2;
+    return write( fnum, data, 2 ) == 2;
 }
 
-Boolean panoWriteINT32(file_spec fnum, ULONG theLong )
+Boolean panoWriteINT32(nfile_spec fnum, ULONG theLong )
 {
     size_t count = 4;
     char data[4], *d;
@@ -1310,19 +1310,19 @@ Boolean panoWriteINT32(file_spec fnum, ULONG theLong )
     
     LONGNUMBER( theLong, d );
     
-    return write( fnum, 4, data ) == 4;
+    return write( fnum, data, 4 ) == 4;
 }
 
-Boolean panoReadUCHAR(file_spec fnum, UCHAR *pChar )
+Boolean panoReadUCHAR(nfile_spec fnum, UCHAR *pChar )
 {
-    return read( fnum, 1, pChar )== 1;
+    return read( fnum, pChar, 1 )== 1;
 }
 
-Boolean panoReadSHORT(file_spec fnum, USHORT *pShort )
+Boolean panoReadSHORT(nfile_spec fnum, USHORT *pShort )
 {
     char data[2];
     char *d;
-    if (read( fnum, 2, data ) != 2) {
+    if (read( fnum, data, 2 ) != 2) {
         return FALSE;
     }
 
@@ -1333,10 +1333,10 @@ Boolean panoReadSHORT(file_spec fnum, USHORT *pShort )
     return TRUE;
 }
 
-Boolean panoReadINT32(file_spec fnum, ULONG *pLong )
+Boolean panoReadINT32(nfile_spec fnum, ULONG *pLong )
 {
     char data[4], *d;
-    if (read( fnum, 4, data )!= 4) {
+    if (read( fnum, data, 4 )!= 4) {
         return FALSE;
     }
     d = data;
