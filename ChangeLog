@@ -1,12 +1,68 @@
-2009-02-02 22:24  dangelo
+2009-02-05 00:30  brunopostle
 
-	* math.c: rect_erect: equirect -> rectilinear projection: reject
-	points behind the camera (fixes some problems with hugins fast
-	preview).
-	
-	* math.c, adjust.c, filter.h, panorama.h, parser.c, queryfeature.c:
-	Applied dualplane and triplane projection patch (by unknown
-	author).
+	* m4/ax_check_graphics.m4: close bugs #1236502 & #1599376 -lm
+	  required for libpng
+
+2009-02-05 00:22  brunopostle
+
+	* Makefile.am, README.linux, makefile.linux: Remove unmaintained
+	  makefile.linux
+
+2009-02-05 00:06  brunopostle
+
+	* ColourBrightness.c, filter.c, pttiff.h: patch fixes implicit
+	  declaration warnings, which may lead to
+	  crashes. patch #2163691 (Stanislav Brabec)
+
+2009-02-04 23:49  brunopostle
+
+	* filter.c, filter.h: Fix of invalid write() calls, which don't
+	  appear to be used anyway. patch #2163669 (Stanislav Brabec)
+
+2009-02-04 23:02  brunopostle
+
+	* parser.c: four variables have been added to "C" lines:
+	  * c - control point number;
+	  * D, Dx, Dy - a control point error (value and orthogonal
+	  components).
+	  It is useful for the analysis of results of PToptimizer operation
+	  and the
+	  subsequent removal of "bad" control points. Patch #2118807 (Iouri
+	  Ivliev)
+
+2009-02-04 22:33  brunopostle
+
+	* parser.c: Existing implementation of WriteResults function uses
+	  two intermediate buffers
+	  for sprintf(3) and a considerable quantity of strcat(3) calls for
+	  copying data
+	  in the target buffer. This patch removes all strcat(3) calls and
+	  fulfils
+	  sprintf(3) in the target buffer directly. Patch #2118807 (Iouri
+	  Ivliev)
+
+2009-02-02 21:55  dangelo
+
+	* adjust.c, filter.h, panorama.h, parser.c, queryfeature.c: forgot
+	  to add some more files touched by the bi/triplane projection
+
+2009-02-02 21:51  dangelo
+
+	* ChangeLog: correct Changelog entry
+
+2009-02-02 21:29  dangelo
+
+	* ChangeLog, math.c: equirect -> rectilinear transform: reject
+	  points behind the camera
+	  applied patch with biplane and triplane projections.
+
+2009-02-02 20:39  brunopostle
+
+	* ChangeLog, man/.cvsignore,
+	  tests/simpleStitch/reference/.cvsignore,
+	  tests/simpleTiff16/.cvsignore,
+	  tests/simpleTiff16/reference/.cvsignore, tools/.cvsignore:
+	  housekeeping
 
 2009-02-01 23:34  brunopostle
 
