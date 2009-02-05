@@ -34,6 +34,7 @@
 
 #include "tiffio.h"
 #include <assert.h>
+#include <math.h>
 
 #include "pttiff.h"
 
