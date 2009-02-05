@@ -58,32 +58,6 @@ first:
 
 ./bootstrap
 
-
-DEPRECATED BUILD INSTRUCTIONS
-
-Building the Library:
-
-The Java Development Kit  is required.
-It can be downloaded from www.javasoft.com,
-or may be contained on your Linux CD.
-
-Create a directory 'pano13', move the
-file 'panosrc.tar.gz' into this directory,
-and unpack the file using the commands
-
- gzip -d panosrc.tar.gz
-
-and
-
- tar xf panosrc.tar
-
-Then build the library using the command
-
- make -f makefile.linux libpano13.so
-
-
-Limits and Modifications:
-
 This distribution of the sources limits processing
 of fisheye images to fields of view smaller than
 160 degrees. This limit is controlled by the constant
