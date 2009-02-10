@@ -504,6 +504,12 @@ int ParseScript( char* script, AlignInfo *gl )
                         case PANO_FORMAT_ARCHITECTURAL:
                             gl->pano.format = _architectural;
                             break;
+                        case PANO_FORMAT_ORTHOGRAPHIC:
+                            gl->pano.format = _orthographic;
+                            break;
+                        case PANO_FORMAT_EQUISOLID:
+                            gl->pano.format = _equisolid;
+                            break;
 						case PANO_FORMAT_BIPLANE:
 							gl->pano.format = _biplane;
 							break;
