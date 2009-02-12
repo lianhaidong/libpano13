@@ -10,5 +10,4 @@ EXTRA_DIST = panoinfo.pod PTblender.pod PTcrop.pod PTinfo.pod PTmasker.pod \
 	pod2man --center $(PACKAGE) --release $(PACKAGE_VERSION) $< $@
 
 install-data-local: install-man
-	for f in $(man_MANS); do chmod a+r $(DESTDIR)$(mandir)/*/$$f; done
 
