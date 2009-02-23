@@ -184,7 +184,7 @@ void remap(TrformStr *TrPtr, rPrefs *r_prefs)
       }
       break;
     case _spherical_cp:
-      if( r_prefs->hfov > MAX_FISHEYE_FOV ){
+      if( r_prefs->hfov > MAX_FISHEYE_FOV && r_prefs->vfov > MAX_FISHEYE_FOV ){
         TrPtr->success = 0;
         PrintError("Fisheye lens processing limited to fov <= %lg", MAX_FISHEYE_FOV);
         return;
@@ -233,7 +233,7 @@ void remap(TrformStr *TrPtr, rPrefs *r_prefs)
       }
       break;
     case _spherical_tp:
-      if( r_prefs->hfov > MAX_FISHEYE_FOV ){
+      if( r_prefs->hfov > MAX_FISHEYE_FOV && r_prefs->vfov > MAX_FISHEYE_FOV ){
         TrPtr->success = 0;
         PrintError("Fisheye lens processing limited to fov <= %lg", MAX_FISHEYE_FOV);
         return;

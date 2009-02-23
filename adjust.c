@@ -2727,6 +2727,8 @@ int CheckParams( AlignInfo *g )
 
 static int		CheckMakeParams( aPrefs *aP)
 {
+	double im_vfov;
+	im_vfov = aP->im.hfov / aP->im.width * aP->im.height;
 	
 	if( (aP->pano.format == _rectilinear) && (aP->pano.hfov >= 180.0) )
 	{
@@ -2740,7 +2742,7 @@ static int		CheckMakeParams( aPrefs *aP)
 	}
 	if( (aP->mode & 7) == _insert ){
 		if( (aP->im.format == _fisheye_circ || 	aP->im.format == _fisheye_ff) &&
-		    (aP->im.hfov > MAX_FISHEYE_FOV) ){
+		    (aP->im.hfov > MAX_FISHEYE_FOV && im_vfov > MAX_FISHEYE_FOV) ){
 				PrintError("Fisheye lens processing limited to fov <= %lg", MAX_FISHEYE_FOV);
 				return -1;
 		}
