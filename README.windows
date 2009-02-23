@@ -78,7 +78,7 @@ Limits and Modifications:
 
 This distribution of the sources limits processing
 of fisheye images to fields of view smaller than
-160 degrees. This limit is controlled by the constant
+179 degrees. This limit is controlled by the constant
 MAX_FISHEYE_FOV in the file filter.h. There
 is some controversy regarding the legality of processing
 hemispherical images (ie images having 180 degree field
@@ -87,5 +87,3 @@ If your application of fisheye lenses is not prohibited
 by patents, you can build and use your own unlimited version 
 of the library by changing the soure code.
 
-Helmut Dersch
-der@fh-furtwangen.de
