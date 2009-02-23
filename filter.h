@@ -97,7 +97,7 @@ enum{
 								else c=(float)(x);
 
 
-#define MAX_FISHEYE_FOV		720.0
+#define MAX_FISHEYE_FOV		179.0
 
 extern int JavaUI; // Flag to indicate use of java dialogs
 void JPrintError( char* text );
