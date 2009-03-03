@@ -1,3 +1,35 @@
+2009-02-23 22:18  brunopostle
+
+	* adjust.c, remap.c: Apply MAX_FISHEYE_FOV only if both hfov and
+	  vfov match
+
+2009-02-23 22:11  brunopostle
+
+	* README.linux, README.windows, filter.h: reset MAX_FISHEYE_FOV to
+	  179 degrees (was 720)
+
+2009-02-12 21:19  brunopostle
+
+	* man/Makefile.am: Don't do pointless chmod a+r after installing
+	  man pages
+
+2009-02-10 00:47  jim0watters
+
+	* parser.c: add missing case statements
+
+2009-02-08 00:32  brunopostle
+
+	* filter.c: Don't include unistd.h on Windows, bug #2577715
+
+2009-02-05 00:45  brunopostle
+
+	* ChangeLog: update ChangeLog
+
+2009-02-05 00:38  brunopostle
+
+	* configure.ac, version.h: bump version to 2.9.14, sources
+	  conflicted as to whether previous version was 2.9.12 or 2.9.13
+
 2009-02-05 00:30  brunopostle
 
 	* m4/ax_check_graphics.m4: close bugs #1236502 & #1599376 -lm
