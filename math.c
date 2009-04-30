@@ -1034,9 +1034,29 @@ int erect_stereographic_old( double x_dest,double  y_dest, double* x_src, double
 
 int albersEqualAreaConic_ParamCheck(Image *im) 
 {
-
     //Parameters: phi1, phi2, phi0, n, C, rho0, yoffset
-    double phi1, phi2, n, C, rho0, phi0, y1, y2, y, twiceN;
+    // Albers Equal-Area Conic Projection
+    // parameters phi0, phi1, phi2:
+    //   latitude values
+    // parameter n:
+    //   (latex) $\frac{1}{2}\left(\sin\phi_1 + \sin\phi_2\right)$
+    //   (C) (sin(phi1) + sin(phi2)) / 2.0
+    // parameter C:
+    //   (latex) $\cos^2\phi_1 + 2 n \sin\phi_1$
+    //   (C) cos(phi1) * cos(phi1) + 2.0 * n * sin(phi1)
+    // parameter rho0:
+    //   (latex) $\frac{\sqrt{C - 2 n \sin\phi_0}}{n}$
+    //   (C) sqrt(C - 2.0 * n * sin(phi0))
+    // yoffset:
+    //   offset in y-direction for centering
+
+    double phi0, phi1, phi2, n, C, rho0, yoffset;
+    double Aux_2N; /* auxiliary variable for (2 * n) */
+    double Aux_sin_phi0; /* auxiliary variable for sin(phi0) */
+    double Aux_sin_phi1; /* auxiliary variable for sin(phi1) */
+    double Aux_sin_phi2; /* auxiliary variable for sin(phi2) */
+    double Aux_yl, Aux_yo; /* auxiliary variables for lower and upper y value */
+    double Aux_1; /* auxiliary variable */
     double phi[] = {-PI/2, 0, PI/2};
     double lambda[] = {-PI, 0, PI};
     int i, j, first;
@@ -1044,12 +1064,13 @@ int albersEqualAreaConic_ParamCheck(Image *im)
     assert(PANO_PROJECTION_MAX_PARMS >= 2);
 
     if (im->formatParamCount == 1) {
-	// WHen only one parameter provided, assume phi1=phi0
+        // When only one parameter provided, assume phi1 = phi0
 	im->formatParamCount = 2;
 	im->formatParam[1] = im->formatParam[0];
     }
 
     if (im->formatParamCount == 0) {
+        // if no latitude values given, then set defaults
 	im->formatParamCount = 2;
 	im->formatParam[0] = 0;  //phi1
 	im->formatParam[1] = -60; //phi2
@@ -1068,32 +1089,49 @@ int albersEqualAreaConic_ParamCheck(Image *im)
 	im->precomputedValue[0] =  -1.0 * im->formatParam[0];
 	im->precomputedValue[1] =  -1.0 * im->formatParam[1];
 
+        phi0 = 0; // default value of phi0
 	phi1 = im->precomputedValue[0] * PI / 180.0; //phi1 to rad
 	phi2 = im->precomputedValue[1] * PI / 180.0; //phi2 to rad
 
-	//Calculate the y at 6 different positions (lambda=-pi,0,+pi; phi=-pi/2,0,pi/2).
+        // precompute sinus functions
+        Aux_sin_phi0 = sin(phi0);
+        Aux_sin_phi1 = sin(phi1);
+        Aux_sin_phi2 = sin(phi2);
+        // precompute auxiliary term (2 * n)
+        Aux_2N = Aux_sin_phi1 + Aux_sin_phi2;
+
+        // calculate parameters
+        // The stability of these operations should be improved
+        n = Aux_2N / 2.0;
+        C = 1.0 + Aux_sin_phi1 * Aux_sin_phi2;
+        Aux_1 = (C - (Aux_2N * Aux_sin_phi0));
+        Aux_1 = ( (Aux_1 > 0.0) ? (sqrt(Aux_1)) : (0.0) );
+        rho0 = ( (n != 0.0) ? (Aux_1 / n) : (1.7E+308) );
+
+        // calculate the y at 6 different positions (lambda=-pi,0,+pi; phi=-pi/2,0,pi/2).
 	///Then calculate a yoffset so that the image is centered.
 	first = 1;
-	for (i = 0; i < 3; i++) for (j = 0; j < 3; j++) {
-	    y = sqrt(pow(cos(phi1), 0.2e1) + 0.2e1 * (sin(phi1) / 0.2e1 + sin(phi2) / 0.2e1) * sin(phi1)) / (sin(phi1) / 0.2e1 + sin(phi2) / 0.2e1) - sqrt(pow(cos(phi1), 0.2e1) + 0.2e1 * (sin(phi1) / 0.2e1 + sin(phi2) / 0.2e1) * sin(phi1) - 0.2e1 * (sin(phi1) / 0.2e1 + sin(phi2) / 0.2e1) * sin(phi[i])) / (sin(phi1) / 0.2e1 + sin(phi2) / 0.2e1) * cos((sin(phi1) / 0.2e1 + sin(phi2) / 0.2e1) * lambda[j]);
-	    if (!isnan(y)) {
-		if (first || y < y1) y1 = y;
-		if (first || y > y2) y2 = y;
+        for (i = 0; i < 3; i++) {
+            for (j = 0; j < 3; j++) {
+                Aux_1 = C - (sin(phi[i]) * Aux_2N);
+                if (C >= 0.0 && Aux_1 >= 0.0 && n != 0.0) {
+                    Aux_1 = (sqrt(C) - (sqrt(Aux_1) * cos(n * lambda[j]))) / n;
+                    if (first || Aux_1 < Aux_yl) {
+                        Aux_yl = Aux_1;
+                    }
+                    if (first || Aux_1 > Aux_yo) {
+                        Aux_yo = Aux_1;
+                    }
 		first = 0;
 	    }
 	}
+        }
 	if (first) {
-	    y = 0;
-	} else {
-	    y = y1 + fabs(y1 - y2)/2.0;
+            yoffset = 0.0;
+        }
+        else {
+            yoffset = Aux_yl + fabs(Aux_yl - Aux_yo) / 2.0;
 	}
-
-	// The stability of these operations should be improved
-	phi0 = 0;
-	twiceN = sin(phi1) + sin(phi2);
-	n = twiceN /2.0;
-	C = cos(phi1) * cos(phi1) + 2.0 * n * sin(phi1);
-	rho0 = sqrt(C - 2.0 * n * sin(phi0)) / n;
 
 	im->precomputedValue[0] = phi1;
 	im->precomputedValue[1] = phi2;
@@ -1101,10 +1139,10 @@ int albersEqualAreaConic_ParamCheck(Image *im)
 	im->precomputedValue[3] = n;
 	im->precomputedValue[4] = C;
 	im->precomputedValue[5] = rho0;
-	im->precomputedValue[6] = y;
+        im->precomputedValue[6] = yoffset;
 	im->precomputedValue[7] = n*n;
-	im->precomputedValue[8] = sin(phi1) + sin(phi2);
-	im->precomputedValue[9] = twiceN;
+        im->precomputedValue[8] = Aux_2N;
+        im->precomputedValue[9] = Aux_2N;
 
 	//	printf("Parms phi1 %f phi2 %f pho0 %f, n %f, C %f, rho0 %f, %f\n", 
 	//	       phi1, phi2, phi0, n, C, rho0, y);
@@ -1115,7 +1153,9 @@ int albersEqualAreaConic_ParamCheck(Image *im)
 	assert(!isnan(im->precomputedValue[i]));
     }
     
-    if (im->precomputedCount > 0) return 1;
+    if (im->precomputedCount > 0) {
+        return 1;
+    }
     //    PrintError("false in alberts equal area parameters");
     return 0;
 }
@@ -1258,13 +1298,14 @@ int albersequalareaconic_distance(double* x_src, void* params) {
     phi2 = mp->pn->precomputedValue[1];
 
     //lambda where x is a maximum.
-    if (phi1 == phi2  &&
-	phi1 == 0.0) {
+    if ( (phi1 == phi2 && phi1 == 0.0) 
+        || (phi1 == -phi2) )
+    {
 	// THIS IS A HACK...it needs to further studied
 	// why this when phi1==phi2==0 
 	// this functions return 0
 	// Avoid approximation error
-	PrintError("The Albers projection cannot be used for phi1==phi2==0. Use Lambert Cylindrical Equal Area instead");
+	// PrintError("The Albers projection cannot be used for phi1==phi2==0. Use Lambert Cylindrical Equal Area instead");
 
 	*x_src = PI;
 	return 0;
