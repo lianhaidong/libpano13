@@ -1,3 +1,29 @@
+2009-05-01 21:01  brunopostle
+
+	* man/Makefile.am, man/PTAInterpolate.pod, man/PToptimizer.1,
+	  man/PToptimizer.pod: man page for PTAInterpolate
+
+2009-05-01 20:36  brunopostle
+
+	* Makefile.am: ABI has changed since 2.9.12, bump soname (Andreas
+	  Metzler)
+
+2009-04-30 22:57  brunopostle
+
+	* math.c: Fix albers equal area conic division by zero error (Guido
+	  Kohlmeyer)
+
+2009-04-25 16:50  brunopostle
+
+	* man/PTblender.1, man/PTcrop.1, man/PTinfo.1, man/PTmasker.1,
+	  man/PTmender.1, man/PToptimizer.1, man/PTroller.1,
+	  man/PTtiff2psd.1, man/PTtiffdump.1, man/PTuncrop.1,
+	  man/panoinfo.1: Update VERSION in man pages (Andreas Metzler)
+
+2009-03-03 22:42  brunopostle
+
+	* ChangeLog: update
+
 2009-02-23 22:18  brunopostle
 
 	* adjust.c, remap.c: Apply MAX_FISHEYE_FOV only if both hfov and
