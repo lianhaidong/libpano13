@@ -16,7 +16,7 @@ routines available in libpano13.
 
 =head1 SEE ALSO
 
-L<http://www.panotools.info/mediawiki/index.php?title=PTOptimizer>
+L<http://wiki.panotools.org/PTOptimizer>
 
 
 =head1 AUTHORS
