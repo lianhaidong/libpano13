@@ -2697,13 +2697,16 @@ int CheckParams( AlignInfo *g )
 	if( g->pano.format == _rectilinear && g->pano.hfov >= 180.0 )	err = 10;
 	
 	
-	if( g->pano.format != _rectilinear        && g->pano.format != _panorama &&
-      g->pano.format != _equirectangular    && g->pano.format != _fisheye_ff &&
-      g->pano.format != _stereographic      && g->pano.format != _mercator &&
-      g->pano.format != _trans_mercator     && g->pano.format != _sinusoidal &&
-      g->pano.format != _lambert            && g->pano.format != _lambertazimuthal &&
-      g->pano.format != _albersequalareaconic) 
-		    	err=11;
+	if( g->pano.format != _rectilinear          && g->pano.format != _panorama           &&
+        g->pano.format != _equirectangular      && g->pano.format != _fisheye_ff         &&
+        g->pano.format != _stereographic        && g->pano.format != _mercator           &&
+        g->pano.format != _trans_mercator       && g->pano.format != _sinusoidal         &&
+        g->pano.format != _lambert              && g->pano.format != _lambertazimuthal   &&
+        g->pano.format != _albersequalareaconic && g->pano.format != _millercylindrical  && 
+        g->pano.format != _panini               && g->pano.format != _architectural      &&
+        g->pano.format != _equisolid            && g->pano.format != _equipanini         &&
+        g->pano.format != _biplane              && g->pano.format != _triplane
+      ) err=11;
 		    
 	// Check Control Points
 	for( i=0; i<g->numPts; i++)
