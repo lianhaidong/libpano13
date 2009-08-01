@@ -93,6 +93,22 @@ static int      ReadCoordinates(    CoordInfo   *cp, char *line );
 #define LINE_LENGTH         65536
 
                                             
+static char *oldLocale = NULL;
+
+void panoLocaleSave(void)
+{
+    char *p;
+    p=setlocale(LC_ALL, NULL);
+    oldLocale=strdup(p);
+    setlocale(LC_ALL, "C");
+}
+void panoLocaleRestore(void)
+{
+    setlocale(LC_ALL,oldLocale);
+    free(oldLocale);    
+}
+
+
 // Optimizer Script parser; fill global info structure
 
 int ParseScript( char* script, AlignInfo *gl )
@@ -111,7 +127,7 @@ int ParseScript( char* script, AlignInfo *gl )
     int                 n=0; // Number of parameters to optimize
     int                 numIm,numPts,nt;
 
-    setlocale(LC_ALL, "C");
+    panoLocaleSave();
 
     gl->im  = NULL;
     gl->opt = NULL;
@@ -139,7 +155,7 @@ int ParseScript( char* script, AlignInfo *gl )
     if( gl->im == NULL || gl->opt == NULL || gl->cpt == NULL || gl->t == NULL || gl->cim == NULL )
     {
         PrintError("Not enough memory");
-        return -1;
+        goto fail;
     }
     
     // Rik's mask-from-focus hacking
@@ -243,7 +259,7 @@ int ParseScript( char* script, AlignInfo *gl )
                                           case IMAGE_FORMAT_FISHEYE_STEREOGRAPHIC:      im->format = _stereographic; break;
                                           case IMAGE_FORMAT_FISHEYE_EQUISOLID:          im->format = _equisolid; break;
                                           default:  PrintError("Syntax error in script: Line %d", lineNum);
-                                                        return -1;
+                                                        goto fail;
                                                         break;
                                         }
                                         break;
@@ -389,7 +405,7 @@ int ParseScript( char* script, AlignInfo *gl )
                     if(  ReadControlPoint( &(gl->cpt[numPts]), &(line[1]) ) != 0 )
                     {
                         PrintError("Syntax error in script in control point 'c': Line %d", lineNum);
-                        return -1;
+                        goto fail;
                     }
                     numPts++;
                     break;
@@ -398,7 +414,7 @@ int ParseScript( char* script, AlignInfo *gl )
                     if( ReadModeDescription( &gl->sP, &(line[1]) ) != 0 )
                     {
                         PrintError( "Syntax error in script in mode description 'm': line %d" , lineNum);
-                        return -1;
+                        goto fail;
                     }
                     break;
                                 
@@ -456,7 +472,7 @@ int ParseScript( char* script, AlignInfo *gl )
                     if( ReadPanoramaDescription( &(gl->pano), &(gl->st), &(line[1]) ) != 0 )
                     {
                         PrintError( "Syntax error in panorama description p line: %d (%s)" , lineNum,line);
-                        return -1;
+                        goto fail;
                     }
                     switch (gl->pano.format) {
                         case PANO_FORMAT_RECTILINEAR:
@@ -518,12 +534,12 @@ int ParseScript( char* script, AlignInfo *gl )
 							break;
                         default:
                             PrintError( "Unknown panorama projection: %d", gl->pano.format );
-                            return -1;
+                            goto fail;
                     }
                     if( (gl->pano.format == _rectilinear || gl->pano.format == _trans_mercator) && gl->pano.hfov >= 180.0 )
                     {
                         PrintError( "Destination image must have HFOV < 180" );
-                        return -1;
+                        goto fail;
                     }
                     break;
 
@@ -628,7 +644,12 @@ int ParseScript( char* script, AlignInfo *gl )
     }
 
 
+    panoLocaleRestore();
     return 0;
+
+ fail:
+    panoLocaleRestore();
+    return -1;
 }
 
 
@@ -642,13 +663,13 @@ void WriteResults( char* script, fullPath *sfile,  AlignInfo *g, double ds( int 
     int         format;
     int i;
 
-    setlocale(LC_ALL, "C");
-        
+    panoLocaleSave();
+
     hres = (char**) mymalloc( strlen(script) + g->numIm * 600 + g->numPts * 200 + 10000 ); // Do we ever need more?
     if( hres == NULL )
     {
         PrintError("Not enough memory to create resultfile");
-        return;
+        goto fail;
     }
     line = res = *hres;
     line += sprintf( line, "%s", script );
@@ -870,7 +891,13 @@ void WriteResults( char* script, fullPath *sfile,  AlignInfo *g, double ds( int 
         PrintError("Could not write results to scriptfile");
     }
     if( hres ) myfree( (void**)hres );
+
+    panoLocaleRestore();
     return;
+
+ fail:
+    panoLocaleRestore();
+
 }
 
 
@@ -889,7 +916,7 @@ int readAdjust( aPrefs *p,  fullPath* sfile, int insert, sPrefs *sP )
     int                 seti;
     
     
-    setlocale(LC_ALL, "C");
+    panoLocaleSave();
     
     
     // Set prefs and sBuf to defaults
@@ -901,7 +928,7 @@ int readAdjust( aPrefs *p,  fullPath* sfile, int insert, sPrefs *sP )
     
     script = LoadScript( sfile );
     if( script == NULL )
-	return -1;
+	goto fail;
     
     
     // Parse script 
@@ -932,8 +959,7 @@ int readAdjust( aPrefs *p,  fullPath* sfile, int insert, sPrefs *sP )
 	    if (!seto  && !seti) {
 		if( ReadImageDescription( &(p->im), &(p->sBuf), &(line[1]) ) != 0 ) {
 		    PrintError("Syntax error in i-line %d (%s)", lineNum, line);
-		    free(script);
-		    return -1;
+		    goto fail;
 		}
 		seti = TRUE;
         
@@ -944,8 +970,7 @@ int readAdjust( aPrefs *p,  fullPath* sfile, int insert, sPrefs *sP )
 		// 'o' has priority over 'i' lines
 		if( ReadImageDescription( &(p->im), &(p->sBuf), &(line[1]) ) != 0 ) {
 		    PrintError( "Syntax error parsing o-line %d (%s)" , lineNum, line);
-		    free( script );
-		    return -1;
+		    goto fail;
 		}
 		seto = TRUE;
 	    }
@@ -954,8 +979,7 @@ int readAdjust( aPrefs *p,  fullPath* sfile, int insert, sPrefs *sP )
 	    if( ReadModeDescription( sP, &(line[1]) ) != 0 )
 		{
 		    PrintError( "Syntax error in m-line %d (%s)" , lineNum, line);
-		    free( script );
-		    return -1;
+		    goto fail;
 		}
 	    break;
 	case 'p':       // panorama 
@@ -964,8 +988,7 @@ int readAdjust( aPrefs *p,  fullPath* sfile, int insert, sPrefs *sP )
 	    if( ReadPanoramaDescription( &(p->pano), &(p->sBuf), &(line[1]) ) != 0 )
 		{
 		    PrintError( "Syntax error in line %d" , lineNum);
-		    free( script );
-		    return -1;
+		    goto fail;
 		}
       switch (p->pano.format) {
         case PANO_FORMAT_RECTILINEAR:
@@ -1027,11 +1050,11 @@ int readAdjust( aPrefs *p,  fullPath* sfile, int insert, sPrefs *sP )
           break;
         default:
           PrintError( "Unknown panorama projection: %d", p->pano.format );
-          return -1;
+          goto fail;
         }
 	    if( (p->pano.format == _rectilinear || p->pano.format == _trans_mercator) && p->pano.hfov >= 180.0 ) {
 		PrintError( "Destination image must have HFOV < 180" );
-		return -1;
+		goto fail;
 	    }
 	    break;
         
@@ -1044,8 +1067,7 @@ int readAdjust( aPrefs *p,  fullPath* sfile, int insert, sPrefs *sP )
     
     if( ! (seto || seti) ) {
     PrintError( "Syntax error in scriptfile (readAdjust). It contains no 'o' line");
-    free( script );
-    return -1;
+    goto fail;
     }
     
     // Create and Write changed scriptfile if inserting
@@ -1113,13 +1135,23 @@ int readAdjust( aPrefs *p,  fullPath* sfile, int insert, sPrefs *sP )
     
     if( WriteScript( script, sfile, 0 ) != 0 )      {
         PrintError("Could not write scriptfile");
-        free( script );
-        return -1;
+        goto fail;
     }
     }
     
     free( script);
+    panoLocaleRestore();
     return 0;
+    
+ fail:
+    if (script != NULL)
+        free(script);
+    panoLocaleRestore();
+
+    return -1;
+
+
+
 }
 
 
@@ -1135,7 +1167,7 @@ void readControlPoints(char* script, controlPoint *cp )
     int                 numPts;
 
 
-    setlocale(LC_ALL, "C");
+    panoLocaleSave();
 
     defCn.num[0]    =   defCn.num[1] = -1;
     defCn.type      =   0;
@@ -1659,7 +1691,8 @@ static int ReadModeDescription( sPrefs *sP, char *line )
     double sigma = 0;
     int n;
 
-    setlocale(LC_ALL, "C");
+    panoLocaleSave();
+
     memcpy( &theSprefs,     sP,  sizeof(sPrefs) );
 
     // set some default values
@@ -1671,7 +1704,7 @@ static int ReadModeDescription( sPrefs *sP, char *line )
         {
             case 'g':   READ_VAR( "%lf", &theSprefs.gamma );
                         if( theSprefs.gamma <= 0.0 )
-                            return -1;
+                            goto fail;
                         break;
             case 'i':   READ_VAR( "%d", &theSprefs.interpolator );
                         if( theSprefs.interpolator < 0 ||  theSprefs.interpolator > 23)
@@ -1700,7 +1733,13 @@ static int ReadModeDescription( sPrefs *sP, char *line )
     // appears ok
     
     memcpy( sP,  &theSprefs,    sizeof(sPrefs) );
+    panoLocaleRestore();
     return 0;
+
+ fail:
+    panoLocaleRestore();
+    return -1;
+
 }
 
 // Parse a string desscribing VRPanoOptions
@@ -1711,7 +1750,8 @@ int getVRPanoOptions( VRPanoOptions *v, char *line )
     char            buf[LINE_LENGTH];
     VRPanoOptions   VRopt;
 
-    setlocale(LC_ALL, "C");
+    panoLocaleSave();
+
     memcpy( &VRopt, v, sizeof( VRPanoOptions ) );
         
     while( *ch != 0)
@@ -1739,6 +1779,8 @@ int getVRPanoOptions( VRPanoOptions *v, char *line )
         }
     }
     memcpy( v, &VRopt, sizeof( VRPanoOptions ) );
+    panoLocaleRestore();
+
     return 0;
 }
 
@@ -1755,7 +1797,8 @@ int readPositions( char* script, transformCoord *tP )
     int                 nr=0,np=0;
 
 
-    setlocale(LC_ALL, "C");
+    panoLocaleSave();
+
     // Determine number of images and control points
 
 
@@ -1796,20 +1839,29 @@ int readPositions( char* script, transformCoord *tP )
                     if( ReadCoordinates( &tP->p[np++], &(line[1]) ) != 0 )
                     {
                         PrintError( "Syntax error in line %d" , lineNum);
-                        return -1;
+                        goto fail;
                     }
                     break;
         case 'R':   // Coordinate values requested
                     if( ReadCoordinates( &tP->r[nr++], &(line[1]) ) != 0 )
                     {
                         PrintError( "Syntax error in line %d" , lineNum);
-                        return -1;
+                        goto fail;
                     }
                     break;
          default: break;
         }
     }
+    panoLocaleRestore();
+
     return 0;
+
+ fail:
+    panoLocaleRestore();
+
+    return -1;
+    
+
 }
 
 
@@ -1863,14 +1915,14 @@ int ReadMorphPoints( char *script, AlignInfo *gl, int nIm )
     void                *tmp;
 
 
-    setlocale(LC_ALL, "C");
+    panoLocaleSave();
     
     // Determine number of morph control points
 
 
     gl->numPts  = numLines( script, 'C' );
     if( gl->numPts == 0 )
-        return 0;
+        goto success;
 
     // Allocate Space for Pointers to images, preferences and control points
     
@@ -1879,7 +1931,7 @@ int ReadMorphPoints( char *script, AlignInfo *gl, int nIm )
     if( gl->cpt == NULL )
     {
         PrintError("Not enough memory");
-        return -1;
+        goto fail;
     }
 
 
@@ -1906,7 +1958,7 @@ int ReadMorphPoints( char *script, AlignInfo *gl, int nIm )
                     if(  ReadControlPoint( &cp, &(line[1]) ) != 0 )
                     {
                         PrintError( "Syntax error in line %d" , lineNum);
-                        return -1;
+                        goto fail;
                     }
                     if( cp.num[0] == nIm )
                     {
@@ -1921,10 +1973,16 @@ int ReadMorphPoints( char *script, AlignInfo *gl, int nIm )
     
 
     tmp =  realloc( gl->cpt, np * sizeof( controlPoint ) );
-    if( tmp == NULL )   return -1;
+    if( tmp == NULL )   goto fail;
     gl->numPts=np; gl->cpt = (controlPoint*)tmp; 
 
+ success:
+    panoLocaleRestore();
+
     return np;
+ fail:
+    panoLocaleRestore();
+    return -1;
 
 }
 

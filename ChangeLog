@@ -1,3 +1,8 @@
+2009-08-01    <dmg@uvic.ca>
+
+	* parser.c: on discussion with Tom Modes I made sure that parser
+	saves and restores the locale.
+
 2009-05-01 21:01  brunopostle
 
 	* man/Makefile.am, man/PTAInterpolate.pod, man/PToptimizer.1,
