@@ -16,10 +16,16 @@
 # require at least cmake 2.4
 cmake_minimum_required(VERSION 2.4)
 
-## get common parent dir of us and hugin (Hugin SDK on Windows)
+## get name of our parent directory
 GET_FILENAME_COMPONENT( SOURCE_BASE_DIR ${CMAKE_SOURCE_DIR} PATH CACHE )
+
+IF ( HUGIN_BASE_DIR )
+  set(CMAKE_MODULE_PATH ${HUGIN_BASE_DIR}/CMakeModules )
+ELSE ( HUGIN_BASE_DIR )
+  set(CMAKE_MODULE_PATH ${SOURCE_BASE_DIR}/hugin/CMakeModules )
+ENDIF ( HUGIN_BASE_DIR )
+
 ## load the Hugin cmake modules
-set(CMAKE_MODULE_PATH ${SOURCE_BASE_DIR}/hugin/CMakeModules )
 include(HuginMacros)
 include(CheckIncludeFiles)
 
@@ -66,14 +72,8 @@ IF(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 ENDIF(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 
 IF (UNIX)
-  IF( HAVE_JAVA )
-    ADD_DEFINITIONS( -Dhave_Java )
-  ENDIF( HAVE_JAVA )
 ELSE (UNIX)
   IF (MSVC)
-    IF( HAVE_JAVA )
-      ADD_DEFINITIONS( /Dhave_Java )
-    ENDIF( HAVE_JAVA )
     # Stop MSVC8 from bitching about the C library
     ADD_DEFINITIONS(/D_CRT_SECURE_NO_DEPRECATE)
     # Stop MSVC9 from bitching about possibly invalid STL usage
