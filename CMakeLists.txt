@@ -16,12 +16,12 @@
 # require at least cmake 2.4
 cmake_minimum_required(VERSION 2.4)
 
-## get name of our parent directory
-GET_FILENAME_COMPONENT( SOURCE_BASE_DIR ${CMAKE_SOURCE_DIR} PATH CACHE )
-
+## Locate the hugin source root and its parent directory
 IF ( HUGIN_BASE_DIR )
+  GET_FILENAME_COMPONENT( SOURCE_BASE_DIR ${HUGIN_SOURCE_DIR} PATH CACHE )
   set(CMAKE_MODULE_PATH ${HUGIN_BASE_DIR}/CMakeModules )
 ELSE ( HUGIN_BASE_DIR )
+  GET_FILENAME_COMPONENT( SOURCE_BASE_DIR ${CMAKE_SOURCE_DIR} PATH CACHE )
   set(CMAKE_MODULE_PATH ${SOURCE_BASE_DIR}/hugin/CMakeModules )
 ENDIF ( HUGIN_BASE_DIR )
 
