@@ -1,17 +1,26 @@
 ## cmakelists.txt for libpano13 in a Hugin build environment.
-##     03 Aug 2009 TKSharpless
+##     03-04 Aug 2009 TKSharpless
 ## 
-## The libpano root (that contains this file) must have the
-## same parent directory as the hugin root.  On Windows,
-## that parent must be the Hugin SDK root.  Most dependencies
-## will then be found in the wxWidgets package there.  Note:
-## you may have to edit the wxWidgets directory name below.
+## Builds libpano13 only, by default without support for the
+## Java programs ptpicker and pteditor.  To include that, you
+## can define HAVE_JAVA on the CMake command line.  The Java 
+## header jni.h and its dependencies must then be in your 
+## include search path (this script does not find them).
+## 
+## This script uses the Hugin CMake modules to find required
+## image file format libraries, so it needs to know the name 
+## of the Hign source tree root.  By default that must be 
+## "../hugin" relative to the libpano root (that contains
+## this file).  But you can set HUGIN_BASE_DIR to the path
+## name of the Hugin root on the CMake command line.
 ##
-## The Java interface to ptpicker and pteditor is optional.
-## If HAVE_JAVA is defined, this script includes the ptpicker 
-## and pteditor support modules in libpano.  The standard Java 
-## header jni.h and its dependencies must then be in your include 
-## search path (this script does not find them).
+## The parent directory of the Hugin root is one place where
+## dependencies will be looked for.  On Windows that should
+## be the root directory of the Hugin SDK, and the wxWidgets
+## package will likely supply the dependencies.  Note:  you
+## may need to edit the wxWidgets version number below.
+##
+
 
 # require at least cmake 2.4
 cmake_minimum_required(VERSION 2.4)
@@ -36,9 +45,10 @@ project(libpano13)
 ## wxWidgets
 ##
 #  This must come before FINDs for tiff, jpeg, png, zlib to enable
-#  finding the wxWidgets distributions of those packages (Win32 only).
+#  finding the wxWidgets distributions of those packages on Windows.
 IF (WIN32)
   SET(wxWidgets_ROOT_DIR ${SOURCE_BASE_DIR}/wxWidgets-2.8.10)
+  ADD_DEFINITIONS(-D__Win__)
 ENDIF(WIN32)
 
 FIND_PACKAGE(wxWidgets REQUIRED)
@@ -72,6 +82,7 @@ IF(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 ENDIF(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 
 IF (UNIX)
+  ADD_DEFINITIONS(-D__Ansi__)
 ELSE (UNIX)
   IF (MSVC)
     # Stop MSVC8 from bitching about the C library
@@ -137,6 +148,7 @@ set( pano13_res
           
 set( pano13_src 
 	${java_c}
+	${win_c}
 	adjust.c 
 	bmp.c
 	ColourBrightness.c
