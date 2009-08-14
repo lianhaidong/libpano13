@@ -73,9 +73,10 @@ my %formats = (
 #    'tiff_none' => "TIFF c:NONE",          # simple tiff output
 #    'tiff_lzw' => "TIFF c:LZW",          # simple tiff output
 #    'tiff_deflate' => "TIFF c:DEFLATE",          # simple tiff output
-#    'tiff_m' => "TIFF_m",        #  
+    'tiff_m' => "TIFF_m",        #  
 #    'tiff_mask' => "TIFF_mask",
     'tiff_m_cropped'   => "TIFF_m r:CROP",
+    'tiff_m_uncropped'   => "TIFF_m r:UNCROP",
 #    'psd' => "PSD",
 #    'psd_nomask' => "PSD_nomask",
 #    'psd_mask' => "PSD_mask",
@@ -149,48 +150,20 @@ foreach $type (@toProcess) {
     if (! $onlyTest) {
       Create_Script($type, $pre, $post, $outputFormat);
       
-      if ($type =~ "tiff_m") {
-	Remove_Images("output", "tif", $images, $destination, $type);
-      } else {
-	`rm -f $destination/$savedFile{$type}`;
-      }
-      
+      Remove_Images("output", "tif", $images, $destination, $type);
       
       print "Creating panorama.. please wait\n";
       system ($stitcher, '-o', 'output' , 'temp.txt');
       
       
-      if ($type =~ "tiff_m") {
-	Move_Images("output", "tif", $images, $destination, $type);
-      } else {
-	`mv -f $outputFile{$type} $destination/$savedFile{$type}`;
-      }
+      Move_Images("output", "tif", $images, $destination, $type);
       
     }
     if (! $createNewReferences) {
 	
 	my $output = "";
 
-	if ($type =~ "tiff_m") {
-	    $output = Compare_Images("tif", $images, "tests", "reference", $type);
-	} else {
-	    
-	  defined $savedFile{$type} || die "\$savedFile{$type} is not defined";
-	  
-	  if (! -f "reference/$savedFile{$type}") {
-	    printf("Reference file 'reference/$savedFile{$type}' does not exist\n");
-	    $output = "fail";
-	  } elsif (! -f "tests/$savedFile{$type}") {
-	    printf("Output file tests/$savedFile{$type} was not created\n");
-	    $output = "fail";
-	  } else {	    
-	      if ($savedFile{$type} =~ /\.tif/) {
-		  $output = `tiffcmp reference/$savedFile{$type} tests/ | grep -v 'Created by Panotools'`;	      
-	      } else {
-		  $output = `diff reference/$savedFile{$type} tests/`;	      
-	      }
-	  }
-	}
+        $output = Compare_Images("tif", $images, "tests", "reference", $type);
 	
 	if ($output eq "") {
 	  printf "\nTest $type................................. passed\n\n";
@@ -290,4 +263,13 @@ sub Create_Script
     print OUT $post;
     
     close OUT;
+}
+
+
+sub execute
+{
+    my ($c) = @_;
+    `$c`;
+    my $status = ($? >> 8);
+    die "execution of program [$c] failed: status [$status]" if ($status != 0);
 }
