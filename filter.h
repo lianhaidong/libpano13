@@ -808,6 +808,7 @@ int execute_stack_new               ( double x_dest,double  y_dest, double* x_sr
 
 int resize				( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );		
 int shear				( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
+int shearInv				( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
 int horiz				( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
 int vert				( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
 int radial				( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	

@@ -793,8 +793,9 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
     printf("rot[0] %f\n", mp->rot[0]);
     printf("rot[1] %f\n", mp->rot[1]);
     printf("scale[0] %f\n", mp->rot[0]);
+    printf("mp->horizontal %f\n", mp->horizontal);
+    printf("mp->vertical %f\n", mp->vertical);
     */
-
     mp->perspect[0] = (void*)(mp->mt);
     mp->perspect[1] = (void*)&(mp->distance);
             
@@ -1124,8 +1125,8 @@ void  SetInvMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , 
   }
   mp->scale[1]    = mp->scale[0];
 
-  mp->shear[0]  = -im->cP.shear_x / im->height;
-  mp->shear[1]  = -im->cP.shear_y / im->width;
+  mp->shear[0]  = im->cP.shear_x / im->height;
+  mp->shear[1]  = im->cP.shear_y / im->width;
   
   mp->scale[0] = 1.0 / mp->scale[0];
   mp->scale[1]  = mp->scale[0];
@@ -1147,14 +1148,22 @@ void  SetInvMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , 
 
   mp->perspect[0] = (void*)(mp->mt);
   mp->perspect[1] = (void*)&(mp->distance);
-
-
+  /*
+    printf("Image format %d\n", im->format);
+    printf("shear[0] %f\n", mp->shear[0]);
+    printf("shear[1] %f\n", mp->shear[1]);
+    printf("rot[0] %f\n", mp->rot[0]);
+    printf("rot[1] %f\n", mp->rot[1]);
+    printf("scale[0] %f\n", mp->rot[0]);
+    printf("mp->horizontal %f\n", mp->horizontal);
+    printf("mp->vertical %f\n", mp->vertical);
+    */
   i = 0;  // Stack counter
     
     // Perform radial correction
   if( im->cP.shear )
   {
-    SetDesc( stack[i],shear,      mp->shear   ); i++;
+    SetDesc( stack[i],shearInv,      mp->shear   ); i++;
   }
     
   if ( im->cP.horizontal )
