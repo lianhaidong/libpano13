@@ -1,3 +1,13 @@
+2009-08-13    <dmg@uvic.ca>
+
+	* PTcommon.c (panoCreatePanorama):  Added support for uncropped
+	TIFF_m, but only when it is not circular fisheye
+
+	* tests/panoAutomateTest.pl (Compare_Images): Added support for
+	uncropped and cropped images.
+
+	* Updated tests 
+
 2009-08-01    <dmg@uvic.ca>
 
 	* parser.c: on discussion with Tom Modes I made sure that parser

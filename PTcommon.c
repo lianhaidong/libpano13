@@ -731,13 +731,6 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
         //to ever disable this feature, other than for testing/debugging purposes.
 
 
-	// By default we do cropped TIFF,
-	// but at this point we cannot properly calculate the ROI for fisheyes, so just
-	// process them uncropped.
-
-	if (prefs->im.format == _fisheye_circ) {
-	    croppedTIFFIntermediate = 0;
-	} 
 
         colourCorrection = prefs->sBuf.colcorrect;
         // This is a strange value:
@@ -777,7 +770,24 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
         --tempString;           /* nextWord does ++ before testing anything, this guarantess proper execution */
         nextWord(output_file_format, &tempString);
         
-	if (loopCounter == 0 && strcmp(output_file_format, "TIFF_m") != 0) {
+	if (strcmp(output_file_format, "TIFF_m") == 0 ) {
+            // CHeck if we are suppose to do cropped or uncropped
+            croppedTIFFIntermediate = 1;
+            nextWord(output_file_format, &tempString);
+            if (strcmp(output_file_format, "") == 0 || 
+                strcmp(output_file_format, "r:CROP") == 0
+                ) {
+                // DO uncropped by default unless we are fisheye
+                if (prefs->im.format == _fisheye_circ) {
+                    PrintError("Cropped output is unsupported for circular fisheye lenses. Ignored");
+                    croppedTIFFIntermediate = 0;
+                } 
+            } else if (strcmp(output_file_format, "r:UNCROP") == 0) {
+                croppedTIFFIntermediate = 0;
+            } else {
+                PrintError("Unsupported option in TIFF_m output (%s). Ignored", output_file_format);
+            }
+        } else {
 	    PrintError("No support for this ouput image format (%s). Output will be TIFF_m", output_file_format);
 	}
 

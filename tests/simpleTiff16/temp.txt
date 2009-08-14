@@ -1,6 +1,6 @@
 # PTStitcher script, written by hugin
 
-p f0 w60 h297 v22   n"TIFF_m r:CROP"
+p f0 w60 h297 v22   n"TIFF_m r:UNCROP"
 m g1 i7 f0
 
 # output image lines
