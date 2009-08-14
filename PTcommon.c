@@ -30,7 +30,6 @@
 #include "filter.h"
 #include "PTcommon.h"
 #include "ColourBrightness.h"
-
 #include "pttiff.h"
 #include "file.h"
 #include "PTcommon.h"
@@ -38,6 +37,7 @@
 
 #include <assert.h>
 #include <float.h>
+#include <math.h>
 
 //#include <stdio.h>
 //#include <stdlib.h>
@@ -465,11 +465,16 @@ void getROI(TrformStr * TrPtr, aPrefs * aP, PTRect * ROIRect)
 {
     struct MakeParams mpinv;
     fDesc invstack[15], finvD;
+#ifndef NDEBUG                        
+    struct MakeParams mp;
+    fDesc stack[15], fD;
+#endif
     int color = 0;
 
     int x, y, x_jump;
     double x_d, y_d;            // Cartesian Coordinates of point in source (i.e. input) image
     double Dx, Dy;              // Coordinates of corresponding point in destination (i.e. output) image
+    double Dx2, Dy2;              // Coordinates of corresponding point in destination (i.e. output) image
 
     double w2 = (double) TrPtr->dest->width / 2.0 - 0.5;        //half destination image width
     double h2 = (double) TrPtr->dest->height / 2.0 - 0.5;       //half destination image height
@@ -482,10 +487,14 @@ void getROI(TrformStr * TrPtr, aPrefs * aP, PTRect * ROIRect)
     ROIRect->top = TrPtr->dest->height - 1;
     ROIRect->bottom = 0;
 
-    //The "forward" transform (although not used here) allows us to map pixel
+#ifndef NDEBUG                        
+    //The "forward" transform allows us to map pixel
     //coordinates in the output image to their location in the source image.
-    //SetMakeParams( stack, &mp, &(aP->im) , &(aP->pano), color );
-    //fD.func = execute_stack; fD.param = stack;
+    // We use it to test the inverse functions of libpano
+    SetMakeParams( stack, &mp, &(aP->im) , &(aP->pano), color );
+    fD.func = execute_stack_new; 
+    fD.param = stack;
+#endif
 
     //The "inverse" transform allows us to map pixel coordinates in each source image
     //to their location in the output image.
@@ -501,45 +510,73 @@ void getROI(TrformStr * TrPtr, aPrefs * aP, PTRect * ROIRect)
     //needed here, but for now include some representative interior points as well.
     for (y = 0; y <= TrPtr->src->height; y += 1) {
         
-                x_jump = (y==0 || y==TrPtr->src->height || abs(y - TrPtr->src->height/2)<=5) ? 1 : TrPtr->src->width/2; 
-                
+        x_jump = (y==0 || y==TrPtr->src->height || abs(y - TrPtr->src->height/2)<=5) ? 1 : TrPtr->src->width/2; 
+
                 for (x = 0; x <= TrPtr->src->width; x += x_jump) {
                         //convert source coordinates to cartesian coordinates (i.e. origin at center of image)
                         x_d = (double) x - sw2 ;
                         y_d = (double) y - sh2 ;
-                        
+
                         //Map the source image cartesian coordinate to the destination image cartesian coordinate
                         finvD.func( x_d, y_d, &Dx, &Dy, finvD.param);
+                        
+#ifndef NDEBUG                        
+                        fD.func( Dx, Dy, &Dx2, &Dy2, fD.param);
+                        {
+                            int newX, newY;
+                            if (!isnan(Dx2) && !isnan(Dy2)) {
+
+                                newX = (int)(Dx2 + 0.5 + sw2);
+                                newY = (int)(Dy2 + 0.5 + sh2);
+
+                                if (newX != x || newY != y) {
+                                    printf("  IN1: %f,%f (%d,%d) -> OUT: %f, %f inv -> %f %f    (%d, %d)\n", x_d, y_d, 
+                                           x,y,
+                                           Dx, Dy, Dx2, Dy2, 
+                                           newX, newY
+                                           );
+                                }
+                                // If this assertion fails, there is an error. The question is, how big? See the values above.
+                                // it is possible that the error is so small that it does not matter.
+                                assert(fabs(newX-x) <= 1.0);
+                                assert(fabs(newY-y) <= 1.0);
+                            }
+
+                        }
+                          //printf("  IN1: %f,%f -> OUT: %f, %f inv -> %f %f    (%d, %d)\n", x_d, y_d, Dx, Dy, Dx2, Dy2, (int)(Dx +0.5), (int)(Dy+0.5));
+                          //printf("  IN3: %d,%d -> OUT: %f, %f   (%d, %d)\n", x, y, Dx, Dy, (int)(Dx +0.5), (int)(Dy+0.5));
+#endif
                         
                         //Convert destination cartesian coordinate back to destination "screen" coordinates (i.e. origin at top left of image)
                         Dx += w2;
                         Dy += h2;
-                        
-                        //printf("  IN: %d,%d -> OUT: %f, %f   (%d, %d)\n", x, y, Dx, Dy, (int)Dx, (int)Dy);
-                        
+
                         //Expand ROI if necessary
                         //I've observed that in some cases, the mapping function returns
                         //a value of "-1.#IND00".  This is not a number, and probably indicates
                         //a divide by zero error somewhere in the mapping function.  This should
                         //be solved, but, for now, discard this value and keep going
                         if (!isnan(Dx)) {
-                                if ((int)Dx < ROIRect->left) ROIRect->left = (int)Dx;
-                                if ((int)Dx > ROIRect->right) ROIRect->right = (int)Dx;
+                            if ((int)Dx < ROIRect->left) ROIRect->left = (int)(Dx + 0.5);
+                            if ((int)Dx > ROIRect->right) ROIRect->right = (int)(Dx + 0.5);
                         }
                         if (!isnan(Dy)){                
-                                if ((int)Dy < ROIRect->top) ROIRect->top = (int)Dy;
-                                if ((int)Dy > ROIRect->bottom) ROIRect->bottom = (int)Dy;
+                            if ((int)Dy < ROIRect->top) ROIRect->top = (int)(Dy + 0.5);
+                            if ((int)Dy > ROIRect->bottom) ROIRect->bottom = (int)(Dy + 0.5);
                         }
                 }
         }
         
+    // printf("ROI1: %ld,%ld - %ld, %ld\n", ROIRect->left, ROIRect->top, ROIRect->right, ROIRect->bottom);
+
+
         //Reduce ROI if it extends beyond boundaries of final panorama region
         if (ROIRect->left    < 0) ROIRect->left =0;
         if (ROIRect->top     < 0) ROIRect->top  =0;
         if (ROIRect->right   > (TrPtr->dest->width-1))  ROIRect->right    = TrPtr->dest->width-1;  
         if (ROIRect->bottom  > (TrPtr->dest->height-1)) ROIRect->bottom   = TrPtr->dest->height-1;
         
-        //printf("ROI: %d,%d - %d, %d\n", ROIRect->left, ROIRect->top, ROIRect->right, ROIRect->bottom);
+        printf("ROI2: %ld,%ld - %ld, %ld\n", ROIRect->left, ROIRect->top, ROIRect->right, ROIRect->bottom);
 }
 
 
@@ -1706,7 +1743,7 @@ int panoCroppingMain(int argc,char *argv[], int operation, char *version, char *
     strcpy(outputPrefix, defaultPrefix);
     bzero(&croppingParms, sizeof(croppingParms));
     
-    printf(version);
+    printf("%s", version);
     
     //Need enough space for a message to be returned if something goes wrong
   
@@ -1735,7 +1772,7 @@ int panoCroppingMain(int argc,char *argv[], int operation, char *version, char *
             ptQuietFlag = 1;
             break;
         case 'h':
-            printf(usage);
+            printf("%s",usage);
             exit(0);
         default:
             break;
@@ -1745,7 +1782,7 @@ int panoCroppingMain(int argc,char *argv[], int operation, char *version, char *
 
     if (filesCount < 1) {
         PrintError("No files specified in the command line");
-        printf(usage);
+        printf("%s",usage);
         exit(0);
     }
     // Allocate memory for filenames

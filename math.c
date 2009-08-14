@@ -379,6 +379,15 @@ int shear( double x_dest, double y_dest, double* x_src, double* y_src, void* par
     return 1;
 }
 
+int shearInv( double x_dest, double y_dest, double* x_src, double* y_src, void* params)
+{
+	// params: double shear_horizontal, double shear_vertical;
+
+    *y_src  = (y_dest - var1 * x_dest) / (1 - var1 * var0);
+    *x_src  = (x_dest - var0 * *y_src);
+    return 1;
+}
+
 int horiz( double x_dest, double y_dest, double* x_src, double* y_src, void* params)
 {
 	// params: double horizontal shift

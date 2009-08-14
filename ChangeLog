@@ -1,3 +1,17 @@
+2009-08-14    <dmg@uvic.ca>
+
+	* Updated tests cases to reflect the slight change in the
+	boundaries of the ROI.
+	
+	* adjust.c, math.c, filter.h: The inverse of shear was broken. I
+	have added a shearInv function that takes care of this bug.
+
+	* PTcommon.c (getROI): Improved its computation of its edges to
+	make it err on the outside rather than on the inside of the actual
+	area. I have also added code to test the inverse computations for
+	any particular function.
+	
+
 2009-08-13    <dmg@uvic.ca>
 
 	* PTcommon.c (panoCreatePanorama):  Added support for uncropped
