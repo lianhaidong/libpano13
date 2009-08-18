@@ -93,8 +93,7 @@ static int      ReadCoordinates(    CoordInfo   *cp, char *line );
 #define LINE_LENGTH         65536
 
                                             
-static char *oldLocale = NULL;
-
+/* 
 void panoLocaleSave(void)
 {
     char *p;
@@ -102,11 +101,11 @@ void panoLocaleSave(void)
     oldLocale=strdup(p);
     setlocale(LC_ALL, "C");
 }
-void panoLocaleRestore(void)
-{
-    setlocale(LC_ALL,oldLocale);
-    free(oldLocale);    
-}
+*/
+
+#define panoLocaleSave    char *oldLocale;oldLocale=strdup(setlocale(LC_ALL, NULL));setlocale(LC_ALL, "C")
+
+#define panoLocaleRestore (oldLocale != NULL? (setlocale(LC_ALL,oldLocale),free(oldLocale)):0)
 
 
 // Optimizer Script parser; fill global info structure
@@ -127,7 +126,7 @@ int ParseScript( char* script, AlignInfo *gl )
     int                 n=0; // Number of parameters to optimize
     int                 numIm,numPts,nt;
 
-    panoLocaleSave();
+    panoLocaleSave;
 
     gl->im  = NULL;
     gl->opt = NULL;
@@ -644,11 +643,11 @@ int ParseScript( char* script, AlignInfo *gl )
     }
 
 
-    panoLocaleRestore();
+    panoLocaleRestore;
     return 0;
 
  fail:
-    panoLocaleRestore();
+    panoLocaleRestore;
     return -1;
 }
 
@@ -663,7 +662,7 @@ void WriteResults( char* script, fullPath *sfile,  AlignInfo *g, double ds( int 
     int         format;
     int i;
 
-    panoLocaleSave();
+    panoLocaleSave;
 
     hres = (char**) mymalloc( strlen(script) + g->numIm * 600 + g->numPts * 200 + 10000 ); // Do we ever need more?
     if( hres == NULL )
@@ -892,11 +891,11 @@ void WriteResults( char* script, fullPath *sfile,  AlignInfo *g, double ds( int 
     }
     if( hres ) myfree( (void**)hres );
 
-    panoLocaleRestore();
+    panoLocaleRestore;
     return;
 
  fail:
-    panoLocaleRestore();
+    panoLocaleRestore;
 
 }
 
@@ -916,7 +915,7 @@ int readAdjust( aPrefs *p,  fullPath* sfile, int insert, sPrefs *sP )
     int                 seti;
     
     
-    panoLocaleSave();
+    panoLocaleSave;
     
     
     // Set prefs and sBuf to defaults
@@ -1140,13 +1139,13 @@ int readAdjust( aPrefs *p,  fullPath* sfile, int insert, sPrefs *sP )
     }
     
     free( script);
-    panoLocaleRestore();
+    panoLocaleRestore;
     return 0;
     
  fail:
     if (script != NULL)
         free(script);
-    panoLocaleRestore();
+    panoLocaleRestore;
 
     return -1;
 
@@ -1167,7 +1166,7 @@ void readControlPoints(char* script, controlPoint *cp )
     int                 numPts;
 
 
-    panoLocaleSave();
+    panoLocaleSave;
 
     defCn.num[0]    =   defCn.num[1] = -1;
     defCn.type      =   0;
@@ -1691,7 +1690,7 @@ static int ReadModeDescription( sPrefs *sP, char *line )
     double sigma = 0;
     int n;
 
-    panoLocaleSave();
+    panoLocaleSave;
 
     memcpy( &theSprefs,     sP,  sizeof(sPrefs) );
 
@@ -1733,11 +1732,11 @@ static int ReadModeDescription( sPrefs *sP, char *line )
     // appears ok
     
     memcpy( sP,  &theSprefs,    sizeof(sPrefs) );
-    panoLocaleRestore();
+    panoLocaleRestore;
     return 0;
 
  fail:
-    panoLocaleRestore();
+    panoLocaleRestore;
     return -1;
 
 }
@@ -1750,7 +1749,7 @@ int getVRPanoOptions( VRPanoOptions *v, char *line )
     char            buf[LINE_LENGTH];
     VRPanoOptions   VRopt;
 
-    panoLocaleSave();
+    panoLocaleSave;
 
     memcpy( &VRopt, v, sizeof( VRPanoOptions ) );
         
@@ -1779,7 +1778,7 @@ int getVRPanoOptions( VRPanoOptions *v, char *line )
         }
     }
     memcpy( v, &VRopt, sizeof( VRPanoOptions ) );
-    panoLocaleRestore();
+    panoLocaleRestore;
 
     return 0;
 }
@@ -1797,7 +1796,7 @@ int readPositions( char* script, transformCoord *tP )
     int                 nr=0,np=0;
 
 
-    panoLocaleSave();
+    panoLocaleSave;
 
     // Determine number of images and control points
 
@@ -1852,12 +1851,12 @@ int readPositions( char* script, transformCoord *tP )
          default: break;
         }
     }
-    panoLocaleRestore();
+    panoLocaleRestore;
 
     return 0;
 
  fail:
-    panoLocaleRestore();
+    panoLocaleRestore;
 
     return -1;
     
@@ -1915,7 +1914,7 @@ int ReadMorphPoints( char *script, AlignInfo *gl, int nIm )
     void                *tmp;
 
 
-    panoLocaleSave();
+    panoLocaleSave;
     
     // Determine number of morph control points
 
@@ -1977,11 +1976,11 @@ int ReadMorphPoints( char *script, AlignInfo *gl, int nIm )
     gl->numPts=np; gl->cpt = (controlPoint*)tmp; 
 
  success:
-    panoLocaleRestore();
+    panoLocaleRestore;
 
     return np;
  fail:
-    panoLocaleRestore();
+    panoLocaleRestore;
     return -1;
 
 }
