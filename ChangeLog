@@ -1,3 +1,11 @@
+2009-08-18    <dmg@uvic.ca>
+
+	* parser.c: The functions panoLocaleSave and panoLocaleRestore
+	assumed we were calling them only once per invocation of
+	libpano. So the 2nd panoLocaleRestore failed. I have made the
+	functions macros, the idea is that they will work on local
+	variables
+
 2009-08-14    <dmg@uvic.ca>
 
 	* Updated tests cases to reflect the slight change in the
