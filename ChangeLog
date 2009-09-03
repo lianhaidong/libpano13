@@ -1,39 +1,129 @@
-2009-08-18    <dmg@uvic.ca>
+2009-09-03 17:26  brunopostle
 
-	* parser.c: The functions panoLocaleSave and panoLocaleRestore
-	assumed we were calling them only once per invocation of
-	libpano. So the 2nd panoLocaleRestore failed. I have made the
-	functions macros, the idea is that they will work on local
-	variables
+	* Makefile.am, configure.ac, version.h: Bump version and soname
 
-2009-08-14    <dmg@uvic.ca>
+2009-09-03 17:13  brunopostle
 
-	* Updated tests cases to reflect the slight change in the
-	boundaries of the ROI.
-	
-	* adjust.c, math.c, filter.h: The inverse of shear was broken. I
-	have added a shearInv function that takes care of this bug.
+	* adjust.h, parser.c: Fixes for implicit declarations (Stanislav
+	  Brabec)
 
-	* PTcommon.c (getROI): Improved its computation of its edges to
-	make it err on the outside rather than on the inside of the actual
-	area. I have also added code to test the inverse computations for
-	any particular function.
-	
+2009-09-03 14:08  brunopostle
 
-2009-08-13    <dmg@uvic.ca>
+	* Makefile.am, configure.ac, libpano13.pc.in: Add a pkgconfig
+	  support with a libpano13.pc file (Andreas Metzler)
 
-	* PTcommon.c (panoCreatePanorama):  Added support for uncropped
-	TIFF_m, but only when it is not circular fisheye
+2009-08-18 17:33  dmg
 
-	* tests/panoAutomateTest.pl (Compare_Images): Added support for
-	uncropped and cropped images.
+	* ChangeLog: Forgot to update changelog
 
-	* Updated tests 
+2009-08-18 17:26  dmg
 
-2009-08-01    <dmg@uvic.ca>
+	* parser.c: Tried to fix the setlocale thing
 
-	* parser.c: on discussion with Tom Modes I made sure that parser
-	saves and restores the locale.
+2009-08-14 18:36  dmg
+
+	* ChangeLog, PTcommon.c, adjust.c, filter.h, math.c,
+	  tests/simpleStitch/reference/tiff_m0000.tif,
+	  tests/simpleStitch/reference/tiff_m_cropped0000.tif,
+	  tests/simpleStitch/reference/tiff_m_cropped0001.tif,
+	  tests/simpleTiff16/reference/tiff_m0000.tif,
+	  tests/simpleTiff16/reference/tiff_m_cropped0000.tif: 2009-08-14
+	  <dmg@uvic.ca>
+	  
+	  * Updated tests cases to reflect the slight change in the
+	  boundaries of the ROI.
+	  
+	  * adjust.c, math.c, filter.h: The inverse of shear was broken. I
+	  have added a shearInv function that takes care of this bug.
+	  
+	  * PTcommon.c (getROI): Improved its computation of its edges to
+	  make it err on the outside rather than on the inside of the
+	  actual
+	  area. I have also added code to test the inverse computations for
+	  any particular function.
+
+2009-08-14 06:14  dmg
+
+	* ChangeLog, PTcommon.c, tests/panoAutomateTest.pl,
+	  tests/simpleStitch/reference/tiff_m_uncropped0000.tif,
+	  tests/simpleStitch/reference/tiff_m_uncropped0001.tif,
+	  tests/simpleTiff16/reference/tiff_m0000.tif,
+	  tests/simpleTiff16/reference/tiff_m_uncropped0000.tif,
+	  tests/simpleTiff16/temp.txt: 2009-08-13 <dmg@uvic.ca>
+	  
+	  * PTcommon.c (panoCreatePanorama): Added support for uncropped
+	  TIFF_m, but only when it is not circular fisheye
+	  
+	  * tests/panoAutomateTest.pl (Compare_Images): Added support for
+	  uncropped and cropped images.
+	  
+	  * Updated tests
+
+2009-08-14 06:05  dmg
+
+	* tests/simpleStitch/reference/tiff_m0000.tif,
+	  tests/simpleStitch/reference/tiff_m0001.tif: i need actual files,
+	  not symlinks
+
+2009-08-14 06:01  dmg
+
+	* tests/simpleStitch/reference/tiff_m0000.tif,
+	  tests/simpleStitch/reference/tiff_m0001.tif: finished renaming
+	  files
+
+2009-08-14 06:00  dmg
+
+	* tests/simpleStitch/reference/tiff_m0000.tif,
+	  tests/simpleStitch/reference/tiff_m0001.tif,
+	  tests/simpleStitch/reference/tiff_m_uncropped0000.tif,
+	  tests/simpleStitch/reference/tiff_m_uncropped0001.tif: renaming
+	  some files part 2, has to be done in different commits
+
+2009-08-14 05:58  dmg
+
+	* tests/simpleStitch/reference/tiff_m_cropped0000.tif,
+	  tests/simpleStitch/reference/tiff_m_cropped0001.tif: renaming
+	  some files, has to be done in different commits
+
+2009-08-04 13:52  tksharpless
+
+	* CMakeLists.txt: Add Bruno's patch for Linux to CMakeLists.txt
+
+2009-08-04 12:48  tksharpless
+
+	* CMakeLists.txt: Improved version of previous mod to
+	  CMakeLists.txt
+
+2009-08-04 12:35  tksharpless
+
+	* CMakeLists.txt: Can define HUGIN_BASE_DIR on the CMake
+	  commandline to locate the Hugin source root (by default it must
+	  be next to the libpano source root and be called hugin).
+
+2009-08-04 04:16  tksharpless
+
+	* CMakeLists.txt: Added CMakeLists.txt to build libpano13 (only) in
+	  the Hugin build environment. Works with MSVC 2008 Exp. & Hugin
+	  SDK on WinVista. Please test elsewhere. Also untested is the
+	  option of including support for the Java utilities (left out by
+	  default).
+
+2009-08-01 09:16  dmg
+
+	* ChangeLog, parser.c: 2009-08-01 <dmg@uvic.ca>
+	  
+	  * parser.c: on discussion with Tom Modes I made sure that parser
+	  saves and restores the locale.
+
+2009-06-11 22:32  brunopostle
+
+	* adjust.c: Fix "Unsupported panorama projection" warning when
+	  opening a project with a recent projection (Yuval Levy).
+	  https://sourceforge.net/tracker/?func=detail&atid=550441&aid=2803939&group_id=77506
+
+2009-05-01 21:10  brunopostle
+
+	* ChangeLog: Update ChangeLog for 2.9.14_rc1
 
 2009-05-01 21:01  brunopostle
 
