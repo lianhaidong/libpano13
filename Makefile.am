@@ -94,6 +94,11 @@ pkginclude_HEADERS = $(STD_HDR) $(TOOL_HDR)
 
 noinst_HEADERS = $(INTERNAL_HDR) $(SYS_HDR) $(MAC_HDR)
 
+# Pkg-config script.
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = libpano13.pc
+DISTCLEANFILES = $(pkgconfig_DATA)
+
 SUBDIRS=m4 . tools doc build tests man
 
 distdir=lib$(PACKAGE)-$(VERSION)
