@@ -26,3 +26,4 @@ AlignInfo   *GetGlobalPtr();
 // sigma = 0 disables the m-estimator
 void setFcnPanoHuberSigma(double sigma);
 
+int EvaluateControlPointErrorAndComponents (int num, double *errptr, double errComponent[2]);
