@@ -46,6 +46,7 @@
 #include <locale.h>
 
 #include "ZComb.h"
+#include "adjust.h"
 
 
 /* defined in adjust.c */
