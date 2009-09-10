@@ -1,4 +1,4 @@
-/* Panorama_Tools	-	Generate, Edit and Convert Panoramic Images
+/* Panorama_Tools       -       Generate, Edit and Convert Panoramic Images
    Copyright (C) 1998,1999 - Helmut Dersch  der@fh-furtwangen.de
    
    This program is free software; you can redistribute it and/or modify
@@ -22,7 +22,7 @@
 #include <float.h>
 #include "f2c.h"
 
-#define R_EPS  1.0e-6	
+#define R_EPS  1.0e-6   
 #define MAXITER 100
 
 #include <assert.h>
@@ -37,8 +37,8 @@
 #define isinf(a) (_fpclass(a) == _FPCLASS_NINF || _fpclass(a) == _FPCLASS_PINF)
 #endif
 
-void 	matrix_matrix_mult	( double m1[3][3],double m2[3][3],double result[3][3]);
-int 	polzeros_();
+void    matrix_matrix_mult      ( double m1[3][3],double m2[3][3],double result[3][3]);
+int     polzeros_();
 
 
 //------------------------- Some auxilliary math functions --------------------------------------------
@@ -90,70 +90,70 @@ atanh (const double x)
 
 void matrix_mult( double m[3][3], double vector[3] )
 {
-	register int i;
-	register double v0 = vector[0];
-	register double v1 = vector[1];
-	register double v2 = vector[2];
-	
-	
-	for(i=0; i<3; i++)
-	{
-		vector[i] = m[i][0] * v0 + m[i][1] * v1 + m[i][2] * v2;
-	}
+        register int i;
+        register double v0 = vector[0];
+        register double v1 = vector[1];
+        register double v2 = vector[2];
+        
+        
+        for(i=0; i<3; i++)
+        {
+                vector[i] = m[i][0] * v0 + m[i][1] * v1 + m[i][2] * v2;
+        }
 }
-		
+                
 void matrix_inv_mult( double m[3][3], double vector[3] )
 {
-	register int i;
-	register double v0 = vector[0];
-	register double v1 = vector[1];
-	register double v2 = vector[2];
-	
-	for(i=0; i<3; i++)
-	{
-		vector[i] = m[0][i] * v0 + m[1][i] * v1 + m[2][i] * v2;
-	}
+        register int i;
+        register double v0 = vector[0];
+        register double v1 = vector[1];
+        register double v2 = vector[2];
+        
+        for(i=0; i<3; i++)
+        {
+                vector[i] = m[0][i] * v0 + m[1][i] * v1 + m[2][i] * v2;
+        }
 }
-		
+                
 void matrix_matrix_mult( double m1[3][3],double m2[3][3],double result[3][3])
 {
-	register int i,k;
-	
-	for(i=0;i<3;i++)
-	{
-		for(k=0; k<3; k++)
-		{
-			result[i][k] = m1[i][0] * m2[0][k] + m1[i][1] * m2[1][k] + m1[i][2] * m2[2][k];
-		}
-	}
+        register int i,k;
+        
+        for(i=0;i<3;i++)
+        {
+                for(k=0; k<3; k++)
+                {
+                        result[i][k] = m1[i][0] * m2[0][k] + m1[i][1] * m2[1][k] + m1[i][2] * m2[2][k];
+                }
+        }
 }
 
 // Set matrix elements based on Euler angles a, b, c
 
 void SetMatrix( double a, double b, double c , double m[3][3], int cl )
 {
-	double mx[3][3], my[3][3], mz[3][3], dummy[3][3];
-	
+        double mx[3][3], my[3][3], mz[3][3], dummy[3][3];
+        
 
-	// Calculate Matrices;
+        // Calculate Matrices;
 
-	mx[0][0] = 1.0 ; 				mx[0][1] = 0.0 ; 				mx[0][2] = 0.0;
-	mx[1][0] = 0.0 ; 				mx[1][1] = cos(a) ; 			mx[1][2] = sin(a);
-	mx[2][0] = 0.0 ;				mx[2][1] =-mx[1][2] ;			mx[2][2] = mx[1][1];
-	
-	my[0][0] = cos(b); 				my[0][1] = 0.0 ; 				my[0][2] =-sin(b);
-	my[1][0] = 0.0 ; 				my[1][1] = 1.0 ; 				my[1][2] = 0.0;
-	my[2][0] = -my[0][2];			my[2][1] = 0.0 ;				my[2][2] = my[0][0];
-	
-	mz[0][0] = cos(c) ; 			mz[0][1] = sin(c) ; 			mz[0][2] = 0.0;
-	mz[1][0] =-mz[0][1] ; 			mz[1][1] = mz[0][0] ; 			mz[1][2] = 0.0;
-	mz[2][0] = 0.0 ;				mz[2][1] = 0.0 ;				mz[2][2] = 1.0;
+        mx[0][0] = 1.0 ;                                mx[0][1] = 0.0 ;                                mx[0][2] = 0.0;
+        mx[1][0] = 0.0 ;                                mx[1][1] = cos(a) ;                     mx[1][2] = sin(a);
+        mx[2][0] = 0.0 ;                                mx[2][1] =-mx[1][2] ;                   mx[2][2] = mx[1][1];
+        
+        my[0][0] = cos(b);                              my[0][1] = 0.0 ;                                my[0][2] =-sin(b);
+        my[1][0] = 0.0 ;                                my[1][1] = 1.0 ;                                my[1][2] = 0.0;
+        my[2][0] = -my[0][2];                   my[2][1] = 0.0 ;                                my[2][2] = my[0][0];
+        
+        mz[0][0] = cos(c) ;                     mz[0][1] = sin(c) ;                     mz[0][2] = 0.0;
+        mz[1][0] =-mz[0][1] ;                   mz[1][1] = mz[0][0] ;                   mz[1][2] = 0.0;
+        mz[2][0] = 0.0 ;                                mz[2][1] = 0.0 ;                                mz[2][2] = 1.0;
 
-	if( cl )
-		matrix_matrix_mult( mz,	mx,	dummy);
-	else
-		matrix_matrix_mult( mx,	mz,	dummy);
-	matrix_matrix_mult( dummy, my, m);
+        if( cl )
+                matrix_matrix_mult( mz, mx,     dummy);
+        else
+                matrix_matrix_mult( mx, mz,     dummy);
+        matrix_matrix_mult( dummy, my, m);
 }
 
 
@@ -161,99 +161,99 @@ void SetMatrix( double a, double b, double c , double m[3][3], int cl )
 
 void doCoordinateTransform( CoordInfo *ci, tMatrix *t )
 {
-	double m[3][3],a,b,c;
-	int i;
-	double mx[3][3], my[3][3], mz[3][3], dummy[3][3];
-	
+        double m[3][3],a,b,c;
+        int i;
+        double mx[3][3], my[3][3], mz[3][3], dummy[3][3];
+        
 
-	// Calculate Matrices;
-	a = DEG_TO_RAD( t->alpha );
-	b = DEG_TO_RAD( t->beta  );
-	c = DEG_TO_RAD( t->gamma );
+        // Calculate Matrices;
+        a = DEG_TO_RAD( t->alpha );
+        b = DEG_TO_RAD( t->beta  );
+        c = DEG_TO_RAD( t->gamma );
 
-	mx[0][0] = 1.0 ; 				mx[0][1] = 0.0 ; 				mx[0][2] = 0.0;
-	mx[1][0] = 0.0 ; 				mx[1][1] = cos(a) ; 			mx[1][2] = sin(a);
-	mx[2][0] = 0.0 ;				mx[2][1] =-mx[1][2] ;			mx[2][2] = mx[1][1];
-	
-	my[0][0] = cos(b); 				my[0][1] = 0.0 ; 				my[0][2] =-sin(b);
-	my[1][0] = 0.0 ; 				my[1][1] = 1.0 ; 				my[1][2] = 0.0;
-	my[2][0] = -my[0][2];			my[2][1] = 0.0 ;				my[2][2] = my[0][0];
-	
-	mz[0][0] = cos(c) ; 			mz[0][1] = sin(c) ; 			mz[0][2] = 0.0;
-	mz[1][0] =-mz[0][1] ; 			mz[1][1] = mz[0][0] ; 			mz[1][2] = 0.0;
-	mz[2][0] = 0.0 ;				mz[2][1] = 0.0 ;				mz[2][2] = 1.0;
+        mx[0][0] = 1.0 ;                                mx[0][1] = 0.0 ;                                mx[0][2] = 0.0;
+        mx[1][0] = 0.0 ;                                mx[1][1] = cos(a) ;                     mx[1][2] = sin(a);
+        mx[2][0] = 0.0 ;                                mx[2][1] =-mx[1][2] ;                   mx[2][2] = mx[1][1];
+        
+        my[0][0] = cos(b);                              my[0][1] = 0.0 ;                                my[0][2] =-sin(b);
+        my[1][0] = 0.0 ;                                my[1][1] = 1.0 ;                                my[1][2] = 0.0;
+        my[2][0] = -my[0][2];                   my[2][1] = 0.0 ;                                my[2][2] = my[0][0];
+        
+        mz[0][0] = cos(c) ;                     mz[0][1] = sin(c) ;                     mz[0][2] = 0.0;
+        mz[1][0] =-mz[0][1] ;                   mz[1][1] = mz[0][0] ;                   mz[1][2] = 0.0;
+        mz[2][0] = 0.0 ;                                mz[2][1] = 0.0 ;                                mz[2][2] = 1.0;
 
-	matrix_matrix_mult( my,	mz,	dummy);
-	matrix_matrix_mult( mx, dummy,	m);
-	
-	// Scale 
-	
-	for(i=0; i<3; i++)
-		ci->x[i] *= t->scale;
-	
-	// Do shift
-	
-	for(i=0; i<3; i++)
-		ci->x[i] += t->x_shift[i];
-	
-	// Do rotation
-#if 0	
-	SetMatrix( DEG_TO_RAD( t->alpha ) , 
-			   DEG_TO_RAD( t->beta  ) ,
-			   DEG_TO_RAD( t->gamma ) ,
-			   m, 0 );
+        matrix_matrix_mult( my, mz,     dummy);
+        matrix_matrix_mult( mx, dummy,  m);
+        
+        // Scale 
+        
+        for(i=0; i<3; i++)
+                ci->x[i] *= t->scale;
+        
+        // Do shift
+        
+        for(i=0; i<3; i++)
+                ci->x[i] += t->x_shift[i];
+        
+        // Do rotation
+#if 0   
+        SetMatrix( DEG_TO_RAD( t->alpha ) , 
+                           DEG_TO_RAD( t->beta  ) ,
+                           DEG_TO_RAD( t->gamma ) ,
+                           m, 0 );
 
 #endif
-	matrix_inv_mult( m, ci->x );
+        matrix_inv_mult( m, ci->x );
 
 }
 
 void SettMatrixDefaults( tMatrix *t )
 {
-	int i;
-	
-	t->alpha = t->beta = t->gamma = 0.0;
-	for(i=0; i<3; i++)
-		t->x_shift[i] = 0.0;
-	
-	t->scale = 1.0;
+        int i;
+        
+        t->alpha = t->beta = t->gamma = 0.0;
+        for(i=0; i<3; i++)
+                t->x_shift[i] = 0.0;
+        
+        t->scale = 1.0;
 }
 
 
-	
-	
-	
-	
+        
+        
+        
+        
 
 //------------------------------- Transformation functions --------------------------------------------
 
 
-#define 	distanceparam	(*((double*)params))
-#define 	shift		(*((double*)params))
-#define		var0		((double*)params)[0]
-#define		var1		((double*)params)[1]
-#define		mp		((struct MakeParams*)params)
+#define         distanceparam   (*((double*)params))
+#define         shift           (*((double*)params))
+#define         var0            ((double*)params)[0]
+#define         var1            ((double*)params)[1]
+#define         mp              ((struct MakeParams*)params)
 
 // execute a stack of functions stored in stack
 
-void execute_stack		( double x_dest, double y_dest, double* x_src, double* y_src, void* params)
+void execute_stack              ( double x_dest, double y_dest, double* x_src, double* y_src, void* params)
 {
-	register double 		xd = x_dest, 
-							yd = y_dest;
-	register struct fDesc*  stack = (struct fDesc *) params;;
-	
-		
-	while( (stack->func) != NULL )
-	{
+        register double                 xd = x_dest, 
+                                                        yd = y_dest;
+        register struct fDesc*  stack = (struct fDesc *) params;;
+        
+                
+        while( (stack->func) != NULL )
+        {
 
-		(stack->func) ( xd, yd, x_src, y_src, stack->param );
-		xd = *x_src;	
-		yd = *y_src;
-		stack++;
-	}
+                (stack->func) ( xd, yd, x_src, y_src, stack->param );
+                xd = *x_src;    
+                yd = *y_src;
+                stack++;
+        }
 }
 
-	
+        
 int execute_stack_new( double x_dest, double y_dest, double* x_src, double* y_src, void* params)
 {
     register double xd = x_dest,
@@ -263,7 +263,7 @@ int execute_stack_new( double x_dest, double y_dest, double* x_src, double* y_sr
     while( (stack->func) != NULL )
     {
         if ( (stack->func) ( xd, yd, x_src, y_src, stack->param ) ) {
-	    //	    printf("Execute stack %f %f %f %f\n", xd, yd, *x_src, *y_src);
+            //      printf("Execute stack %f %f %f %f\n", xd, yd, *x_src, *y_src);
             xd = *x_src;
             yd = *y_src;
             stack++;
@@ -279,17 +279,17 @@ int execute_stack_new( double x_dest, double y_dest, double* x_src, double* y_sr
 
 int rotate_erect( double x_dest, double y_dest, double* x_src, double* y_src, void* params)
 {
-	// params: double 180degree_turn(screenpoints), double turn(screenpoints);
+        // params: double 180degree_turn(screenpoints), double turn(screenpoints);
 
-		*x_src = x_dest + var1;
+                *x_src = x_dest + var1;
 
-		while( *x_src < - var0 )
-			*x_src += 2 *  var0;
+                while( *x_src < - var0 )
+                        *x_src += 2 *  var0;
 
-		while( *x_src >  var0 )
-			*x_src -= 2 *  var0;
+                while( *x_src >  var0 )
+                        *x_src -= 2 *  var0;
 
-		*y_src = y_dest ;
+                *y_src = y_dest ;
     return 1;
 }
 
@@ -301,61 +301,61 @@ int rotate_erect( double x_dest, double y_dest, double* x_src, double* y_src, vo
 
 int inv_radial( double x_dest, double y_dest, double* x_src, double* y_src, void* params)
 {
-	// params: double coefficients[4]
+        // params: double coefficients[4]
 
-	register double rs, rd, f, scale;
-	int iter = 0;
+        register double rs, rd, f, scale;
+        int iter = 0;
 
-	rd 		= (sqrt( x_dest*x_dest + y_dest*y_dest )) / ((double*)params)[4]; // Normalized 
+        rd              = (sqrt( x_dest*x_dest + y_dest*y_dest )) / ((double*)params)[4]; // Normalized 
 
-	rs	= rd;				
-	f 	= (((((double*)params)[3] * rs + ((double*)params)[2]) * rs + 
-				((double*)params)[1]) * rs + ((double*)params)[0]) * rs;
+        rs      = rd;                           
+        f       = (((((double*)params)[3] * rs + ((double*)params)[2]) * rs + 
+                                ((double*)params)[1]) * rs + ((double*)params)[0]) * rs;
 
-	while( abs(f - rd) > R_EPS && iter++ < MAXITER )
-	{
-		rs = rs - (f - rd) / ((( 4 * ((double*)params)[3] * rs + 3 * ((double*)params)[2]) * rs  + 
-						  2 * ((double*)params)[1]) * rs + ((double*)params)[0]);
+        while( abs(f - rd) > R_EPS && iter++ < MAXITER )
+        {
+                rs = rs - (f - rd) / ((( 4 * ((double*)params)[3] * rs + 3 * ((double*)params)[2]) * rs  + 
+                                                  2 * ((double*)params)[1]) * rs + ((double*)params)[0]);
 
-		f 	= (((((double*)params)[3] * rs + ((double*)params)[2]) * rs + 
-				((double*)params)[1]) * rs + ((double*)params)[0]) * rs;
-	}
+                f       = (((((double*)params)[3] * rs + ((double*)params)[2]) * rs + 
+                                ((double*)params)[1]) * rs + ((double*)params)[0]) * rs;
+        }
 
-	scale = rs / rd;
-//	printf("scale = %lg iter = %d\n", scale,iter);	
-	
-	*x_src = x_dest * scale  ;
-	*y_src = y_dest * scale  ;
+        scale = rs / rd;
+//      printf("scale = %lg iter = %d\n", scale,iter);  
+        
+        *x_src = x_dest * scale  ;
+        *y_src = y_dest * scale  ;
     return 1;
 }
 
 int inv_vertical( double x_dest, double y_dest, double* x_src, double* y_src, void* params)
 {
-	// params: double coefficients[4]
+        // params: double coefficients[4]
 
-	register double rs, rd, f, scale;
-	int iter = 0;
+        register double rs, rd, f, scale;
+        int iter = 0;
 
-	rd 		= abs( y_dest ) / ((double*)params)[4]; // Normalized 
+        rd              = abs( y_dest ) / ((double*)params)[4]; // Normalized 
 
-	rs	= rd;				
-	f 	= (((((double*)params)[3] * rs + ((double*)params)[2]) * rs + 
-				((double*)params)[1]) * rs + ((double*)params)[0]) * rs;
+        rs      = rd;                           
+        f       = (((((double*)params)[3] * rs + ((double*)params)[2]) * rs + 
+                                ((double*)params)[1]) * rs + ((double*)params)[0]) * rs;
 
-	while( abs(f - rd) > R_EPS && iter++ < MAXITER )
-	{
-		rs = rs - (f - rd) / ((( 4 * ((double*)params)[3] * rs + 3 * ((double*)params)[2]) * rs  + 
-						  2 * ((double*)params)[1]) * rs + ((double*)params)[0]);
+        while( abs(f - rd) > R_EPS && iter++ < MAXITER )
+        {
+                rs = rs - (f - rd) / ((( 4 * ((double*)params)[3] * rs + 3 * ((double*)params)[2]) * rs  + 
+                                                  2 * ((double*)params)[1]) * rs + ((double*)params)[0]);
 
-		f 	= (((((double*)params)[3] * rs + ((double*)params)[2]) * rs + 
-				((double*)params)[1]) * rs + ((double*)params)[0]) * rs;
-	}
+                f       = (((((double*)params)[3] * rs + ((double*)params)[2]) * rs + 
+                                ((double*)params)[1]) * rs + ((double*)params)[0]) * rs;
+        }
 
-	scale = rs / rd;
-//	printf("scale = %lg iter = %d\n", scale,iter);	
-	
-	*x_src = x_dest  ;
-	*y_src = y_dest * scale  ;
+        scale = rs / rd;
+//      printf("scale = %lg iter = %d\n", scale,iter);  
+        
+        *x_src = x_dest  ;
+        *y_src = y_dest * scale  ;
     return 1;
 }
 
@@ -363,16 +363,188 @@ int inv_vertical( double x_dest, double y_dest, double* x_src, double* y_src, vo
 
 int resize( double x_dest, double y_dest, double* x_src, double* y_src, void* params)
 {
-	// params: double scale_horizontal, double scale_vertical;
+        // params: double scale_horizontal, double scale_vertical;
 
-		*x_src = x_dest * var0;
-		*y_src = y_dest * var1;
+                *x_src = x_dest * var0;
+                *y_src = y_dest * var1;
+    return 1;
+}
+
+int tiltInverse( double x_dest, double y_dest, double* x_src, double* y_src, void* params)
+{
+        
+  // 
+  // This is really the inverse transformation
+  
+  //	printf( "Entered invtilt function \n");
+  
+  
+    double theta = mp->tilt[0];            // use the tilt angle specified by the 'L' parameter
+    double sigma = mp->tilt[1];            // use the tilt angle specified by the 'L' parameter
+    double phi   = mp->tilt[2];
+    double scale = mp->tilt[3];
+    double v[3];                                            // 3D projective coordinate vector
+    double m_tilt[3][3];                            // tilt matrix
+    double m_rotate[3][3];                            // tilt matrix
+    double xmax = mp->im->width/2;          // maximum y value is image width divided by 2
+    double z0, z1;
+    double FOV = DEG_TO_RAD(mp->im->hfov/scale);                  
+    double m_slant[3][3];                           // slant matrix
+    
+    //        printf("Tilt Inverse %5.2f %5.2f %5.2f, %5.2f\n", x_dest, y_dest, theta, sigma);
+    
+    // These operations are based on the typical projection of a point to a camera.
+    // But, we want the projection to happen without translation, so we need to subtract
+    // the coordinates of 0,0 projected... that is why the [1][2], [2][2] components
+    // of the matrix are 0 or 1 in the tilt-x and tilt-y
+    
+    
+    // Tilt (around X) INVERSE. The matrix does not require the [1][2], [2][2]
+    // because it is tilted in its center
+    m_tilt[0][0] = 1;       m_tilt[0][1] = 0;                               m_tilt[0][2] = 0;
+    m_tilt[1][0] = 0;       m_tilt[1][1] = cos(theta);                      m_tilt[1][2] = 0; // sin(theta); 
+    m_tilt[2][0] = 0;       m_tilt[2][1] = -sin(theta);                     m_tilt[2][2] = 1; //cos(theta);
+    
+    // Tilt (around Y) INVERSE.       
+    // [0][2] and [2][2] are changed to tilt on center of image. See above
+    m_slant[0][0] = cos(sigma);	m_slant[0][1] = 0;		m_slant[0][2] = 0; //-sin(sigma);
+    m_slant[1][0] = 0;		m_slant[1][1] = 1;		m_slant[1][2] = 0;
+    m_slant[2][0] = sin(sigma);	m_slant[2][1] = 0;		m_slant[2][2] = 1; //cos(sigma);
+    
+    // Slant (around z)
+    
+    // Tilt (around z) INVERSE 
+    m_rotate[0][0] = cos(phi);	m_rotate[0][1] = sin(phi);		m_rotate[0][2] = 0;
+    m_rotate[1][0] = -sin(phi);	m_rotate[1][1] = cos(phi);		m_rotate[1][2] = 0;
+    m_rotate[2][0] = 0;	        m_rotate[2][1] = 0;		        m_rotate[2][2]=  1;
+    
+    z0 = xmax/tan(FOV/2);           // FOV is full angle FOV in radians
+    //    printf("Values Forward %5.2f %5.2f %5.2f, %5.2f\n", x_dest, y_dest, distanceparam, z0);
+    
+    // z0 is distance to image from center of projection                                            
+    
+    //printf("z0 is %f \n", z0);
+    // Now you have [x_dest, y_dest, z1]'.  Multiply that vector by M, the adjusted tilt matrix
+    v[0] = x_dest;
+    v[1] = y_dest;
+    v[2] = z0;
+    
+    matrix_mult(m_rotate,v);
+    matrix_mult(m_slant,v);
+    matrix_mult(m_tilt,v);
+
+    
+    // Now project into xy plane
+    *x_src =  v[0]* z0 /v[2];
+    *y_src =  v[1]* z0 /v[2];
+
+// THIS IS THE OPTIMIZED VERSION with no matrices multiplications. ..
+#ifdef OPTIMIZED
+    double x = x_dest;
+    double y = y_dest;
+    double above = (x * cos(phi) + y * sin(phi)) * cos (sigma);
+    double below1  = (x * cos(phi) + y * sin(phi)) * sin(sigma);
+    double below2 = - sin(theta) * (y * cos(phi) - x * sin(phi));
+    double x4 = z0*  above / (below1 + below2 + z0);
+
+    above  = (-x * sin (phi) + y * cos(phi)) * cos(theta);
+    below1 = (x * cos(phi) + y * sin(phi)) * sin (sigma);
+    below2 = (-x * sin(phi) + y * cos(phi)) * sin(theta);
+    
+    double y4 = z0 * above / (below1 - below2 + z0);
+#endif
+
+//    printf("x4 %6.2f x_c %6.2f\n", x4, *x_src);
+//    printf("x4 %6.2f x_c %6.2f\n", y4, *y_src);
+
+    
+    return 1;
+}
+
+// Dev: inverse tilt function.  Substitute correct matrix for "un-tilting"
+int tiltForward( double x_dest, double y_dest, double* x_src, double* y_src, void* params)
+{
+  // INVERSE is a misnomer --panotools ##$&^
+  // This is really the forward transformation
+
+  //	printf( "Entered invtilt function \n");
+
+	double phi = mp->tilt[0];		// use the tilt angle specified by the 'L' parameter (already in radians)
+	double phi2 = mp->tilt[1];		// use the tilt angle specified by the 'L' parameter (already in radians)
+        double phi3  = mp->tilt[2];
+        double scale  = mp->tilt[3];
+
+	double v[3];						// 3D projective coordinate vector
+	double m_tilt[3][3];				// tilt matrix
+	double xmax = mp->im->width/2;		// maximum y value is image width divided by 2
+	double z0, z1, s;
+	double FOV = DEG_TO_RAD(mp->im->hfov/scale);
+        double m_slant[3][3];                           // slant matrix
+
+//        printf("Tilt Forward %5.2f %5.2f angles %5.2f, %5.2f, %5.2f\n", x_dest, y_dest, phi, phi2, phi3);
+
+	// TILT TO STRAIGHT matrix (tilt2() in MATLAB).  Really and UN-TILTING matrix
+        // FORWARD
+	m_tilt[0][0] = 1;	m_tilt[0][1] = 0;		m_tilt[0][2] = 0;
+	m_tilt[1][0] = 0;	m_tilt[1][1] = 1/cos(phi);	m_tilt[1][2] = 0;
+	m_tilt[2][0] = 0;	m_tilt[2][1] = tan(phi);	m_tilt[2][2] = 1;
+								
+
+	m_slant[0][0] = 1/cos(phi2);	m_slant[0][1] = 0;		m_slant[0][2] = 0;
+	m_slant[1][0] = 0;		m_slant[1][1] = 1;		m_slant[1][2] = 0;
+	m_slant[2][0] = -sin(phi2)/cos(phi2);	m_slant[2][1] = 0;		m_slant[2][2] = 1;
+
+        double m_rotate[3][3];                            // tilt matrix
+
+        // FORWARD
+        m_rotate[0][0] = cos(phi3);	m_rotate[0][1] = -sin(phi3);		m_rotate[0][2] = 0;
+        m_rotate[1][0] = sin(phi3);	m_rotate[1][1] = cos(phi3);		m_rotate[1][2] = 0;
+        m_rotate[2][0] = 0;	        m_rotate[2][1] = 0;		        m_rotate[2][2]=  1;
+
+
+
+	z0 = xmax/tan(FOV/2); 		// FOV is full angle FOV in radians
+								// z0 is distance to image from center of projection						
+        // First step, undo the projection of the point
+        z1 = (z0 * z0) /(x_dest * (-sin(phi2)/cos(phi2))  + y_dest * tan(phi) + z0);
+        
+        s = z1 / z0;
+        s = z0 /(x_dest * (-sin(phi2)/cos(phi2))  + y_dest * sin(phi)/cos(phi) + z0);
+        z1 = (z0* z0) /(x_dest * (-sin(phi2)/cos(phi2))  + y_dest * sin(phi)/cos(phi) + z0);
+
+        //(y_dest * tan(phi) + x_dest * tan(phi2) + z0);
+
+	//s = z0 / (y_dest * tan(phi) + z0);		// s is a scaling factor ...
+        
+	//printf("z0 is %f \n", z0);
+	// Now you have [x_dest, y_dest, z1]'.  Multiply that vector by M, the adjusted tilt matrix
+	v[0] =  s* x_dest;
+	v[1] =  s* y_dest;
+	v[2] =  z1;
+
+        //	matrix_mult(m_tilt,v);
+        matrix_mult(m_tilt,v);
+        matrix_mult(m_slant,v);
+	matrix_mult(m_rotate,v);
+
+	*x_src =   v[0] ;			// convert back to cartesian coordinates
+	*y_src =   v[1];
+
+//        printf( "Entered tiltforward function tilt z0,z1,v[21] (%f,%f, %f)\n", z0, z1, v[2]);
+
+        //	printf( "Entered invtiltb function in (%6.2f %6.2f) out (%6.2f %6.2f)\n", x_dest, y_dest, *x_src, *y_src);
+
+	// Uncommenting code below causes tilt function to do nothing:
+	//		*x_src	= x_dest;	
+	//		*y_src  = y_dest;
     return 1;
 }
 
 int shear( double x_dest, double y_dest, double* x_src, double* y_src, void* params)
 {
 	// params: double shear_horizontal, double shear_vertical;
+  //	printf( "Entered shear function \n");
+
 
 		*x_src  = x_dest + var0 * y_dest;
 		*y_src  = y_dest + var1 * x_dest;
@@ -382,6 +554,8 @@ int shear( double x_dest, double y_dest, double* x_src, double* y_src, void* par
 int shearInv( double x_dest, double y_dest, double* x_src, double* y_src, void* params)
 {
 	// params: double shear_horizontal, double shear_vertical;
+  //	printf( "Entered shear inv function \n");
+
 
     *y_src  = (y_dest - var1 * x_dest) / (1 - var1 * var0);
     *x_src  = (x_dest - var0 * *y_src);
@@ -683,7 +857,7 @@ int erect_lambertazimuthal( double x_dest,double  y_dest, double* x_src, double*
 
 
 
-/** convert from erect to mercator */
+/** convert from erect to mercator FORWARD */
 int mercator_erect( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {
     // params: distanceparam
@@ -692,7 +866,7 @@ int mercator_erect( double x_dest,double  y_dest, double* x_src, double* y_src, 
     return 1;
 }
 
-/** convert from mercator to erect */
+/** convert from mercator to erect INVERSE */
 int erect_mercator( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {
     // params: distanceparam

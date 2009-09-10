@@ -326,6 +326,51 @@ int ParseScript( char* script, AlignInfo *gl )
                                     }
                                     im->cP.shear    = TRUE;
                                         break;
+                            case 'T':  
+                                li++;
+                                switch (*li) {
+                                case 'x':  
+                                    if( *(li+1) == '=' ){
+                                        li++;
+                                        READ_VAR( "%d", &(opt->tiltX));
+                                        opt->tiltX += 2;
+                                    }else{
+                                        READ_VAR("%lf", &(im->cP.tilt_x));
+                                    }
+                                    im->cP.tilt    = TRUE;
+                                    break;
+                                case 'y': 
+                                    if( *(li+1) == '=' ){
+                                        li++;
+                                        READ_VAR( "%d", &(opt->tiltY));
+                                        opt->tiltY += 2;
+                                    }else{
+                                        READ_VAR("%lf", &(im->cP.tilt_y));
+                                    }
+                                    im->cP.tilt    = TRUE;
+                                    break;
+                                case 'z': 
+                                    if( *(li+1) == '=' ){
+                                        li++;
+                                        READ_VAR( "%d", &(opt->tiltZ));
+                                        opt->tiltZ += 2;
+                                    }else{
+                                        READ_VAR("%lf", &(im->cP.tilt_z));
+                                    }
+                                    im->cP.tilt    = TRUE;
+                                    break;
+                                case 's': 
+                                    if( *(li+1) == '=' ){
+                                        li++;
+                                        READ_VAR( "%d", &(opt->tiltScale));
+                                        opt->tiltScale += 2;
+                                    }else{
+                                        READ_VAR("%lf", &(im->cP.tilt_scale));
+                                    }
+                                    im->cP.tilt    = TRUE;
+                                    break;
+                                }
+                                break;
                             case 'n':           // Set filename
                                         nextWord( buf, &li );
                                         sprintf( im->name, "%s", buf );
@@ -425,43 +470,62 @@ int ParseScript( char* script, AlignInfo *gl )
                     {
                         switch(*li)
                         {
-                            case 'y':   READ_OPT_VAR(yaw);
-                                        break;
-                            case 'p':   READ_OPT_VAR(pitch);
-                                        break;
-                            case 'r':   READ_OPT_VAR(roll);
-                                        break;
-                            case 'v':   READ_OPT_VAR(hfov);
-                                        break;
-                            case 'a':   READ_OPT_VAR(a);
-                                        break;
-                            case 'b':   READ_OPT_VAR(b);
-                                        break;
-                            case 'c':   READ_OPT_VAR(c);
-                                        break;
-                            case 'd':   READ_OPT_VAR(d);
-                                        break;
-                            case 'e':   READ_OPT_VAR(e);
-                                        break;
-                            case 'g':   READ_OPT_VAR(shear_x);
-                                        break;
-                            case 't':   READ_OPT_VAR(shear_y);
-                                        break;
-                            case 'X':   READ_VAR( "%d", &k );
-                                        if( k>=0 && k<gl->numIm )
-                                            gl->cim[k].set[0] = FALSE;
-                                        break;
-                            case 'Y':   READ_VAR( "%d", &k );
-                                        if( k>=0 && k<gl->numIm )
-                                            gl->cim[k].set[1] = FALSE;
-                                        break;
-                            case 'Z':   READ_VAR( "%d", &k );
-                                        if( k>=0 && k<gl->numIm )
-                                            gl->cim[k].set[2] = FALSE;
-                                        break;
-                            default:
-                                li++;
+                        case 'y':   READ_OPT_VAR(yaw);
+                            break;
+                        case 'p':   READ_OPT_VAR(pitch);
+                            break;
+                        case 'r':   READ_OPT_VAR(roll);
+                            break;
+                        case 'v':   READ_OPT_VAR(hfov);
+                            break;
+                        case 'a':   READ_OPT_VAR(a);
+                            break;
+                        case 'b':   READ_OPT_VAR(b);
+                            break;
+                        case 'c':   READ_OPT_VAR(c);
+                            break;
+                        case 'd':   READ_OPT_VAR(d);
+                            break;
+                        case 'e':   READ_OPT_VAR(e);
+                            break;
+                        case 'g':   READ_OPT_VAR(shear_x);
+                            break;
+                        case 't':   READ_OPT_VAR(shear_y);
+                            break;
+                        case 'T':   
+                            li++;
+                            switch (*li) {
+                            case 'x':
+                                READ_OPT_VAR(tiltX);
                                 break;
+                            case 'y':
+                                READ_OPT_VAR(tiltY);
+                                break;
+                            case 'z':
+                                READ_OPT_VAR(tiltZ);
+                                break;
+                            case 's':
+                                READ_OPT_VAR(tiltScale);
+                                break;
+                            }
+                            break;
+                        case 'S':   READ_OPT_VAR(tiltY);
+                            break;
+                        case 'X':   READ_VAR( "%d", &k );
+                            if( k>=0 && k<gl->numIm )
+                                gl->cim[k].set[0] = FALSE;
+                            break;
+                        case 'Y':   READ_VAR( "%d", &k );
+                            if( k>=0 && k<gl->numIm )
+                                gl->cim[k].set[1] = FALSE;
+                            break;
+                        case 'Z':   READ_VAR( "%d", &k );
+                            if( k>=0 && k<gl->numIm )
+                                gl->cim[k].set[2] = FALSE;
+                            break;
+                        default:
+                            li++;
+                            break;
                         }
                         
                     }
@@ -635,6 +699,12 @@ int ParseScript( char* script, AlignInfo *gl )
         k = gl->opt[i].shear_y - 2;
         if( k >= 0 ) gl->im[i].cP.shear_y = gl->im[ k ].cP.shear_y;
 
+        k = gl->opt[i].tiltX - 2;
+        if( k >= 0 ) gl->im[i].cP.tilt_x = gl->im[ k ].cP.tilt_x;
+
+        k = gl->opt[i].tiltY - 2;
+        if( k >= 0 ) gl->im[i].cP.tilt_y = gl->im[ k ].cP.tilt_y;
+
         gl->im[i].cP.radial_params[0][0] = 1.0 - ( gl->im[i].cP.radial_params[0][3]
                                                         + gl->im[i].cP.radial_params[0][2]
                                                         + gl->im[i].cP.radial_params[0][1] ) ;
@@ -750,16 +820,27 @@ void WriteResults( char* script, fullPath *sfile,  AlignInfo *g, double ds( int 
             optc = 0;
 
         line += sprintf( line, "# Image No %d:\n", i );
-        line += sprintf( line, "# Yaw:  %g deg (%c) Pitch:  %g deg (%c) \n# Roll:   %g deg (%c) HFov:   %g deg (%c)\n# Polynomial Coefficients: a   %f (%c); b   %f (%c); c   %f (%c)\n# Horizontal Shift: %f (%c)   Vertical Shift:  %f (%c)\n",
-                    g->im[i].yaw, ( g->opt[i].yaw ? '*' : 'p' ),
-                    g->im[i].pitch,  ( g->opt[i].pitch  ? '*' : 'p' ),
-                    g->im[i].roll, ( g->opt[i].roll ? '*' : 'p' ),
-                    g->im[i].hfov,  (              optHfov  ? '*' : 'p' ),
-                    g->im[i].cP.radial_params[0][3], (opta ? '*':'p'),
-                    g->im[i].cP.radial_params[0][2], (optb ? '*':'p'),
-                    g->im[i].cP.radial_params[0][1], (optc ? '*':'p'),
-                    g->im[i].cP.horizontal_params[0], (g->opt[i].d ? '*':'p'),
-                    g->im[i].cP.vertical_params[0], (g->opt[i].e ? '*':'p')
+        line += sprintf( line, "# Yaw:  %g deg (%c) Pitch:  %g deg (%c) \n"
+"# Roll:   %g deg (%c) HFov:   %g deg (%c)\n"
+"# Polynomial Coefficients: a   %f (%c); b   %f (%c); c   %f (%c)\n"
+"# Horizontal Shift: %f (%c)   Vertical Shift:  %f (%c)\n"
+"# TiltX: %f (%c)   TiltY:  %f (%c)\n"
+"# TiltZ: %f (%c)   TiltScale:  %f (%c)\n",
+                         g->im[i].yaw, ( g->opt[i].yaw ? '*' : 'p' ),
+                         g->im[i].pitch,  ( g->opt[i].pitch  ? '*' : 'p' ),
+                         g->im[i].roll, ( g->opt[i].roll ? '*' : 'p' ),
+                         g->im[i].hfov,  (              optHfov  ? '*' : 'p' ),
+                         g->im[i].cP.radial_params[0][3], (opta ? '*':'p'),
+                         g->im[i].cP.radial_params[0][2], (optb ? '*':'p'),
+                         g->im[i].cP.radial_params[0][1], (optc ? '*':'p'),
+                         g->im[i].cP.horizontal_params[0], (g->opt[i].d ? '*':'p'),
+                         g->im[i].cP.vertical_params[0], (g->opt[i].e ? '*':'p'),
+                         // Tilt
+                         g->im[i].cP.tilt_x, (g->opt[i].tiltX ? '*':'p'),
+                         g->im[i].cP.tilt_y, (g->opt[i].tiltY ? '*':'p'),
+                         g->im[i].cP.tilt_z, (g->opt[i].tiltZ ? '*':'p'),
+                         g->im[i].cP.tilt_scale, (g->opt[i].tiltScale ? '*':'p')
+
                     );
         if( opta || optb || optc )
         {
@@ -776,6 +857,10 @@ void WriteResults( char* script, fullPath *sfile,  AlignInfo *g, double ds( int 
         if( g->im[i].cP.shear )
         {
             line += sprintf( line, "g%f t%f ", g->im[i].cP.shear_x, g->im[i].cP.shear_y);
+        }
+        if( g->im[i].cP.tilt )
+        {
+            line += sprintf( line, "Tx%f Ty%f Tz%f Ts%f ", g->im[i].cP.tilt_x, g->im[i].cP.tilt_y, g->im[i].cP.tilt_z, g->im[i].cP.tilt_scale);
         }
         if( g->im[i].cP.cutFrame &&
          !( g->im[i].selection.bottom != 0 || g->im[i].selection.right != 0 )) // g->im[i].format != _fisheye_circ && g->im[i].cP.cutFrame )
@@ -1443,6 +1528,23 @@ static int ReadImageDescription( Image *imPtr, stBuf *sPtr, char *line )
         case 't':   READ_VAR("%lf", &(im.cP.shear_y));
         im.cP.shear = TRUE;
         break;
+        case 'T': 
+            ch++;
+            switch (*ch) {
+            case 'x':   READ_VAR("%lf", &(im.cP.tilt_x));
+                im.cP.tilt     = TRUE;
+                break;
+            case 'y':   READ_VAR("%lf", &(im.cP.tilt_y));
+                im.cP.tilt = TRUE;
+                break;
+            case 'z':   READ_VAR("%lf", &(im.cP.tilt_z));
+                im.cP.tilt = TRUE;
+                break;
+            case 's':   READ_VAR("%lf", &(im.cP.tilt_scale));
+                im.cP.tilt = TRUE;
+                break;
+            }
+            break;
         case '+':   nextWord( buf, &ch );
         PrintError("Obsolete + parameter is ignored in image description");
         sprintf( sBuf.srcName, "%s", buf);
