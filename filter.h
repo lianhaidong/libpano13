@@ -185,6 +185,10 @@ struct optVars{									//  Indicate to optimizer which variables to optimize
 		int e;
 		int shear_x;
 		int shear_y;
+		int tiltX;
+		int tiltY;
+		int tiltZ;
+		int tiltScale;
 		};
 		
 typedef struct optVars optVars;
@@ -358,6 +362,11 @@ struct MakeParams{								// Actual parameters used by Xform functions for pano-
 	double  distance;
 	double	horizontal;
 	double	vertical;
+
+  // Tilt 
+	double tilt[4]; // 0 around x, 1 around y, 2 around z, 3 scaling factor
+
+
 	Image *im;
 	Image *pn;
 	};
@@ -814,6 +823,8 @@ int vert				( double x_dest,double  y_dest, double* x_src, double* y_src, void* 
 int radial				( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
 int radial_brown			( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
 
+int tiltForward				( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
+int tiltInverse				( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
 
 int persp_sphere		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
 int persp_rect			( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	

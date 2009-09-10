@@ -31,6 +31,7 @@ MODIFICATIONS:
    
 
 #include "filter.h"
+#include <assert.h>
 
 static void 	ShiftImage(TrformStr *TrPtr, int xoff, int yoff);
 static int 		getFrame( Image *im, int *xoff, int *yoff, int width, int height, int showprogress );
@@ -39,7 +40,7 @@ static int      hasUsefulColorParas( cPrefs *cp, int color );
 
 
 
-void 	correct	(TrformStr *TrPtr, cPrefs *prefs) 
+void 	correct (TrformStr *TrPtr, cPrefs *prefs) 
 {
 
 	int 	i=0,j,k, kstart, kend, kdone, color;
@@ -67,7 +68,13 @@ void 	correct	(TrformStr *TrPtr, cPrefs *prefs)
 	src			= TrPtr->src;
 	dest		= TrPtr->dest;
 
+        printf("inside Correct\n");
+
+        exit(1);
+        assert(0); // try to see when it is called
+
 	// Apply filters, if required
+
 
 	TrPtr->success = 1;
 	
@@ -902,6 +909,13 @@ void SetCorrectDefaults( cPrefs *prefs )
 			prefs->radial_params[i][k] = 0.0;		
 		prefs->lum_params[i]		= 0.0;
 	}
+	prefs->tilt 	=  	FALSE;
+        prefs->tilt_x   = 0;
+        prefs->tilt_y   = 0;
+        prefs->tilt_z   = 0;
+        prefs->tilt_scale   = 1;
+        
+
 	prefs->shear 	= prefs->resize 	= FALSE;
 	prefs->shear_x 	= prefs->shear_y 	= 0.0;
 	prefs->width 	= prefs->height 	= 0;

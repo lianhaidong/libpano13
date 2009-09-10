@@ -1,3 +1,12 @@
+2009-09-09    <dmg@uvic.ca>
+
+	* PTcommon.c, panorama.h, pt_stdint.h, math.c, adjust.c
+	PTcommon.c, filter.h, parser.c, correct.c: Integrated Dev"s
+	implementation of tilt, extended to support rotation of the camera
+	before independent of roll,pitch,yaw. The new parameters are:
+	Tx,Ty,Tz,Ts (tilt on x axis, y axis, z axis, and scaling of field
+	of view in the transformation). Supported by PTmender and PToptimizer
+
 2009-09-03 17:26  brunopostle
 
 	* Makefile.am, configure.ac, version.h: Bump version and soname

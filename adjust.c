@@ -66,6 +66,7 @@ int 			AddEdgePoints( AlignInfo *gl );
 int 			pt_average( UCHAR* pixel, int BytesPerLine, double rgb[3], int bytesPerChannel );
 double 			distsqLine(int N0, int N1);
 
+
 void adjust(TrformStr *TrPtr, aPrefs *prefs)
 {
 	int	 	destwidth, destheight;
@@ -664,7 +665,7 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
         }
         mp->scale[1]    = mp->scale[0];
 
-        printf("\nOrig params: mp->distance: %lf, mp->scale: %lf\n\n", mp->distance, mp->scale[0]);
+        //        printf("\nOrig params: mp->distance: %lf, mp->scale: %lf\n\n", mp->distance, mp->scale[0]);
 #endif
 
  /* Pablo d'Angelo, April 2006.
@@ -779,22 +780,34 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
     }
     mp->scale[1]    = mp->scale[0];
 
-//  printf("new params: mp->distance: %lf, mp->scale: %lf\n\n", mp->distance, mp->scale[0]);
+    //  printf("new params: mp->distance: %lf, mp->scale: %lf\n\n", mp->distance, mp->scale[0]);
 
     mp->shear[0]    = im->cP.shear_x / image_selection_height;
     mp->shear[1]    = im->cP.shear_y / image_selection_width;
     mp->rot[0]      = mp->distance * PI;                                // 180 in screenpoints
     mp->rot[1]      = -im->yaw *  mp->distance * PI / 180.0;            // rotation angle in screenpoints
+    
+    mp->tilt[0] = DEG_TO_RAD(im->cP.tilt_x);
+    mp->tilt[1] = DEG_TO_RAD(im->cP.tilt_y);
+    mp->tilt[2] = DEG_TO_RAD(im->cP.tilt_z);
+    mp->tilt[3] = im->cP.tilt_scale;
 
     /*
-    printf("Image format %d\n", im->format);
+    printf("Image format %d\n", (int)(im->format));
+    printf("distnace %f\n", mp->distance);
     printf("shear[0] %f\n", mp->shear[0]);
     printf("shear[1] %f\n", mp->shear[1]);
     printf("rot[0] %f\n", mp->rot[0]);
     printf("rot[1] %f\n", mp->rot[1]);
-    printf("scale[0] %f\n", mp->rot[0]);
+    printf("tilt[0] %f\n",    mp->tilt[0]);
+    printf("tilt[1] %f\n",    mp->tilt[1]);
+    printf("tilt[2] %f\n",    mp->tilt[2]);
+    printf("tilt[3] %f\n",    mp->tilt[3]);
+
     printf("mp->horizontal %f\n", mp->horizontal);
     printf("mp->vertical %f\n", mp->vertical);
+  printf(">>>im->cP.shear %d\n", im->cP.shear);
+  printf(">>>im->cP.tilt %d\n", im->cP.tilt);
     */
     mp->perspect[0] = (void*)(mp->mt);
     mp->perspect[1] = (void*)&(mp->distance);
@@ -928,6 +941,10 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
         case correction_mode_deregister:SetDesc(stack[i],deregister,mp->rad); i++; break;
       }
     }
+    if (im->cP.tilt) {
+      SetDesc(stack[i],   tiltInverse,                   mp);   i++;
+    }
+
     if (mp->vertical != 0.0)
     {
       SetDesc(stack[i],   vert,                   &(mp->vertical));   i++;
@@ -966,6 +983,10 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
     if(  aP->correct )
     {
       printf( "Correct:\n" );     
+      if( aP->c_prefs.tilt )
+      {
+        printf( "Tilt: %lg\n", mp->tilt );    
+      }
       if( aP->c_prefs.shear )
       {
         printf( "Shear: %lg\n", mp->shear );    
@@ -996,6 +1017,32 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
 #endif
 }
 
+void PrintMakeParams(char *msg, struct MakeParams *mp, Image *im)
+{
+  printf("-------------%s\n", msg);
+  printf("distnace %f\n", mp->distance);
+  printf("shear[0] %f\n", mp->shear[0]);
+  printf("shear[1] %f\n", mp->shear[1]);
+    printf("rot[0] %f\n", mp->rot[0]);
+    printf("rot[1] %f\n", mp->rot[1]);
+  printf("tilt[0] %f\n", mp->tilt[0]);
+  printf("tilt[1] %f\n", mp->tilt[1]);
+  printf("tilt[2] %f\n", mp->tilt[2]);
+  printf("tilt[3] %f\n", mp->tilt[3]);
+
+  printf("mp->horizontal %f\n", mp->horizontal);
+  printf("mp->vertical %f\n", mp->vertical);
+  printf(">>>Image format %d\n", (int)im->format);
+  printf(">>>im->cP.shear %d\n", im->cP.shear);
+  printf(">>>im->cP.tilt %d\n", im->cP.tilt);
+  printf(">>>im->cP.tilt_x %f\n", im->cP.tilt_x);
+  printf(">>>im->cP.tilt_y %f\n", im->cP.tilt_y);
+  printf(">>>im->cP.tilt_z %f\n", im->cP.tilt_z);
+  printf(">>>im->cP.tilt_scale %f\n", im->cP.tilt_scale);
+
+
+}
+
 
 // Set inverse Makeparameters depending on adjustprefs, color and source image
 
@@ -1020,7 +1067,7 @@ void  SetInvMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , 
 
   // dangelo: added mercator, sinusoidal and stereographic projection
   switch (pn->format)
-  {
+    {
     case _rectilinear:
       mp->distance        = (double) pn->width / (2.0 * tan(b/2.0));
       break;
@@ -1069,7 +1116,7 @@ void  SetInvMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , 
     case _albersequalareaconic:
       mp->distance = 1.0;
       //albersequalareaconic_erect(1.924913116, -PI/2.0, &tx, &ty, mp);  //b/2.0
-    albersequalareaconic_distance(&tx, mp);
+      albersequalareaconic_distance(&tx, mp);
       mp->distance = pn->width/(2.0*tx);
       break;
     case _equisolid:
@@ -1078,23 +1125,23 @@ void  SetInvMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , 
     case _orthographic:
       mp->distance  = (double) pn->width / (2.0 * sin(b/2.0));
       break;
-	case _biplane:
-	  biplane_distance(pn->width,b,mp);
-	  break;
-	case _triplane:
-	  triplane_distance(pn->width,b,mp);
-	  break;    default:
+    case _biplane:
+      biplane_distance(pn->width,b,mp);
+      break;
+    case _triplane:
+      triplane_distance(pn->width,b,mp);
+      break;    default:
       // unknown
       PrintError ("SetInvMakeParams: Unsupported panorama projection");
       // no way to report an error back to the caller...
       mp->distance = 1;
       break;
-  }
+    }
 
   // calculate final scaling factor, that reverses the mp->distance
   // scaling and applies the required output scaling factor
   switch (im->format)
-  {
+    {
     case _rectilinear:
       // calculate distance for this projection
       mp->scale[0] = (double) im->width / (2.0 * tan(a/2.0)) / mp->distance;
@@ -1117,17 +1164,26 @@ void  SetInvMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , 
     case _stereographic:
       mp->scale[0] = (double) im->width / (4.0 * tan(a/4.0)) / mp->distance;
       break;
-   default:
+    default:
       PrintError ("SetInvMakeParams: Unsupported input image projection");
       // no way to report an error back to the caller...
       mp->scale[0] = 1;
       break;
-  }
+    }
   mp->scale[1]    = mp->scale[0];
 
   mp->shear[0]  = im->cP.shear_x / im->height;
   mp->shear[1]  = im->cP.shear_y / im->width;
   
+  //PrintMakeParams("Inverse 10", mp,im);
+
+  mp->tilt[0] = DEG_TO_RAD(im->cP.tilt_x);
+  mp->tilt[1] = DEG_TO_RAD(im->cP.tilt_y);
+  mp->tilt[2] = DEG_TO_RAD(im->cP.tilt_z);
+  mp->tilt[3] = im->cP.tilt_scale;
+
+  //  PrintMakeParams("Inverse 20",mp,im);
+
   mp->scale[0] = 1.0 / mp->scale[0];
   mp->scale[1]  = mp->scale[0];
   mp->horizontal  = -im->cP.horizontal_params[color];
@@ -1137,30 +1193,23 @@ void  SetInvMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , 
   mp->rad[5] = im->cP.radial_params[color][4];
   
   switch( im->cP.correction_mode & 3 )
-  {
+    {
     case correction_mode_radial: mp->rad[4] = ((double)(im->width < im->height ? im->width : im->height) ) / 2.0;break;
     case correction_mode_vertical: 
     case correction_mode_deregister: mp->rad[4] = ((double) im->height) / 2.0;break;
-  }
+    }
 
   mp->rot[0]    = mp->distance * PI;                // 180 in screenpoints
   mp->rot[1]    = im->yaw *  mp->distance * PI / 180.0;       //    rotation angle in screenpoints
 
   mp->perspect[0] = (void*)(mp->mt);
   mp->perspect[1] = (void*)&(mp->distance);
-  /*
-    printf("Image format %d\n", im->format);
-    printf("shear[0] %f\n", mp->shear[0]);
-    printf("shear[1] %f\n", mp->shear[1]);
-    printf("rot[0] %f\n", mp->rot[0]);
-    printf("rot[1] %f\n", mp->rot[1]);
-    printf("scale[0] %f\n", mp->rot[0]);
-    printf("mp->horizontal %f\n", mp->horizontal);
-    printf("mp->vertical %f\n", mp->vertical);
-    */
+
+  //  PrintMakeParams("Invert 30",mp,im);
+
   i = 0;  // Stack counter
     
-    // Perform radial correction
+
   if( im->cP.shear )
   {
     SetDesc( stack[i],shearInv,      mp->shear   ); i++;
@@ -1170,10 +1219,19 @@ void  SetInvMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , 
   {
     SetDesc(stack[i],horiz,       &(mp->horizontal)); i++;
   }
+
   if (  im->cP.vertical)
   {
     SetDesc(stack[i],vert,        &(mp->vertical));   i++;
   }
+
+  if( im->cP.tilt )
+  {
+    SetDesc( stack[i],tiltForward,      mp   ); i++;
+  }
+
+  // Perform radial correction
+
   if(   im->cP.radial )
   {
     switch( im->cP.correction_mode & 3)
@@ -1215,11 +1273,11 @@ void  SetInvMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , 
     //SetDesc(stack[i], sphere_tp_stereographic,  &(mp->distance) ); i++; // Convert stereographic to spherical
   }
 
-
+  
   SetDesc(  stack[i], persp_sphere,   mp->perspect  ); i++; // Perspective Control spherical Image
   SetDesc(  stack[i], erect_sphere_tp,  &(mp->distance) ); i++; // Convert spherical image to equirect.
   SetDesc(  stack[i], rotate_erect,   mp->rot     ); i++; // Rotate equirect. image horizontally
-
+  // THESE ARE ALL FORWARD transforms
   if(pn->format == _rectilinear)                  // rectilinear panorama
   {
     SetDesc(stack[i], rect_erect,   &(mp->distance) ); i++; // Convert equirectangular to rectilinear
@@ -2412,6 +2470,24 @@ int	SetAlignParams( double *x )
 			if( k == 1 ){ g->im[i].cP.vertical_params[0]  =	x[j++];
 			}else{	g->im[i].cP.vertical_params[0] = g->im[k-2].cP.vertical_params[0];}
 		}
+                // tilt
+		if( (k = g->opt[i].tiltX) > 0 ){
+			if( k == 1 ){ g->im[i].cP.tilt_x  =	x[j++];
+			}else{	g->im[i].cP.tilt_x = g->im[k-2].cP.tilt_x;}
+		}
+		if( (k = g->opt[i].tiltY) > 0 ){
+			if( k == 1 ){ g->im[i].cP.tilt_y  =	x[j++];
+			}else{	g->im[i].cP.tilt_y = g->im[k-2].cP.tilt_y;}
+		}
+		if( (k = g->opt[i].tiltZ) > 0 ){
+			if( k == 1 ){ g->im[i].cP.tilt_z  =	x[j++];
+			}else{	g->im[i].cP.tilt_z = g->im[k-2].cP.tilt_z;}
+		}
+		if( (k = g->opt[i].tiltScale) > 0 ){
+			if( k == 1 ){ g->im[i].cP.tilt_scale  =	x[j++];
+			}else{	g->im[i].cP.tilt_scale = g->im[k-2].cP.tilt_scale;}
+		}
+                //shear
 		if( (k = g->opt[i].shear_x) > 0 ){
 			if( k == 1 ){ g->im[i].cP.shear_x  =	x[j++];
 			}else{	g->im[i].cP.shear_x = g->im[k-2].cP.shear_x;}
@@ -2474,6 +2550,19 @@ int SetLMParams( double *x )
 		if(g->opt[i].e == 1)  //  optimize e? 0-no 1-yes
 			x[j++] = g->im[i].cP.vertical_params[0]  ; 
 
+		if(g->opt[i].tiltX == 1) { //  optimize tilt_x? 0-no 1-yes
+			x[j++] = g->im[i].cP.tilt_x  ;
+                }
+
+		if(g->opt[i].tiltY == 1)  //  optimize tilt_y? 0-no 1-yes
+			x[j++] = g->im[i].cP.tilt_y  ;
+
+		if(g->opt[i].tiltZ == 1) { //  optimize tilt_Z? 0-no 1-yes
+			x[j++] = g->im[i].cP.tilt_z  ;
+                }
+		if(g->opt[i].tiltScale == 1) { //  optimize tilt_scale? 0-no 1-yes
+			x[j++] = g->im[i].cP.tilt_scale  ;
+                }
 		if(g->opt[i].shear_x == 1)  //  optimize shear_x? 0-no 1-yes
 			x[j++] = g->im[i].cP.shear_x  ;
 
@@ -2609,7 +2698,10 @@ void	SetStitchDefaults( struct stitchBuffer *sBuf)
 
 void		SetOptDefaults( optVars *opt )
 {
-	opt->hfov = opt->yaw = opt->pitch = opt->roll = opt->a = opt->b = opt->c = opt->d = opt->e = opt->shear_x = opt->shear_y = 0;
+    opt->hfov = opt->yaw = opt->pitch = opt->roll = 0; 
+    opt->a = opt->b = opt->c = opt->d = opt->e = 0; 
+    opt->tiltX = opt->tiltY = 0;
+    opt->shear_x = opt->shear_y = 0;
 }
 
 void DoColorCorrection( Image *im1, Image *im2, int mode )

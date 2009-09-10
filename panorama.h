@@ -196,6 +196,13 @@ struct correct_Prefs
     int shear;                  //  shear correction requested?
     double shear_x;             //  horizontal shear values
     double shear_y;             //  vertical shear values
+
+    int tilt;                  //  tilt correction requested?
+    double tilt_x;             //  tilt on x values
+    double tilt_y;             //  tilt on y values
+    double tilt_z;             //  tilt on z values
+    double tilt_scale;         //  scale for tilting
+
     int resize;                 //  scaling requested ?
     pt_int32 width;             //  new width
     pt_int32 height;            //  new height
