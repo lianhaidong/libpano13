@@ -64,7 +64,7 @@ endif
 if HAVE_LINUX
 LIN_SRC =  sys_ansi.c ppm.c
 LIN_DEFS = -D__Ansi__=1
-LIN_LDFS = -version-info 2:0:0
+LIN_LDFS = -version-info 1:0:0
 
 install-exec-hook:
 	@true
@@ -74,7 +74,7 @@ endif
 if HAVE_DARWIN
 DAR_SRC =  sys_ansi.c ppm.c
 DAR_DEFS = -D__Ansi__=1
-DAR_LDFS = -version-info 2:0:0
+DAR_LDFS = -version-info 1:0:0
 
 install-exec-hook:
 	@true
