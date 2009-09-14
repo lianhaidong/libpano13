@@ -1,3 +1,8 @@
+2009-09-14    <dmg@uvic.ca>
+
+	* configure.ac: Added support for kfreebsd. Patch created by
+	Debian's upstream maintainer Cyril Brulebois
+
 2009-09-09    <dmg@uvic.ca>
 
 	* PTcommon.c, panorama.h, pt_stdint.h, math.c, adjust.c
