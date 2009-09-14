@@ -178,7 +178,7 @@ if (!$createNewReferences) {
   my $testsFailed = $testsCount - $testsPassed;
   printf "\nSummary: $testsCount tests executed.  $testsPassed passed ($testsFailed failed) %5.2f percent passed\n", $testsPassed * 100 /$testsCount;
   if ($testsPassed != $testsCount ) {
-    printf "BAD NEWS\n";
+    die "BAD NEWS\n";
   }
 } else {
   printf "\nSummary: $testsCount reference tests executed.\n";
