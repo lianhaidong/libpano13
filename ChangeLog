@@ -1,3 +1,15 @@
+2009-09-16    <dmg@uvic.ca>
+
+	* correct.c (correct): Removed debugging code that I introduced
+	early. I suspect correct is no longer needed. Thanks to Jim
+	(again) for catching this.
+
+	* parser.c (ReadCoordinates): Removed bogus case switch (thanks to
+	Jim Watters for catching this!)
+
+	* PTcommon.c: Changed use of NDEBUG to a new preprocessor define
+	called PANO_TEST_INVERSE
+
 2009-09-14 20:59  brunopostle
 
 	* tests/panoAutomateTest.pl,
@@ -12,8 +24,8 @@
 
 2009-09-14 18:23  dmg
 
-	* ChangeLog, configure.ac: 2009-09-14 <dmg@uvic.ca>
-	  
+	* ChangeLog, configure.ac: 
+
 	  * configure.ac: Added support for kfreebsd. Patch created by
 	  Debian upstream maintainer Cyril Brulebois
 
@@ -21,7 +33,7 @@
 
 	* ChangeLog, PTcommon.c, adjust.c, correct.c, filter.h, math.c,
 	  panorama.h, parser.c, pt_stdint.h: 2009-09-09 <dmg@uvic.ca>
-	  
+
 	  * PTcommon.c, panorama.h, pt_stdint.h, math.c, adjust.c
 	  PTcommon.c, filter.h, parser.c, correct.c: Integrated Dev"s
 	  implementation of tilt, extended to support rotation of the

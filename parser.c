@@ -509,8 +509,6 @@ int ParseScript( char* script, AlignInfo *gl )
                                 break;
                             }
                             break;
-                        case 'S':   READ_OPT_VAR(tiltY);
-                            break;
                         case 'X':   READ_VAR( "%d", &k );
                             if( k>=0 && k<gl->numIm )
                                 gl->cim[k].set[0] = FALSE;
