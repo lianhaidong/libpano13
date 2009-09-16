@@ -1,16 +1,39 @@
-2009-09-14    <dmg@uvic.ca>
+2009-09-14 20:59  brunopostle
 
-	* configure.ac: Added support for kfreebsd. Patch created by
-	Debian's upstream maintainer Cyril Brulebois
+	* tests/panoAutomateTest.pl,
+	  tests/simpleStitch/reference/Makefile.am,
+	  tests/simpleTiff16/reference/Makefile.am: Put missing test case
+	  files in tarball (Andreas Metzler)
 
-2009-09-09    <dmg@uvic.ca>
+2009-09-14 19:54  brunopostle
 
-	* PTcommon.c, panorama.h, pt_stdint.h, math.c, adjust.c
-	PTcommon.c, filter.h, parser.c, correct.c: Integrated Dev"s
-	implementation of tilt, extended to support rotation of the camera
-	before independent of roll,pitch,yaw. The new parameters are:
-	Tx,Ty,Tz,Ts (tilt on x axis, y axis, z axis, and scaling of field
-	of view in the transformation). Supported by PTmender and PToptimizer
+	* Makefile.am: switch soname back to 1:0:0 as ABI hasn't really
+	  changed
+
+2009-09-14 18:23  dmg
+
+	* ChangeLog, configure.ac: 2009-09-14 <dmg@uvic.ca>
+	  
+	  * configure.ac: Added support for kfreebsd. Patch created by
+	  Debian upstream maintainer Cyril Brulebois
+
+2009-09-10 06:41  dmg
+
+	* ChangeLog, PTcommon.c, adjust.c, correct.c, filter.h, math.c,
+	  panorama.h, parser.c, pt_stdint.h: 2009-09-09 <dmg@uvic.ca>
+	  
+	  * PTcommon.c, panorama.h, pt_stdint.h, math.c, adjust.c
+	  PTcommon.c, filter.h, parser.c, correct.c: Integrated Dev"s
+	  implementation of tilt, extended to support rotation of the
+	  camera
+	  before independent of roll,pitch,yaw. The new parameters are:
+	  Tx,Ty,Tz,Ts (tilt on x axis, y axis, z axis, and scaling of field
+	  of view in the transformation). Supported by PTmender and
+	  PToptimizer
+
+2009-09-03 17:41  brunopostle
+
+	* ChangeLog: Update ChangeLog with svn2cl
 
 2009-09-03 17:26  brunopostle
 
