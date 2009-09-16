@@ -27,9 +27,6 @@
  * 
  */
 
-#define NDEBUG
-
-
 #include "filter.h"
 #include "PTcommon.h"
 #include "ColourBrightness.h"
@@ -56,6 +53,10 @@
 #define isnan _isnan
 #include "tools/compat_win32/getopt.h"
 #endif
+
+
+// Uncomment following line to enable testing of inverses in getROI
+// #define PANO_TEST_INVERSE
 
 
 int panoFlattenTIFF(fullPath * fullPathImages, int counterImageFiles,
@@ -468,7 +469,7 @@ void getROI(TrformStr * TrPtr, aPrefs * aP, PTRect * ROIRect)
 {
     struct MakeParams mpinv;
     fDesc invstack[15], finvD;
-#ifndef NDEBUG                        
+#ifdef PANO_TEST_INVERSE
     struct MakeParams mp;
     fDesc stack[15], fD;
 #endif
@@ -490,7 +491,7 @@ void getROI(TrformStr * TrPtr, aPrefs * aP, PTRect * ROIRect)
     ROIRect->top = TrPtr->dest->height - 1;
     ROIRect->bottom = 0;
 
-#ifndef NDEBUG                        
+#ifdef PANO_TEST_INVERSE
     //The "forward" transform allows us to map pixel
     //coordinates in the output image to their location in the source image.
     // We use it to test the inverse functions of libpano
@@ -527,7 +528,7 @@ void getROI(TrformStr * TrPtr, aPrefs * aP, PTRect * ROIRect)
                         //Map the source image cartesian coordinate to the destination image cartesian coordinate
                         finvD.func( x_d, y_d, &Dx, &Dy, finvD.param);
                         
-#ifndef NDEBUG                        
+#ifdef PANO_TEST_INVERSE
                         fD.func( Dx, Dy, &Dx2, &Dy2, fD.param);
                         {
                             int newX, newY;

@@ -68,11 +68,6 @@ void 	correct (TrformStr *TrPtr, cPrefs *prefs)
 	src			= TrPtr->src;
 	dest		= TrPtr->dest;
 
-        printf("inside Correct\n");
-
-        exit(1);
-        assert(0); // try to see when it is called
-
 	// Apply filters, if required
 
 
