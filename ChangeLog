@@ -1,3 +1,10 @@
+2009-09-17    Jim Watters
+
+	* adjust.c: Add tiltZ and tiltScale to list being set to default values
+	
+	* math.c Move variable initialization to the beginning of code block for
+	  MSSC compiler.
+
 2009-09-17    <dmg@uvic.ca>
 
 	* parser.c: Fail if Ts parameter is set to zero
