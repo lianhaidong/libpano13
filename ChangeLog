@@ -1,3 +1,7 @@
+2009-09-17    <dmg@uvic.ca>
+
+	* parser.c: Fail if Ts parameter is set to zero
+
 2009-09-16    <dmg@uvic.ca>
 
 	* correct.c (correct): Removed debugging code that I introduced
