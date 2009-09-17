@@ -480,6 +480,7 @@ int tiltForward( double x_dest, double y_dest, double* x_src, double* y_src, voi
 	double z0, z1, s;
 	double FOV = DEG_TO_RAD(mp->im->hfov/scale);
         double m_slant[3][3];                           // slant matrix
+        double m_rotate[3][3];                          // tilt matrix
 
 //        printf("Tilt Forward %5.2f %5.2f angles %5.2f, %5.2f, %5.2f\n", x_dest, y_dest, phi, phi2, phi3);
 
@@ -493,8 +494,6 @@ int tiltForward( double x_dest, double y_dest, double* x_src, double* y_src, voi
 	m_slant[0][0] = 1/cos(phi2);	m_slant[0][1] = 0;		m_slant[0][2] = 0;
 	m_slant[1][0] = 0;		m_slant[1][1] = 1;		m_slant[1][2] = 0;
 	m_slant[2][0] = -sin(phi2)/cos(phi2);	m_slant[2][1] = 0;		m_slant[2][2] = 1;
-
-        double m_rotate[3][3];                            // tilt matrix
 
         // FORWARD
         m_rotate[0][0] = cos(phi3);	m_rotate[0][1] = -sin(phi3);		m_rotate[0][2] = 0;
