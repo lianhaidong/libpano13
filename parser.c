@@ -366,6 +366,10 @@ int ParseScript( char* script, AlignInfo *gl )
                                         opt->tiltScale += 2;
                                     }else{
                                         READ_VAR("%lf", &(im->cP.tilt_scale));
+                                        if (im->cP.tilt_scale == 0) {
+                                            PrintError("Ts parameter can't be zero. Error in script: Line %d", lineNum);
+                                            return -1;
+                                        }
                                     }
                                     im->cP.tilt    = TRUE;
                                     break;
@@ -1540,6 +1544,10 @@ static int ReadImageDescription( Image *imPtr, stBuf *sPtr, char *line )
                 break;
             case 's':   READ_VAR("%lf", &(im.cP.tilt_scale));
                 im.cP.tilt = TRUE;
+                if (im.cP.tilt_scale == 0) {
+                    PrintError("Ts parameter can't be zero. Error in script");
+                    return -1;
+                }
                 break;
             }
             break;
