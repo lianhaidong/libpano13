@@ -2700,8 +2700,7 @@ void		SetOptDefaults( optVars *opt )
 {
     opt->hfov = opt->yaw = opt->pitch = opt->roll = 0; 
     opt->a = opt->b = opt->c = opt->d = opt->e = 0; 
-    opt->tiltX = opt->tiltY = opt->tiltZ = 0;
-    opt->tiltScale = 1;
+    opt->tiltX = opt->tiltY = opt->tiltZ = opt->tiltScale = 0;
     opt->shear_x = opt->shear_y = 0;
 }
 
