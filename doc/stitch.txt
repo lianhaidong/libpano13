@@ -2,7 +2,7 @@
 #                       to run PTStitcher
 #
 #
-# Only lines starting with 'p','o', i', or 'm' are read, 
+# Only lines starting with 'p', 'v','o', i', or 'm' are read, 
 # so you can add comments and info as you like by using 
 # other line starting characters.  
 # The * character at the first of a line indicated the end of the script file.
@@ -14,6 +14,7 @@
 # the 'm'-line is optional and allows you to specify modes for the optimization.
 # the 'C'-line is optional and allows morphing of control points.
 
+# if a v line is present it is read and verified that the parameters match images but is not used.
 
 # 'p'-line options
 # w1000        width in pixels
@@ -80,7 +81,15 @@
 #                     Optimized JPEG (0-on(default), 2-disabled), (3-progressive with optimized disabled)
 #                  p  initial pan angle ( QTVR on Macs, VRML, IVR)
 #                  v  field of view (QTVR, VRML, IVR)
+#
+# n"TIFF_m  c:LZW r:CROP"        additional viewer options in a quoted string together with format
+#              the following options are recognized for TIFF_m:
+#                  c:LZW  enable LZW compression
+#                  r:CROP enable cropping to ROI (default)
+#                  r:UNCROP disable cropping to ROI
+#
 #                  Many more options can be set by editing the viewer scripts
+#
 # u10          width of feather for stitching all images. default:10
 # k1           attempt color & brightness correction using image number as anchor
 # b1           attempt brightness correction with no color change using image number as anchor
@@ -124,6 +133,11 @@ i n"photo1.jpg"
 #                  of the line scanner relative to the film transport
 #                  g - horizontal shear
 #                  t - vertical shear
+# Tx,Ty,Tz,Ts  tilt values.  Use to correct for off NPP nadir images
+#                  Tx the x offset of the camera (default Tx0)
+#                  Ty the y offset of the camera (default Ty0)
+#                  Tz the z offset of the camera (default Tz0)
+#                  Ts the scale offset of the camera (default Ts1, valid for values > 0)
 # +buf         (obsolete, -buf and +buf are now ignored when stitching)
 #                  load and merge image with buffer
 # -buf         (obsolete, -buf and +buf are now ignored when stitching)
