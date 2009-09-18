@@ -198,8 +198,10 @@ set( pano13_src
 )
 
 add_library ( pano13 SHARED ${pano13_hdr} ${pano13_res} ${pano13_src} )
+set_target_properties(pano13 PROPERTIES VERSION "1.0.0" SOVERSION "1")
 
-install(TARGETS pano13 DESTINATION lib)
+install(TARGETS pano13 LIBRARY DESTINATION lib)
+
 install(FILES ${pano13_install_hdr} DESTINATION "include/pano13")
 
 set(TOP_SRC_DIR ${CMAKE_SOURCE_DIR})
