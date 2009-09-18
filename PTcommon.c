@@ -824,20 +824,25 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
 	if (strcmp(output_file_format, "TIFF_m") == 0 ) {
             // CHeck if we are suppose to do cropped or uncropped
             croppedTIFFIntermediate = 1;
-            nextWord(output_file_format, &tempString);
-            if (strcmp(output_file_format, "") == 0 || 
-                strcmp(output_file_format, "r:CROP") == 0
-                ) {
-                // DO uncropped by default unless we are fisheye
-                if (prefs->im.format == _fisheye_circ) {
-                    PrintError("Cropped output is unsupported for circular fisheye lenses. Ignored");
-                    croppedTIFFIntermediate = 0;
-                } 
-            } else if (strcmp(output_file_format, "r:UNCROP") == 0) {
-                croppedTIFFIntermediate = 0;
-            } else {
-                PrintError("Unsupported option in TIFF_m output (%s). Ignored", output_file_format);
+            if(strcmp(tempString, "") != 0) {
+              nextWord(output_file_format, &tempString);
+              if (strcmp(output_file_format, "") == 0 || 
+                  strcmp(output_file_format, "r:CROP") == 0
+                  ) {
+                  // DO uncropped by default unless we are fisheye
+                  if (prefs->im.format == _fisheye_circ) {
+                      PrintError("Cropped output is unsupported for circular fisheye lenses. Ignored");
+                  } 
+              } else if (strcmp(output_file_format, "r:UNCROP") == 0) {
+                  croppedTIFFIntermediate = 0;
+              } else {
+                  PrintError("Unsupported option in TIFF_m output (%s). Ignored", output_file_format);
+              }
             }
+            // DO uncropped by default unless we are fisheye
+            if (prefs->im.format == _fisheye_circ) {
+                croppedTIFFIntermediate = 0;
+            } 
         } else {
 	    PrintError("No support for this ouput image format (%s). Output will be TIFF_m", output_file_format);
 	}
