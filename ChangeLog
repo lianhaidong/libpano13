@@ -1,5 +1,10 @@
 2009-09-18    <dmg@uvic.ca>
 
+	* doc/developmentPolicy.txt: Added file with a draft of a policy
+	for development of libpano
+	
+2009-09-18    <dmg@uvic.ca>
+
 	Patch submitted by Kornel Benko
 
 	* ptpicker.c: Casted some values in printf to avoid compiler
