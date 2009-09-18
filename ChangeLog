@@ -1,13 +1,28 @@
+2009-09-18    <dmg@uvic.ca>
+
+	Patch submitted by Kornel Benko
+
+	* ptpicker.c: Casted some values in printf to avoid compiler
+	warnings.
+
+	* CMakeLists.txt: As allways one has to call cmake
+	-DCPACK_BINARY_DEB:BOOL=ON to create a package (debian/ubuntu in
+	this example)
+
+        make package creates then the package libpano13-2.9.15-Linux.deb.
+           (Values automatically taken from configure.ac) The package will
+	install the header-files and the (shared) libpano13 library.
+
 2009-09-17    Jim Watters
 
-	* PTcommon.c Fix crash if script p line has n"TIFF_m" without any other 
-	  options for tiff
+	* PTcommon.c Fix crash if script p line has n"TIFF_m" without any
+	other options for tiff
 
 	* adjust.c: Add tiltZ and tiltScale to list being set to default values
-	
+
 	* math.c Move variable initialization to the beginning of code block for
 	  MSSC compiler.
-	  
+
 2009-09-17    <dmg@uvic.ca>
 
 	* parser.c: Fail if Ts parameter is set to zero
