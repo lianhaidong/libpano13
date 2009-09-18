@@ -1,3 +1,14 @@
+BEFORE YOU START
+
+* Subscribe to the panotools-devel mailing list and the commits
+  mailing list
+
+https://lists.sourceforge.net/lists/listinfo/panotools-cvs
+
+* Discussions regarding the development of libpano should take place
+  in the developers mailing list.
+
+----------------------------------------------------------------------
 * Release management
 
  -- Bruno has been mostly responsible for this, and has done a good
