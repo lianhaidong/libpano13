@@ -27,7 +27,7 @@ cmake_minimum_required(VERSION 2.4)
 
 ## Locate the hugin source root and its parent directory
 IF ( HUGIN_BASE_DIR )
-  GET_FILENAME_COMPONENT( SOURCE_BASE_DIR ${HUGIN_SOURCE_DIR} PATH CACHE )
+  GET_FILENAME_COMPONENT( SOURCE_BASE_DIR ${HUGIN_BASE_DIR} PATH CACHE )
   set(CMAKE_MODULE_PATH ${HUGIN_BASE_DIR}/CMakeModules )
 ELSE ( HUGIN_BASE_DIR )
   GET_FILENAME_COMPONENT( SOURCE_BASE_DIR ${CMAKE_SOURCE_DIR} PATH CACHE )
@@ -125,19 +125,27 @@ if ( HAVE_JAVA )
   set( java_c ptpicker.c pteditor.c )
 endif ( HAVE_JAVA )
 
+set(pano13_install_hdr
+  panorama.h
+  filter.h
+  version.h
+  panotypes.h
+  PTcommon.h
+  pt_stdint.h
+  file.h
+  queryfeature.h
+  pteditor.h
+  ptutils.h)
+
 set( pano13_hdr 
 	${java_h}
+	${pano13_install_hdr}
 	ColourBrightness.h
 	f2c.h
 	fftn.h
-	filter.h 
-	panorama.h 
-	pt_stdint.h
-	PTcommon.h
 	rgbe.h
 	sys_ansi.h 
 	sys_win.h 
-	version.h 
 	ZComb.h
 )
 
@@ -145,7 +153,7 @@ set( pano13_res
 	pano13.rc
 	pano13vc.def
 )
-          
+
 set( pano13_src 
 	${java_c}
 	${win_c}
@@ -186,5 +194,63 @@ set( pano13_src
 	Triangulate.c
 	ZComb.c
 )
-	
-add_library ( libpano13 ${pano13_hdr} ${pano13_res} ${pano13_src} )
+
+add_library ( pano13 SHARED ${pano13_hdr} ${pano13_res} ${pano13_src} )
+
+install(TARGETS pano13 DESTINATION lib)
+install(FILES ${pano13_install_hdr} DESTINATION "include/pano13")
+
+macro(setstripped _varname _value)
+  string(STRIP ${_value} _v)
+  if(USE_POSIX_PACKAGING)
+    string(TOLOWER ${_v} ${_varname})
+  else()
+    set(${_varname} ${_v})
+  endif()
+endmacro(setstripped)
+
+set(TOP_SRC_DIR ${CMAKE_SOURCE_DIR})
+file(STRINGS "${TOP_SRC_DIR}/configure.ac" _config_lines)
+foreach(_c_l ${_config_lines} )
+  if(_c_l MATCHES "^AC_INIT\\(\\[\([^,]+\)\\], *\\[\([^,]+\)\\], *\([^,]+\)")
+    setstripped(PACKAGE_BASE ${CMAKE_MATCH_1})
+    setstripped(PACKAGE_VERSION ${CMAKE_MATCH_2})
+    setstripped(PACKAGE_BUGREPORT ${CMAKE_MATCH_3})
+    if(PACKAGE_VERSION MATCHES "^\([0-9]+\)\\.\([0-9]+\)\\.\([0-9]+\).*$")
+      message(STATUS "found version = ${PACKAGE_VERSION}")
+      set(PANO_MAJOR_VERSION ${CMAKE_MATCH_1})
+      set(PANO_MINOR_VERSION ${CMAKE_MATCH_2})
+      set(PANO_PATCH_VERSION ${CMAKE_MATCH_3})
+    endif()
+  endif()
+endforeach(_c_l)
+
+set(CPACK_PACKAGE_VERSION_MAJOR "${PANO_MAJOR_VERSION}")
+set(CPACK_PACKAGE_VERSION_MINOR "${PANO_MINOR_VERSION}")
+set(CPACK_PACKAGE_VERSION_PATCH "${PANO_PATCH_VERSION}")
+
+# needed by rpm
+set(CPACK_SET_DESTDIR "ON")
+
+# the next ones are needed by deb
+set(CPACK_PACKAGE_CONTACT "${PACKAGE_BUGREPORT}")
+set(CPACK_SOURCE_PACKAGE_FILE_NAME "libpano13")
+set(CPACK_PACKAGE_DESCRIPTION_FILE "${TOP_SRC_DIR}/README")
+set(CPACK_RESOURCE_FILE_LICENSE "${TOP_SRC_DIR}/gpl.txt")
+
+# Find the revision number and use it as the release in rpm-package-build.
+# This way we may omit the otherwise needed "--force" parameter when
+# installing from that rpm package.
+# ... Disabled for the moment, because configure.ac supplies a value
+find_program(_svnversion svnversion)
+message(STATUS "svnversion = ${_svnversion}")
+if(NOT ${_svnversion} MATCHES "-NOTFOUND")
+  execute_process(COMMAND ${_svnversion} WORKING_DIRECTORY "${TOP_SRC_DIR}" OUTPUT_VARIABLE CPACK_RPM_PACKAGE_RELEASE OUTPUT_STRIP_TRAILING_WHITESPACE)
+  # We use this value also to set the package-patch-value
+  if(CPACK_RPM_PACKAGE_RELEASE MATCHES "^\([0-9]+\)")
+    #set(CPACK_PACKAGE_VERSION_PATCH ${CMAKE_MATCH_1})
+  endif()
+endif()
+
+include(CPack)
+
