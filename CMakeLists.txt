@@ -34,8 +34,10 @@ ELSE ( HUGIN_BASE_DIR )
   set(CMAKE_MODULE_PATH ${SOURCE_BASE_DIR}/hugin/CMakeModules )
 ENDIF ( HUGIN_BASE_DIR )
 
-## load the Hugin cmake modules
-include(HuginMacros)
+if(WIN32)
+  ## load the Hugin cmake modules
+  include(HuginMacros)
+endif()
 include(CheckIncludeFiles)
 
 ##  global setup
@@ -200,6 +202,11 @@ add_library ( pano13 SHARED ${pano13_hdr} ${pano13_res} ${pano13_src} )
 install(TARGETS pano13 DESTINATION lib)
 install(FILES ${pano13_install_hdr} DESTINATION "include/pano13")
 
+set(TOP_SRC_DIR ${CMAKE_SOURCE_DIR})
+
+add_subdirectory(man)
+add_dependencies(pano13 man)
+
 macro(setstripped _varname _value)
   string(STRIP ${_value} _v)
   if(USE_POSIX_PACKAGING)
@@ -209,7 +216,6 @@ macro(setstripped _varname _value)
   endif()
 endmacro(setstripped)
 
-set(TOP_SRC_DIR ${CMAKE_SOURCE_DIR})
 file(STRINGS "${TOP_SRC_DIR}/configure.ac" _config_lines)
 foreach(_c_l ${_config_lines} )
   if(_c_l MATCHES "^AC_INIT\\(\\[\([^,]+\)\\], *\\[\([^,]+\)\\], *\([^,]+\)")
