@@ -1,3 +1,7 @@
+2009-09-19    <Kornel.Benko@berlin.de>
+
+	* CMakeLists.txt: Remove java dependency, PTAInterpolate uses writeProject() from ptpicker.c
+
 2009-09-19    Jim Watters
 
     * PTcommon.c fixed getROI to not clip the nadir and zenith shots when 

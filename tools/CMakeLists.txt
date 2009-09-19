@@ -6,8 +6,13 @@
 
 project(tools)
 
-set(commands PTtiff2psd PTtiffdump PTcrop PTAInterpolate PTblender
+set(commands PTtiff2psd PTtiffdump PTcrop PTblender
     PTroller PTuncrop PToptimizer PTmender PTinfo PTmasker)
+if (HAVE_JAVA)
+  # this one depends on java (uses writeProject() from ptpicker)
+  list(APPEND commands PTAInterpolate)
+endif()
+
 # panoinfo needs windows.h
 
 if(WIN32)
