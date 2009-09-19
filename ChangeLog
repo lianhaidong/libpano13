@@ -1,5 +1,15 @@
 2009-09-19    <Kornel.Benko@berlin.de>
 
+	* CMakeLists.txt: enable testing
+
+	* tests/CMakeLists.txt: define the macro prepare_test and add the tests
+
+	* tests/simpleStitch/CMakeLists.txt: call "prepare_test" to make test1
+
+	* tests/simpleTiff16/CMakeLists.txt: call "prepare_test" to make test2
+
+2009-09-19    <Kornel.Benko@berlin.de>
+
 	* CMakeLists.txt: Added libpano13.pc
 
 2009-09-19    <Kornel.Benko@berlin.de>
