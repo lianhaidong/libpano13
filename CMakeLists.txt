@@ -125,6 +125,8 @@ ENDIF (UNIX)
 if ( HAVE_JAVA )
   set( java_h pteditor.h ptutils.h )
   set( java_c ptpicker.c pteditor.c )
+else()
+  set(java_c javastub.c)
 endif ( HAVE_JAVA )
 
 set(pano13_install_hdr
