@@ -1,3 +1,9 @@
+2009-09-19    <Kornel.Benko@berlin.de>
+
+	* tools/CMakeLists.txt: created, but don't know, how to produce panoinfo on unix yet
+
+	* CMakeLists.txt: added tools directory + tools dependencies
+
 2009-09-18    <dmg@phosphorus>
 
 	* CMakeLists.txt: Moved wx-widgets into Windows-only part

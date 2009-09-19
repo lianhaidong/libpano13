@@ -204,10 +204,14 @@ install(TARGETS pano13 LIBRARY DESTINATION lib)
 
 install(FILES ${pano13_install_hdr} DESTINATION "include/pano13")
 
+#
+
 set(TOP_SRC_DIR ${CMAKE_SOURCE_DIR})
 
 add_subdirectory(man)
 add_dependencies(pano13 man)
+add_subdirectory(tools)
+add_dependencies(tools pano13)
 
 macro(setstripped _varname _value)
   string(STRIP ${_value} _v)
