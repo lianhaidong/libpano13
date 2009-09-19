@@ -22,8 +22,8 @@
 ##
 
 
-# require at least cmake 2.4
-cmake_minimum_required(VERSION 2.4)
+# requires at least cmake 2.6, now
+cmake_minimum_required(VERSION 2.6)
 
 ## Locate the hugin source root and its parent directory
 IF ( HUGIN_BASE_DIR )
