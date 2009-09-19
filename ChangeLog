@@ -1,5 +1,9 @@
 2009-09-19    <Kornel.Benko@berlin.de>
 
+	* CMakeLists.txt: Added libpano13.pc
+
+2009-09-19    <Kornel.Benko@berlin.de>
+
 	* tools/CMakeLists.txt: created, but don't know, how to produce panoinfo on unix yet
 
 	* CMakeLists.txt: added tools directory + tools dependencies

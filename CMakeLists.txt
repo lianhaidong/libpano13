@@ -204,8 +204,6 @@ install(TARGETS pano13 LIBRARY DESTINATION lib)
 
 install(FILES ${pano13_install_hdr} DESTINATION "include/pano13")
 
-#
-
 set(TOP_SRC_DIR ${CMAKE_SOURCE_DIR})
 
 add_subdirectory(man)
@@ -236,6 +234,21 @@ foreach(_c_l ${_config_lines} )
     endif()
   endif()
 endforeach(_c_l)
+
+# set some variables which are used in libpano13.pc.in
+set(prefix ${CMAKE_INSTALL_PREFIX})
+set(exec_prefix ${CMAKE_INSTALL_PREFIX})
+set(libdir ${CMAKE_INSTALL_PREFIX}/lib)
+set(includedir ${CMAKE_INSTALL_PREFIX}/include)
+set(LIB_JPEG ${JPEG_LIBRARY})
+set(LIB_TIFF ${TIFF_LIBRARY})
+set(LIB_ZLIB ${ZLIB_LIBRARY})
+set(LIB_PNG ${PNG_LIBRARY})
+set(VERSION ${PACKAGE_VERSION})
+
+configure_file("${TOP_SRC_DIR}/libpano13.pc.in" "${CMAKE_BINARY_DIR}/libpano13.pc" @ONLY)
+
+install(FILES "${CMAKE_BINARY_DIR}/libpano13.pc" DESTINATION "lib/pkgconfig")
 
 set(CPACK_PACKAGE_VERSION_MAJOR "${PANO_MAJOR_VERSION}")
 set(CPACK_PACKAGE_VERSION_MINOR "${PANO_MINOR_VERSION}")
