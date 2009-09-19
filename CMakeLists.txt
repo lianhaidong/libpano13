@@ -279,3 +279,6 @@ endif()
 
 include(CPack)
 
+
+enable_testing()
+add_subdirectory(tests)
