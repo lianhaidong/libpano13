@@ -1,3 +1,10 @@
+2009-09-19    Jim Watters
+
+    * PTcommon.c fixed getROI to not clip the nadir and zenith shots when 
+      outputting as cropped tiffs
+
+    * doc/stitch.txt, doc/optimize.txt: documented the Tilt parameters
+
 2009-09-19    <Kornel.Benko@berlin.de>
 
 	* CMakeLists.txt: enable testing

@@ -469,10 +469,8 @@ void getROI(TrformStr * TrPtr, aPrefs * aP, PTRect * ROIRect)
 {
     struct MakeParams mpinv;
     fDesc invstack[15], finvD;
-#ifdef PANO_TEST_INVERSE
     struct MakeParams mp;
     fDesc stack[15], fD;
-#endif
     int color = 0;
 
     int x, y, x_jump;
@@ -491,7 +489,6 @@ void getROI(TrformStr * TrPtr, aPrefs * aP, PTRect * ROIRect)
     ROIRect->top = TrPtr->dest->height - 1;
     ROIRect->bottom = 0;
 
-#ifdef PANO_TEST_INVERSE
     //The "forward" transform allows us to map pixel
     //coordinates in the output image to their location in the source image.
     // We use it to test the inverse functions of libpano
@@ -499,7 +496,6 @@ void getROI(TrformStr * TrPtr, aPrefs * aP, PTRect * ROIRect)
     SetMakeParams( stack, &mp, &(aP->im) , &(aP->pano), color );
     fD.func = execute_stack_new; 
     fD.param = stack;
-#endif
 
     //The "inverse" transform allows us to map pixel coordinates in each source image
     //to their location in the output image.
@@ -583,6 +579,56 @@ void getROI(TrformStr * TrPtr, aPrefs * aP, PTRect * ROIRect)
         
     // printf("ROI1: %ld,%ld - %ld, %ld\n", ROIRect->left, ROIRect->top, ROIRect->right, ROIRect->bottom);
 
+        // If the destination is wrapped and the ROI is at least 95% of the width
+        // Then ensure it is of the full width so no missing data is removed from either side.
+        if ( (TrPtr->mode & _wrapX) &&
+             ( (ROIRect->right-ROIRect->left) > (TrPtr->dest->width * 0.95) ) )
+        {
+          ROIRect->left  = 0;
+          ROIRect->right = TrPtr->dest->width-1;
+        }
+
+        // Test for a zenith shot
+        if(ROIRect->top != 0)
+        {
+          Dx = 0;
+          Dy = - h2;
+          fD.func( Dx, Dy, &Dx2, &Dy2, fD.param);
+          {
+            if (!isnan(Dx2) && !isnan(Dy2)) {
+
+              x_d = (int)(Dx2 + 0.5 + sw2);
+              y_d = (int)(Dy2 + 0.5 + sh2);
+              // if x_d, y_d is inside the image then this is a zenith shot and should extent to the top
+              if (y_d >= 0 && y_d <= TrPtr->src->height &&
+                  x_d >= 0 && x_d <= TrPtr->src->width )
+              {
+                ROIRect->top = 0;
+              }
+            }
+          }
+        }
+
+        // Test for a nadir shot
+        if(ROIRect->bottom != TrPtr->dest->height-1)
+        {
+          Dx = 0;
+          Dy = h2;
+          fD.func( Dx, Dy, &Dx2, &Dy2, fD.param);
+          {
+            if (!isnan(Dx2) && !isnan(Dy2)) {
+
+              x_d = (int)(Dx2 + 0.5 + sw2);
+              y_d = (int)(Dy2 + 0.5 + sh2);
+              // if x_d, y_d is inside the image then this is a zenith shot and should extent to the top
+              if (y_d >= 0 && y_d <= TrPtr->src->height &&
+                  x_d >= 0 && x_d <= TrPtr->src->width )
+              {
+                ROIRect->bottom = TrPtr->dest->height-1;
+              }
+            }
+          }
+        }
 
         //Reduce ROI if it extends beyond boundaries of final panorama region
         if (ROIRect->left    < 0) ROIRect->left =0;
@@ -724,7 +770,7 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
     memset(&transform, 0, sizeof(TrformStr));
     transform.src = &image1;    // Input image
     transform.dest = &resultPanorama;   // Output image
-    transform.mode = 8;         // How to run transformation
+    transform.mode = _honor_valid;      // How to run transformation
     transform.success = 1;      // 1 success 0 failure
 
     //Allocate space to hold fully qualified names of input images
@@ -853,6 +899,8 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
         transform.interpolator  = prefs->interpolator;
         transform.gamma         = prefs->gamma;
         transform.fastStep      = prefs->fastStep;
+        if( prefs->pano.hfov == 360.0 )
+          transform.mode       |= _wrapX;
         
         if (ptQuietFlag == 0) {
             sprintf(tmpStr, "Converting Image %d / %d", (loopCounter + 1),
