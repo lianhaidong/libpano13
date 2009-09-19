@@ -1,3 +1,7 @@
+2009-09-18    <dmg@phosphorus>
+
+	* CMakeLists.txt: Moved wx-widgets into Windows-only part
+
 2009-09-18    <dmg@uvic.ca>
 
 	* doc/developmentPolicy.txt: Added file with a draft of a policy

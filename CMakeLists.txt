@@ -51,9 +51,9 @@ project(libpano13)
 IF (WIN32)
   SET(wxWidgets_ROOT_DIR ${SOURCE_BASE_DIR}/wxWidgets-2.8.10)
   ADD_DEFINITIONS(-D__Win__)
+  FIND_PACKAGE(wxWidgets REQUIRED)
 ENDIF(WIN32)
 
-FIND_PACKAGE(wxWidgets REQUIRED)
 
 ##
 ## Graphics libraries
