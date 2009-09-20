@@ -80,7 +80,8 @@ PToptimizer_LDADD   = -l${PANOLIB}
 panoinfo_SOURCES    = $(WIN_SRC) $(LIN_SRC) $(DAR_SRC)
 panoinfo_LDADD      = -l${PANOLIB}
 
-EXTRA_DIST = README.PTmender 
+EXTRA_DIST = README.PTmender \
+	CMakeLists.txt
                
 
 MAINTAINERCLEANFILES = \

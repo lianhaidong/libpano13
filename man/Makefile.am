@@ -4,7 +4,8 @@ PACKAGE = 'LIBPANO13 TOOLS'
 
 EXTRA_DIST = panoinfo.pod PTAInterpolate.pod PTblender.pod PTcrop.pod PTinfo.pod PTmasker.pod \
 	PTmender.pod PToptimizer.pod PTroller.pod PTtiff2psd.pod PTtiffdump.pod \
-	PTuncrop.pod $(man_MANS)
+	PTuncrop.pod $(man_MANS) \
+	CMakeLists.txt
 
 %.1: %.pod
 	pod2man --center $(PACKAGE) --release $(PACKAGE_VERSION) $< $@

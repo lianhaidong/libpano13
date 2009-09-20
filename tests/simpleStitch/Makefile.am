@@ -1,4 +1,5 @@
 EXTRA_DIST = 051221_6054_750.jpg 051221_6055_750.jpg \
+	     CMakeLists.txt \
              ChangeLog README.txt simple.pto simple.txt
 
 MAINTAINERCLEANFILES = \
