@@ -1,16 +1,16 @@
 ## cmakelists.txt for libpano13 in a Hugin build environment.
 ##     03-04 Aug 2009 TKSharpless
-## 
+##
 ## Builds libpano13 only, by default without support for the
 ## Java programs ptpicker and pteditor.  To include that, you
-## can define HAVE_JAVA on the CMake command line.  The Java 
-## header jni.h and its dependencies must then be in your 
-## include search path (this script does not find them).
-## 
+## can define HAVE_JAVA on the CMake command line.  The Java
+## header jni.h and its dependencies must then be in your
+## include search path(this script does not find them).
+##
 ## This script uses the Hugin CMake modules to find required
-## image file format libraries, so it needs to know the name 
-## of the Hign source tree root.  By default that must be 
-## "../hugin" relative to the libpano root (that contains
+## image file format libraries, so it needs to know the name
+## of the Hign source tree root.  By default that must be
+## "../hugin" relative to the libpano root(that contains
 ## this file).  But you can set HUGIN_BASE_DIR to the path
 ## name of the Hugin root on the CMake command line.
 ##
@@ -26,13 +26,13 @@
 cmake_minimum_required(VERSION 2.6)
 
 ## Locate the hugin source root and its parent directory
-IF ( HUGIN_BASE_DIR )
-  GET_FILENAME_COMPONENT( SOURCE_BASE_DIR ${HUGIN_BASE_DIR} PATH CACHE )
-  set(CMAKE_MODULE_PATH ${HUGIN_BASE_DIR}/CMakeModules )
-ELSE ( HUGIN_BASE_DIR )
-  GET_FILENAME_COMPONENT( SOURCE_BASE_DIR ${CMAKE_SOURCE_DIR} PATH CACHE )
-  set(CMAKE_MODULE_PATH ${SOURCE_BASE_DIR}/hugin/CMakeModules )
-ENDIF ( HUGIN_BASE_DIR )
+IF(HUGIN_BASE_DIR)
+  GET_FILENAME_COMPONENT(SOURCE_BASE_DIR ${HUGIN_BASE_DIR} PATH CACHE)
+  set(CMAKE_MODULE_PATH ${HUGIN_BASE_DIR}/CMakeModules)
+ELSE(HUGIN_BASE_DIR)
+  GET_FILENAME_COMPONENT(SOURCE_BASE_DIR ${CMAKE_SOURCE_DIR} PATH CACHE)
+  set(CMAKE_MODULE_PATH ${SOURCE_BASE_DIR}/hugin/CMakeModules)
+ENDIF(HUGIN_BASE_DIR)
 
 if(WIN32)
   ## load the Hugin cmake modules
@@ -48,7 +48,7 @@ project(libpano13)
 ##
 #  This must come before FINDs for tiff, jpeg, png, zlib to enable
 #  finding the wxWidgets distributions of those packages on Windows.
-IF (WIN32)
+IF(WIN32)
   SET(wxWidgets_ROOT_DIR ${SOURCE_BASE_DIR}/wxWidgets-2.8.10)
   ADD_DEFINITIONS(-D__Win__)
   FIND_PACKAGE(wxWidgets REQUIRED)
@@ -70,7 +70,7 @@ INCLUDE_DIRECTORIES(${PNG_INCLUDE_DIR})
 
 #
 # Check build type and set options accordingly
-# 
+#
 IF(NOT CMAKE_BUILD_TYPE)
   SET(CMAKE_BUILD_TYPE Release CACHE STRING
       "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
@@ -83,10 +83,10 @@ IF(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
   ENDIF(UNIX)
 ENDIF(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 
-IF (UNIX)
+IF(UNIX)
   ADD_DEFINITIONS(-D__Ansi__)
-ELSE (UNIX)
-  IF (MSVC)
+ELSE(UNIX)
+  IF(MSVC)
     # Stop MSVC8 from bitching about the C library
     ADD_DEFINITIONS(/D_CRT_SECURE_NO_DEPRECATE)
     # Stop MSVC9 from bitching about possibly invalid STL usage
@@ -111,23 +111,23 @@ ELSE (UNIX)
 	SET(NEW_FLAGS "${CMAKE_EXE_LINKER_FLAGS}")
 	# ensure that the flags are not duplicaated on subsequent runs
 	STRING(REPLACE " /NODEFAULTLIB:\"MSVCRT.lib\" /NODEFAULTLIB:\"MSVCRTd.lib\"" "" NEW_FLAGS "${NEW_FLAGS}")
-	# note that flag names (NODEFAULTLIB) etc.) are case sensitive
-    SET( CMAKE_EXE_LINKER_FLAGS
+	# note that flag names(NODEFAULTLIB) etc.) are case sensitive
+    SET(CMAKE_EXE_LINKER_FLAGS
         "${NEW_FLAGS} /NODEFAULTLIB:\"MSVCRT.lib\" /NODEFAULTLIB:\"MSVCRTd.lib\""
        CACHE STRING "for MSVC" FORCE
-    )
+)
   ENDIF(MSVC)
-ENDIF (UNIX)
+ENDIF(UNIX)
 
 ##
 ## Here is the part that builds libpano
 ##
-if ( HAVE_JAVA )
-  set( java_h pteditor.h ptutils.h )
-  set( java_c ptpicker.c pteditor.c )
+if(HAVE_JAVA)
+  set(java_h pteditor.h ptutils.h)
+  set(java_c ptpicker.c pteditor.c)
 else()
   set(java_c javastub.c)
-endif ( HAVE_JAVA )
+endif(HAVE_JAVA)
 
 set(pano13_install_hdr
   panorama.h
@@ -141,27 +141,27 @@ set(pano13_install_hdr
   pteditor.h
   ptutils.h)
 
-set( pano13_hdr 
+set(pano13_hdr
 	${java_h}
 	${pano13_install_hdr}
 	ColourBrightness.h
 	f2c.h
 	fftn.h
 	rgbe.h
-	sys_ansi.h 
-	sys_win.h 
+	sys_ansi.h
+	sys_win.h
 	ZComb.h
 )
 
-set( pano13_res 
+set(pano13_res
 	pano13.rc
 	pano13vc.def
 )
 
-set( pano13_src 
+set(pano13_src
 	${java_c}
 	${win_c}
-	adjust.c 
+	adjust.c
 	bmp.c
 	ColourBrightness.c
 	correct.c
@@ -199,7 +199,7 @@ set( pano13_src
 	ZComb.c
 )
 
-add_library ( pano13 SHARED ${pano13_hdr} ${pano13_res} ${pano13_src} )
+add_library (pano13 SHARED ${pano13_hdr} ${pano13_res} ${pano13_src})
 set_target_properties(pano13 PROPERTIES VERSION "1.0.0" SOVERSION "1")
 
 install(TARGETS pano13 LIBRARY DESTINATION lib)
@@ -223,7 +223,7 @@ macro(setstripped _varname _value)
 endmacro(setstripped)
 
 file(STRINGS "${TOP_SRC_DIR}/configure.ac" _config_lines)
-foreach(_c_l ${_config_lines} )
+foreach(_c_l ${_config_lines})
   if(_c_l MATCHES "^AC_INIT\\(\\[\([^,]+\)\\], *\\[\([^,]+\)\\], *\([^,]+\)")
     setstripped(PACKAGE_BASE ${CMAKE_MATCH_1})
     setstripped(PACKAGE_VERSION ${CMAKE_MATCH_2})
