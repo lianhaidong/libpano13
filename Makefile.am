@@ -109,6 +109,7 @@ dist-hook:
 
 EXTRA_DIST =  gpl.txt README.linux README.windows \
 	      makefile.win32 \
+	      CMakeLists.txt \
 	      bootstrap filter.r libpano13.def pano13.rc \
 	      seamer_.c sys_X11.c sys_win.c bmp.c shell_mac.c \
 	      sys_mac.c ppm.c sys_ansi.c ppm.c ZComb.h adjust.h \
