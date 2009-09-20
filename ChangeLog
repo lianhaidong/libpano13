@@ -1,87 +1,170 @@
-2009-09-20    <Kornel.Benko@berlin.de>
+2009-09-20 21:08  brunopostle
 
-	* CMakeLists.txt: white space + creation of static pano13 library too
+	* Makefile.am, man/Makefile.am, tests/Makefile.am,
+	  tests/simpleStitch/Makefile.am, tests/simpleTiff16/Makefile.am,
+	  tools/Makefile.am: The cmake stuff should be available in the
+	  automake tarball
 
-2009-09-19    <Kornel.Benko@berlin.de>
+2009-09-20 20:52  brunopostle
 
-	* CMakeLists.txt: Remove java dependency, PTAInterpolate uses writeProject() from ptpicker.c
+	* CMakeLists.txt, Makefile.am: Bump soname to 2:0:0 for real this
+	  time
 
-2009-09-19    Jim Watters
+2009-09-20 12:40  kornelbenko
 
-    * PTcommon.c fixed getROI to not clip the nadir and zenith shots when 
-      outputting as cropped tiffs
+	* CMakeLists.txt, ChangeLog: creation of static pano13 library too
 
-    * doc/stitch.txt, doc/optimize.txt: documented the Tilt parameters
+2009-09-20 06:52  kornelbenko
 
-2009-09-19    <Kornel.Benko@berlin.de>
+	* CMakeLists.txt: white space
 
-	* CMakeLists.txt: enable testing
+2009-09-19 19:06  kornelbenko
 
-	* tests/CMakeLists.txt: define the macro prepare_test and add the tests
+	* ChangeLog, tools/CMakeLists.txt: Don't compile PTAInterpolate if
+	  no JAVA, it uses writeProject() from
+	  ptpicker.c
 
-	* tests/simpleStitch/CMakeLists.txt: call "prepare_test" to make test1
+2009-09-19 17:26  kornelbenko
 
-	* tests/simpleTiff16/CMakeLists.txt: call "prepare_test" to make test2
+	* CMakeLists.txt: use javastub.c if noa java available
 
-2009-09-19    <Kornel.Benko@berlin.de>
+2009-09-19 15:06  jim0watters
 
-	* CMakeLists.txt: Added libpano13.pc
+	* ChangeLog, PTcommon.c: fixed getROI to not clip the nadir and
+	  zenith shots when outputting as cropped tiffs.
 
-2009-09-19    <Kornel.Benko@berlin.de>
+2009-09-19 12:59  kornelbenko
 
-	* tools/CMakeLists.txt: created, but don't know, how to produce panoinfo on unix yet
+	* CMakeLists.txt, ChangeLog, tests/CMakeLists.txt,
+	  tests/simpleStitch/CMakeLists.txt,
+	  tests/simpleTiff16/CMakeLists.txt: Enable test of our only two
+	  simple tests.
+	  
+	  In build-tree one has first to call "make".
+	  After this one may call "make test" to actually execute the
+	  tests.
 
-	* CMakeLists.txt: added tools directory + tools dependencies
+2009-09-19 06:21  kornelbenko
 
-2009-09-18    <dmg@phosphorus>
+	* CMakeLists.txt, ChangeLog: Add installation of
+	  lib/pkgconfig/libpano13.pc
 
-	* CMakeLists.txt: Moved wx-widgets into Windows-only part
+2009-09-19 05:41  kornelbenko
 
-2009-09-18    <dmg@uvic.ca>
+	* CMakeLists.txt, ChangeLog, tools/CMakeLists.txt: Added tools
+	  directory
 
-	* doc/developmentPolicy.txt: Added file with a draft of a policy
-	for development of libpano
-	
-2009-09-18    <dmg@uvic.ca>
+2009-09-19 02:47  dmg
 
-	Patch submitted by Kornel Benko
+	* CMakeLists.txt, ChangeLog: 2009-09-18 <dmg@phosphorus>
+	  
+	  * CMakeLists.txt: Moved wx-widgets into Windows-only part
 
-	* ptpicker.c: Casted some values in printf to avoid compiler
-	warnings.
+2009-09-19 02:41  tksharpless
 
-	* CMakeLists.txt: As allways one has to call cmake
-	-DCPACK_BINARY_DEB:BOOL=ON to create a package (debian/ubuntu in
-	this example)
+	* CMakeLists.txt: CMakeLists.txt now requires version 2.6
 
-        make package creates then the package libpano13-2.9.15-Linux.deb.
-           (Values automatically taken from configure.ac) The package will
-	install the header-files and the (shared) libpano13 library.
+2009-09-18 23:35  kornelbenko
 
-2009-09-17    Jim Watters
+	* CMakeLists.txt: Create symbolic links to libpano13.so
 
-	* PTcommon.c Fix crash if script p line has n"TIFF_m" without any
-	other options for tiff
+2009-09-18 22:35  jim0watters
 
-	* adjust.c: Add tiltZ and tiltScale to list being set to default values
+	* doc/Optimize.txt, doc/stitch.txt: Update the optimize and stitch
+	  scripts to document Tilt.
 
-	* math.c Move variable initialization to the beginning of code block for
-	  MSSC compiler.
+2009-09-18 21:59  kornelbenko
 
-2009-09-17    <dmg@uvic.ca>
+	* CMakeLists.txt, man/CMakeLists.txt: Added installation of manuals
 
-	* parser.c: Fail if Ts parameter is set to zero
+2009-09-18 21:10  dmg
 
-2009-09-16    <dmg@uvic.ca>
+	* doc/developmentPolicy.txt: added sentence on mailing list to
+	  policy draft
 
-	* correct.c (correct): Removed debugging code that I introduced
-	early. I suspect correct is no longer needed. Thanks to Jim
-	(again) for catching this.
+2009-09-18 21:03  dmg
 
-	* parser.c (ReadCoordinates): Removed bogus case switch (thanks to
-	Jim Watters for catching this!)
+	* ChangeLog: 2009-09-18 <dmg@uvic.ca>
+	  
+	  * doc/developmentPolicy.txt: Added file with a draft of a policy
+	  for development of libpano
 
-	* PTcommon.c: Changed use of NDEBUG to a new preprocessor define
-	called PANO_TEST_INVERSE
+2009-09-18 21:03  dmg
+
+	* doc/developmentPolicy.txt: 2009-09-18 <dmg@uvic.ca>
+	  
+	  * doc/developmentPolicy.txt: Added file with a draft of a policy
+	  for development of libpano
+
+2009-09-18 20:13  dmg
+
+	* CMakeLists.txt, ChangeLog, ptpicker.c: 009-09-18 <dmg@uvic.ca>
+	  
+	  Patch submitted by Kornel Benko
+	  
+	  * ptpicker.c: Casted some values in printf to avoid compiler
+	  warnings.
+	  
+	  * CMakeLists.txt: As allways one has to call cmake
+	  -DCPACK_BINARY_DEB:BOOL=ON to create a package (debian/ubuntu in
+	  this example)
+	  
+	  make package creates then the package libpano13-2.9.15-Linux.deb.
+	  (Values automatically taken from configure.ac) The package will
+	  install the header-files and the (shared) libpano13 library.
+
+2009-09-18 03:25  jim0watters
+
+	* ChangeLog, PTcommon.c: Fix crash if script p line has n"TIFF_m"
+	  without any other options for tiff
+
+2009-09-17 21:27  jim0watters
+
+	* adjust.c: correct the default value for tiltScale optVars to 0,
+	  like all optVars.
+
+2009-09-17 17:01  jim0watters
+
+	* ChangeLog: adjust.c: Add tiltZ and tiltScale to list being set to
+	  default values
+	  math.c Move variable initialization to the beginning of code
+	  block for MSSC compiler.
+
+2009-09-17 16:57  jim0Watters
+
+	* adjust.c: Add tiltZ and tiltScale to list being set to default
+	  values.
+
+2009-09-17 16:56  jim0watters
+
+	* math.c: Move variable initialization to the beginning of code
+	  block for MSSC compiler.
+
+2009-09-17 16:40  dmg
+
+	* ChangeLog, parser.c: 2009-09-17 <dmg@uvic.ca>
+	  
+	  * parser.c: Fail if Ts parameter is set to zero
+
+2009-09-16 19:50  dmg
+
+	* ChangeLog, PTcommon.c, correct.c, parser.c: 2009-09-16
+	  <dmg@uvic.ca>
+	  
+	  * correct.c (correct): Removed debugging code that I introduced
+	  early. I suspect correct is no longer needed. Thanks to Jim
+	  (again) for catching this.
+	  
+	  * parser.c (ReadCoordinates): Removed bogus case switch (thanks
+	  to
+	  Jim Watters for catching this!)
+	  
+	  * PTcommon.c: Changed use of NDEBUG to a new preprocessor define
+	  called PANO_TEST_INVERSE
+
+2009-09-16 17:52  brunopostle
+
+	* ChangeLog: Update ChangeLog for likely beta2
 
 2009-09-14 20:59  brunopostle
 
