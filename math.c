@@ -232,6 +232,8 @@ void SettMatrixDefaults( tMatrix *t )
 #define         shift           (*((double*)params))
 #define         var0            ((double*)params)[0]
 #define         var1            ((double*)params)[1]
+#define         var2            ((double*)params)[2]
+#define         var3            ((double*)params)[3]
 #define         mp              ((struct MakeParams*)params)
 
 // execute a stack of functions stored in stack
@@ -757,18 +759,30 @@ int rect_erect( double x_dest,double  y_dest, double* x_src, double* y_src, void
 	*x_src = distanceparam * tan(phi);
 	*y_src = distanceparam / (tan( theta ) * cos(phi));
 #endif
-        // normalize phi to be in the -PI, PI range
-        while(phi <= -PI)
-            phi += 2*PI;
-        while(phi > PI)
-            phi -= 2*PI;
+	// normalize phi to be in the -PI, PI range
+	while(phi <= -PI)
+		phi += 2*PI;
+	while(phi > PI)
+		phi -= 2*PI;
 
-        // check if the point is "in front" of the camera
-        if (phi < -PI/2.0 || phi > PI/2.0) {
-            // behind, transform considered invalid
-            return 0;
-        } else
-            return 1;
+	// check if the point is "in front" of the camera
+	if (phi < -PI/2.0 || phi > PI/2.0) {
+		// behind, transform considered invalid
+		return 0;
+	} else
+		return 1;
+	// normalize phi to be in the -PI, PI range
+	while(phi <= -PI)
+		phi += 2*PI;
+	while(phi > PI)
+		phi -= 2*PI;
+
+	// check if the point is "in front" of the camera
+	if (phi < -PI/2.0 || phi > PI/2.0) {
+		// behind, transform considered invalid
+		return 0;
+	} else
+		return 1;
 
 }
 // This is the cylindrical projection
@@ -1779,6 +1793,134 @@ int erect_rect( double x_dest,double  y_dest, double* x_src, double* y_src, void
 
     return 1;
 }
+
+/** transfer a point from a camera centered at x1,y1,z1 into the camera at x2,y2,z2 */
+int plane_transfer_to_camera( double x_dest, double y_dest, double * x_src, double * y_src, void * params)
+{
+	// params: distance, x1,y1,z1
+	
+	double  phi, theta;
+	double x_plane, y_plane;
+	double x_ray,y_ray,z_ray;
+
+
+	phi 	= x_dest / mp->distance;
+	theta 	=  - y_dest / mp->distance  + PI / 2.0;
+	if(theta < 0)
+	{
+		theta = - theta;
+		phi += PI;
+	}
+	if(theta > PI)
+	{
+		theta = PI - (theta - PI);
+		phi += PI;
+	}
+
+	// if the ray goes behind the camera, abort here
+	// normalize phi to be in the -PI, PI range
+	while(phi <= -PI)
+		phi += 2*PI;
+	while(phi > PI)
+		phi -= 2*PI;
+
+	// check if the point is "in front" of the camera
+	if (phi < -PI/2.0 || phi > PI/2.0)
+		// behind, transform considered invalid
+		return 0;
+
+	// compute the position on the intermediate plane
+	// the ray originates from the pano center (0,0,0)
+	// and intersects the plane located at z=-1
+	// basically rect_erect, but with distance = 1
+	x_plane = tan(phi);
+	y_plane = 1.0 / (tan( theta ) * cos(phi));
+
+	// compute ray leading to to the camera.
+	x_ray = x_plane - mp->tilt[0];
+	y_ray = y_plane - mp->tilt[1];
+	z_ray = mp->tilt[2] + 1.0;
+
+	// transform into erect
+	// basically erect_rect
+	*x_src = mp->distance * atan2( x_ray, z_ray );
+	*y_src = mp->distance * atan2(  y_ray, sqrt( z_ray*z_ray + x_ray*x_ray ) );	
+
+	/*
+	printf("plane(%.1f,%.1f%.1f): %8.5f %8.5f -> %8.5f %8.5f -> %8.5f %8.5f %8.5f -> %8.5f %8.5f\n", 
+		   mp->tilt[0], mp->tilt[1], mp->tilt[2],
+		   x_dest, y_dest, 
+		   //RAD_TO_DEG(phi), RAD_TO_DEG(theta),
+		   x_plane, y_plane,
+		   x_ray, y_ray, z_ray, *x_src, *y_src);
+	*/
+
+	return 1;
+}
+
+/** transfer a point from a camera centered at x1,y1,z1 into the camera at x2,y2,z2 */
+int plane_transfer_from_camera( double x_dest, double y_dest, double * x_src, double * y_src, void * params)
+{
+	// params: MakeParams
+
+	double  phi, theta;
+	double x_plane, y_plane;
+	double x_ray,y_ray,z_ray;
+
+	phi 	= x_dest / mp->distance;
+	theta 	=  - y_dest / mp->distance  + PI / 2.0;
+	if(theta < 0)
+	{
+		theta = - theta;
+		phi += PI;
+	}
+	if(theta > PI)
+	{
+		theta = PI - (theta - PI);
+		phi += PI;
+	}
+
+	// normalize phi to be in the -PI, PI range
+	while(phi <= -PI)
+		phi += 2*PI;
+	while(phi > PI)
+		phi -= 2*PI;
+
+	// check if the point is "in front" of the panorama camera
+	if (phi < -PI/2.0 || phi > PI/2.0)
+		// behind, transform considered invalid
+		return 0;
+
+	// compute the position on the intermediate plane
+	// Intersection of ray from the image center (Tx,Ty,Tz)
+	// with plane located at z=-1
+	x_plane = (mp->tilt[2]+1.0)* tan(phi);
+	y_plane = (mp->tilt[2]+1.0) / (tan( theta ) * cos(phi));
+
+	// shift according to camera position
+	x_plane += mp->tilt[0];
+	y_plane += mp->tilt[1];
+
+	x_ray = x_plane;
+	y_ray = y_plane;
+	z_ray = 1.0;
+
+	// transform into erect
+	// basically erect_rect
+	*x_src = mp->distance * atan2( x_ray, z_ray );
+	*y_src = mp->distance * atan2(  y_ray, sqrt( z_ray*z_ray + x_ray*x_ray ) );	
+
+	/*
+	printf("cam->plane(%.1f,%.1f%.1f): %8.5f %8.5f -> %8.5f %8.5f -> %8.5f %8.5f %8.5f -> %8.5f %8.5f\n", 
+		   mp->tilt[0], mp->tilt[1], mp->tilt[2],
+		   x_dest, y_dest, 
+		   //RAD_TO_DEG(phi), RAD_TO_DEG(theta),
+		   x_plane, y_plane,
+		   x_ray, y_ray, z_ray, *x_src, *y_src);
+	*/
+
+}
+
 
 /** convert from erect to biplane */
 int biplane_erect		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params )
