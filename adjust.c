@@ -51,6 +51,8 @@ static int needInitialAvgFov;
 #define ADJUST_LOG_FILENAME "PToolsLog.txt"  // file name for logging, if enabled
 #define ADJUST_LOGGING_ENABLED 0
 
+// enable mosaic with X,Y,Z camera positions instead of tilt
+//#define MOSAIC_XYZ 1
 
 FILE* adjustLogFile = 0;
 
@@ -787,10 +789,17 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
     mp->rot[0]      = mp->distance * PI;                                // 180 in screenpoints
     mp->rot[1]      = -im->yaw *  mp->distance * PI / 180.0;            // rotation angle in screenpoints
     
+#ifdef MOSAIC_XYZ
+    mp->tilt[0] = im->cP.tilt_x;
+    mp->tilt[1] = im->cP.tilt_y;
+    mp->tilt[2] = im->cP.tilt_z;
+    mp->tilt[3] = im->cP.tilt_scale;
+#else
     mp->tilt[0] = DEG_TO_RAD(im->cP.tilt_x);
     mp->tilt[1] = DEG_TO_RAD(im->cP.tilt_y);
     mp->tilt[2] = DEG_TO_RAD(im->cP.tilt_z);
     mp->tilt[3] = im->cP.tilt_scale;
+#endif
 
     /*
     printf("Image format %d\n", (int)(im->format));
@@ -898,20 +907,27 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
     {
       SetDesc(stack[i],   erect_albersequalareaconic,     mp  ); i++; // Convert albersequalareaconic to equirect
     }
-	else if(pn->format == _biplane)
-	{
-	  SetDesc(stack[i], erect_biplane, mp ); i++;  // Convert biplane to equirect
-	}
-	else if(pn->format == _triplane)
-	{
+    else if(pn->format == _biplane)
+    {
+      SetDesc(stack[i], erect_biplane, mp ); i++;  // Convert biplane to equirect
+    }
+    else if(pn->format == _triplane)
+    {
       SetDesc(stack[i], erect_triplane, mp ); i++;  // Convert triplane to equirect
-	}
+    }
     else if(pn->format == _equirectangular) 
     {
       // no conversion needed     
     } else {
       PrintError("Projection type %d not supported, using equirectangular", pn->format);
     }
+
+#ifdef MOSAIC_XYZ
+    if (im->cP.tilt) {
+      SetDesc(stack[i], plane_transfer_to_camera, mp);   i++;
+    }    
+#endif
+    // 
 
     SetDesc(  stack[i],   rotate_erect,           mp->rot         ); i++; // Rotate equirect. image horizontally
     SetDesc(  stack[i],   sphere_tp_erect,        &(mp->distance) ); i++; // Convert spherical image to equirect.
@@ -941,9 +957,11 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
         case correction_mode_deregister:SetDesc(stack[i],deregister,mp->rad); i++; break;
       }
     }
+#ifndef MOSAIC_XYZ
     if (im->cP.tilt) {
       SetDesc(stack[i],   tiltInverse,                   mp);   i++;
     }
+#endif
 
     if (mp->vertical != 0.0)
     {
@@ -1176,11 +1194,17 @@ void  SetInvMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , 
   mp->shear[1]  = im->cP.shear_y / im->width;
   
   //PrintMakeParams("Inverse 10", mp,im);
-
+#ifdef MOSAIC_XYZ
+  mp->tilt[0] = im->cP.tilt_x;
+  mp->tilt[1] = im->cP.tilt_y;
+  mp->tilt[2] = im->cP.tilt_z;
+  mp->tilt[3] = im->cP.tilt_scale;
+#else
   mp->tilt[0] = DEG_TO_RAD(im->cP.tilt_x);
   mp->tilt[1] = DEG_TO_RAD(im->cP.tilt_y);
   mp->tilt[2] = DEG_TO_RAD(im->cP.tilt_z);
   mp->tilt[3] = im->cP.tilt_scale;
+#endif
 
   //  PrintMakeParams("Inverse 20",mp,im);
 
@@ -1225,10 +1249,12 @@ void  SetInvMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , 
     SetDesc(stack[i],vert,        &(mp->vertical));   i++;
   }
 
+#ifndef MOSAIC_XYZ
   if( im->cP.tilt )
   {
     SetDesc( stack[i],tiltForward,      mp   ); i++;
   }
+#endif
 
   // Perform radial correction
 
@@ -1277,6 +1303,14 @@ void  SetInvMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , 
   SetDesc(  stack[i], persp_sphere,   mp->perspect  ); i++; // Perspective Control spherical Image
   SetDesc(  stack[i], erect_sphere_tp,  &(mp->distance) ); i++; // Convert spherical image to equirect.
   SetDesc(  stack[i], rotate_erect,   mp->rot     ); i++; // Rotate equirect. image horizontally
+
+#ifdef MOSAIC_XYZ
+  if( im->cP.tilt )
+  {
+    SetDesc( stack[i], plane_transfer_from_camera,      mp   ); i++;
+  }
+#endif
+
   // THESE ARE ALL FORWARD transforms
   if(pn->format == _rectilinear)                  // rectilinear panorama
   {

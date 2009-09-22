@@ -842,6 +842,8 @@ int sphere_tp_rect		( double x_dest,double  y_dest, double* x_src, double* y_src
 int sphere_cp_pano		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
 int rect_erect			( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
 int erect_rect			( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
+int plane_transfer_to_camera( double x_dest, double y_dest, double * x_src, double * y_src, void * params);
+int plane_transfer_from_camera( double x_dest, double y_dest, double * x_src, double * y_src, void * params);
 int erect_sphere_tp	( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );	
 int mirror_erect		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
 int mercator_erect		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
