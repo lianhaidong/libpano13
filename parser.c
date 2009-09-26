@@ -1650,7 +1650,7 @@ static int ReadImageDescription( Image *imPtr, stBuf *sPtr, char *line )
     memcpy( &im,    imPtr,   sizeof(Image) );
     memcpy( &sBuf,  sPtr,    sizeof(stBuf ));
     
-    panoPrintImage("Before read image", imPtr);
+    //    panoPrintImage("Before read image", imPtr);
    //  printf("************************************* Before Cut Frame %d \n", im.cP.cutFrame);
     while( *ch != 0) {
         switch(*ch) {
