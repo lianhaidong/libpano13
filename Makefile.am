@@ -110,6 +110,7 @@ dist-hook:
 EXTRA_DIST =  gpl.txt README.linux README.windows \
 	      makefile.win32 \
 	      CMakeLists.txt \
+	      ChangeLog.svn \
 	      bootstrap filter.r libpano13.def pano13.rc \
 	      seamer_.c sys_X11.c sys_win.c bmp.c shell_mac.c \
 	      sys_mac.c ppm.c sys_ansi.c ppm.c ZComb.h adjust.h \
@@ -131,3 +132,6 @@ maintainer-clean-local:
 darwin: libpano13.la filter.r
 	echo "FIXME: What should this be on osx??"
 	/Developer/Tools/Rez -t APPL -o libpano13.dynlib filter.r
+
+changelog:
+	svn2cl --group-by-day --include-rev --linelen=78 --output=ChangeLog.svn
