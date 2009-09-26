@@ -910,6 +910,16 @@ void SetCorrectDefaults( cPrefs *prefs )
         prefs->tilt_z   = 0;
         prefs->tilt_scale   = 1;
         
+	prefs->trans 	=  	FALSE;
+        prefs->trans_x   = 0;
+        prefs->trans_y   = 0;
+        prefs->trans_z   = 0;
+        
+        prefs->test = FALSE;
+        prefs->test_p0 = 0;
+        prefs->test_p1 = 0;
+        prefs->test_p2 = 0;
+        prefs->test_p3 = 0;
 
 	prefs->shear 	= prefs->resize 	= FALSE;
 	prefs->shear_x 	= prefs->shear_y 	= 0.0;

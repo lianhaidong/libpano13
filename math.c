@@ -1837,9 +1837,9 @@ int plane_transfer_to_camera( double x_dest, double y_dest, double * x_src, doub
 	y_plane = 1.0 / (tan( theta ) * cos(phi));
 
 	// compute ray leading to to the camera.
-	x_ray = x_plane - mp->tilt[0];
-	y_ray = y_plane - mp->tilt[1];
-	z_ray = mp->tilt[2] + 1.0;
+	x_ray = x_plane - mp->trans[0];
+	y_ray = y_plane - mp->trans[1];
+	z_ray = mp->trans[2] + 1.0;
 
 	// transform into erect
 	// basically erect_rect
@@ -1848,7 +1848,7 @@ int plane_transfer_to_camera( double x_dest, double y_dest, double * x_src, doub
 
 	/*
 	printf("plane(%.1f,%.1f%.1f): %8.5f %8.5f -> %8.5f %8.5f -> %8.5f %8.5f %8.5f -> %8.5f %8.5f\n", 
-		   mp->tilt[0], mp->tilt[1], mp->tilt[2],
+		   mp->trans[0], mp->trans[1], mp->trans[2],
 		   x_dest, y_dest, 
 		   //RAD_TO_DEG(phi), RAD_TO_DEG(theta),
 		   x_plane, y_plane,
@@ -1894,12 +1894,12 @@ int plane_transfer_from_camera( double x_dest, double y_dest, double * x_src, do
 	// compute the position on the intermediate plane
 	// Intersection of ray from the image center (Tx,Ty,Tz)
 	// with plane located at z=-1
-	x_plane = (mp->tilt[2]+1.0)* tan(phi);
-	y_plane = (mp->tilt[2]+1.0) / (tan( theta ) * cos(phi));
+	x_plane = (mp->trans[2]+1.0)* tan(phi);
+	y_plane = (mp->trans[2]+1.0) / (tan( theta ) * cos(phi));
 
 	// shift according to camera position
-	x_plane += mp->tilt[0];
-	y_plane += mp->tilt[1];
+	x_plane += mp->trans[0];
+	y_plane += mp->trans[1];
 
 	x_ray = x_plane;
 	y_ray = y_plane;
@@ -1912,7 +1912,7 @@ int plane_transfer_from_camera( double x_dest, double y_dest, double * x_src, do
 
 	/*
 	printf("cam->plane(%.1f,%.1f%.1f): %8.5f %8.5f -> %8.5f %8.5f -> %8.5f %8.5f %8.5f -> %8.5f %8.5f\n", 
-		   mp->tilt[0], mp->tilt[1], mp->tilt[2],
+		   mp->trans[0], mp->trans[1], mp->trans[2],
 		   x_dest, y_dest, 
 		   //RAD_TO_DEG(phi), RAD_TO_DEG(theta),
 		   x_plane, y_plane,

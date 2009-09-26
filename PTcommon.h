@@ -80,4 +80,7 @@ int ApplyFeather(fullPath * inputFile, fullPath * outputFile,
 
 int panoCroppingMain(int argc,char *argv[], int operation, char *version,char *usage, char *defaultPrefix);
 
+void panoPrintImage(char *msg, Image *im);
+
+
 #endif

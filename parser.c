@@ -1,4 +1,4 @@
-/* Panorama_Tools   -   Generate, Edit and Convert Panoramic Images
+/* Panoama_Tools   -   Generate, Edit and Convert Panoramic Images
    Copyright (C) 1998,1999 - Helmut Dersch  der@fh-furtwangen.de
    
    This program is free software; you can redistribute it and/or modify
@@ -63,8 +63,8 @@ static int      ReadCoordinates(    CoordInfo   *cp, char *line );
 #define MY_SSCANF( str, format, ptr )       if( sscanf( str, format, ptr ) != 1 )   \
                                             {                                       \
                                                 PrintError(                         \
-                                                "Syntax error in script: Line %d\nCould not assign variable",\
-                                                lineNum);                           \
+                                                "Syntax error in script: Line %d\nCould not assign variable [%s]",\
+                                                lineNum, str);         \
                                                 return -1;                          \
                                             }                                       \
 
@@ -84,7 +84,7 @@ static int      ReadCoordinates(    CoordInfo   *cp, char *line );
                                 }                               \
                                 if( gl->opt[k].var )            \
                                 {                               \
-                                    PrintError("Conflict in script: Line %d\n\nMultiple Instances of Variable %s\n\nImage number: %d", lineNum, #var, k); \
+                                    PrintError("Conflict in script: Line %d. Multiple Instances of Variable %s Image number: %d (%d)", lineNum, #var, k, gl->opt[k].var); \
                                     return -1;                  \
                                 }                               \
                                 gl->opt[k].var   = 1;           \
@@ -110,6 +110,31 @@ void panoLocaleSave(void)
 
 
 // Optimizer Script parser; fill global info structure
+
+char *panoParseVariable(char *buf, char *li, int lineNum, int *indirectVar, double *var)
+{
+    if (*(li+1) == '=') {
+        li++; // point to next character
+        nextWord( buf, &li );
+        if( sscanf( buf, "%d", indirectVar ) != 1 ) {                                       
+            PrintError("Syntax error in script: Line %d\nCould not assign variable %s", li-1,
+                       lineNum);
+            return NULL;
+        }
+        (*indirectVar)+=2; //its offset should be increased by 2... arghh
+    } else {
+        nextWord( buf, &li );
+
+        if( sscanf( buf, " %lf", var ) != 1 ) {                                       
+            PrintError("Syntax error in script: Line %d\nCould not assign variable %s", li-1,
+                       lineNum);
+            return NULL;
+        }
+    }
+    return li;
+}
+
+
 
 int ParseScript( char* script, AlignInfo *gl )
 {
@@ -152,8 +177,7 @@ int ParseScript( char* script, AlignInfo *gl )
     gl->t       = (triangle*)       malloc( gl->nt      * sizeof( triangle ));  
     gl->cim     = (CoordInfo*)      malloc( gl->numIm   * sizeof(CoordInfo) );
     
-    if( gl->im == NULL || gl->opt == NULL || gl->cpt == NULL || gl->t == NULL || gl->cim == NULL )
-    {
+    if( gl->im == NULL || gl->opt == NULL || gl->cpt == NULL || gl->t == NULL || gl->cim == NULL ) {
         PrintError("Not enough memory");
         goto fail;
     }
@@ -163,316 +187,352 @@ int ParseScript( char* script, AlignInfo *gl )
     // end mask-from-focus Rik's hacking
     SetImageDefaults(&(gl->pano));  
     SetStitchDefaults(&(gl->st)); strcpy( gl->st.srcName, "buf" ); // Default: Use buffer 'buf' for stitching
-	printf("Number of images %d\n",gl-> numIm);
+    printf("Number of images %d\n",gl-> numIm);
 
-    for(i=0; i<gl->numIm; i++)
-    {
+    for(i=0; i<gl->numIm; i++) {
         SetImageDefaults( &(gl->im[i]) );
         SetOptDefaults  ( &(gl->opt[i]));
         SetCoordDefaults( &(gl->cim[i]), i);
     }
-        
+    
     
     numIm =0; numPts = 0; nt = 0; // reused as indices
-
+    
     // Parse script 
     
     ch = script;
-    
-    while( *ch != 0 )
-    {
-        lineNum++;
 
+    
+    while( *ch != 0 ) {
+        lineNum++;
+        
         while(*ch == '\n')
             ch++;
         lineStart = ch;
-
+        
         nextLine( line, &ch );
-
+        
         // parse line; use only if first character is i,p,v,c,m
-    
-        switch( line[0] )
-        {
+        
+        switch( line[0] ) {
         case 'i':       // Image description
+            
+            im  = &(gl->im[numIm]);     // This image is being set 
+            opt = &(gl->opt[numIm]);
 
-                    im  = &(gl->im[numIm]);     // This image is being set 
-                    opt = &(gl->opt[numIm]);
-                    ci  = &(gl->cim[numIm]);
-                        
-                    li = &(line[1]);
-                    while( *li != 0)
+
+            ci  = &(gl->cim[numIm]);
+            
+            li = &(line[1]);
+
+            while( *li != 0) {
+
+                switch(*li)
                     {
-                        switch(*li)
-                        {
-                            case 'w':   READ_VAR( FMT_INT32, &(im->width) ); break;
-                            case 'h':   READ_VAR( FMT_INT32, &(im->height)); break;
-                            case 'v':   if( *(li+1) == '=' ){
-                                            li++;
-                                            READ_VAR( "%d", &(opt->hfov));
-                                            opt->hfov += 2;
-                                        }else{
-                                            READ_VAR(  "%lf", &(im->hfov));
-                                        }
-                                        break;
-                            case 'a':   if( *(li+1) == '=' ){
-                                            li++;
-                                            READ_VAR( "%d", &(opt->a));
-                                            opt->a += 2;
-                                        }else{
-                                            READ_VAR( "%lf", &(im->cP.radial_params[0][3]));
-                                        }
-                                        im->cP.radial   = TRUE;
-                                        break;
-                            case 'b':   if( *(li+1) == '=' ){
-                                            li++;
-                                            READ_VAR( "%d", &(opt->b));
-                                            opt->b += 2;
-                                        }else{
-                                            READ_VAR( "%lf", &(im->cP.radial_params[0][2]));
-                                        }
-                                        im->cP.radial   = TRUE;
-                                        break;
-                            case 'c':   if( *(li+1) == '=' ){
-                                            li++;
-                                            READ_VAR(  "%d", &(opt->c));
-                                            opt->c += 2;
-                                        }else{
-                                            READ_VAR( "%lf", &(im->cP.radial_params[0][1]));
-                                        }
-                                        im->cP.radial   = TRUE;
-                                        break;
-                            case 'f':
-                                        READ_VAR( "%d", &k );
-                                        switch (k)
-                                        {
-                                          case IMAGE_FORMAT_RECTILINEAR:                im->format = _rectilinear;    break;
-                                          case IMAGE_FORMAT_PANORAMA:                   im->format = _panorama;
-                                                        im->cP.correction_mode |= correction_mode_vertical;
-                                                        break;
-                                          case IMAGE_FORMAT_FISHEYE_EQUIDISTANCECIRC:   im->format = _fisheye_circ;   break;
-                                          case IMAGE_FORMAT_FISHEYE_EQUIDISTANCEFF:     im->format = _fisheye_ff;     break;
-                                          case IMAGE_FORMAT_EQUIRECTANGULAR:            im->format = _equirectangular;
-                                                        im->cP.correction_mode |= correction_mode_vertical;
-                                                        break;
-                                          case IMAGE_FORMAT_MIRROR:                     im->format = _mirror; break;
-                                          case IMAGE_FORMAT_FISHEYE_ORTHOGRAPHIC:       im->format = _orthographic; break;
-                                          case IMAGE_FORMAT_FISHEYE_STEREOGRAPHIC:      im->format = _stereographic; break;
-                                          case IMAGE_FORMAT_FISHEYE_EQUISOLID:          im->format = _equisolid; break;
-                                          default:  PrintError("Syntax error in script: Line %d", lineNum);
-                                                        goto fail;
-                                                        break;
-                                        }
-                                        break;
-                            case 'o':   li++;
-                                        im->cP.correction_mode |=  correction_mode_morph;
-                                        break;
-                            case 'y':   if( *(li+1) == '=' ){
-                                            li++;
-                                            READ_VAR( "%d", &(opt->yaw));
-                                            opt->yaw += 2;
-                                        }else{
-                                            READ_VAR( "%lf", &(im->yaw));
-                                        }
-                                        break;
-                            case 'p':   if( *(li+1) == '=' ){
-                                            li++;
-                                            READ_VAR( "%d", &(opt->pitch));
-                                            opt->pitch += 2;
-                                        }else{
-                                            READ_VAR("%lf", &(im->pitch));
-                                        }
-                                        break;
-                            case 'r':   if( *(li+1) == '=' ){
-                                            li++;
-                                            READ_VAR( "%d", &(opt->roll));
-                                            opt->roll += 2;
-                                        }else{
-                                            READ_VAR("%lf", &(im->roll));
-                                        }
-                                        break;
-                            case 'd' :  if( *(li+1) == '=' ){
-                                            li++;
-                                            READ_VAR( "%d", &(opt->d));
-                                            opt->d += 2;
-                                        }else{
-                                            READ_VAR( "%lf", &(im->cP.horizontal_params[0]));
-                                        }
-                                        im->cP.horizontal= TRUE;
-                                        break;  
-                            case 'e':   if( *(li+1) == '=' ){
-                                            li++;
-                                            READ_VAR( "%d", &(opt->e));
-                                            opt->e += 2;
-                                        }else{
-                                            READ_VAR("%lf", &(im->cP.vertical_params[0]));
+                    case 'w':   READ_VAR( FMT_INT32, &(im->width) ); break;
+                    case 'h':   READ_VAR( FMT_INT32, &(im->height)); break;
+                    case 'v':   if( *(li+1) == '=' ){
+                            li++;
+                            READ_VAR( "%d", &(opt->hfov));
+                            opt->hfov += 2;
+                        }else{
+                            READ_VAR(  "%lf", &(im->hfov));
+                        }
+                        break;
+                    case 'a':   if( *(li+1) == '=' ){
+                            li++;
+                            READ_VAR( "%d", &(opt->a));
+                            opt->a += 2;
+                        }else{
+                            READ_VAR( "%lf", &(im->cP.radial_params[0][3]));
+                        }
+                        im->cP.radial   = TRUE;
+                        break;
+                    case 'b':   if( *(li+1) == '=' ){
+                            li++;
+                            READ_VAR( "%d", &(opt->b));
+                            opt->b += 2;
+                        }else{
+                            READ_VAR( "%lf", &(im->cP.radial_params[0][2]));
+                        }
+                        im->cP.radial   = TRUE;
+                        break;
+                    case 'c':   if( *(li+1) == '=' ){
+                            li++;
+                            READ_VAR(  "%d", &(opt->c));
+                            opt->c += 2;
+                        }else{
+                            READ_VAR( "%lf", &(im->cP.radial_params[0][1]));
+                        }
+                        im->cP.radial   = TRUE;
+                        break;
+                    case 'f':
+                        READ_VAR( "%d", &k );
+                        switch (k)
+                            {
+                            case IMAGE_FORMAT_RECTILINEAR:                im->format = _rectilinear;    break;
+                            case IMAGE_FORMAT_PANORAMA:                   im->format = _panorama;
+                                im->cP.correction_mode |= correction_mode_vertical;
+                                break;
+                            case IMAGE_FORMAT_FISHEYE_EQUIDISTANCECIRC:   im->format = _fisheye_circ;   break;
+                            case IMAGE_FORMAT_FISHEYE_EQUIDISTANCEFF:     im->format = _fisheye_ff;     break;
+                            case IMAGE_FORMAT_EQUIRECTANGULAR:            im->format = _equirectangular;
+                                im->cP.correction_mode |= correction_mode_vertical;
+                                break;
+                            case IMAGE_FORMAT_MIRROR:                     im->format = _mirror; break;
+                            case IMAGE_FORMAT_FISHEYE_ORTHOGRAPHIC:       im->format = _orthographic; break;
+                            case IMAGE_FORMAT_FISHEYE_STEREOGRAPHIC:      im->format = _stereographic; break;
+                            case IMAGE_FORMAT_FISHEYE_EQUISOLID:          im->format = _equisolid; break;
+                            default:  PrintError("Syntax error in script: Line %d", lineNum);
+                                goto fail;
+                                break;
+                            }
+                        break;
+                    case 'o':   li++;
+                        im->cP.correction_mode |=  correction_mode_morph;
+                        break;
+                    case 'y':   if( *(li+1) == '=' ){
+                            li++;
+                            READ_VAR( "%d", &(opt->yaw));
+                            opt->yaw += 2;
+                        }else{
+                            READ_VAR( "%lf", &(im->yaw));
+                        }
+                        break;
+                    case 'p':   if( *(li+1) == '=' ){
+                            li++;
+                            READ_VAR( "%d", &(opt->pitch));
+                            opt->pitch += 2;
+                        }else{
+                            READ_VAR("%lf", &(im->pitch));
+                        }
+                        break;
+                    case 'r':   if( *(li+1) == '=' ){
+                            li++;
+                            READ_VAR( "%d", &(opt->roll));
+                            opt->roll += 2;
+                        }else{
+                            READ_VAR("%lf", &(im->roll));
+                        }
+                        break;
+                    case 'd' :  if( *(li+1) == '=' ){
+                            li++;
+                            READ_VAR( "%d", &(opt->d));
+                            opt->d += 2;
+                        }else{
+                            READ_VAR( "%lf", &(im->cP.horizontal_params[0]));
+                        }
+                        im->cP.horizontal= TRUE;
+                        break;  
+                    case 'e':   if( *(li+1) == '=' ){
+                            li++;
+                            READ_VAR( "%d", &(opt->e));
+                            opt->e += 2;
+                        }else{
+                            READ_VAR("%lf", &(im->cP.vertical_params[0]));
+                        }
+                        im->cP.vertical = TRUE;
+                        break;
+                    case 'g':   if( *(li+1) == '=' ){
+                            li++;
+                            READ_VAR( "%d", &(opt->shear_x));
+                            opt->shear_x += 2;
+                        }else{
+                            READ_VAR("%lf", &(im->cP.shear_x));
+                        }
+                        im->cP.shear    = TRUE;
+                        break;
+                    case 't':   if( *(li+1) == '=' ){
+                            li++;
+                            READ_VAR( "%d", &(opt->shear_y));
+                            opt->shear_y += 2;
+                        }else{
+                            READ_VAR("%lf", &(im->cP.shear_y));
+                        }
+                        im->cP.shear    = TRUE;
+                        break;
+                    case 'T':
+                        li++;
+                        switch (*li) {
+                        case 'i': // Tilt
+                            li++;
+
+                            switch (*li) {
+                            case 'X':  
+                                li = panoParseVariable(buf, li, lineNum, &(opt->tiltXopt), &(im->cP.tilt_x));
+
+                                break;
+                            case 'Y': 
+                                li = panoParseVariable(buf, li, lineNum, &(opt->tiltYopt), &(im->cP.tilt_y));
+                                break;
+                            case 'Z': 
+                                li = panoParseVariable(buf, li, lineNum, &(opt->tiltZopt), &(im->cP.tilt_z));
+                                break;
+                            case 'S': 
+                                li = panoParseVariable(buf, li, lineNum, &(opt->tiltScaleOpt), &(im->cP.tilt_scale));
+                                if (opt->tiltScaleOpt > 1) {
+                                    // it is an actual value to optimize, not a reference... check it
+                                    if (im->cP.tilt_scale == 0) {
+                                        PrintError("TiS parameter can't be zero. Error in script: Line %d", lineNum);
+                                        return -1;
                                     }
-                                            im->cP.vertical = TRUE;
-                                    break;
-                            case 'g':   if( *(li+1) == '=' ){
-                                        li++;
-                                        READ_VAR( "%d", &(opt->shear_x));
-                                        opt->shear_x += 2;
-                                    }else{
-                                        READ_VAR("%lf", &(im->cP.shear_x));
-                                        }
-                                    im->cP.shear    = TRUE;
-                                    break;
-                            case 't':   if( *(li+1) == '=' ){
-                                        li++;
-                                        READ_VAR( "%d", &(opt->shear_y));
-                                        opt->shear_y += 2;
-                                    }else{
-                                        READ_VAR("%lf", &(im->cP.shear_y));
-                                    }
-                                    im->cP.shear    = TRUE;
-                                        break;
-                            case 'T':  
-                                li++;
-                                switch (*li) {
-                                case 'x':  
-                                    if( *(li+1) == '=' ){
-                                        li++;
-                                        READ_VAR( "%d", &(opt->tiltX));
-                                        opt->tiltX += 2;
-                                    }else{
-                                        READ_VAR("%lf", &(im->cP.tilt_x));
-                                    }
-                                    im->cP.tilt    = TRUE;
-                                    break;
-                                case 'y': 
-                                    if( *(li+1) == '=' ){
-                                        li++;
-                                        READ_VAR( "%d", &(opt->tiltY));
-                                        opt->tiltY += 2;
-                                    }else{
-                                        READ_VAR("%lf", &(im->cP.tilt_y));
-                                    }
-                                    im->cP.tilt    = TRUE;
-                                    break;
-                                case 'z': 
-                                    if( *(li+1) == '=' ){
-                                        li++;
-                                        READ_VAR( "%d", &(opt->tiltZ));
-                                        opt->tiltZ += 2;
-                                    }else{
-                                        READ_VAR("%lf", &(im->cP.tilt_z));
-                                    }
-                                    im->cP.tilt    = TRUE;
-                                    break;
-                                case 's': 
-                                    if( *(li+1) == '=' ){
-                                        li++;
-                                        READ_VAR( "%d", &(opt->tiltScale));
-                                        opt->tiltScale += 2;
-                                    }else{
-                                        READ_VAR("%lf", &(im->cP.tilt_scale));
-                                        if (im->cP.tilt_scale == 0) {
-                                            PrintError("Ts parameter can't be zero. Error in script: Line %d", lineNum);
-                                            return -1;
-                                        }
-                                    }
-                                    im->cP.tilt    = TRUE;
-                                    break;
                                 }
                                 break;
-                            case 'n':           // Set filename
-                                        nextWord( buf, &li );
-                                        sprintf( im->name, "%s", buf );
-                                        break;
-                            case 'm':  // Frame
-                                li++;
-                                switch( *li )
-                                {
-                                    case 'x':
-                                            READ_VAR("%d", &(im->cP.fwidth) );
-                                            im->cP.cutFrame = TRUE;
-                                            break;
-                                    case 'y':
-                                            READ_VAR("%d", &(im->cP.fheight) );
-                                            im->cP.cutFrame = TRUE;
-                                            break;
-                                    default: 
-                                            li--;
-                                            READ_VAR("%d", &(im->cP.frame) );
-                                            im->cP.cutFrame = TRUE;                                         
-                                            break;
-                                }
-                                break;  
-                            case 'X':   READ_VAR( "%lf", &ci->x[0] );
-                                        break;
-                            case 'Y':   READ_VAR( "%lf", &ci->x[1] );
-                                        break;
-                            case 'Z':   READ_VAR( "%lf", &ci->x[2] );
-                                        break;
-                            case 'S':   nextWord( buf, &li );       
-                                    sscanf( buf, FMT_INT32","FMT_INT32","FMT_INT32","FMT_INT32, &im->selection.left, &im->selection.right, &im->selection.top, &im->selection.bottom );
-                                    break;
-                            case 'C':   nextWord( buf, &li );       
-                                    sscanf( buf, FMT_INT32","FMT_INT32","FMT_INT32","FMT_INT32, &im->selection.left, &im->selection.right, &im->selection.top, &im->selection.bottom );
-                                    im->cP.cutFrame = TRUE;
-                                    break;
-						    case 'V':
-						    case 'K':
-								// Ignore V variables in i
-								nextWord( buf, &li );       
-								break;
+                            default:
+                                PrintError("Unkonwn parameter Ti%c in script: Line %d", *li, lineNum);
+                                return -1;
+                            }
+
+                            if (li == NULL) return -1;
+                            im->cP.tilt    = TRUE;
+
+                            break;
+                        case 'r': // Translation
+                            li++;
+                            switch (*li) {
+                            case 'X':  
+                                li = panoParseVariable(buf, li, lineNum, &(opt->transXopt), &(im->cP.trans_x));
+                                break;
+                            case 'Y': 
+                                li = panoParseVariable(buf, li, lineNum, &(opt->transYopt), &(im->cP.trans_y));
+                                break;
+                            case 'Z': 
+                                li = panoParseVariable(buf, li, lineNum, &(opt->transZopt), &(im->cP.trans_z));
+                                break;
+                            default:
+                                PrintError("Unknown translation parameter Tr%c in script: Line %d", *li, lineNum);
+                                return -1;
+                            }
+                            if (li == NULL) return -1;
+                            im->cP.trans    = TRUE;
+                            break;
+                        case 'e': // test parameters
+                            li++;
+                            switch (*li) {
+                            case '0':  
+                                li = panoParseVariable(buf, li, lineNum, &(opt->testP0opt), &(im->cP.test_p0));
+                                break;
+                            case '1': 
+                                li = panoParseVariable(buf, li, lineNum, &(opt->testP1opt), &(im->cP.test_p1));
+                                break;
+                            case '2': 
+                                li = panoParseVariable(buf, li, lineNum, &(opt->testP2opt), &(im->cP.test_p2));
+                                break;
+                            case '3': 
+                                li = panoParseVariable(buf, li, lineNum, &(opt->testP2opt), &(im->cP.test_p3));
+                                break;
+                            default:
+                                PrintError("Unknown Test parameter Te%c in script: Line %d", *li, lineNum);
+                                return -1;
+                            }
+                            if (li == NULL) return -1;
+                            im->cP.test    = TRUE;
+                            break;
+                        default:
+                            PrintError("Unkonwn parameter T%c in script: Line %d", *li, lineNum);
+                            return -1;
+                        }
+                        break;
+                    case 'n':           // Set filename
+                        nextWord( buf, &li );
+                        sprintf( im->name, "%s", buf );
+                        break;
+                    case 'm':  // Frame
+                        li++;
+                        switch( *li )
+                            {
+                            case 'x':
+                                READ_VAR("%d", &(im->cP.fwidth) );
+                                im->cP.cutFrame = TRUE;
+                                break;
+                            case 'y':
+                                READ_VAR("%d", &(im->cP.fheight) );
+                                im->cP.cutFrame = TRUE;
+                                break;
                             default: 
-                                        li++;
-                                        break;
-                        }
-                    }
-
-                    numIm++;
-
-                    break;  
-        case 't':       // Triangle
-                    li = &(line[1]);
-                    i = 0;
-                    while( *li != 0)
-                    {
-                        switch(*li)
-                        {
-                            case ' ' : 
-                            case '\t': li++; break;
-                            case 'i' : READ_VAR( "%d", &(gl->t[nt].nIm));   break;
-                            default  : if(i<3)
-                                        {
-                                            li--;
-                                            READ_VAR( "%d", &(gl->t[nt].vert[i]) ); 
-                                            i++;
-                                        }
-                                        else
-                                            li++;
-                                        break;
-                        }
-                    }
-                    nt++;
+                                li--;
+                                READ_VAR("%d", &(im->cP.frame) );
+                                im->cP.cutFrame = TRUE;                                         
+                                break;
+                            }
+                        break;  
+                    case 'X':   READ_VAR( "%lf", &ci->x[0] );
+                        break;
+                    case 'Y':   READ_VAR( "%lf", &ci->x[1] );
+                        break;
+                    case 'Z':   READ_VAR( "%lf", &ci->x[2] );
+                        break;
+                    case 'S':   nextWord( buf, &li );       
+                        sscanf( buf, FMT_INT32","FMT_INT32","FMT_INT32","FMT_INT32, &im->selection.left, &im->selection.right, &im->selection.top, &im->selection.bottom );
+                        break;
+                    case 'C':   nextWord( buf, &li );       
+                        sscanf( buf, FMT_INT32","FMT_INT32","FMT_INT32","FMT_INT32, &im->selection.left, &im->selection.right, &im->selection.top, &im->selection.bottom );
+                        im->cP.cutFrame = TRUE;
+                        break;
+                    case 'V':
+                    case 'K':
+                        // Ignore V variables in i
+                        nextWord( buf, &li );       
                     break;
+                    default: 
+                        li++;
+                        break;
+                    }
+
+            }
+
+            numIm++;
+
+            break;  
+        case 't':       // Triangle
+            li = &(line[1]);
+            i = 0;
+            while( *li != 0)
+                {
+                    switch(*li)
+                        {
+                        case ' ' : 
+                        case '\t': li++; break;
+                        case 'i' : READ_VAR( "%d", &(gl->t[nt].nIm));   break;
+                        default  : if(i<3)
+                            {
+                                li--;
+                                READ_VAR( "%d", &(gl->t[nt].vert[i]) ); 
+                                i++;
+                            }
+                        else
+                            li++;
+                            break;
+                        }
+                }
+            nt++;
+            break;
         case 'c':       // Control Points
                     
-                    gl->cpt[numPts].type = 0;   // default : optimize r
-                    if(  ReadControlPoint( &(gl->cpt[numPts]), &(line[1]) ) != 0 )
-                    {
-                        PrintError("Syntax error in script in control point 'c': Line %d", lineNum);
-                        goto fail;
-                    }
-                    numPts++;
-                    break;
+            gl->cpt[numPts].type = 0;   // default : optimize r
+            if(  ReadControlPoint( &(gl->cpt[numPts]), &(line[1]) ) != 0 )
+                {
+                    PrintError("Syntax error in script in control point 'c': Line %d", lineNum);
+                    goto fail;
+                }
+            numPts++;
+            break;
 
         case 'm':       // Mode description
-                    if( ReadModeDescription( &gl->sP, &(line[1]) ) != 0 )
-                    {
-                        PrintError( "Syntax error in script in mode description 'm': line %d" , lineNum);
-                        goto fail;
-                    }
-                    break;
+            if( ReadModeDescription( &gl->sP, &(line[1]) ) != 0 )
+                {
+                    PrintError( "Syntax error in script in mode description 'm': line %d" , lineNum);
+                    goto fail;
+                }
+            break;
                                 
 
         case 'v':       // Variables to optimize
-                    li = &(line[1]);
-                    while( *li != 0)
-                    {
-                        switch(*li)
+            li = &(line[1]);
+
+            while( *li != 0)
+                {
+                    switch(*li)
                         {
                         case 'y':   READ_OPT_VAR(yaw);
                             break;
@@ -499,19 +559,69 @@ int ParseScript( char* script, AlignInfo *gl )
                         case 'T':   
                             li++;
                             switch (*li) {
-                            case 'x':
-                                READ_OPT_VAR(tiltX);
+                            case 'i':
+
+                                li++;
+                                switch (*li) {
+                                case 'X':
+                                    READ_OPT_VAR(tiltXopt);
+                                    break;
+                                case 'Y':
+                                    READ_OPT_VAR(tiltYopt);
+                                    break;
+                                case 'Z':
+                                    READ_OPT_VAR(tiltZopt);
+                                    break;
+                                case 'S':
+                                    READ_OPT_VAR(tiltScaleOpt);
+                                    break;
+                                default:
+                                    PrintError("Unknown variable name variable to optimize Ti%c in script: Line %d", *li, lineNum);
+                                    return -1;
+                                }
                                 break;
-                            case 'y':
-                                READ_OPT_VAR(tiltY);
+                            case 'r':
+                                li++;
+                                switch (*li) {
+                                case 'X':
+                                    READ_OPT_VAR(transXopt);
+                                    break;
+                                case 'Y':
+                                    READ_OPT_VAR(transYopt);
+                                    break;
+                                case 'Z':
+                                    READ_OPT_VAR(transZopt);
+                                    break;
+                                default:
+                                    PrintError("Unknown variable name to optimize Ti%c in script: Line %d", *li, lineNum);
+                                    return -1;
+                                }
                                 break;
-                            case 'z':
-                                READ_OPT_VAR(tiltZ);
+                            case 'e':
+                                li++;
+                                switch (*li) {
+                                case '0':
+                                    READ_OPT_VAR(testP0opt);
+                                    break;
+                                case '1':
+                                    READ_OPT_VAR(testP1opt);
+                                    break;
+                                case '2':
+                                    READ_OPT_VAR(testP2opt);
+                                    break;
+                                case '3':
+                                    READ_OPT_VAR(testP3opt);
+                                    break;
+                                default:
+                                    PrintError("Unknown variable name to optimize Te%c in script: Line %d", *li, lineNum);
+                                    return -1;
+                                }
                                 break;
-                            case 's':
-                                READ_OPT_VAR(tiltScale);
-                                break;
-                            }
+                            default:
+                                PrintError("Unkonwn parameter T%c in script: Line %d", *li, lineNum);
+                                return -1;
+                            }                                
+
                             break;
                         case 'X':   READ_VAR( "%d", &k );
                             if( k>=0 && k<gl->numIm )
@@ -530,143 +640,143 @@ int ParseScript( char* script, AlignInfo *gl )
                             break;
                         }
                         
-                    }
-                    break;
+                }
+            break;
         case 'p':       // panorama 
-                    gl->pano.format     = 2; // _equirectangular by default
-                    gl->pano.hfov       = 360.0;
-                    if( ReadPanoramaDescription( &(gl->pano), &(gl->st), &(line[1]) ) != 0 )
-                    {
-                        PrintError( "Syntax error in panorama description p line: %d (%s)" , lineNum,line);
-                        goto fail;
-                    }
-                    switch (gl->pano.format) {
-                        case PANO_FORMAT_RECTILINEAR:
-                            gl->pano.format = _rectilinear;
-                            break;
-                        case PANO_FORMAT_PANORAMA:
-                            gl->pano.format = _panorama;
-                            break;
-                        case PANO_FORMAT_EQUIRECTANGULAR:
-                            gl->pano.format = _equirectangular;
-                            break;
-                        case PANO_FORMAT_FISHEYE_FF:
-                            gl->pano.format = _fisheye_ff;
-                            break;
-                        case PANO_FORMAT_STEREOGRAPHIC:
-                            gl->pano.format = _stereographic;
-                            break;
-                        case PANO_FORMAT_MERCATOR:
-                            gl->pano.format = _mercator;
-                            break;
-                        case PANO_FORMAT_TRANS_MERCATOR:
-                            gl->pano.format = _trans_mercator;
-                            break;
-                        case PANO_FORMAT_SINUSOIDAL:
-                            gl->pano.format = _sinusoidal;
-                            break;
-                        case PANO_FORMAT_LAMBERT_EQUAL_AREA_CONIC:
-                            gl->pano.format = _lambert;
-                            break;
-                        case PANO_FORMAT_LAMBERT_AZIMUTHAL:
-                            gl->pano.format = _lambertazimuthal;
-                            break;
-                        case PANO_FORMAT_ALBERS_EQUAL_AREA_CONIC:
-                            gl->pano.format = _albersequalareaconic;
-                            break;
-                        case PANO_FORMAT_MILLER_CYLINDRICAL:
-                            gl->pano.format = _millercylindrical;
-                            break;
-                        case PANO_FORMAT_PANINI:
-                            gl->pano.format = _panini;
-                            break;
-                        case PANO_FORMAT_EQUI_PANINI:
-                            gl->pano.format = _equipanini;
-                            break;
-                        case PANO_FORMAT_ARCHITECTURAL:
-                            gl->pano.format = _architectural;
-                            break;
-                        case PANO_FORMAT_ORTHOGRAPHIC:
-                            gl->pano.format = _orthographic;
-                            break;
-                        case PANO_FORMAT_EQUISOLID:
-                            gl->pano.format = _equisolid;
-                            break;
-						case PANO_FORMAT_BIPLANE:
-							gl->pano.format = _biplane;
-							break;
-						case PANO_FORMAT_TRIPLANE:
-							gl->pano.format = _triplane;
-							break;
-                        default:
-                            PrintError( "Unknown panorama projection: %d", gl->pano.format );
-                            goto fail;
-                    }
-                    if( (gl->pano.format == _rectilinear || gl->pano.format == _trans_mercator) && gl->pano.hfov >= 180.0 )
-                    {
-                        PrintError( "Destination image must have HFOV < 180" );
-                        goto fail;
-                    }
-                    break;
+            gl->pano.format     = 2; // _equirectangular by default
+            gl->pano.hfov       = 360.0;
+            if( ReadPanoramaDescription( &(gl->pano), &(gl->st), &(line[1]) ) != 0 )
+                {
+                    PrintError( "Syntax error in panorama description p line: %d (%s)" , lineNum,line);
+                    goto fail;
+                }
+            switch (gl->pano.format) {
+            case PANO_FORMAT_RECTILINEAR:
+                gl->pano.format = _rectilinear;
+                break;
+            case PANO_FORMAT_PANORAMA:
+                gl->pano.format = _panorama;
+                break;
+            case PANO_FORMAT_EQUIRECTANGULAR:
+                gl->pano.format = _equirectangular;
+                break;
+            case PANO_FORMAT_FISHEYE_FF:
+                gl->pano.format = _fisheye_ff;
+                break;
+            case PANO_FORMAT_STEREOGRAPHIC:
+                gl->pano.format = _stereographic;
+                break;
+            case PANO_FORMAT_MERCATOR:
+                gl->pano.format = _mercator;
+                break;
+            case PANO_FORMAT_TRANS_MERCATOR:
+                gl->pano.format = _trans_mercator;
+                break;
+            case PANO_FORMAT_SINUSOIDAL:
+                gl->pano.format = _sinusoidal;
+                break;
+            case PANO_FORMAT_LAMBERT_EQUAL_AREA_CONIC:
+                gl->pano.format = _lambert;
+                break;
+            case PANO_FORMAT_LAMBERT_AZIMUTHAL:
+                gl->pano.format = _lambertazimuthal;
+                break;
+            case PANO_FORMAT_ALBERS_EQUAL_AREA_CONIC:
+                gl->pano.format = _albersequalareaconic;
+                break;
+            case PANO_FORMAT_MILLER_CYLINDRICAL:
+                gl->pano.format = _millercylindrical;
+                break;
+            case PANO_FORMAT_PANINI:
+                gl->pano.format = _panini;
+                break;
+            case PANO_FORMAT_EQUI_PANINI:
+                gl->pano.format = _equipanini;
+                break;
+            case PANO_FORMAT_ARCHITECTURAL:
+                gl->pano.format = _architectural;
+                break;
+            case PANO_FORMAT_ORTHOGRAPHIC:
+                gl->pano.format = _orthographic;
+                break;
+            case PANO_FORMAT_EQUISOLID:
+                gl->pano.format = _equisolid;
+                break;
+            case PANO_FORMAT_BIPLANE:
+                gl->pano.format = _biplane;
+                break;
+            case PANO_FORMAT_TRIPLANE:
+                gl->pano.format = _triplane;
+                break;
+            default:
+                PrintError( "Unknown panorama projection: %d", gl->pano.format );
+                goto fail;
+            }
+            if( (gl->pano.format == _rectilinear || gl->pano.format == _trans_mercator) && gl->pano.hfov >= 180.0 )
+                {
+                    PrintError( "Destination image must have HFOV < 180" );
+                    goto fail;
+                }
+            break;
 
-        // Rik's mask-from-focus hacking
+            // Rik's mask-from-focus hacking
         case 'z':   
-          // I was tempted to remove this code, but I am not sure how it will affect PToptimizer, until then.. it will remain
-          //PrintError( "z option is no longer supported by PTmender and it is ignored. Use PTmasker instead\n" );
-                    //ZCombSetEnabled();
-                    li = &(line[1]);
-                    while( *li != 0)
-                    {
-                        switch(*li)
+            // I was tempted to remove this code, but I am not sure how it will affect PToptimizer, until then.. it will remain
+            //PrintError( "z option is no longer supported by PTmender and it is ignored. Use PTmasker instead\n" );
+            //ZCombSetEnabled();
+            li = &(line[1]);
+            while( *li != 0)
+                {
+                    switch(*li)
                         {
-                            case 'm':   {   int mtype;
-                                            READ_VAR( "%d", &mtype);
-                                            ZCombSetMaskType(mtype);
-                                        }
-                                        break;
-                            case 'f':   {   int fwHalfwidth;
-                                            READ_VAR( "%d", &fwHalfwidth);
-                                            ZCombSetFocusWindowHalfwidth(fwHalfwidth);
-                                        }
-                                        break;
-                            case 's':   {   int swHalfwidth;
-                                            READ_VAR( "%d", &swHalfwidth);
-                                            ZCombSetSmoothingWindowHalfwidth(swHalfwidth);
-                                        }
-                                        break;
-                            default:
-                                li++;
-                                break;
+                        case 'm':   {   int mtype;
+                                READ_VAR( "%d", &mtype);
+                                ZCombSetMaskType(mtype);
                         }
-                    }
-                    break;
-        // end Rik's mask-from-focus hacking
+                            break;
+                        case 'f':   {   int fwHalfwidth;
+                                READ_VAR( "%d", &fwHalfwidth);
+                                ZCombSetFocusWindowHalfwidth(fwHalfwidth);
+                        }
+                            break;
+                        case 's':   {   int swHalfwidth;
+                                READ_VAR( "%d", &swHalfwidth);
+                                ZCombSetSmoothingWindowHalfwidth(swHalfwidth);
+                        }
+                            break;
+                        default:
+                            li++;
+                            break;
+                        }
+                }
+            break;
+            // end Rik's mask-from-focus hacking
 
 
         case '*':   // End of script-data
-                    *lineStart = 0; *ch = 0;
-                    break;
-         default: break;
+            *lineStart = 0; *ch = 0;
+            break;
+        default: break;
         }
     }
 
     // Set up Panorama description
     
     if( gl->pano.width == 0 && gl->im[0].hfov != 0.0)  // Set default for panorama width based on first image
-    {
-        gl->pano.width = (pt_int32)(( gl->pano.hfov / gl->im[0].hfov ) * gl->im[0].width);
-        gl->pano.width /= 10; gl->pano.width *= 10; // Round to multiple of 10
-    }
+        {
+            gl->pano.width = (pt_int32)(( gl->pano.hfov / gl->im[0].hfov ) * gl->im[0].width);
+            gl->pano.width /= 10; gl->pano.width *= 10; // Round to multiple of 10
+        }
 
     if( gl->pano.height == 0 )
         gl->pano.height = gl->pano.width/2;
         
 
-//  Set up global information structure
+    //  Set up global information structure
     gl->numParam    = n;
     gl->data        = NULL;
 
-// Set initial values for linked variables
+    // Set initial values for linked variables
     for(i=0; i<gl->numIm; i++){
         k = gl->opt[i].yaw - 2;
         if( k >= 0 ) gl->im[i].yaw = gl->im[ k ].yaw;
@@ -701,15 +811,46 @@ int ParseScript( char* script, AlignInfo *gl )
         k = gl->opt[i].shear_y - 2;
         if( k >= 0 ) gl->im[i].cP.shear_y = gl->im[ k ].cP.shear_y;
 
-        k = gl->opt[i].tiltX - 2;
+        // tilt variables----------------------------------------------------------------
+        k = gl->opt[i].tiltXopt - 2;
         if( k >= 0 ) gl->im[i].cP.tilt_x = gl->im[ k ].cP.tilt_x;
 
-        k = gl->opt[i].tiltY - 2;
+        k = gl->opt[i].tiltYopt - 2;
         if( k >= 0 ) gl->im[i].cP.tilt_y = gl->im[ k ].cP.tilt_y;
 
+        k = gl->opt[i].tiltZopt - 2;
+        if( k >= 0 ) gl->im[i].cP.tilt_z = gl->im[ k ].cP.tilt_z;
+
+        k = gl->opt[i].tiltScaleOpt - 2;
+        if( k >= 0 ) gl->im[i].cP.tilt_scale = gl->im[ k ].cP.tilt_scale;
+
+        // translation variables----------------------------------------------------------------
+        k = gl->opt[i].transXopt - 2;
+        if( k >= 0 ) gl->im[i].cP.trans_x = gl->im[ k ].cP.trans_x;
+
+        k = gl->opt[i].transYopt - 2;
+        if( k >= 0 ) gl->im[i].cP.trans_y = gl->im[ k ].cP.trans_y;
+
+        k = gl->opt[i].transZopt - 2;
+        if( k >= 0 ) gl->im[i].cP.trans_z = gl->im[ k ].cP.trans_z;
+
+        // test variables ----------------------------------------------------------------------
+
+        k = gl->opt[i].testP0opt - 2;
+        if( k >= 0 ) gl->im[i].cP.test_p0 = gl->im[ k ].cP.test_p0;
+        k = gl->opt[i].testP1opt - 2;
+        if( k >= 0 ) gl->im[i].cP.test_p1 = gl->im[ k ].cP.test_p1;
+        k = gl->opt[i].testP2opt - 2;
+        if( k >= 0 ) gl->im[i].cP.test_p2 = gl->im[ k ].cP.test_p2;
+        k = gl->opt[i].testP3opt - 2;
+        if( k >= 0 ) gl->im[i].cP.test_p3 = gl->im[ k ].cP.test_p3;
+
+
+        //----------------------------------------------------------------------
+
         gl->im[i].cP.radial_params[0][0] = 1.0 - ( gl->im[i].cP.radial_params[0][3]
-                                                        + gl->im[i].cP.radial_params[0][2]
-                                                        + gl->im[i].cP.radial_params[0][1] ) ;
+                                                   + gl->im[i].cP.radial_params[0][2]
+                                                   + gl->im[i].cP.radial_params[0][1] ) ;
                                                         
         SetEquColor( &(gl->im[i].cP) );
         
@@ -823,11 +964,15 @@ void WriteResults( char* script, fullPath *sfile,  AlignInfo *g, double ds( int 
 
         line += sprintf( line, "# Image No %d:\n", i );
         line += sprintf( line, "# Yaw:  %g deg (%c) Pitch:  %g deg (%c) \n"
-"# Roll:   %g deg (%c) HFov:   %g deg (%c)\n"
-"# Polynomial Coefficients: a   %f (%c); b   %f (%c); c   %f (%c)\n"
-"# Horizontal Shift: %f (%c)   Vertical Shift:  %f (%c)\n"
-"# TiltX: %f (%c)   TiltY:  %f (%c)\n"
-"# TiltZ: %f (%c)   TiltScale:  %f (%c)\n",
+                         "# Roll:   %g deg (%c) HFov:   %g deg (%c)\n"
+                         "# Polynomial Coefficients: a   %f (%c); b   %f (%c); c   %f (%c)\n"
+                         "# Horizontal Shift: %f (%c)   Vertical Shift:  %f (%c)\n"
+                         "# TiltX: %f (%c)   TiltY:  %f (%c)\n"
+                         "# TiltZ: %f (%c)   TiltScale:  %f (%c)\n"
+                         "# TransX: %f (%c)   TransY:  %f (%c)\n"
+                         "# TransZ: %f (%c)   \n"
+                         "# Test P0: %f (%c)   Test P1:  %f (%c)\n"
+                         "# Test P2: %f (%c)   Test P3:  %f (%c)\n",
                          g->im[i].yaw, ( g->opt[i].yaw ? '*' : 'p' ),
                          g->im[i].pitch,  ( g->opt[i].pitch  ? '*' : 'p' ),
                          g->im[i].roll, ( g->opt[i].roll ? '*' : 'p' ),
@@ -838,10 +983,19 @@ void WriteResults( char* script, fullPath *sfile,  AlignInfo *g, double ds( int 
                          g->im[i].cP.horizontal_params[0], (g->opt[i].d ? '*':'p'),
                          g->im[i].cP.vertical_params[0], (g->opt[i].e ? '*':'p'),
                          // Tilt
-                         g->im[i].cP.tilt_x, (g->opt[i].tiltX ? '*':'p'),
-                         g->im[i].cP.tilt_y, (g->opt[i].tiltY ? '*':'p'),
-                         g->im[i].cP.tilt_z, (g->opt[i].tiltZ ? '*':'p'),
-                         g->im[i].cP.tilt_scale, (g->opt[i].tiltScale ? '*':'p')
+                         g->im[i].cP.tilt_x, (g->opt[i].tiltXopt ? '*':'p'),
+                         g->im[i].cP.tilt_y, (g->opt[i].tiltYopt ? '*':'p'),
+                         g->im[i].cP.tilt_z, (g->opt[i].tiltZopt ? '*':'p'),
+                         g->im[i].cP.tilt_scale, (g->opt[i].tiltScaleOpt ? '*':'p'),
+                         // Trans
+                         g->im[i].cP.trans_x, (g->opt[i].transXopt ? '*':'p'),
+                         g->im[i].cP.trans_y, (g->opt[i].transYopt ? '*':'p'),
+                         g->im[i].cP.trans_z, (g->opt[i].transZopt ? '*':'p'),
+                         // test parameters
+                         g->im[i].cP.test_p0, (g->opt[i].testP0opt ? '*':'p'),
+                         g->im[i].cP.test_p1, (g->opt[i].testP1opt ? '*':'p'),
+                         g->im[i].cP.test_p2, (g->opt[i].testP2opt ? '*':'p'),
+                         g->im[i].cP.test_p3, (g->opt[i].testP3opt ? '*':'p')
 
                     );
         if( opta || optb || optc )
@@ -860,9 +1014,14 @@ void WriteResults( char* script, fullPath *sfile,  AlignInfo *g, double ds( int 
         {
             line += sprintf( line, "g%f t%f ", g->im[i].cP.shear_x, g->im[i].cP.shear_y);
         }
-        if( g->im[i].cP.tilt )
-        {
-            line += sprintf( line, "Tx%f Ty%f Tz%f Ts%f ", g->im[i].cP.tilt_x, g->im[i].cP.tilt_y, g->im[i].cP.tilt_z, g->im[i].cP.tilt_scale);
+        if( g->im[i].cP.tilt ) {
+            line += sprintf( line, "TiX%f TiY%f TiZ%f TiS%f ", g->im[i].cP.tilt_x, g->im[i].cP.tilt_y, g->im[i].cP.tilt_z, g->im[i].cP.tilt_scale);
+        }
+        if( g->im[i].cP.trans ) {
+            line += sprintf( line, "TrX%f TrY%f TrZ%f ", g->im[i].cP.trans_x, g->im[i].cP.trans_y, g->im[i].cP.trans_z);
+        }
+        if( g->im[i].cP.test ) {
+            line += sprintf( line, "Te0%f Te1%f Te2%f Te3%f ", g->im[i].cP.test_p0, g->im[i].cP.test_p1, g->im[i].cP.test_p2, g->im[i].cP.test_p3 );
         }
         if( g->im[i].cP.cutFrame &&
          !( g->im[i].selection.bottom != 0 || g->im[i].selection.right != 0 )) // g->im[i].format != _fisheye_circ && g->im[i].cP.cutFrame )
@@ -1491,190 +1650,238 @@ static int ReadImageDescription( Image *imPtr, stBuf *sPtr, char *line )
     memcpy( &im,    imPtr,   sizeof(Image) );
     memcpy( &sBuf,  sPtr,    sizeof(stBuf ));
     
-    //  printf("************************************* Before Cut Frame %d \n", im.cP.cutFrame);
+    panoPrintImage("Before read image", imPtr);
+   //  printf("************************************* Before Cut Frame %d \n", im.cP.cutFrame);
     while( *ch != 0) {
         switch(*ch) {
         case 'f':   READ_VAR( FMT_INT32, &im.format );
-        if( im.format == _panorama || im.format == _equirectangular )
-            im.cP.correction_mode |= correction_mode_vertical;
-        break;
+            if( im.format == _panorama || im.format == _equirectangular )
+                im.cP.correction_mode |= correction_mode_vertical;
+            break;
         case 'v':   READ_VAR( "%lf", &im.hfov );
-        break;
+            break;
         case 'y':   
-        READ_VAR( "%lf", &im.yaw);
-        break;
+            READ_VAR( "%lf", &im.yaw);
+            break;
         case 'p':   READ_VAR( "%lf", &im.pitch);
-        break;
+            break;
         case 'r':   READ_VAR( "%lf", &im.roll);
-        break;
-        
-        
+            break;
+            
+            
         case 'a':   READ_VAR( "%lf", &(im.cP.radial_params[0][3]));
-        im.cP.radial    = TRUE;
-        break;
+            im.cP.radial    = TRUE;
+            break;
         case 'b':   READ_VAR("%lf", &(im.cP.radial_params[0][2]));
-        im.cP.radial    = TRUE;
-        break;
+            im.cP.radial    = TRUE;
+            break;
         case 'c':   READ_VAR("%lf", &(im.cP.radial_params[0][1]));
-        im.cP.radial    = TRUE;
-        break;
+            im.cP.radial    = TRUE;
+            break;
         case 'd':   READ_VAR("%lf", &(im.cP.horizontal_params[0]));
-        im.cP.horizontal    = TRUE;
-        break;
+            im.cP.horizontal    = TRUE;
+            break;
         case 'e':   READ_VAR("%lf", &(im.cP.vertical_params[0]));
-        im.cP.vertical = TRUE;
-        break;
+            im.cP.vertical = TRUE;
+            break;
         case 'g':   READ_VAR("%lf", &(im.cP.shear_x));
-        im.cP.shear     = TRUE;
-        break;
+            im.cP.shear     = TRUE;
+            break;
         case 't':   READ_VAR("%lf", &(im.cP.shear_y));
-        im.cP.shear = TRUE;
-        break;
-        case 'T': 
+            im.cP.shear = TRUE;
+            break;
+        case 'T':   
             ch++;
             switch (*ch) {
-            case 'x':   READ_VAR("%lf", &(im.cP.tilt_x));
-                im.cP.tilt     = TRUE;
-                break;
-            case 'y':   READ_VAR("%lf", &(im.cP.tilt_y));
-                im.cP.tilt = TRUE;
-                break;
-            case 'z':   READ_VAR("%lf", &(im.cP.tilt_z));
-                im.cP.tilt = TRUE;
-                break;
-            case 's':   READ_VAR("%lf", &(im.cP.tilt_scale));
-                im.cP.tilt = TRUE;
-                if (im.cP.tilt_scale == 0) {
-                    PrintError("Ts parameter can't be zero. Error in script");
+            case 'i':
+                ch++;
+                switch (*ch) {
+                case 'X':
+                    READ_VAR("%lf",&(im.cP.tilt_x));
+                    break;
+                case 'Y':
+                    READ_VAR("%lf",&(im.cP.tilt_y));
+                    break;
+                case 'Z':
+                    READ_VAR("%lf",&(im.cP.tilt_z));
+                    break;
+                case 'S':
+                    READ_VAR("%lf",&(im.cP.tilt_scale));
+                    break;
+                default:
+                    PrintError("Unknown variable name Ti%c in script", *ch);
                     return -1;
                 }
+                im.cP.tilt    = TRUE;
                 break;
+            case 'r':
+                ch++;
+                switch (*ch) {
+                case 'X':
+                    READ_VAR("%lf",&(im.cP.trans_x));
+                    break;
+                case 'Y':
+                    READ_VAR("%lf",&(im.cP.trans_y));
+                    break;
+                case 'Z':
+                    READ_VAR("%lf",&(im.cP.trans_z));
+                    break;
+                default:
+                    PrintError("Unknown variable name Ti%c in script", *ch);
+                    return -1;
+                }
+                im.cP.trans    = TRUE;
+                break;
+            case 'e':
+                ch++;
+                switch (*ch) {
+                case '0':
+                    READ_VAR("%lf",&(im.cP.test_p0));
+                    break;
+                case '1':
+                    READ_VAR("%lf",&(im.cP.test_p1));
+                    break;
+                case '2':
+                    READ_VAR("%lf",&(im.cP.test_p2));
+                    break;
+                case '3':
+                    READ_VAR("%lf",&(im.cP.test_p3));
+                    break;
+                default:
+                    PrintError("Unknown variable name Te%c in script", *ch);
+                    return -1;
+                }
+                im.cP.test    = TRUE;
+                break;
+            default:
+                PrintError("Unkonwn parameter T%c in script", *ch);
+                return -1;
             }
             break;
         case '+':   nextWord( buf, &ch );
-        PrintError("Obsolete + parameter is ignored in image description");
-        sprintf( sBuf.srcName, "%s", buf);
-        break;
+            PrintError("Obsolete + parameter is ignored in image description");
+            sprintf( sBuf.srcName, "%s", buf);
+            break;
         case '-':   nextWord( buf, &ch );
-        PrintError("Obsolete - parameter is ignored in image description");
-        sprintf( sBuf.destName, "%s", buf );
-        break;
-        
-        
+            PrintError("Obsolete - parameter is ignored in image description");
+            sprintf( sBuf.destName, "%s", buf );
+            break;
+            
+            
         case 'S':  
-        if (cropping) {
-            PrintError("Contradictory cropping specified. S cropping ignored\n");
-            // Eat next token
+            if (cropping) {
+                PrintError("Contradictory cropping specified. S cropping ignored\n");
+                // Eat next token
+                nextWord( buf, &ch );       
+                break;
+            }
+            cropping = 1;
+            
             nextWord( buf, &ch );       
+            sscanf( buf, FMT_INT32","FMT_INT32","FMT_INT32","FMT_INT32, &im.selection.left, &im.selection.right, &im.selection.top, &im.selection.bottom );
             break;
-        }
-        cropping = 1;
-        
-        nextWord( buf, &ch );       
-        sscanf( buf, FMT_INT32","FMT_INT32","FMT_INT32","FMT_INT32, &im.selection.left, &im.selection.right, &im.selection.top, &im.selection.bottom );
-        break;
         case 'C':  
-        if (cropping) {
-            PrintError("Contradictory cropping specified. C cropping ignored\n");
-            // Eat next token
+            if (cropping) {
+                PrintError("Contradictory cropping specified. C cropping ignored\n");
+                // Eat next token
+                nextWord( buf, &ch );       
+                break;
+            }
+            cropping = 1;
+            
             nextWord( buf, &ch );       
+            sscanf( buf, FMT_INT32","FMT_INT32","FMT_INT32","FMT_INT32, &im.selection.left, &im.selection.right, &im.selection.top, &im.selection.bottom );
+            im.cP.cutFrame = TRUE;
             break;
-        }
-        cropping = 1;
-        
-        nextWord( buf, &ch );       
-        sscanf( buf, FMT_INT32","FMT_INT32","FMT_INT32","FMT_INT32, &im.selection.left, &im.selection.right, &im.selection.top, &im.selection.bottom );
-        im.cP.cutFrame = TRUE;
-        break;
-        
+            
         case 'm':  // Frame
-        //THiS NEEDS A GOOD FIX...
-        typeParm = *(ch+1);             
-        // first consume the parameter
-        if (typeParm =='x' || typeParm == 'y') {
-            // Consume next character, then read parm
-            ch++;
-            READ_VAR( "%d", &tempInt);
-        }
-        else {
-            READ_VAR( "%d", &tempInt);
-        }
-        
-        if (tempInt == 0) {
-            // value of zero, just ignore
+            //THiS NEEDS A GOOD FIX...
+            typeParm = *(ch+1);             
+            // first consume the parameter
+            if (typeParm =='x' || typeParm == 'y') {
+                // Consume next character, then read parm
+                ch++;
+                READ_VAR( "%d", &tempInt);
+            }
+            else {
+                READ_VAR( "%d", &tempInt);
+            }
+            
+            if (tempInt == 0) {
+                // value of zero, just ignore
+                break;
+            } 
+            
+            // Sometimes this is specified to force a zero. In this case
+            // issue a warning and ignore
+            if (cropping) {
+                PrintError("Contradictory cropping specified. M cropping ignored\n");
+                break;
+            }
+            // Eat next token to avoid error
+            cropping = 1;
+            im.cP.cutFrame = TRUE;
+            
+            switch( typeParm ) {
+            case 'x':
+                im.cP.fwidth = tempInt;
+                //READ_VAR( "%d", &im.cP.fwidth );
+                break;
+            case 'y':
+                im.cP.fheight = tempInt;
+                //READ_VAR( "%d", &im.cP.fheight );
+                //im.cP.cutFrame = TRUE;
+                break;
+            default:
+                im.cP.frame = tempInt;
+                READ_VAR( "%d", &(im.cP.frame) );
+                // im.cP.cutFrame = TRUE;                                           
+                break;
+            }
+            
             break;
-        } 
-        
-        // Sometimes this is specified to force a zero. In this case
-        // issue a warning and ignore
-        if (cropping) {
-            PrintError("Contradictory cropping specified. M cropping ignored\n");
-            break;
-        }
-        // Eat next token to avoid error
-        cropping = 1;
-        im.cP.cutFrame = TRUE;
-        
-        switch( typeParm ) {
-        case 'x':
-            im.cP.fwidth = tempInt;
-            //READ_VAR( "%d", &im.cP.fwidth );
-            break;
-        case 'y':
-            im.cP.fheight = tempInt;
-            //READ_VAR( "%d", &im.cP.fheight );
-            //im.cP.cutFrame = TRUE;
-            break;
-        default:
-            im.cP.frame = tempInt;
-            READ_VAR( "%d", &(im.cP.frame) );
-            // im.cP.cutFrame = TRUE;                                           
-            break;
-        }
-        
-        break;
         case 's':   READ_VAR( "%d", &sBuf.seam );
-        PrintError("Obsolete s parameter ignored in image description");
-        break;
-        
+            PrintError("Obsolete s parameter ignored in image description");
+            break;
+            
         case 'o':   
-        ch++;
-        im.cP.correction_mode |= correction_mode_morph;
-        break;
+            ch++;
+            im.cP.correction_mode |= correction_mode_morph;
+            break;
         case 'u':
-        READ_VAR( "%d", &i );
-        PrintError("Feathering is ignored. Use PTmasker");
-        break;  
+            READ_VAR( "%d", &i );
+            PrintError("Feathering is ignored. Use PTmasker");
+            break;  
         case 'w':   READ_VAR( FMT_INT32, &im.width );
-        break;
+            break;
         case 'h':   READ_VAR( FMT_INT32, &im.height );
-        break;
+            break;
         case 'n':  // Name string (used for input image name)
-        nextWord( buf, &ch );
-        strcpy( im.name, buf );
-        break;  
+            nextWord( buf, &ch );
+            strcpy( im.name, buf );
+            break;  
         case 'K':
         case 'V':
-        // Used by Hugin. Silently ignore until next space. This way we can accept .pto files for processing
-        nextWord( buf, &ch );       
+            // Used by Hugin. Silently ignore until next space. This way we can accept .pto files for processing
+            nextWord( buf, &ch );       
         break;
         case ' ':
         case '\t':
         case '\n':
         case '\r':
-        // skip characters and tabs
-        ch++;
+            // skip characters and tabs
+            ch++;
         break;
         default:
-        printf("REturning...........\n");
-        PrintError("Illegal token in adjust line [%c]  rest of line [%s]", *ch, ch);
-        return -1;
+            printf("REturning...........\n");
+            PrintError("Illegal token in adjust line [%c]  rest of line [%s]", *ch, ch);
+            return -1;
         }
     }
     
     //  printf("************************************* A Cut Frame %d \n", im.cP.cutFrame);
     // Set 4th polynomial parameter
-                    
+    
     im.cP.radial_params[0][0] = 1.0 - ( im.cP.radial_params[0][3] + im.cP.radial_params[0][2]
                         + im.cP.radial_params[0][1] ) ;
     
@@ -1686,6 +1893,9 @@ static int ReadImageDescription( Image *imPtr, stBuf *sPtr, char *line )
     
     memcpy( imPtr,  &im, sizeof(Image) );
     memcpy( sPtr,   &sBuf, sizeof(stBuf ) );
+
+    panoPrintImage("After read image", imPtr);
+
     return 0;
 }
 
