@@ -1,3 +1,33 @@
+2009-09-25    <dmg@uvic.ca>
+
+	* correct.c (SetCorrectDefaults): Initialized values of new parameters.
+
+	* adjust.h (GetGlobalPtr): added parms to its prototype
+
+	* PTcommon.c (panoPrintImage): Refactored this function from adjust.c
+
+	* panorama.h (correct_Prefs): Added new parameters
+
+	* adjust.c (SetAlignParams): Added new variables and renamed tilt ones.
+	(panoAdjustPrintMakeParams): Renamed function to make it standard.
+	Renamed variable g to optInfo
+	(SetAlignParams): Make sure the tilt parameters never go outside
+	incorrect values.
+
+	* parser.c (panoParseVariable, ParseScript): Refactored some
+	code. Sorry but I had to reindent the entire function.
+
+	* parser.c (WriteResults): Added new parameters to the output.
+
+	* parser.c (ParseScript): Renamed Tx, Ty,
+	and Tz to TiX, TiY, and TiZ. Added translation variables TrX, TxY,
+	and TrZ and test ones Te0, Te1, Te2, Te3.
+
+	* filter.h: Added translation parameters, (trans[XYZ]), renamed
+	optimization variables to a more meaningful name (suffix optVar),
+	added a new set of variables for testing new functions in the
+	stack.
+
 2009-09-20 21:08  dangelo
 
 	* adjust.c, panorama.h, filter.h, math.c: Mosaic mode based on

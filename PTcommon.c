@@ -56,7 +56,7 @@
 
 
 // Uncomment following line to enable testing of inverses in getROI
-// #define PANO_TEST_INVERSE
+#define PANO_TEST_INVERSE
 
 
 int panoFlattenTIFF(fullPath * fullPathImages, int counterImageFiles,
@@ -718,7 +718,7 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
 
     int ebx;
 
-    int croppedTIFFIntermediate = 1;
+    int croppedTIFFIntermediate = 0;
     int croppedWidth = 0, croppedHeight = 0;
     PTRect ROIRect;
     unsigned int outputScanlineNumber = 0;
@@ -892,7 +892,7 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
         } else {
 	    PrintError("No support for this ouput image format (%s). Output will be TIFF_m", output_file_format);
 	}
-        //        croppedTIFFIntermediate = 0;
+        //croppedTIFFIntermediate = 0;
 
 
 
@@ -1921,3 +1921,37 @@ int panoCroppingMain(int argc,char *argv[], int operation, char *version, char *
 
     return 0;
 }
+
+
+
+void panoPrintImage(char *msg, Image *im)
+{
+    printf("-------------%s\n", msg);
+    if (im != NULL) {
+        printf(">>>Image format %d\n", im->format);
+        printf(">>>Roll %f\n", im->roll);
+        printf(">>>Pitch %f\n", im->pitch);
+        printf(">>>Yaw %f\n", im->yaw);
+        
+        printf(">>>im->cP.shear %d\n", im->cP.shear);
+        printf(">>>im->cP.tilt %d\n", im->cP.tilt);
+        printf(">>>im->cP.tilt_x %f\n", im->cP.tilt_x);
+        printf(">>>im->cP.tilt_y %f\n", im->cP.tilt_y);
+        printf(">>>im->cP.tilt_z %f\n", im->cP.tilt_z);
+        printf(">>>im->cP.tilt_scale %f\n", im->cP.tilt_scale);
+        
+        printf(">>>im->cP.translation %d\n", im->cP.trans);
+        printf(">>>im->cP.trans_x %f\n", im->cP.trans_x);
+        printf(">>>im->cP.trans_y %f\n", im->cP.trans_y);
+        printf(">>>im->cP.trans_z %f\n", im->cP.trans_z);
+        
+        printf(">>>im->cP.test %d\n", im->cP.test);
+        printf(">>>im->cP.test parm1 %f\n", im->cP.test_p0);
+        printf(">>>im->cP.test parm2 %f\n", im->cP.test_p1);
+        printf(">>>im->cP.test parm3 %f\n", im->cP.test_p2);
+        printf(">>>im->cP.test parm4 %f\n", im->cP.test_p3);
+    }
+    printf("\n\n");
+
+}
+

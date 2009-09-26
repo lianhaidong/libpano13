@@ -203,6 +203,19 @@ struct correct_Prefs
     double tilt_z;             //  tilt on z values
     double tilt_scale;         //  scale for tilting
 
+    int trans;                  //  traslation of camera plane requested?
+    double trans_x;            //  x component of translation vector
+    double trans_y;            //  y component of translation vector
+    double trans_z;             //  z component of translation vector
+
+
+    int test;                  //  these parameters are for testing new projections
+    double test_p0;            //  and make it easier for others to experiment
+    double test_p1;            //  
+    double test_p2;            // 
+    double test_p3;            // 
+
+
     int resize;                 //  scaling requested ?
     pt_int32 width;             //  new width
     pt_int32 height;            //  new height

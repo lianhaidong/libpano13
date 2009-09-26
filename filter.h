@@ -70,7 +70,8 @@ enum{
 
 // Normalize an angle to +/-180degrees
 
-#define NORM_ANGLE( x )  while( x >180.0 ) x -= 360.0; while( x < -180.0 ) x += 360.0;
+#define NORM_ANGLE( x )      while( x >180.0 ) x -= 360.0; while( x < -180.0 ) x += 360.0;
+#define NORM_ANGLE_RAD( x )  fmod((x), PI)
 
 // Convert degree to radian
 
@@ -175,6 +176,11 @@ typedef struct perspective_Prefs pPrefs;
 
 struct optVars{									//  Indicate to optimizer which variables to optimize
 		int hfov;								//  optimize hfov? 0-no 1-yes , etc
+
+  // panotools uses these variables for two purposes: to 
+  // determine which variables are used for reference to another one
+  // and to determine which variables to optimize
+
 		int yaw;				
 		int pitch;				
 		int roll;				
@@ -185,10 +191,20 @@ struct optVars{									//  Indicate to optimizer which variables to optimize
 		int e;
 		int shear_x;
 		int shear_y;
-		int tiltX;
-		int tiltY;
-		int tiltZ;
-		int tiltScale;
+		int tiltXopt;
+		int tiltYopt;
+		int tiltZopt;
+		int tiltScaleOpt;
+  
+		int transXopt;
+		int transYopt;
+		int transZopt;
+
+		int testP0opt;
+		int testP1opt;
+		int testP2opt;
+		int testP3opt;
+
 		};
 		
 typedef struct optVars optVars;
@@ -365,6 +381,10 @@ struct MakeParams{								// Actual parameters used by Xform functions for pano-
 
   // Tilt 
 	double tilt[4]; // 0 around x, 1 around y, 2 around z, 3 scaling factor
+  // Translation of cmaera plane
+        double trans[3];
+  // For testing new projections
+        double test[4];
 
 
 	Image *im;
