@@ -1,4 +1,8 @@
 2009-09-25    <dmg@uvic.ca>
+	
+	* parser.c (ReadImageDescription): Removed a debugging printf I forgot
+	
+2009-09-25    <dmg@uvic.ca>
 
 	* correct.c (SetCorrectDefaults): Initialized values of new parameters.
 

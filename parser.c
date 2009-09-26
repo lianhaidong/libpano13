@@ -1894,7 +1894,7 @@ static int ReadImageDescription( Image *imPtr, stBuf *sPtr, char *line )
     memcpy( imPtr,  &im, sizeof(Image) );
     memcpy( sPtr,   &sBuf, sizeof(stBuf ) );
 
-    panoPrintImage("After read image", imPtr);
+    //    panoPrintImage("After read image", imPtr);
 
     return 0;
 }
