@@ -203,6 +203,7 @@ set(pano13_src
 # We have some header files at top source level now
 include_directories(${CMAKE_SOURCE_DIR})
 add_library(pano13 SHARED ${pano13_hdr} ${pano13_res} ${pano13_src})
+target_link_libraries(pano13 ${_common_libs})
 add_library(pano13a STATIC ${pano13_hdr} ${pano13_res} ${pano13_src})
 set_target_properties(pano13 PROPERTIES VERSION "2.0.0" SOVERSION "2")
 set_target_properties(pano13a PROPERTIES OUTPUT_NAME pano13)
