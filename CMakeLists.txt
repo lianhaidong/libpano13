@@ -202,15 +202,19 @@ set(pano13_src
 )
 # We have some header files at top source level now
 include_directories(${CMAKE_SOURCE_DIR})
-add_library(pano13 SHARED ${pano13_hdr} ${pano13_res} ${pano13_src})
-target_link_libraries(pano13 ${_common_libs})
-add_library(pano13a STATIC ${pano13_hdr} ${pano13_res} ${pano13_src})
-set_target_properties(pano13 PROPERTIES VERSION "2.0.0" SOVERSION "2")
-set_target_properties(pano13a PROPERTIES OUTPUT_NAME pano13)
 
-install(TARGETS pano13 pano13a
-  LIBRARY DESTINATION lib
-  ARCHIVE DESTINATION lib)
+if(NOT WIN32)
+  # Create and install shared library on non-windows
+  add_library(pano13 SHARED ${pano13_hdr} ${pano13_res} ${pano13_src})
+  target_link_libraries(pano13 ${_common_libs})
+  set_target_properties(pano13 PROPERTIES VERSION "2.0.0" SOVERSION "2")
+  install(TARGETS pano13 LIBRARY DESTINATION lib)
+endif()
+
+#create and install static library
+add_library(pano13a STATIC ${pano13_hdr} ${pano13_res} ${pano13_src})
+set_target_properties(pano13a PROPERTIES OUTPUT_NAME pano13)
+install(TARGETS pano13a ARCHIVE DESTINATION lib)
 
 install(FILES ${pano13_install_hdr} DESTINATION "include/pano13")
 
