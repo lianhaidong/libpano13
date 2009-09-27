@@ -1,7 +1,7 @@
 # This file is part of libpano13, the hugin build environment.
 # Licence details can be found in the file gpl.txt.
 #
-# Copyright (c) 2008, 2009 Kornel Benko, <Kornel.Benko@berlin.de>
+# Copyright (c) 2009 Kornel Benko, <Kornel.Benko@berlin.de>
 #
 
 project(test1)
