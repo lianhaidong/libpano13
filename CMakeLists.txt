@@ -200,7 +200,8 @@ set(pano13_src
 	Triangulate.c
 	ZComb.c
 )
-
+# We have some header files at top source level now
+include_directories(${CMAKE_SOURCE_DIR})
 add_library(pano13 SHARED ${pano13_hdr} ${pano13_res} ${pano13_src})
 add_library(pano13a STATIC ${pano13_hdr} ${pano13_res} ${pano13_src})
 set_target_properties(pano13 PROPERTIES VERSION "2.0.0" SOVERSION "2")
