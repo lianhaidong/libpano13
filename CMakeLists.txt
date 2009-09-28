@@ -287,6 +287,8 @@ if(NOT ${_svnversion} MATCHES "-NOTFOUND")
   endif()
 endif()
 
+set(CPACK_SOURCE_PACKAGE_FILE_NAME "libpano13-${PACKAGE_VERSION}")
+
 include(CPack)
 
 
