@@ -23,7 +23,7 @@ include_directories(${TOP_SRC_DIR})
 
 foreach(_cmd ${commands})
   add_executable(${_cmd} ${_cmd}.c)
-  target_link_libraries(${_cmd} pano13 ${_common_libs})
+  target_link_libraries(${_cmd} ${_pano_target} ${_common_libs})
   install(TARGETS ${_cmd} DESTINATION bin CONFIGURATIONS Release RelWithDebInfo MinSizeRel)
 endforeach(_cmd)
 
