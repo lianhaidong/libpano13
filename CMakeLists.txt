@@ -205,6 +205,9 @@ if(NOT WIN32)
   target_link_libraries(pano13 ${_common_libs})
   set_target_properties(pano13 PROPERTIES VERSION "2.0.0" SOVERSION "2")
   install(TARGETS pano13 LIBRARY DESTINATION lib)
+  set(_pano_target pano13)
+else()
+  set(_pano_target pano13a)
 endif()
 
 #create and install static library
@@ -217,9 +220,9 @@ install(FILES ${pano13_install_hdr} DESTINATION "include/pano13")
 set(TOP_SRC_DIR ${CMAKE_SOURCE_DIR})
 
 add_subdirectory(man)
-add_dependencies(pano13 man)
+add_dependencies(${_pano_target} man)
 add_subdirectory(tools)
-add_dependencies(tools pano13)
+add_dependencies(tools ${_pano_target})
 
 macro(setstripped _varname _value)
   string(STRIP ${_value} _v)
