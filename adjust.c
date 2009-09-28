@@ -41,7 +41,7 @@
 #include "f2c.h"
 #include <float.h>
 #include <assert.h>
-#include <PTcommon.h>
+#include "PTcommon.h"
 
 #define C_FACTOR        100.0
 
