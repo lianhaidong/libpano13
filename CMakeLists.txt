@@ -34,10 +34,6 @@ ELSE(HUGIN_BASE_DIR)
   set(CMAKE_MODULE_PATH ${SOURCE_BASE_DIR}/hugin/CMakeModules)
 ENDIF(HUGIN_BASE_DIR)
 
-if(WIN32)
-  ## load the Hugin cmake modules
-  include(HuginMacros)
-endif()
 include(CheckIncludeFiles)
 
 ##  global setup
