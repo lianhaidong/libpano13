@@ -1,3 +1,53 @@
+2009-09-28  kornelbenko
+
+	* [r1094] CMakeLists.txt, tools/CMakeLists.txt: Use the correct target
+	  to add dependencies
+	  and also to create executables.
+	  
+	  On windows, bind with tha static target/library,
+	  on other platforms with the shared target.
+	* [r1093] tools/PTblender.c, tools/PTinfo.c, tools/PTmasker.c,
+	  tools/PTmender.c, tools/PTroller.c, tools/PTtiff2psd.c: Remove
+	  unneded include.
+	  It broke compilation on windows.
+	  (Suggestion from Daniel M. German)
+	* [r1092] CMakeLists.txt: Added version to created source package
+	* [r1091] CMakeLists.txt: Remove the use of HuginMacros on windows.
+	  Apparently not needed.
+
+2009-09-28  jim0watters
+
+	* [r1090] adjust.c: Fix build error with MSVC
+
+2009-09-27  kornelbenko
+
+	* [r1089] CMakeLists.txt: For now don't try to install a dll on
+	  windows due to
+	  some link errors.
+	* [r1088] CMakeLists.txt, man/CMakeLists.txt, tests/CMakeLists.txt,
+	  tests/simpleStitch/CMakeLists.txt,
+	  tests/simpleTiff16/CMakeLists.txt, tools/CMakeLists.txt:
+	  libpano/CMakeLists.txt: Added ${_common_libs} to the link stage of
+	  the shared pano13 lib.
+	  Needed on OSX Platform.
+	  Corrected the copyright-dates
+
+2009-09-27  brunopostle
+
+	* [r1085] CMakeLists.txt: Unify mixed line endings
+
+2009-09-27  kornelbenko
+
+	* [r1084] CMakeLists.txt: Add top source directory for includes
+	  (This is, where nowadays some include files like PTcommon.h are
+	  found
+	  now)
+
+2009-09-26  brunopostle
+
+	* [r1083] ChangeLog.svn, Makefile.am: auto-generated ChangeLog.svn
+	  file
+
 2009-09-26  dmg
 
 	* [r1082] parser.c: commented debugging
