@@ -64,7 +64,7 @@ extern int quietFlag;
 int  panoPSDCreate(  fullPath *fullPathImages, int, fullPath*, pano_flattening_parms*);
 
 int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles, fullPath *panoFileName, fullPath *scriptFileName);
-
+void ARGtoRGBAImage(Image *im);
 void panoReplaceExt(char* filename, char *extension);
 int panoUnCropTiff(char *inputFile, char *outputFile);
 
