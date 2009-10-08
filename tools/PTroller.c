@@ -61,19 +61,18 @@
 
 int main(int argc,char *argv[])
 {
+    int returnValue = -1;
     char opt;
-    fullPath *ptrInputFiles;
-    fullPath *ptrOutputFiles;
+    fullPath *ptrInputFiles   = NULL;
+    fullPath *ptrOutputFiles  = NULL;
     
     int counter;
     char flatOutputFileName[MAX_PATH_LENGTH];
-    int filesCount;
+    int filesCount = 0;
     int base = 0;
     fullPath pathName;
     int ptForceProcessing = 0;
     int ptDeleteSources = 0;
-
-    ptrInputFiles = NULL;
 
     counter = 0;
 
@@ -107,7 +106,8 @@ int main(int argc,char *argv[])
             break;
         case 'h':
             printf(PT_ROLLER_USAGE);
-            exit(0);
+            returnValue = 0;
+            goto end;
         default:
             break;
         }
@@ -118,7 +118,7 @@ int main(int argc,char *argv[])
     if ((ptrInputFiles = calloc(filesCount, sizeof(fullPath))) == NULL || 
         (ptrOutputFiles = calloc(filesCount, sizeof(fullPath))) == NULL)        {
         PrintError("Not enough memory");
-        return -1;
+        goto end;
     }
 
     base = optind;
@@ -129,19 +129,19 @@ int main(int argc,char *argv[])
 
         if (StringtoFullPath(&ptrInputFiles[optind-base], currentParm) !=0) { // success
             PrintError("Syntax error: Not a valid pathname");
-            return(-1);
+            goto end;
         }
     }
 
     if (filesCount <= 0) {
         PrintError("No files specified in the command line");
         fprintf(stderr, PT_ROLLER_USAGE);
-        return -1;
+        goto end;
     }
 
     if (StringtoFullPath(&pathName, flatOutputFileName) != 0) { 
         PrintError("Not a valid output filename");
-        return(-1);
+        goto end;
     }
     panoReplaceExt(pathName.name, ".tif");
 
@@ -150,32 +150,34 @@ int main(int argc,char *argv[])
 	char *temp;
 	if ((temp = panoFileExists(&pathName, 1)) != NULL) {
 	    PrintError("Output filename exists %s", pathName.name);
-	    return -1;
+	    goto end;
 	}
 	
 	if (!panoTiffVerifyAreCompatible(ptrInputFiles, filesCount, TRUE)) {
 	    PrintError("Input files are not compatible");
-	    return -1;
+	    goto end;
 	}
     }
 
     if (!panoFlattenTIFF(ptrInputFiles, filesCount, &pathName, FALSE)) { 
         PrintError("Error while flattening TIFF-image");
-        return -1;
+        goto end;
     }
 
-    if (ptrInputFiles) free(ptrInputFiles);
-    if (ptrOutputFiles) free(ptrOutputFiles);
+    returnValue = 0; // success
 
-    if (ptDeleteSources) {
+end:
+    if (ptDeleteSources && returnValue!=-1 && ptrInputFiles) {
 	int i;
 	for (i = 0; i < filesCount; i++) {
 	    remove(ptrInputFiles[i].name);
 	}
     }
+    if (ptrInputFiles) free(ptrInputFiles);
+    if (ptrOutputFiles) free(ptrOutputFiles);
 
 
-    return 0;
+    return returnValue;
   
 }
 

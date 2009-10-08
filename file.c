@@ -2005,6 +2005,7 @@ char* LoadScript( fullPath* scriptFile )
     if( myopen( scriptFile, read_text, fnum ))
     {
         PrintError("Error Opening Scriptfile: %s", scriptFile->name);
+        free(script);
         goto _loadError;
     }
     
