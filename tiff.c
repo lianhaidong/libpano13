@@ -1229,7 +1229,6 @@ pano_Tiff *panoTiffCreateGeneral(char *fileName,
     //printf("Copy metadata from %d\n", (int) metadata->cropInfo.fullWidth);
     if (!panoMetadataCopy(&panoTiff->metadata, metadata)) {
         panoTiffClose(panoTiff);
-        free(panoTiff);
         return NULL;
     }
 
