@@ -388,7 +388,7 @@ int main(int argc,char *argv[])
 char* Filename(fullPath* path)
 {
     char *temp;
-    if ((temp = strrchr(path->name, '/')) != NULL) {
+    if ((temp = strrchr(path->name, PATH_SEP)) != NULL) {
 	temp++;
     } else {
 	temp = path->name;

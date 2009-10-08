@@ -1,3 +1,13 @@
+2009-10-07 jim0watters
+
+    * PTmender.c: use define for path seperator.
+
+	* ColourBrightness.c, file.c, hdrfile.c, main.c, parser.c, PTcommon.c, 
+	ptstitch.c, tiff.c pttiff.h: Fixed many possible memory leaks for libpano
+	
+	* PTblender.c, PTmasker.c, PTmender.h, PTroller.c: Fixed many possible 
+	memory leaks for the tools.
+	
 2009-09-25    <dmg@uvic.ca>
 	
 	* parser.c (ReadImageDescription): Removed a debugging printf I forgot
