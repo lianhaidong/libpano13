@@ -224,7 +224,7 @@ int panoPSDCreate(fullPath * fullPathImages, int numberImages,
 #endif
 
 
-static void ARGtoRGBAImage(Image * im)
+void ARGtoRGBAImage(Image * im)
 {
     int right;
     int left;
