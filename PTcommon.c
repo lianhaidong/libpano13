@@ -746,6 +746,7 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
 
     if ((regScript = LoadScript(scriptFileName)) == 0) {
         PrintError("Could not load ScriptFile");
+        fclose(regFile);
         goto mainError;
     }
 
@@ -757,6 +758,7 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
     // Make sure script was written completely
     if (regWritten != strlen(regScript)) {
         PrintError("Could not write temporary script");
+        fclose(regFile);
         goto mainError;
     }
     
@@ -1802,8 +1804,8 @@ int panoCroppingMain(int argc,char *argv[], int operation, char *version, char *
     pano_cropping_parms croppingParms;
     char outputPrefix[MAX_PATH_LENGTH];
     int ptDeleteSources = 0;
-    fullPath *ptrInputFiles;
-    fullPath *ptrOutputFiles;
+    fullPath *ptrInputFiles = NULL;
+    fullPath *ptrOutputFiles = NULL;
     int base;
     int i;
   
@@ -1857,6 +1859,8 @@ int panoCroppingMain(int argc,char *argv[], int operation, char *version, char *
     if ((ptrInputFiles = calloc(filesCount, sizeof(fullPath))) == NULL || 
         (ptrOutputFiles = calloc(filesCount, sizeof(fullPath))) == NULL)        {
         PrintError("Not enough memory");
+	      free(ptrInputFiles);
+	      free(ptrOutputFiles);
         return -1;
     }
 

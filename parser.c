@@ -1470,6 +1470,7 @@ void readControlPoints(char* script, controlPoint *cp )
                 break;
         }
     }
+    panoLocaleRestore;
 }
 
 
@@ -2131,7 +2132,7 @@ int readPositions( char* script, transformCoord *tP )
     if( tP->r == NULL || tP->p == NULL )
     {
         PrintError("Not enough memory");
-        return -1;
+        goto fail;
     }
 
 

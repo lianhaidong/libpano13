@@ -55,10 +55,10 @@ extern int jpegProgressive;
 
 
 
-void ReplaceExt(char *, char*);
+//void ReplaceExt(char *, char*);
 char* Filename(fullPath* path);
-int CreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles, fullPath *panoFileName, fullPath *scriptFileName);
-void ARGtoRGBAImage(Image *im);
+//int CreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles, fullPath *panoFileName, fullPath *scriptFileName);
+//void ARGtoRGBAImage(Image *im);
 
 
 /* These functions need to be implemented */

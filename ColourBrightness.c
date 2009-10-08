@@ -44,7 +44,7 @@
 #define round(x) (int)(x)
 #endif
 
-FILE *debugFile;
+FILE *debugFile = 0;
 
 
 #ifdef __TESTING__
@@ -89,6 +89,7 @@ magnolia_struct *InitializeMagnolia(int numberImages, int size, calla_function p
     for (j=0; j<6 ; j++) { 
 
       if ((ptrDouble = calloc(size, sizeof(double))) == NULL) {
+        /// @TODO clean up memory leak
         return NULL;
       }
 
@@ -578,6 +579,12 @@ void ColourBrightness(  fullPath *fullPathImages,  fullPath *outputFullPathImage
 
   numberHistograms = ((counterImages-1) * counterImages)/2;
 
+  if(debugFile)
+  {
+    fclose(debugFile);
+    debugFile = 0;
+  }
+
   debugFile = fopen("Debug.txt", "w");
   //  debugFile = stderr;
 
@@ -934,15 +941,15 @@ int ComputeColourBrightnessCorrection(calla_struct *calla)
 {
 
 
-  double *remappedSourceHistogram;
-  double *accumToCorrectHistogram;
-  double *accumSourceHistogram;
-  int *processedImages;
+  double *remappedSourceHistogram   = 0;
+  double *accumToCorrectHistogram   = 0;
+  double *accumSourceHistogram      = 0;
+  int    *processedImages           = 0;
 
   int currentImageNumber;
   int channel;
   int numberIntersections;
-  histograms_struct *currentHistogram;
+  histograms_struct *currentHistogram = 0;
   int j;
 
   int **ptrHistogram;
@@ -964,18 +971,26 @@ int ComputeColourBrightnessCorrection(calla_struct *calla)
   remappedSourceHistogram = malloc(0x100 * sizeof(double));
 
 
-  if ( processedImages == 0 )
+  if ( processedImages == 0
+    || accumToCorrectHistogram == 0
+    || accumSourceHistogram == 0  
+    || remappedSourceHistogram == 0 )
+  {
+    if ( processedImages != 0 )
+      free(processedImages);
+
+    if ( remappedSourceHistogram != 0 )
+      free(remappedSourceHistogram);
+
+    if ( accumToCorrectHistogram != 0 ) 
+      free(accumToCorrectHistogram);
+
+    if ( accumSourceHistogram != 0 )
+      free(accumSourceHistogram);
+
     return 0;
-  
-  if ( accumToCorrectHistogram == 0 ) 
-    return 0;
-  
-  if (accumSourceHistogram == 0 ) 
-    return 0;
-  
-  if (remappedSourceHistogram == 0 )
-    return 0;
-  
+  }
+
   // Mark starting image as done
   processedImages[calla->indexReferenceImage] = 1;
 
@@ -1184,7 +1199,7 @@ histograms_struct *ReadHistograms (fullPath *fullPathImages, int numberImages)
   int currentRow;
   int otherImage;
   int currentImage;
-  TIFF **ptrTIFFs;
+  TIFF **ptrTIFFs = NULL;
   uint16 samplesPerPixel;
   uint16 bitsPerSample;
   uint32 imageLength;
@@ -1226,7 +1241,10 @@ histograms_struct *ReadHistograms (fullPath *fullPathImages, int numberImages)
   crop_info_array = (CropInfo *)calloc(numberImages, sizeof(CropInfo));
   
   if ( ptrTIFFs == NULL || crop_info_array == NULL )
-    return 0;
+  {
+    saveReturnValue = 0;
+    goto Exit;
+  }
   
   currentImage = 0;
 
@@ -1235,13 +1253,15 @@ histograms_struct *ReadHistograms (fullPath *fullPathImages, int numberImages)
 
     if (GetFullPath(&fullPathImages[currentImage],tempString) != 0) {
       PrintError("Could not get filename");
-      return(0);
+      saveReturnValue = 0;
+      goto Exit;
     }
     
     if ((ptrTIFFs[currentImage] = TIFFOpen(tempString, "r")) == NULL) {
       sprintf(tempString2, "Could not open TIFF file [%s]", tempString);
       PrintError(tempString2);
-      return NULL;
+      saveReturnValue = 0;
+      goto Exit;
     }
     
     getCropInformationFromTiff(ptrTIFFs[currentImage], &(crop_info_array[currentImage]));
@@ -1268,7 +1288,8 @@ histograms_struct *ReadHistograms (fullPath *fullPathImages, int numberImages)
 
   if ( imagesDataBuffer == 0 ) {
     PrintError("Not enough memory");
-    return NULL;
+    saveReturnValue = 0;
+    goto Exit;
   }
 
   currentHistogram = ptrHistograms;
@@ -1294,11 +1315,15 @@ histograms_struct *ReadHistograms (fullPath *fullPathImages, int numberImages)
       for (i = 0 ;  i < 6 ; i++) {
         
         if ((currentHistogram->ptrBaseHistograms[i] = calloc(currentHistogram->numberDifferentValues, sizeof(int))) == NULL)
-          return 0;
-        
+        {
+          saveReturnValue = 0;
+          goto Exit;
+        }
         if ((currentHistogram->ptrOtherHistograms[i] = calloc(currentHistogram->numberDifferentValues,sizeof(int))) == NULL)
-          return 0;
-        
+        {
+          saveReturnValue = 0;
+          goto Exit;
+        }
       } // for
       
     } //for (otherImage = currentImage + 1; otherImage < numberImages ; otherImage++, currentHistogram++) 
@@ -1323,7 +1348,8 @@ histograms_struct *ReadHistograms (fullPath *fullPathImages, int numberImages)
             TIFFClose(ptrTIFFs[currentImage]);
             
           } //for
-          return 0;
+          saveReturnValue = 0;
+          goto Exit;
 
         } // progresss
         
@@ -1482,6 +1508,7 @@ histograms_struct *ReadHistograms (fullPath *fullPathImages, int numberImages)
 
   }
 
+Exit:
   free(ptrTIFFs);
   free(imagesDataBuffer);
 

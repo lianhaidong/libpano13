@@ -1222,12 +1222,14 @@ pano_Tiff *panoTiffCreateGeneral(char *fileName,
     panoTiff->tiff = TIFFOpen(fileName, "w");
     if (panoTiff->tiff == NULL) {
         PrintError("Unable to create output file [%s]", fileName);
+        free(panoTiff);
         return NULL;
     }
 
     //printf("Copy metadata from %d\n", (int) metadata->cropInfo.fullWidth);
     if (!panoMetadataCopy(&panoTiff->metadata, metadata)) {
         panoTiffClose(panoTiff);
+        free(panoTiff);
         return NULL;
     }
 
@@ -1238,6 +1240,7 @@ pano_Tiff *panoTiffCreateGeneral(char *fileName,
     //printf("Copy metadata %d\n", (int) panoTiff->metadata.cropInfo.fullWidth);
     if (!panoTiffSetImageProperties(panoTiff)) {
         panoTiffClose(panoTiff);
+        free(panoTiff);
         return NULL;
     }
     //printf("After set image properties\n");

@@ -69,23 +69,22 @@
 
 int main(int argc,char *argv[])
 {
+    int returnValue = -1;
     char opt;
     int referenceImage = 0;
-    fullPath *ptrInputFiles;
-    fullPath *ptrOutputFiles;
+    fullPath *ptrInputFiles   = NULL;
+    fullPath *ptrOutputFiles  = NULL;
 
     int counter;
     char outputPrefix[MAX_PATH_LENGTH];
     char *endPtr;
-    int filesCount;
+    int filesCount = 0;
     char tempString[MAX_PATH_LENGTH];
     int base = 0;
     int outputCurvesType = 0; // if 1 => create Photoshop curve files (.acv)
     int typeCorrection = 0;
     int ptForceProcessing = 0;
     int ptDeleteSources = 0;
-
-    ptrInputFiles = NULL;
 
     counter = 0;
 
@@ -107,21 +106,21 @@ int main(int argc,char *argv[])
 		strcpy(outputPrefix, optarg);
 	    } else {
 		PrintError("Illegal length for output prefix");
-		return -1;
+		goto end;
 	    }
 	    break;
 	case 'k':
 	    referenceImage = strtol(optarg, &endPtr, 10);
 	    if (errno != 0) {
 		PrintError("Invalid integer in -k option");
-		return -1;
+		goto end;
 	    }
 	    break;
 	case 't':
 	    typeCorrection = strtol(optarg, &endPtr, 10);
 	    if (errno != 0 || (typeCorrection < 0 || typeCorrection > 2)) {
 		PrintError("Invalid integer in -t option");
-		return -1;
+		goto end;
 	    }
 	    break;
 	case 'f':
@@ -132,14 +131,14 @@ int main(int argc,char *argv[])
 	case 'c':
 	    if (outputCurvesType == CB_OUTPUT_CURVE_ARBITRARY) {
 		PrintError("Can't use both -c and -m options");
-		return -1;
+		goto end;
 	    }
 	    outputCurvesType = CB_OUTPUT_CURVE_SMOOTH;
 	    break;
 	case 'm':
 	    if (outputCurvesType == CB_OUTPUT_CURVE_SMOOTH) {
 		PrintError("Can't use both -c and -m options");
-		return -1;
+		goto end;
 	    }
 	    outputCurvesType = CB_OUTPUT_CURVE_ARBITRARY;
 	    break;
@@ -148,7 +147,8 @@ int main(int argc,char *argv[])
             break;
 	case 'h':
 	    printf(PT_BLENDER_USAGE);
-	    exit(0);
+        returnValue = 0;
+	    goto end;
 	default:
 	    break;
 	}
@@ -159,7 +159,7 @@ int main(int argc,char *argv[])
     if ((ptrInputFiles = calloc(filesCount, sizeof(fullPath))) == NULL || 
 	(ptrOutputFiles = calloc(filesCount, sizeof(fullPath))) == NULL)  {
 	PrintError("Not enough memory");
-	return -1;
+	goto end;
     }
 
     base = optind;
@@ -170,31 +170,31 @@ int main(int argc,char *argv[])
 
 	if (StringtoFullPath(&ptrInputFiles[optind-base], currentParm) !=0) { // success
 	    PrintError("Syntax error: Not a valid pathname");
-	    return(-1);
+	    goto end;
 	}
     }
 
     if (filesCount <= 0) {
 	PrintError("No files specified in the command line");
 	fprintf(stderr, PT_BLENDER_USAGE);
-	return -1;
+	goto end;
     }
 
     if (referenceImage < 0 || referenceImage >= filesCount) {
 	PrintError(tempString, "Illegal reference image number %d. It should be between 0 and %d\n", 
 		referenceImage, filesCount-1);
-	return -1;
+	goto end;
     }
 
     //We can't output curves for type 1 or 2 corrections
     if (outputCurvesType != 0) {
 	if (typeCorrection!= 0) {
 	    PrintError("Output of curves is not supported for correction type %d", typeCorrection);
-	    return -1;
+	    goto end;
 	}
     }
     if (panoFileOutputNamesCreate(ptrOutputFiles, filesCount, outputPrefix) == 0) {
-	return -1;
+	goto end;
     }
 
 
@@ -203,12 +203,12 @@ int main(int argc,char *argv[])
 	char *temp;
 	if ((temp = panoFileExists(ptrOutputFiles, filesCount)) != NULL) {
 	    PrintError("Output filename(s) exists. Use -f to overwrite");
-	    return -1;
+	    goto end;
 	}
 
 	if (!panoTiffVerifyAreCompatible(ptrInputFiles, filesCount, TRUE)) {
 	    PrintError("TIFFs are not compatible");
-	    return -1;
+	    goto end;
 	}
     }
 
@@ -216,17 +216,19 @@ int main(int argc,char *argv[])
 
     ColourBrightness(ptrInputFiles, ptrOutputFiles, filesCount, referenceImage, typeCorrection, outputCurvesType);
 
-    free(ptrInputFiles);
-    ptrInputFiles = ptrOutputFiles;
-    ptrOutputFiles = NULL;
+    returnValue = 0; // success
 
-    if (ptDeleteSources) {
+end:
+
+    if (ptDeleteSources && returnValue!=-1 && ptrInputFiles) {
 	int i;
 	for (i = 0; i < filesCount; i++) {
 	    remove(ptrInputFiles[i].name);
 	}
     }
-    return 0;
-  
+    free(ptrInputFiles);
+    free(ptrInputFiles);
+
+    return returnValue;  
 }
 

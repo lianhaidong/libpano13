@@ -82,13 +82,14 @@
 
 int main(int argc,char *argv[])
 {
+    int returnValue = -1;
     char opt;
-    fullPath *ptrInputFiles;
-    fullPath *ptrOutputFiles;
+    fullPath *ptrInputFiles   = NULL;
+    fullPath *ptrOutputFiles  = NULL;
     
     int counter;
     char outputPrefix[MAX_PATH_LENGTH];
-    int filesCount;
+    int filesCount = 0;
     int base = 0;
     int ptForceProcessing = 0;
     int feather = 0;
@@ -97,8 +98,6 @@ int main(int argc,char *argv[])
     int focusEstimationWindowSize = 0;
     int focusEstimationMaskType = -1;
     int focusEstimationSmoothingWindowSize = 0;
-
-    ptrInputFiles = NULL;
 
     counter = 0;
     outputPrefix[0] = 0;
@@ -118,28 +117,28 @@ int main(int argc,char *argv[])
             feather = strtol(optarg, NULL, 10);
             if (errno != 0) {
                 PrintError("Illegal value for feather");
-                return -1;
+                goto end;
             }
             break;
         case 'w':
             focusEstimationWindowSize = strtol(optarg, NULL, 10);
             if (errno != 0 || focusEstimationWindowSize <= 0) {
                 PrintError("Illegal value for focus estimation window size [%s]", optarg);
-                return -1;
+                goto end;
             }
             break;
         case 'm':
             focusEstimationMaskType = strtol(optarg, NULL, 10);
             if (errno != 0 || focusEstimationMaskType  <0 || focusEstimationMaskType > 2) {
               PrintError("Illegal value for focus estimation window type [%s]", optarg);
-                return -1;
+                goto end;
             }
             break;
         case 's':
             focusEstimationSmoothingWindowSize = strtol(optarg, NULL, 10);
             if (errno != 0 || focusEstimationSmoothingWindowSize <= 0) {
                 PrintError("Illegal value for focus estimation smoothing window size [%s]", optarg);
-                return -1;
+                goto end;
             }
             break;
 
@@ -148,7 +147,7 @@ int main(int argc,char *argv[])
                 strcpy(outputPrefix, optarg);
             } else {
                 PrintError("Illegal length for output prefix");
-                return -1;
+                goto end;
             }
             break;
         case 'z':
@@ -165,10 +164,12 @@ int main(int argc,char *argv[])
             break;
         case 'h':
             printf(PT_MASKER_USAGE);
-            exit(0);
+            returnValue = 0;
+            goto end;
         default:
             printf(PT_MASKER_USAGE);
-            exit(1);
+            returnValue = 1;
+            goto end;
             break;
         }
     }
@@ -184,7 +185,7 @@ int main(int argc,char *argv[])
     if (filesCount < 1) {
         PrintError("No files specified in the command line");
         fprintf(stderr, PT_MASKER_USAGE);
-        return -1;
+        goto end;
     }
 
     if (enableFocusEstimation == 0) {
@@ -192,12 +193,12 @@ int main(int argc,char *argv[])
         focusEstimationSmoothingWindowSize != 0 ||
         focusEstimationMaskType != -1)  {
         PrintError("You should specify -z option in order to use options -m -w  or -s");
-        return -1;
+        goto end;
       }
     } else {
     if (feather == 0) {
         PrintError("-z requires feathering (use -e)");
-        return -1;
+        goto end;
     }
 
     if (filesCount == 1) {
@@ -219,7 +220,7 @@ int main(int argc,char *argv[])
     if ((ptrInputFiles = calloc(filesCount, sizeof(fullPath))) == NULL || 
         (ptrOutputFiles = calloc(filesCount, sizeof(fullPath))) == NULL)        {
         PrintError("Not enough memory");
-        return -1;
+        goto end;
     }
 
     // GET input file names
@@ -231,13 +232,13 @@ int main(int argc,char *argv[])
 
         if (StringtoFullPath(&ptrInputFiles[optind-base], currentParm) !=0) { // success
             PrintError("Syntax error: Not a valid pathname");
-            return(-1);
+            goto end;
         }
     }
 
     // Generate output file names
     if (panoFileOutputNamesCreate(ptrOutputFiles, filesCount, outputPrefix) == 0) {
-      return -1;
+      goto end;
     }
 
 
@@ -250,12 +251,12 @@ int main(int argc,char *argv[])
 	char *temp;
 	if ((temp = panoFileExists(ptrOutputFiles, filesCount)) != NULL) {
 	    PrintError("Output filename exists %s. Use -f to overwrite", temp);
-	    return -1;
+	    goto end;
 	}
 	if (filesCount > 1) {
 	    if (!panoTiffVerifyAreCompatible(ptrInputFiles, filesCount, TRUE)) {
 		PrintError("Input files are not compatible. Use -f to overwrite");
-		return -1;
+		goto end;
 	    }
 	}
     }
@@ -265,42 +266,40 @@ int main(int argc,char *argv[])
       // only do feathering
 	if (feather == 0) {
 	    PrintError("Only one file specified, nothing to do\n");
-	    return -1;
+	    goto end;
 	}
-	if (panoFeatherFile(ptrInputFiles, ptrOutputFiles, feather)) {
-	    return 0;
-	} else
-	    return 1;
+	if (!panoFeatherFile(ptrInputFiles, ptrOutputFiles, feather)) {
+	    goto end;
+	}
 
     }
+    else { //if (filesCount > 1)
+      if (enableFocusEstimation)  {
+	  ZCombSetFocusWindowHalfwidth(focusEstimationWindowSize);
+	  ZCombSetSmoothingWindowHalfwidth(focusEstimationSmoothingWindowSize);
+	  ZCombSetMaskType(focusEstimationMaskType);
+	  ZCombSetEnabled();
+      }
 
-    if (enableFocusEstimation)  {
-	ZCombSetFocusWindowHalfwidth(focusEstimationWindowSize);
-	ZCombSetSmoothingWindowHalfwidth(focusEstimationSmoothingWindowSize);
-	ZCombSetMaskType(focusEstimationMaskType);
-	ZCombSetEnabled();
+      if (panoStitchReplaceMasks(ptrInputFiles, ptrOutputFiles, filesCount,
+			         feather) != 0) {
+	  PrintError("Could not create stitching masks");
+	  goto end;
+      }
     }
 
+    returnValue = 0; //success
 
-
-    if (panoStitchReplaceMasks(ptrInputFiles, ptrOutputFiles, filesCount,
-			       feather) != 0) {
-	PrintError("Could not create stitching masks");
-	return -1;
-    }
-
-    if (ptrInputFiles) free(ptrInputFiles);
-    if (ptrOutputFiles) free(ptrOutputFiles);
-
-    if (ptDeleteSources) {
+end:
+    if (ptDeleteSources && returnValue!=-1 && ptrInputFiles) {
 	int i;
 	for (i = 0; i < filesCount; i++) {
 	    remove(ptrInputFiles[i].name);
 	}
     }
+    if (ptrInputFiles) free(ptrInputFiles);
+    if (ptrOutputFiles) free(ptrOutputFiles);
 
-
-    return 0;
-  
+    return returnValue;
 }
 

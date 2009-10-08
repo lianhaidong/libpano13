@@ -86,6 +86,7 @@ int writeHDR( Image *im, fullPath *sfile)
 	if ((outfile = fopen(filename, "wb")) == NULL) 
 	{
 	    PrintError("can't open %s", filename);
+      free( data );
 	    return -1;
 	}
 	

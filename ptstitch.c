@@ -477,9 +477,9 @@ static int panoStitchReplaceAlphaChannel(fullPath * inputImage, fullPath * mask,
     unsigned char *source;
     unsigned char *destination;
 
-    pano_Tiff *imageFile;
-    pano_Tiff *outputFile;
-    pano_Tiff *maskFile;
+    pano_Tiff *imageFile  = NULL;
+    pano_Tiff *outputFile = NULL;
+    pano_Tiff *maskFile   = NULL;
 
     int jumpBytes;
     int alphaChannelOffset;
@@ -499,7 +499,8 @@ static int panoStitchReplaceAlphaChannel(fullPath * inputImage, fullPath * mask,
     // Open input image   
     if ((imageFile = panoTiffOpen(inputImage->name)) == NULL) {
         PrintError("Could not open TIFF-file");
-        return 0;
+        returnValue = 0;
+        goto end;
     }
 
     //Allocate line buffers for image and mask
@@ -507,20 +508,23 @@ static int panoStitchReplaceAlphaChannel(fullPath * inputImage, fullPath * mask,
         || (maskRowBuffer =
             calloc(panoTiffBytesPerLine(imageFile), 1)) == NULL) {
         PrintError("Not enough memory");
-        return 0;
+        returnValue = 0;
+        goto end;
     }
 
     // Open mask file
     if ((maskFile = panoTiffOpen(mask->name)) == NULL) {
         PrintError("Could not open mask file");
-        return 0;
+        returnValue = 0;
+        goto end;
     }
 
     // Create output file
     if ((outputFile =
          panoTiffCreate(output->name, &maskFile->metadata)) == NULL) {
         PrintError("Could not create TIFF-file");
-        return 0;
+        returnValue = 0;
+        goto end;
     }
 
     // Processing one row at a time
@@ -571,15 +575,19 @@ static int panoStitchReplaceAlphaChannel(fullPath * inputImage, fullPath * mask,
     returnValue = 1;
   end:
 
-    panoTiffClose(imageFile);
-    panoTiffClose(maskFile);
-    panoTiffClose(outputFile);
+    if(imageFile)
+      panoTiffClose(imageFile);
+
+    if(maskFile)
+      panoTiffClose(maskFile);
+
+    if(outputFile)
+      panoTiffClose(outputFile);
 
     free(imageRowBuffer);
     free(maskRowBuffer);
 
     return returnValue;
-
 }
 
 
@@ -803,8 +811,9 @@ int panoStitchCreateAlphaChannels(fullPath * masksNames,
 int panoStitchReplaceMasks(fullPath * inputFiles, fullPath * outputFiles,
                                   int numberImages, int featherSize)
 {
-    fullPath *alphaChannelFiles;
-    fullPath *maskFiles;
+    int returnValue = -1; // default to fail
+    fullPath *alphaChannelFiles = NULL;
+    fullPath *maskFiles         = NULL;
     int i;
     Image image;
     char tempString[512];
@@ -822,18 +831,18 @@ int panoStitchReplaceMasks(fullPath * inputFiles, fullPath * outputFiles,
 
     if (maskFiles == NULL || alphaChannelFiles == NULL) {
         PrintError("Not enough memory");
-        return -1;
+        goto end;
     }
 
     // CREATE stitching maps
     if (!panoStitchCreateMaskMapFiles(inputFiles, maskFiles, numberImages)) {
         PrintError("Could not create the stitching masks");
-        return -1;
+        goto end;
     }
 
     if (!panoStitchCreateAlphaChannels(maskFiles, alphaChannelFiles, numberImages)) {
         PrintError("Could not create alpha channels");
-        return -1;
+        goto end;
     }
 
     // From this point on we do not need to process all files at once. This will save temporary disk space
@@ -846,7 +855,7 @@ int panoStitchReplaceMasks(fullPath * inputFiles, fullPath * outputFiles,
         if (ptQuietFlag == 0) {
             if (Progress(_setProgress, tempString) == 0) {
                 // We have to delete any temp file
-                return -1;
+                goto end;
             }
         }
 
@@ -860,7 +869,7 @@ int panoStitchReplaceMasks(fullPath * inputFiles, fullPath * outputFiles,
         if (!panoStitchReplaceAlphaChannel
             (&inputFiles[i], &alphaChannelFiles[i], &withAlphaChannel)) {
             PrintError("Unable to replace alpha channel in image %d", i);
-            return -1;
+            goto end;
         }
         // we no longer need the alpha channel
         remove(alphaChannelFiles[i].name);
@@ -875,7 +884,7 @@ int panoStitchReplaceMasks(fullPath * inputFiles, fullPath * outputFiles,
 
             if (!panoFeatherFile(&withAlphaChannel, &feathered, featherSize)) {
                 PrintError("Unable to apply feather to image %d", i);
-                return -1;
+                goto end;
             }
 
 	    if (strcmp(withAlphaChannel.name, feathered.name) != 0) {
@@ -888,11 +897,13 @@ int panoStitchReplaceMasks(fullPath * inputFiles, fullPath * outputFiles,
 
         }
     }
+    returnValue = 0; //success
 
+end:
     free(maskFiles);
     free(alphaChannelFiles);
 
-    return 0;
+    return returnValue;
 
 }
 
