@@ -1511,6 +1511,7 @@ histograms_struct *ReadHistograms (fullPath *fullPathImages, int numberImages)
 Exit:
   free(ptrTIFFs);
   free(imagesDataBuffer);
+  free(crop_info_array);
 
   return(saveReturnValue);
 }
