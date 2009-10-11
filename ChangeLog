@@ -1,3 +1,11 @@
+2009-10-11 dangelo
+
+	* filter.h, math.c: Use Te0 as plane_yaw and Te1 as
+	plane_pitch. This allows specification of the plane that is used in
+	the translation mosaic (TrX, TrY, TrZ) mode. Not sure if the code is
+	bug free, though. It mostly worked as expected but didn't work nicely
+	for the nadir usecase in my limited tests.
+
 2009-10-07 jim0watters
 
     * PTmender.c: use define for path seperator.

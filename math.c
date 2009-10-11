@@ -40,6 +40,10 @@
 void    matrix_matrix_mult      ( double m1[3][3],double m2[3][3],double result[3][3]);
 int     polzeros_();
 
+void cubeZero( double *a, int *n, double *root );
+void squareZero( double *a, int *n, double *root );
+double cubeRoot( double x );
+
 
 //------------------------- Some auxilliary math functions --------------------------------------------
 
@@ -1794,132 +1798,203 @@ int erect_rect( double x_dest,double  y_dest, double* x_src, double* y_src, void
     return 1;
 }
 
-/** transfer a point from a camera centered at x1,y1,z1 into the camera at x2,y2,z2 */
+/** convert erect to cartesian XYZ coordinates
+ */
+int cart_erect( double x_dest, double y_dest, double * xyz, double distance)
+{
+    // phi is azimuth (negative angle around y axis, starting at the z axis)
+	double phi = x_dest / distance;	
+	double theta_zenith = M_PI/2.0 - (y_dest / distance);
+	// compute cartesian coordinates..
+	//pos[2] = cos(-phi)*sin(theta_zenith);
+	//pos[0] = sin(-phi)*sin(theta_zenith);
+	//pos[1] = cos(theta_zenith);
+
+    xyz[0] = sin(theta_zenith)*sin(phi);
+	xyz[1] = cos(theta_zenith);
+	xyz[2] = sin(theta_zenith)*-cos(phi);
+
+	return 1;
+}
+
+
+/** convert cartesian coordinates into spherical ones
+ */
+int erect_cart(double * xyz, double *x_src, double *y_src, double distance)
+{
+	*x_src = atan2(xyz[0],-xyz[2]) * distance;
+	*y_src = asin(xyz[1]/sqrt(xyz[0]*xyz[0]+xyz[1]*xyz[1]+xyz[2]*xyz[2])) * distance;
+}
+
+
+/** Compute intersection between line and point.
+ *  n : a,b,c,d coefficients of plane (a,b,c = normal vector)
+ *  p1: point on line
+ *  p2: point on line
+ *  See http://local.wasp.uwa.edu.au/~pbourke/geometry/planeline/
+ */
+int line_plane_intersection(double n[4],
+							double p1[3],
+							double p2[3],
+							double * result)
+{
+	int i;
+	// direction vector of line
+	double d[3];
+	double u,num,den;
+
+	for (i=0;i<3;i++)
+		d[i] = p2[i]-p1[i];
+	num = n[0]*p1[0]+n[1]*p1[1]+n[2]*p1[2] + n[3];
+	den = -n[0]*d[0]-n[1]*d[1]-n[2]*d[2];
+	if (fabs(den) < 1e-15) {
+		return 0;
+	}
+	u = num/den;
+
+	if (u < 0) {
+		// This is match is in the wrong direction, ignore
+		return 0;
+	}
+	/* printf("intersect, dir: %f %f %f, num: %f, denom: %f, u: %f\n", d[0], d[1], d[2], num, den, u);
+	 */
+
+	for (i=0;i<3;i++)
+	  result[i] = p1[i]+u*d[i];
+
+	return 1;
+}
+
+/** transfer a point from the master camera through a plane into camera 
+ *  at TrX, TrY, TrZ using the plane located at Te0 (yaw), Te1 (pitch)
+ */
 int plane_transfer_to_camera( double x_dest, double y_dest, double * x_src, double * y_src, void * params)
 {
 	// params: distance, x1,y1,z1
-	
-	double  phi, theta;
-	double x_plane, y_plane;
-	double x_ray,y_ray,z_ray;
 
+	double plane_coeff[4];
+	double p1[3];
+	double p2[3];
+	double intersection[3];
 
-	phi 	= x_dest / mp->distance;
-	theta 	=  - y_dest / mp->distance  + PI / 2.0;
-	if(theta < 0)
-	{
-		theta = - theta;
-		phi += PI;
-	}
-	if(theta > PI)
-	{
-		theta = PI - (theta - PI);
-		phi += PI;
-	}
+	// compute ray of sight for the current pixel in
+	// the master panorama camera.
+	// camera point
+	p1[0] = p1[1] = p1[2] = 0;
+	// point on sphere.
+	cart_erect(x_dest, y_dest, &p2[0], mp->distance);
 
-	// if the ray goes behind the camera, abort here
-	// normalize phi to be in the -PI, PI range
-	while(phi <= -PI)
-		phi += 2*PI;
-	while(phi > PI)
-		phi -= 2*PI;
+	// compute plane description
+	cart_erect(DEG_TO_RAD(mp->test[0]), -DEG_TO_RAD(mp->test[1]),
+			   &plane_coeff[0], 1.0);
 
-	// check if the point is "in front" of the camera
-	if (phi < -PI/2.0 || phi > PI/2.0)
-		// behind, transform considered invalid
-		return 0;
-
-	// compute the position on the intermediate plane
-	// the ray originates from the pano center (0,0,0)
-	// and intersects the plane located at z=-1
-	// basically rect_erect, but with distance = 1
-	x_plane = tan(phi);
-	y_plane = 1.0 / (tan( theta ) * cos(phi));
-
-	// compute ray leading to to the camera.
-	x_ray = x_plane - mp->trans[0];
-	y_ray = y_plane - mp->trans[1];
-	z_ray = mp->trans[2] + 1.0;
-
-	// transform into erect
-	// basically erect_rect
-	*x_src = mp->distance * atan2( x_ray, z_ray );
-	*y_src = mp->distance * atan2(  y_ray, sqrt( z_ray*z_ray + x_ray*x_ray ) );	
+	// plane_coeff[0..2] is both the normal and a point
+	// on the plane.
+	plane_coeff[3] = - plane_coeff[0]*plane_coeff[0]
+		             - plane_coeff[1]*plane_coeff[1]
+		             - plane_coeff[2]*plane_coeff[2];
 
 	/*
-	printf("plane(%.1f,%.1f%.1f): %8.5f %8.5f -> %8.5f %8.5f -> %8.5f %8.5f %8.5f -> %8.5f %8.5f\n", 
-		   mp->trans[0], mp->trans[1], mp->trans[2],
+	printf("Plane: y:%f p:%f coefficients: %f %f %f %f, ray direction: %f %f %f\n", 
+	       mp->test[0], mp->test[1], plane_coeff[0], plane_coeff[1], plane_coeff[2], plane_coeff[3],
+		   p2[0],p2[1],p2[2]);
+	*/
+
+	// perform intersection.
+
+	if (!line_plane_intersection(plane_coeff, p1, p2, &intersection[0])) {
+		// printf("No intersection found, %f %f %f\n", p2[0], p2[1], p2[2]);
+		return 0;
+	}
+
+	// compute ray leading to the camera.
+	intersection[0] -= mp->trans[0];
+	intersection[1] -= mp->trans[1];
+	intersection[2] -= mp->trans[2];
+
+	// transform into erect
+	erect_cart(&intersection[0], x_src, y_src, mp->distance);
+
+	/*
+	printf("pano->plane->cam(%.1f, %.1f, %.1f, y:%1f,p:%1f): %8.5f %8.5f -> %8.5f %8.5f %8.5f -> %8.5f %8.5f\n",
+		   mp->trans[0], mp->trans[1], mp->trans[2], mp->test[0], mp->test[1],
 		   x_dest, y_dest, 
-		   //RAD_TO_DEG(phi), RAD_TO_DEG(theta),
-		   x_plane, y_plane,
-		   x_ray, y_ray, z_ray, *x_src, *y_src);
+		   intersection[0], intersection[1], intersection[2],
+		   *x_src, *y_src);
 	*/
 
 	return 1;
 }
 
+
 /** transfer a point from a camera centered at x1,y1,z1 into the camera at x2,y2,z2 */
 int plane_transfer_from_camera( double x_dest, double y_dest, double * x_src, double * y_src, void * params)
 {
+
+	double phi, theta;
+	double plane_coeff[4];
+	double p1[3];
+	double p2[3];
+	double intersection[3];
+
 	// params: MakeParams
 
-	double  phi, theta;
-	double x_plane, y_plane;
-	double x_ray,y_ray,z_ray;
+	// compute ray of sight for the current pixel in
+	// the master panorama camera.
+	// camera point
+	p1[0] = mp->trans[0];
+	p1[1] = mp->trans[1];
+	p1[2] = mp->trans[2];
 
-	phi 	= x_dest / mp->distance;
-	theta 	=  - y_dest / mp->distance  + PI / 2.0;
-	if(theta < 0)
-	{
-		theta = - theta;
-		phi += PI;
-	}
-	if(theta > PI)
-	{
-		theta = PI - (theta - PI);
-		phi += PI;
-	}
+	// point on sphere (direction vector in camera coordinates)
+	cart_erect(x_dest, y_dest, &p2[0], mp->distance);
+	// add camera position to get point on ray
+	p2[0] += p1[0];
+	p2[1] += p1[1];
+	p2[2] += p1[2];	
 
-	// normalize phi to be in the -PI, PI range
-	while(phi <= -PI)
-		phi += 2*PI;
-	while(phi > PI)
-		phi -= 2*PI;
 
-	// check if the point is "in front" of the panorama camera
-	if (phi < -PI/2.0 || phi > PI/2.0)
-		// behind, transform considered invalid
-		return 0;
+	// compute plane description
+	cart_erect(DEG_TO_RAD(mp->test[0]), -DEG_TO_RAD(mp->test[1]),
+			   &plane_coeff[0], 1.0);
 
-	// compute the position on the intermediate plane
-	// Intersection of ray from the image center (Tx,Ty,Tz)
-	// with plane located at z=-1
-	x_plane = (mp->trans[2]+1.0)* tan(phi);
-	y_plane = (mp->trans[2]+1.0) / (tan( theta ) * cos(phi));
-
-	// shift according to camera position
-	x_plane += mp->trans[0];
-	y_plane += mp->trans[1];
-
-	x_ray = x_plane;
-	y_ray = y_plane;
-	z_ray = 1.0;
-
-	// transform into erect
-	// basically erect_rect
-	*x_src = mp->distance * atan2( x_ray, z_ray );
-	*y_src = mp->distance * atan2(  y_ray, sqrt( z_ray*z_ray + x_ray*x_ray ) );	
+	// plane_coeff[0..2] is both the normal and a point
+	// on the plane.
+	plane_coeff[3] = - plane_coeff[0]*plane_coeff[0]
+		             - plane_coeff[1]*plane_coeff[1]
+		             - plane_coeff[2]*plane_coeff[2];
 
 	/*
-	printf("cam->plane(%.1f,%.1f%.1f): %8.5f %8.5f -> %8.5f %8.5f -> %8.5f %8.5f %8.5f -> %8.5f %8.5f\n", 
-		   mp->trans[0], mp->trans[1], mp->trans[2],
-		   x_dest, y_dest, 
-		   //RAD_TO_DEG(phi), RAD_TO_DEG(theta),
-		   x_plane, y_plane,
-		   x_ray, y_ray, z_ray, *x_src, *y_src);
+	printf("Plane: y:%f p:%f coefficients: %f %f %f %f, ray direction: %f %f %f\n", 
+	       mp->test[0], mp->test[1], plane_coeff[0], plane_coeff[1], plane_coeff[2], plane_coeff[3],
+		   p2[0],p2[1],p2[2]);
 	*/
 
+
+	// compute intersection
+	if (!line_plane_intersection(plane_coeff, p1, p2, &intersection[0])) {
+		//printf("No intersection found, %f %f %f\n", p2[0], p2[1], p2[2]);
+		return 0;
+	}
+
+	// the intersection vector is the vector of the ray of sight from
+	// the master panorama camera.
+
+	// transform into erect
+	erect_cart(&intersection[0], x_src, y_src, mp->distance);
+
+	/*
+	printf("cam->plane->pano(%.1f, %.1f, %.1f, y:%1f,p:%1f): %8.5f %8.5f -> %8.5f %8.5f %8.5f -> %8.5f %8.5f\n",
+		   mp->trans[0], mp->trans[1], mp->trans[2], mp->test[0], mp->test[1],
+		   x_dest, y_dest, 
+		   intersection[0], intersection[1], intersection[2],
+		   *x_src, *y_src);
+		   
+	*/
+
+	return 1;
 }
+
 
 
 /** convert from erect to biplane */
@@ -2351,12 +2426,9 @@ double smallestRoot( double *p )
 }
 #endif
 
-void cubeZero( double *a, int *n, double *root );
-void squareZero( double *a, int *n, double *root );
-double cubeRoot( double x );
 
 
-void cubeZero( double *a, int *n, double *root ){
+void cubeZero( double *a, int *n, double *root ) {
 	if( a[3] == 0.0 ){ // second order polynomial
 		squareZero( a, n, root );
 	}else{
