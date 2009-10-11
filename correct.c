@@ -574,6 +574,7 @@ void 	correct (TrformStr *TrPtr, cPrefs *prefs)
 				fD.func    = execute_stack_new; fD.param    = stack;
                 fDinv.func = execute_stack_new; fDinv.param = stackinv;
                 transFormEx( TrPtr, &fD, &fDinv, k, 1 );
+                i = ii;
 			}
             
             switch(k) // We use k as control var for a little statemachine:
