@@ -419,7 +419,7 @@ int ParseScript( char* script, AlignInfo *gl )
                                 li = panoParseVariable(buf, li, lineNum, &(opt->testP2opt), &(im->cP.test_p2));
                                 break;
                             case '3': 
-                                li = panoParseVariable(buf, li, lineNum, &(opt->testP2opt), &(im->cP.test_p3));
+                                li = panoParseVariable(buf, li, lineNum, &(opt->testP3opt), &(im->cP.test_p3));
                                 break;
                             default:
                                 PrintError("Unknown Test parameter Te%c in script: Line %d", *li, lineNum);
