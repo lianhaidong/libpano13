@@ -379,12 +379,12 @@ struct MakeParams{								// Actual parameters used by Xform functions for pano-
 	double	horizontal;
 	double	vertical;
 
-  // Tilt 
+    // Tilt 
 	double tilt[4]; // 0 around x, 1 around y, 2 around z, 3 scaling factor
-  // Translation of cmaera plane
-        double trans[3];
-  // For testing new projections
-        double test[4];
+    // Translation of cmaera plane
+    double trans[3];
+    // For testing new projections
+    double test[4];
 
 
 	Image *im;
