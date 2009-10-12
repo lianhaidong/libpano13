@@ -1804,7 +1804,7 @@ int cart_erect( double x_dest, double y_dest, double * xyz, double distance)
 {
     // phi is azimuth (negative angle around y axis, starting at the z axis)
 	double phi = x_dest / distance;	
-	double theta_zenith = M_PI/2.0 - (y_dest / distance);
+	double theta_zenith = PI/2.0 - (y_dest / distance);
 	// compute cartesian coordinates..
 	//pos[2] = cos(-phi)*sin(theta_zenith);
 	//pos[0] = sin(-phi)*sin(theta_zenith);
