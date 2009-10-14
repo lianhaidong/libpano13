@@ -71,7 +71,7 @@ enum{
 // Normalize an angle to +/-180degrees
 
 #define NORM_ANGLE( x )      while( x >180.0 ) x -= 360.0; while( x < -180.0 ) x += 360.0;
-#define NORM_ANGLE_RAD( x )  fmod((x), PI)
+#define NORM_ANGLE_RAD( x )  while( (x) >PI ) (x) -= 2 * PI; while( (x) < -PI ) (x) += 2 * PI;
 
 // Convert degree to radian
 
