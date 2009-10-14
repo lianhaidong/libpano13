@@ -16,10 +16,19 @@
 	* PTblender.c, PTmasker.c, PTmender.h, PTroller.c: Fixed many possible 
 	memory leaks for the tools.
 	
+2009-09-26    <dmg@uvic.ca>
+
+	* adjust.c (SetAlignParams): Trying to normalize the angles didn't
+	really worked. Disabled for the time begin
+
+	* filter.h (NORM_ANGLE_RAD): Totally incorrect implementation before.
+
+
+
 2009-09-25    <dmg@uvic.ca>
-	
+
 	* parser.c (ReadImageDescription): Removed a debugging printf I forgot
-	
+
 2009-09-25    <dmg@uvic.ca>
 
 	* correct.c (SetCorrectDefaults): Initialized values of new parameters.

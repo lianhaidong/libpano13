@@ -2497,15 +2497,15 @@ int     SetAlignParams( double *x )
                 }
                 // tilt
                 if( (k = optInfo->opt[i].tiltXopt) > 0 ){
-                    if( k == 1 ){ optInfo->im[i].cP.tilt_x  = x[j++]; NORM_ANGLE_RAD(optInfo->im[i].cP.tilt_x);
+                    if( k == 1 ){ optInfo->im[i].cP.tilt_x  = x[j++]; //NORM_ANGLE_RAD(optInfo->im[i].cP.tilt_x);
                     }else{  optInfo->im[i].cP.tilt_x = optInfo->im[k-2].cP.tilt_x;}
                 }
                 if( (k = optInfo->opt[i].tiltYopt) > 0 ){
-                        if( k == 1 ){ optInfo->im[i].cP.tilt_y  = x[j++]; NORM_ANGLE_RAD(optInfo->im[i].cP.tilt_y);
+                    if( k == 1 ){ optInfo->im[i].cP.tilt_y  = x[j++]; //NORM_ANGLE_RAD(optInfo->im[i].cP.tilt_y);
                         }else{  optInfo->im[i].cP.tilt_y = optInfo->im[k-2].cP.tilt_y;}
                 }
                 if( (k = optInfo->opt[i].tiltZopt) > 0 ){
-                        if( k == 1 ){ optInfo->im[i].cP.tilt_z  =       x[j++];NORM_ANGLE_RAD(optInfo->im[i].cP.tilt_z);
+                    if( k == 1 ){ optInfo->im[i].cP.tilt_z  =x[j++]; //NORM_ANGLE_RAD(optInfo->im[i].cP.tilt_z);
                         }else{  optInfo->im[i].cP.tilt_z = optInfo->im[k-2].cP.tilt_z;}
                 }
                 if( (k = optInfo->opt[i].tiltScaleOpt) > 0 ){
@@ -2515,6 +2515,11 @@ int     SetAlignParams( double *x )
                             optInfo->im[i].cP.tilt_scale = 0.001; //make sure it never becomes zero
                         }
                         optInfo->im[i].cP.tilt_scale = fabs(optInfo->im[i].cP.tilt_scale);
+                        /*
+                        if (optInfo->im[i].cP.tilt_scale > 10) {
+                            optInfo->im[i].cP.tilt_scale = 10; //make sure it never gets out of control
+                        }
+                        */
                     } else{  optInfo->im[i].cP.tilt_scale = optInfo->im[k-2].cP.tilt_scale;}
                 }
                 // translate
