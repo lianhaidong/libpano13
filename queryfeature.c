@@ -418,6 +418,9 @@ int panoProjectionFeaturesQuery(int projection, pano_projection_features *featur
 	features->maxHFOV = 359;
         break;
     case PANO_FORMAT_FISHEYE_FF:
+	features->maxVFOV = 360;
+	features->maxHFOV = 360;
+	break;
     case PANO_FORMAT_ORTHOGRAPHIC:
 	features->maxVFOV = 180;
 	features->maxHFOV = 180;
