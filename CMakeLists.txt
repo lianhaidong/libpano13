@@ -48,6 +48,7 @@ IF(WIN32)
   SET(wxWidgets_ROOT_DIR ${SOURCE_BASE_DIR}/wxWidgets-2.8.10)
   ADD_DEFINITIONS(-D__Win__)
   FIND_PACKAGE(wxWidgets REQUIRED)
+  set(win_c "tools/compat_win32/getopt.c")
 ENDIF(WIN32)
 
 
