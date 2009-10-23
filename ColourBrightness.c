@@ -364,6 +364,14 @@ void DisplayHistogramsError(int numberHistograms,   histograms_struct * ptrHisto
   
 } 
 
+static short pano_htons(short y)
+{
+  short x;
+  char * px = (char *) &x;
+  SHORTNUMBER(y, px);
+  return(x);
+}
+
 int OutputPhotoshopCurve(FILE *output, int size, double *curve) 
 {
   uint16_t shortValue;
@@ -381,7 +389,7 @@ int OutputPhotoshopCurve(FILE *output, int size, double *curve)
   // The algorithm currently writes the first point, 12, and the last point
 
 
-  shortValue = (uint16_t) htons(14);
+  shortValue = (uint16_t) pano_htons(14);
 
   if (fwrite(&shortValue, 2, 1, output) != 1) {
     goto error;
@@ -401,8 +409,8 @@ int OutputPhotoshopCurve(FILE *output, int size, double *curve)
     // be paranoic
     assert(temp >= 0 && temp <= 255);
 
-    y = (uint16_t) htons(temp);
-    x = (uint16_t) htons(i);
+    y = (uint16_t) pano_htons(temp);
+    x = (uint16_t) pano_htons(i);
 
     // For some reason y is first in the output
     if (fwrite(&y, 2, 1, output) != 1 ||
@@ -412,7 +420,7 @@ int OutputPhotoshopCurve(FILE *output, int size, double *curve)
   }
 
   // Write the very last point
-  x=htons(255);
+  x=pano_htons(255);
   if (fwrite(&x, 2, 1, output) != 1 ||
       fwrite(&x, 2, 1, output) != 1 ) {
     goto error;
