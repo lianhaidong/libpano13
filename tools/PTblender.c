@@ -91,7 +91,7 @@ int main(int argc,char *argv[])
     printf(PT_BLENDER_VERSION);
 
 
-    strcpy(outputPrefix, "corrected%4d");
+    strcpy(outputPrefix, DEFAULT_PREFIX);
 
     while ((opt = getopt(argc, argv, "p:k:t:fqcmh")) != -1) {
 
@@ -227,7 +227,7 @@ end:
 	}
     }
     free(ptrInputFiles);
-    free(ptrInputFiles);
+    free(ptrOutputFiles);
 
     return returnValue;  
 }
