@@ -41,6 +41,9 @@
 																			\
 			return( FALSE );
 
+void SetWindowOwner(HWND Owner);
+void CenterDialog(HWND hDlg);
+
 #define		kSetRemapPrefs_dlg					"REMAP"	
 #define		kSetRemapPrefs_InRect				350
 #define		kSetRemapPrefs_InPano				351

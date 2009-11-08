@@ -10,27 +10,27 @@ EXPORTS
 			writePrefs		@5
 			writeTIFF		@6
 			PrintError		@7
-			DispPrg@16	= DispPrg		@8
-			SetCPrefs@16 = SetCPrefs		@9
+;			DispPrg@16	= DispPrg		@8
+;			SetCPrefs@16 = SetCPrefs		@9
 			SetWindowOwner	@10
-			SetLumOpt@16 = SetLumOpt		@11	
-			DLLInit@12 = DLLInit			@12
-			SetRadOpt@16 = SetRadOpt		@13
-			SetHorOpt@16 = SetHorOpt		@15
-			SetVerOpt@16 = SetVerOpt		@16
-			SetScOpt@16 = SetScOpt		@17
-			SetShOpt@16 = SetShOpt		@18
-			SetCrOpt@16 = SetCrOpt		@19
-			SetAdPrefs@16 = SetAdPrefs		@20
-			SetPerspPrefs@16 = SetPerspPrefs  @21
-			SetRem@16 = SetRem			@22
-			SetSiz@16 = SetSiz			@23
-			SetIntp@16	= SetIntp		@24
+;			SetLumOpt@16 = SetLumOpt		@11	
+;			DLLInit@12 = DLLInit			@12
+;			SetRadOpt@16 = SetRadOpt		@13
+;			SetHorOpt@16 = SetHorOpt		@15
+;			SetVerOpt@16 = SetVerOpt		@16
+;			SetScOpt@16 = SetScOpt		@17
+;			SetShOpt@16 = SetShOpt		@18
+;			SetCrOpt@16 = SetCrOpt		@19
+;			SetAdPrefs@16 = SetAdPrefs		@20
+;			SetPerspPrefs@16 = SetPerspPrefs  @21
+;			SetRem@16 = SetRem			@22
+;			SetSiz@16 = SetSiz			@23
+;			SetIntp@16	= SetIntp		@24
 			CopyImageData	@25
-			InfoPrg@16	= InfoPrg		@26
-			SetCutOpt@16 = SetCutOpt		@27
-			SetPanOpt@16 = SetPanOpt		@28
-			SetFrPrefs@16 = SetFrPrefs	@29	
+;			InfoPrg@16	= InfoPrg		@26
+;			SetCutOpt@16 = SetCutOpt		@27
+;			SetPanOpt@16 = SetPanOpt		@28
+;			SetFrPrefs@16 = SetFrPrefs	@29	
 			writePSD		@30
 			addLayerToFile	@31
 			writePSDwithLayer	@32
@@ -90,44 +90,44 @@ EXPORTS
 			SetMakeParams	@86
 			fwiener	@87
 			noisefilter	@88
-			Java_ptutils_CLoadImage@12 = Java_ptutils_CLoadImage	@89
-			Java_ptutils_CGetImageRow@16 = Java_ptutils_CGetImageRow	@90
-			Java_ptutils_CGetImageWidth@12 = Java_ptutils_CGetImageWidth	@91
-			Java_ptutils_CGetImageHeight@12 = Java_ptutils_CGetImageHeight	@92
-			Java_ptutils_CLoadProject@12 = Java_ptutils_CLoadProject 	@93
-			Java_ptutils_CGetImageCount@8 = Java_ptutils_CGetImageCount	@94
-			Java_ptutils_CGetImageName@12 = Java_ptutils_CGetImageName	@95
-			Java_ptutils_CGetControlPointCount@8 = Java_ptutils_CGetControlPointCount	@96
-			Java_ptutils_CGetCP_1n@16 = Java_ptutils_CGetCP_1n	@97
-			Java_ptutils_CGetCP_1x@16 = Java_ptutils_CGetCP_1x	@98
-			Java_ptutils_CGetCP_1y@16 = Java_ptutils_CGetCP_1y	@99
-			Java_ptutils_CGetCP_1t@12 = Java_ptutils_CGetCP_1t	@100
-			Java_ptutils_CGetTriangleCount@8 = Java_ptutils_CGetTriangleCount	@101
-			Java_ptutils_CGetTR_1v@16 = Java_ptutils_CGetTR_1v	@102
-			Java_ptutils_CGetTR_1i@12 = Java_ptutils_CGetTR_1i	@103
-			Java_ptutils_CSaveProject@12 = Java_ptutils_CSaveProject	@104
-			Java_ptutils_CSetImageName@16 = Java_ptutils_CSetImageName	@105
-			Java_ptutils_CSetControlPointCount@12 = Java_ptutils_CSetControlPointCount	@106
-			Java_ptutils_CSetCP@56 = Java_ptutils_CSetCP	@107
-			Java_ptutils_CSetTriangleCount@12 = Java_ptutils_CSetTriangleCount	@108
-			Java_ptutils_CSetTR@28 = Java_ptutils_CSetTR	@109
-			Java_ptutils_CGetIndex@12 = Java_ptutils_CGetIndex	@110
-			Java_ptutils_CCreateProject@36 = Java_ptutils_CCreateProject	@111
-			Java_ptutils_CTriangulate@12 = Java_ptutils_CTriangulate	@112
-			Java_ptutils_CReduce@12 = Java_ptutils_CReduce	@113
-			Java_ptutils_CCallOptimizer@8 = Java_ptutils_CCallOptimizer	@114
-			Java_ptutils_CShowScript@8 = Java_ptutils_CShowScript	@115
-			Java_ptutils_CLaunchAndSendScript@16 = Java_ptutils_CLaunchAndSendScript	@116
+;			Java_ptutils_CLoadImage@12 = Java_ptutils_CLoadImage	@89
+;			Java_ptutils_CGetImageRow@16 = Java_ptutils_CGetImageRow	@90
+;			Java_ptutils_CGetImageWidth@12 = Java_ptutils_CGetImageWidth	@91
+;			Java_ptutils_CGetImageHeight@12 = Java_ptutils_CGetImageHeight	@92
+;			Java_ptutils_CLoadProject@12 = Java_ptutils_CLoadProject 	@93
+;			Java_ptutils_CGetImageCount@8 = Java_ptutils_CGetImageCount	@94
+;			Java_ptutils_CGetImageName@12 = Java_ptutils_CGetImageName	@95
+;			Java_ptutils_CGetControlPointCount@8 = Java_ptutils_CGetControlPointCount	@96
+;			Java_ptutils_CGetCP_1n@16 = Java_ptutils_CGetCP_1n	@97
+;			Java_ptutils_CGetCP_1x@16 = Java_ptutils_CGetCP_1x	@98
+;			Java_ptutils_CGetCP_1y@16 = Java_ptutils_CGetCP_1y	@99
+;			Java_ptutils_CGetCP_1t@12 = Java_ptutils_CGetCP_1t	@100
+;			Java_ptutils_CGetTriangleCount@8 = Java_ptutils_CGetTriangleCount	@101
+;			Java_ptutils_CGetTR_1v@16 = Java_ptutils_CGetTR_1v	@102
+;			Java_ptutils_CGetTR_1i@12 = Java_ptutils_CGetTR_1i	@103
+;			Java_ptutils_CSaveProject@12 = Java_ptutils_CSaveProject	@104
+;			Java_ptutils_CSetImageName@16 = Java_ptutils_CSetImageName	@105
+;			Java_ptutils_CSetControlPointCount@12 = Java_ptutils_CSetControlPointCount	@106
+;			Java_ptutils_CSetCP@56 = Java_ptutils_CSetCP	@107
+;			Java_ptutils_CSetTriangleCount@12 = Java_ptutils_CSetTriangleCount	@108
+;			Java_ptutils_CSetTR@28 = Java_ptutils_CSetTR	@109
+;			Java_ptutils_CGetIndex@12 = Java_ptutils_CGetIndex	@110
+;			Java_ptutils_CCreateProject@36 = Java_ptutils_CCreateProject	@111
+;			Java_ptutils_CTriangulate@12 = Java_ptutils_CTriangulate	@112
+;			Java_ptutils_CReduce@12 = Java_ptutils_CReduce	@113
+;			Java_ptutils_CCallOptimizer@8 = Java_ptutils_CCallOptimizer	@114
+;			Java_ptutils_CShowScript@8 = Java_ptutils_CShowScript	@115
+;			Java_ptutils_CLaunchAndSendScript@16 = Java_ptutils_CLaunchAndSendScript	@116
 			IsTextFile	@117
 			StringtoFullPath	@118
-			Java_ptutils_CAlignPoint@20 = Java_ptutils_CAlignPoint	@119
-			Java_pteditor_CLoadImage@12 = Java_pteditor_CLoadImage	@120
-			Java_pteditor_CSaveImage@12 = Java_pteditor_CSaveImage	@121
-			Java_pteditor_CGetImageWidth@8 = Java_pteditor_CGetImageWidth	@122
-			Java_pteditor_CGetImageHeight@8 = Java_pteditor_CGetImageHeight	@123
-			Java_pteditor_CGetImageRow@16 = Java_pteditor_CGetImageRow	@124
-			Java_pteditor_CExtract@56 	= Java_pteditor_CExtract @125
-			Java_pteditor_CInsert@48 = Java_pteditor_CInsert	@126
+;			Java_ptutils_CAlignPoint@20 = Java_ptutils_CAlignPoint	@119
+;			Java_pteditor_CLoadImage@12 = Java_pteditor_CLoadImage	@120
+;			Java_pteditor_CSaveImage@12 = Java_pteditor_CSaveImage	@121
+;			Java_pteditor_CGetImageWidth@8 = Java_pteditor_CGetImageWidth	@122
+;			Java_pteditor_CGetImageHeight@8 = Java_pteditor_CGetImageHeight	@123
+;			Java_pteditor_CGetImageRow@16 = Java_pteditor_CGetImageRow	@124
+;			Java_pteditor_CExtract@56 	= Java_pteditor_CExtract @125
+;			Java_pteditor_CInsert@48 = Java_pteditor_CInsert	@126
 			Progress	@127
 			TIFFOpen	@128
 			TIFFClose	@129
@@ -148,14 +148,14 @@ EXPORTS
 			RGBAtoARGB	@145
 			readTIFF	@146
 			CheckParams	@147
-			Java_ptutils_CGetImageFormat@12	= Java_ptutils_CGetImageFormat @148
-			Java_ptutils_CGetHfov@12	=	Java_ptutils_CGetHfov	@149
-			Java_ptutils_CGetYaw@12	=	Java_ptutils_CGetYaw	@150
-			Java_ptutils_CGetPitch@12	=	Java_ptutils_CGetPitch	@151
-			Java_ptutils_CGetRoll@12	=	Java_ptutils_CGetRoll	@152
-			Java_pteditor_CSetImageWidth@12 = Java_pteditor_CSetImageWidth @153
-			Java_pteditor_CSetImageHeight@12 = Java_pteditor_CSetImageHeight @154
-			Java_pteditor_CSetImageRow@16 = Java_pteditor_CSetImageRow @155
+;			Java_ptutils_CGetImageFormat@12	= Java_ptutils_CGetImageFormat @148
+;			Java_ptutils_CGetHfov@12	=	Java_ptutils_CGetHfov	@149
+;			Java_ptutils_CGetYaw@12	=	Java_ptutils_CGetYaw	@150
+;			Java_ptutils_CGetPitch@12	=	Java_ptutils_CGetPitch	@151
+;			Java_ptutils_CGetRoll@12	=	Java_ptutils_CGetRoll	@152
+;			Java_pteditor_CSetImageWidth@12 = Java_pteditor_CSetImageWidth @153
+;			Java_pteditor_CSetImageHeight@12 = Java_pteditor_CSetImageHeight @154
+;			Java_pteditor_CSetImageRow@16 = Java_pteditor_CSetImageRow @155
 			TwoToOneByte @156
 			CropImage @157
 			numLines @158
@@ -179,11 +179,11 @@ EXPORTS
 			InsertFileName              @176
 ;			VerifyTiffsAreCompatible    @177
 ;			AddStitchingMasks           @178
-;			FlattenTIFF                 @179
+			panoFlattenTIFF             @179
 ;			CreatePSD                   @180
-;			CreatePanorama              @181
+			panoCreatePanorama          @181
 			ptQuietFlag                 @182
-;			ReplaceExt                  @183
+			panoReplaceExt              @183
 			ColourBrightness            @184
 ;			TiffSetImageParameters      @185
 ;			TiffGetImageParameters      @186
