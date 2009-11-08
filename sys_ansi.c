@@ -25,6 +25,8 @@
 //------------------ Public functions required by filter.h -------------------------------
 
 
+void SetWindowOwner(HWND Owner) {return;}
+void CenterDialog(HWND hDlg) {return;}
 
 void filter_main( TrformStr *TrPtr, struct size_Prefs *spref)
 {
