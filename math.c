@@ -1824,8 +1824,6 @@ int erect_cart(double * xyz, double *x_src, double *y_src, double distance)
 {
 	*x_src = atan2(xyz[0],-xyz[2]) * distance;
 	*y_src = asin(xyz[1]/sqrt(xyz[0]*xyz[0]+xyz[1]*xyz[1]+xyz[2]*xyz[2])) * distance;
-
-  return 1;
 }
 
 
