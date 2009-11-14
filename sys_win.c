@@ -110,9 +110,11 @@ void  PrintErrorIntern(char* fmt, va_list ap){
 	
 	vsprintf(message, fmt, ap);
 	
+#ifdef HasJava
 	if( JavaUI )
 		JPrintError( message );
 	else
+#endif
 //		MessageBox(GetFocus(), (LPSTR)message, (LPSTR)"", MB_OK | MB_ICONHAND) ;
 		MessageBox((HWND)NULL, (LPSTR)message, (LPSTR)"Panorama Tools", MB_OK | MB_ICONHAND) ;
 }	
