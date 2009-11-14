@@ -25,6 +25,11 @@
 //------------------ Public functions required by filter.h -------------------------------
 
 
+// Required by filter.h but not used in the sys_ansi build of panotools.
+// just return and do nothing
+void SetWindowOwner(void * Owner) {return;}
+void CenterDialog(void * hDlg) {return;}
+
 
 void filter_main( TrformStr *TrPtr, struct size_Prefs *spref)
 {
@@ -50,9 +55,12 @@ void  PrintErrorIntern( char* fmt, va_list ap)
 	  toPrint = fmt;
 	}
 
-	if( JavaUI ){
+#ifdef HasJava
+if( JavaUI ){
 	  JPrintError( toPrint );
-	}else{
+	}else
+#endif
+  {
 	  printf(toPrint);
 
 	  // Add an end of line if none is provide

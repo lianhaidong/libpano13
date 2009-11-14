@@ -38,8 +38,10 @@
 
 #define		GenDialog( VarType, DlgRes, Title,  SetControl,SText,			\
 			GText, DlgAction, WinFunc)										\
-																			\
 			return( FALSE );
+
+void SetWindowOwner(void * Owner);
+void CenterDialog(void * hDlg);
 
 #define		kSetRemapPrefs_dlg					"REMAP"	
 #define		kSetRemapPrefs_InRect				350
