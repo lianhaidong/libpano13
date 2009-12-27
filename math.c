@@ -982,6 +982,41 @@ int panini_erect( double x_dest,double  y_dest, double* x_src, double* y_src, vo
 }
 
 
+/** convert from erect to panini */
+int panini_general_erect( double lambda_dest,double  phi_dest, double* x_src, double* y_src, void* params)
+{
+    // params: distanceparam
+  // this is the inverse
+
+    double phi, lambda, temp,y,x;
+    double d;
+    double distance;
+
+    if (mp->pn->formatParamCount == 0) {
+        // if no latitude values given, then set defaults
+	mp->pn->formatParamCount = 1;
+	mp->pn->formatParam[0] = 2.0;  //d parm
+    }
+    d = mp->pn->formatParam[0];
+
+    distance = mp->distance;
+    phi = phi_dest/distance;
+    lambda = lambda_dest/distance;
+
+    x = d * tan (lambda / d);
+
+    // now compute y
+    y = (d * tan(phi))  / ( d - 1 + cos(lambda));
+    // Now rescale
+    *y_src = distance *  y;
+    *x_src = distance * x;
+    return 1;
+}
+
+
+
+
+
 /** convert from panini to erect */
 int erect_panini( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {
@@ -1006,6 +1041,43 @@ int erect_panini( double x_dest,double  y_dest, double* x_src, double* y_src, vo
     *x_src = 2 * lambda * distanceparam;
     *y_src = atan(phi) * distanceparam;
 
+    return 1;
+}
+
+
+/** convert from panini to erect */
+int erect_panini_general( double x_dest,double  y_dest, double* lambda_src, double* phi_src, void* params)
+{
+    double y;
+    double x;
+    double temp;
+    double  lambda;
+    double phi;
+    double d;
+    double distance;
+
+    assert(mp != NULL);
+    if (mp->pn->formatParamCount == 0) {
+        // if no latitude values given, then set defaults
+	mp->pn->formatParamCount = 1;
+	mp->pn->formatParam[0] = 2.0;  //d parm
+    }
+    d = mp->pn->formatParam[0];
+    assert(d > 0);
+    distance = mp->distance;
+    y = y_dest/distance;
+    x = x_dest/distance;
+
+    lambda = d * atan2(x,d);
+ 
+    phi = atan2(y * (d -1 + cos(lambda)), d);
+
+    *lambda_src = lambda * distance;
+    *phi_src = phi * distance;
+    /*
+    if (fabs (y_dest - 0.5) < 0.01) 
+        fprintf(stderr, "Coordinates (%f,%f) (%f,%f) d %f \n", x_dest, y_dest, *lambda_src, *phi_src, d);
+    */
     return 1;
 }
 

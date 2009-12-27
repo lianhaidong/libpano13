@@ -1,3 +1,10 @@
+2009-12-26  dmg  <dmg@uvic.ca>
+
+	* queryfeature.c, parser.c, panorama.h, filter.h, math.c,
+	adjust.c: Added general form of panini general projection. It
+	takes one parameter: the distance factor, any possitive
+	number. Math by Tom Sharpless.
+	
 2009-10-11 dangelo
 
 	* filter.h, math.c: Use Te0 as plane_yaw and Te1 as
