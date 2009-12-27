@@ -322,7 +322,7 @@ void queryFeatures(int index,char** name,Tp12FeatureType* type)
 //////////////////////////////////////////////////////////////////////
 
 
-char *panoFormatNames[PANO_FORMAT_COUNT] = {
+char *panoFormatNames[] = {
     "Rectilinear",
     "Cylindrical",
     "Equirectangular",
@@ -340,11 +340,12 @@ char *panoFormatNames[PANO_FORMAT_COUNT] = {
     "Orthographic",
     "Equisolid",
     "Equirectangular Panini",
-	"Biplane",
-	"Triplane",
+    "Biplane",
+    "Triplane",
+    "Panini General",
 };
 
-static int panoFormatID[PANO_FORMAT_COUNT] = {
+static int panoFormatID[] = {
     _rectilinear,
     _panorama,
     _equirectangular,
@@ -372,6 +373,7 @@ int panoProjectionFormatCount(void)
 {
     // REturn the number of Projection formats available in the library
     assert(sizeof(panoFormatNames) == PANO_FORMAT_COUNT * sizeof(char*));
+    assert(sizeof(panoFormatNames) == PANO_FORMAT_COUNT * sizeof(int));
     return PANO_FORMAT_COUNT;
 }
 
