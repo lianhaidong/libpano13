@@ -1005,8 +1005,20 @@ int panini_general_erect( double lambda_dest,double  phi_dest, double* x_src, do
 
     x = d * tan (lambda / d);
 
+
     // now compute y
+    /*
     y = (d * tan(phi))  / ( d - 1 + cos(lambda));
+    */
+
+    if (phi != 0) {
+        y = tan(phi)  * x/ sin(lambda);
+    } else {
+        y = tan(phi) ;
+    }
+
+
+
     // Now rescale
     *y_src = distance *  y;
     *x_src = distance * x;
@@ -1069,11 +1081,21 @@ int erect_panini_general( double x_dest,double  y_dest, double* lambda_src, doub
     x = x_dest/distance;
 
     lambda = d * atan2(x,d);
+
+    if (x != 0) {
+        phi = atan2(y * sin(lambda) * x/fabs(x), fabs(x));
+    } else  {
+        phi = atan(y);
+    }
  
+    /*
     phi = atan2(y * (d -1 + cos(lambda)), d);
+
+    */
 
     *lambda_src = lambda * distance;
     *phi_src = phi * distance;
+
     /*
     if (fabs (y_dest - 0.5) < 0.01) 
         fprintf(stderr, "Coordinates (%f,%f) (%f,%f) d %f \n", x_dest, y_dest, *lambda_src, *phi_src, d);
@@ -1099,7 +1121,7 @@ int equipanini_erect( double x_dest,double  y_dest, double* x_src, double* y_src
     temp  = cos(lambdaHalf);
     
     y = tan(phi) / (temp * temp);
-    
+
     // At this point we have mapped to central cylindrical, now to equirectangular
       
     *y_src = distanceparam *  y;

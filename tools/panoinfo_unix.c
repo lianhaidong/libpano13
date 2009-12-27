@@ -99,8 +99,8 @@ int main(int argc,char *argv[])
 		free(value);
 	}
         printf(str2);
-
-	for (i=0; i< PANO_FORMAT_COUNT; i++) {
+        printf("Number of projections %d\n", panoProjectionFormatCount());
+	for (i=0; i< panoProjectionFormatCount(); i++) {
 	    int j;
 	    pano_projection_features features;
 	    if (!panoProjectionFeaturesQuery(i, &features) ) {

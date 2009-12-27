@@ -1,3 +1,11 @@
+2009-12-27  dmg  <dmg@uvic.ca>
+
+	* queryfeature.c: Yesterday I forgot to add the name of the
+	projection. This patch fixes that. Fixes bug 2921848. Removed
+	sizes from 
+
+
+
 2009-12-26  dmg  <dmg@uvic.ca>
 
 	* queryfeature.c, parser.c, panorama.h, filter.h, math.c,
