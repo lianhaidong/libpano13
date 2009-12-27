@@ -894,7 +894,8 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
         } else {
 	    PrintError("No support for this ouput image format (%s). Output will be TIFF_m", output_file_format);
 	}
-        //        croppedTIFFIntermediate = 0;
+        // enable this to avoid cropped tiffs. usually for testing
+        croppedTIFFIntermediate = 0;
 
 
 

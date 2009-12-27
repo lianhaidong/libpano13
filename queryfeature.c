@@ -362,8 +362,9 @@ static int panoFormatID[PANO_FORMAT_COUNT] = {
     _orthographic,
     _equisolid,
     _equipanini,
-	_biplane,
-	_triplane,
+    _biplane,
+    _triplane,
+    _panini_general,
     };
 
 
@@ -416,6 +417,17 @@ int panoProjectionFeaturesQuery(int projection, pano_projection_features *featur
     case PANO_FORMAT_EQUI_PANINI:
 	features->maxVFOV = 179;
 	features->maxHFOV = 359;
+        break;
+    case PANO_FORMAT_PANINI_GENERAL:
+	features->maxVFOV = 179;
+	features->maxHFOV = 359;
+	features->numberOfParameters = 1;
+	features->parm[0].name = "d";
+	features->parm[1].name = "phi2";
+	for (i=0;i<2;i++) {
+           features->parm[i].minValue = +0.00001;
+           features->parm[i].maxValue = 10e10;
+	}
         break;
     case PANO_FORMAT_FISHEYE_FF:
 	features->maxVFOV = 360;

@@ -736,6 +736,12 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
       equipanini_erect(b/2.0, 0.0, &tx, &ty, & tpara);
       mp->distance = pn->width/(2.0*tx);
       break;
+    case _panini_general: 
+      // We need to set the distance in the mp parameter
+      mp->distance = 1.0;
+      panini_general_erect(b/2.0, 0.0, &tx, &ty, mp);
+      mp->distance = pn->width/(2.0*tx);
+      break;
     case _architectural: 
       tpara = 1;
       arch_erect(b/2.0, 0.0, &tx, &ty, & tpara);
@@ -900,6 +906,10 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
     else if(pn->format == _equipanini)
         {
             SetDesc(stack[i],     erect_equipanini,           &(mp->distance) ); i++; // Convert equipanini to sphere
+        }
+    else if(pn->format == _panini_general)
+        {
+            SetDesc(stack[i],     erect_panini_general,           mp ); i++; // Convert general panini to sphere
         }
     else if(pn->format == _architectural)
         {
@@ -1106,6 +1116,11 @@ void  SetInvMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , 
         case _equipanini:
             tpara = 1;
             equipanini_erect(b/2.0, 0.0, &tx, &ty, & tpara);
+            mp->distance = pn->width/(2.0*tx);
+            break;
+        case _panini_general:
+            mp->distance = 1.0;
+            panini_general_erect(b/2.0, 0.0, &tx, &ty, mp);
             mp->distance = pn->width/(2.0*tx);
             break;
         case _architectural:
@@ -1328,7 +1343,11 @@ void  SetInvMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , 
   }
   else if(pn->format == _equipanini)
   {
-    SetDesc(stack[i], equipanini_erect,  &(mp->distance) ); i++; // Convert panini to sphere
+    SetDesc(stack[i], equipanini_erect,  &(mp->distance) ); i++; // Convert equi panini to sphere
+  }
+  else if(pn->format == _panini_general)
+  {
+    SetDesc(stack[i],  panini_general_erect,  mp ); i++; // Convert general panini to sphere
   }
   else if(pn->format == _architectural)
   {
@@ -2907,7 +2926,8 @@ int CheckParams( AlignInfo *g )
         g->pano.format != _albersequalareaconic && g->pano.format != _millercylindrical  && 
         g->pano.format != _panini               && g->pano.format != _architectural      &&
         g->pano.format != _equisolid            && g->pano.format != _equipanini         &&
-        g->pano.format != _biplane              && g->pano.format != _triplane
+        g->pano.format != _biplane              && g->pano.format != _triplane &&
+        g->pano.format != _panini_general
         ) err=11;
     
     // Check Control Points
