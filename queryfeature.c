@@ -424,11 +424,8 @@ int panoProjectionFeaturesQuery(int projection, pano_projection_features *featur
 	features->maxHFOV = 359;
 	features->numberOfParameters = 1;
 	features->parm[0].name = "d";
-	features->parm[1].name = "phi2";
-	for (i=0;i<2;i++) {
-           features->parm[i].minValue = +0.00001;
-           features->parm[i].maxValue = 10e10;
-	}
+        features->parm[0].minValue = +0.00001;
+        features->parm[0].maxValue = 10e10;
         break;
     case PANO_FORMAT_FISHEYE_FF:
 	features->maxVFOV = 360;
