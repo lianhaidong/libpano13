@@ -1007,11 +1007,8 @@ int panini_general_erect( double lambda_dest,double  phi_dest, double* x_src, do
 
 
     // now compute y
-    /*
-    y = (d * tan(phi))  / ( d - 1 + cos(lambda));
-    */
 
-    if (phi != 0) {
+    if (lambda  != 0) {
         y = tan(phi)  * x/ sin(lambda);
     } else {
         y = tan(phi) ;

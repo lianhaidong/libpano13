@@ -1,3 +1,8 @@
+2010-01-01  dmg  <dmg@uvic.ca>
+
+	* queryfeature.c (panoProjectionFeaturesQuery): Cleaned up the
+	general panini parameters.
+
 2009-12-27  dmg  <dmg@uvic.ca>
 
 	* queryfeature.c: Yesterday I forgot to add the name of the
