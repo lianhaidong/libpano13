@@ -424,6 +424,9 @@ int panoProjectionFeaturesQuery(int projection, pano_projection_features *featur
 	features->maxHFOV = 359;
 	features->numberOfParameters = 1;
 	features->parm[0].name = "d";
+        // the min value is > 0 and the max is infinite... but I am not sure we
+        // want to set them to those values... this needs more thinking
+        // and see how hugin can handle it.
         features->parm[0].minValue = +0.00001;
         features->parm[0].maxValue = 10e10;
         break;
