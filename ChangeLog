@@ -1,4 +1,14 @@
+2010-01-03  dmg  <dmg@uvic.ca>
+
+	* Pablo fixed the bug in which, if a Tr[xyz] was present, the
+	Translation operation was executed, even if the parms were
+	zero. This restricted the FOV to 180 degrees, regardless of
+	projection.
+
 2010-01-01  dmg  <dmg@uvic.ca>
+
+	* math.c (panini_general_erect): Fixed minor  typing  error when
+	implementing the formulae.
 
 	* queryfeature.c (panoProjectionFeaturesQuery): Cleaned up the
 	general panini parameters.

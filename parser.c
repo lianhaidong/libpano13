@@ -404,6 +404,8 @@ int ParseScript( char* script, AlignInfo *gl )
                                 return -1;
                             }
                             if (li == NULL) return -1;
+                            // Make sure that we only apply trans when these parameters are not zero
+                            // Otherwise images are not rendered beyond 180 degrees FOV
 			    if (im->cP.trans_x != 0.0 || 
 				im->cP.trans_y != 0.0 || 
 				im->cP.trans_z != 0.0)
