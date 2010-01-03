@@ -404,7 +404,12 @@ int ParseScript( char* script, AlignInfo *gl )
                                 return -1;
                             }
                             if (li == NULL) return -1;
-                            im->cP.trans    = TRUE;
+			    if (im->cP.trans_x != 0.0 || 
+				im->cP.trans_y != 0.0 || 
+				im->cP.trans_z != 0.0)
+			    {
+				im->cP.trans    = TRUE;
+			    }
                             break;
                         case 'e': // test parameters
                             li++;
