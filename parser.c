@@ -1947,7 +1947,7 @@ static int ReadPanoramaDescription( Image *imPtr, stBuf *sPtr, char *line )
         if (b != NULL) {
             while (b != NULL) {
             if (sscanf(b, "%lf", &tempDbl) == 1) {
-                if (++im.formatParamCount >= PANO_PROJECTION_MAX_PARMS) {
+                if (++im.formatParamCount > PANO_PROJECTION_MAX_PARMS) {
                 PrintError("Illegal number of projection parameters. Maximum is %d", PANO_PROJECTION_MAX_PARMS);
                 return -1;
                 }

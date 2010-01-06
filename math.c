@@ -981,50 +981,135 @@ int panini_erect( double x_dest,double  y_dest, double* x_src, double* y_src, vo
     return 1;
 }
 
+/** legalize the nominal parameters of panini_general 
+  and translate to working values in precomputedValue[]
 
-/** convert from erect to panini */
+  Returns a pointer to the panini_general image, which
+  may either be the source ("im") or destination ("pn"),
+  with its precomputed values set appropriately; or 0
+  in case of error.
+
+  Any unspecified parameters are defaulted.
+  Hugin sets all params as doubles, quantized to integer values.
+  So the nominal range must be large:
+    cmpr -100:0:50 <-> d = 0:1:->infinity NOTE nonlinear
+    tops, bots -50:50 <-> sqz -1:1
+  These ranges are also set in queryfeature.c
+  returns 0: failed, 1: OK
+  Returns quickly if correect working values are already set.
+  Ideally a "new values" transaction with frontend will clear 
+  precomputedCount, but I don't know that to be the case, so 
+  keep static copies of the previous params to check, too.
+  
+  When panini_general is the destination, the distanceparam in
+  the MakeParams may not correctly convert equirectangular
+  coordinates to angles in radians.
+**/
+Image * check_panini_general(struct MakeParams* pmp){
+	static double oldparm[4] = {0, 0, 0, 0};
+	Image * ppg = 0;
+	int ok = 0, i; double t,s;
+  /* select the p_g Image */
+	if( pmp->im->format == _panini_general ) ppg = pmp->im;
+	else if( pmp->pn->format == _panini_general ) ppg = pmp->pn;
+	else return 0;
+  /* default unspecified values to 0 */
+	for( i = ppg->formatParamCount; i < 3; i++ ) ppg->formatParam[i] = 0;
+  /* check for new values */
+	if( ppg->precomputedCount == 3 ){
+		ok = 1;
+		for(i=0; i< 3; i++){
+			if(ppg->formatParam[i] != oldparm[i]){
+				ok = 0;
+				break;
+			}
+		}
+	}
+	if( ok ) return ppg;	/* old values still valid */
+
+  /* clip values legal */
+	if(ppg->formatParam[0] < -100) ppg->formatParam[0] = -100;
+	else if(ppg->formatParam[0] > 50) ppg->formatParam[0] = 50;
+	if(ppg->formatParam[1] < -50) ppg->formatParam[0] = -50;
+	else if(ppg->formatParam[1] > 50) ppg->formatParam[0] = 50;
+	if(ppg->formatParam[2] < -50) ppg->formatParam[0] = -50;
+	else if(ppg->formatParam[2] > 50) ppg->formatParam[0] = 50;
+  /* save new values */
+	for(i=0; i < 3; i++) oldparm[i] = ppg->formatParam[i];
+  /* translate to working values */
+	ppg->precomputedCount = 3;
+	t = (50 - oldparm[0]) / 50;	/* -100:50 => 3:0 */
+	s = 1.5 / (t + 0.0001) - 1.5/3.0001;
+	ppg->precomputedValue[0] = s;
+	ppg->precomputedValue[1] = oldparm[1] / 50;
+	ppg->precomputedValue[2] = oldparm[2] / 50;
+
+	return ppg;
+}
+
+/** convert from panini_general to erect **/
+int erect_panini_general( double x_dest,double  y_dest, double* lambda_src, double* phi_src, void* params)
+{  /* params -> MakeParams */
+    double x, y, lambda, phi, d, distance;
+	double S;
+	
+	Image * ppg = check_panini_general(mp);
+	if( !ppg ) 
+		return 0;
+	d = ppg->precomputedValue[0];
+    distance = mp->distance;
+    y = y_dest/distance;
+    x = x_dest/distance;
+
+	if( x == 0 ) lambda = 0;
+	else{
+	/* solve quadratic for cosine of azimuth angle */
+		double k, kk, dd, del, ca;
+		k = fabs(x) / (d + 1);
+		kk = k * k;
+		dd = d * d;
+		del = kk * kk * dd - (kk + 1) * (kk * dd - 1);
+		if( del < 0 ) 
+			return 0;
+		ca = (-kk * d + sqrt( del )) / (kk + 1);
+	/* use that to compute S, and angle */
+		S = (d + ca)/(d + 1);
+		lambda = atan2( S * x, ca );
+	}
+	phi = atan(S * y);
+  
+    *lambda_src = lambda * distance;
+    *phi_src = phi * distance;
+
+    return 1;
+}
+
+
+/** convert from erect to panini_general **/
 int panini_general_erect( double lambda_dest,double  phi_dest, double* x_src, double* y_src, void* params)
-{
-    // params: distanceparam
-  // this is the inverse
+{ /* params -> MakeParams */
 
-    double phi, lambda, temp,y,x;
-    double d;
+    double phi, lambda, s,y,x;
+    double d;  // >= 0
     double distance;
 
-    if (mp->pn->formatParamCount == 0) {
-        // if no latitude values given, then set defaults
-	mp->pn->formatParamCount = 1;
-	mp->pn->formatParam[0] = 2.0;  //d parm
-    }
-    d = mp->pn->formatParam[0];
+	Image * ppg = check_panini_general(mp);
+	if( !ppg ) 
+		return 0;
+    d = ppg->precomputedValue[0];
 
     distance = mp->distance;
     phi = phi_dest/distance;
     lambda = lambda_dest/distance;
 
-    x = d * tan (lambda / d);
+	s = (d + 1) / (d + cos(lambda));
+    x = sin(lambda) * s;
+    y = tan(phi)  * s;
 
-
-    // now compute y
-
-    if (lambda  != 0) {
-        y = tan(phi)  * x/ sin(lambda);
-    } else {
-        y = tan(phi) ;
-    }
-
-
-
-    // Now rescale
-    *y_src = distance *  y;
+    *y_src = distance * y;
     *x_src = distance * x;
     return 1;
 }
-
-
-
-
 
 /** convert from panini to erect */
 int erect_panini( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
@@ -1053,52 +1138,6 @@ int erect_panini( double x_dest,double  y_dest, double* x_src, double* y_src, vo
     return 1;
 }
 
-
-/** convert from panini to erect */
-int erect_panini_general( double x_dest,double  y_dest, double* lambda_src, double* phi_src, void* params)
-{
-    double y;
-    double x;
-    double temp;
-    double  lambda;
-    double phi;
-    double d;
-    double distance;
-
-    assert(mp != NULL);
-    if (mp->pn->formatParamCount == 0) {
-        // if no latitude values given, then set defaults
-	mp->pn->formatParamCount = 1;
-	mp->pn->formatParam[0] = 2.0;  //d parm
-    }
-    d = mp->pn->formatParam[0];
-    assert(d > 0);
-    distance = mp->distance;
-    y = y_dest/distance;
-    x = x_dest/distance;
-
-    lambda = d * atan2(x,d);
-
-    if (x != 0) {
-        phi = atan2(y * sin(lambda) * x/fabs(x), fabs(x));
-    } else  {
-        phi = atan(y);
-    }
- 
-    /*
-    phi = atan2(y * (d -1 + cos(lambda)), d);
-
-    */
-
-    *lambda_src = lambda * distance;
-    *phi_src = phi * distance;
-
-    /*
-    if (fabs (y_dest - 0.5) < 0.01) 
-        fprintf(stderr, "Coordinates (%f,%f) (%f,%f) d %f \n", x_dest, y_dest, *lambda_src, *phi_src, d);
-    */
-    return 1;
-}
 
 
 

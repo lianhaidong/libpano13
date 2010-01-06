@@ -373,6 +373,7 @@ int panoProjectionFormatCount(void)
 {
     // REturn the number of Projection formats available in the library
     assert(sizeof(panoFormatNames) == PANO_FORMAT_COUNT * sizeof(char*));
+    assert(sizeof(panoFormatNames) == PANO_FORMAT_COUNT * sizeof(int));
     return PANO_FORMAT_COUNT;
 }
 
@@ -420,15 +421,19 @@ int panoProjectionFeaturesQuery(int projection, pano_projection_features *featur
 	features->maxHFOV = 359;
         break;
     case PANO_FORMAT_PANINI_GENERAL:
-	features->maxVFOV = 179;
-	features->maxHFOV = 359;
-	features->numberOfParameters = 1;
-	features->parm[0].name = "d";
-        // the min value is > 0 and the max is infinite... but I am not sure we
-        // want to set them to those values... this needs more thinking
-        // and see how hugin can handle it.
-        features->parm[0].minValue = +0.00001;
-        features->parm[0].maxValue = 10e10;
+	features->maxVFOV = 150;
+	features->maxHFOV = 300;
+	features->numberOfParameters = 3;
+	features->parm[0].name = "hcmp";
+	features->parm[1].name = "tops";
+	features->parm[2].name = "bots";
+    features->parm[0].minValue = -100;
+    features->parm[0].maxValue = 50;
+    features->parm[1].minValue = -50;
+    features->parm[1].maxValue = 50;
+    features->parm[2].minValue = -50;
+    features->parm[2].maxValue = 50;
+
         break;
     case PANO_FORMAT_FISHEYE_FF:
 	features->maxVFOV = 360;
