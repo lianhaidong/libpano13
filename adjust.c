@@ -1122,7 +1122,7 @@ void  SetInvMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , 
         case _panini_general:
             mp->distance = 1.0;
             panini_general_erect(b/2.0, 0.0, &tx, &ty, mp);
-            mp->distance = pn->width/(2.0*tx);
+            mp->distance = pn->width/(2.0*fabs(tx));	// workaround
             break;
         case _architectural:
             tpara = 1;
