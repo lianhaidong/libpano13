@@ -741,6 +741,12 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
       mp->distance = 1.0;
       panini_general_erect(b/2.0, 0.0, &tx, &ty, mp);
       mp->distance = pn->width/(2.0*tx);
+  /** DEBUG: round trip test **/
+	  erect_panini_general(0.5*pn->width, 0, &tx, &ty, mp);
+	  tx *= 2;
+	  ty = b * mp->distance;
+	  ty -= tx;
+  /****/
       break;
     case _architectural: 
       tpara = 1;
