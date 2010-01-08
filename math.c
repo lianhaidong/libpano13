@@ -1005,107 +1005,139 @@ int panini_erect( double x_dest,double  y_dest, double* x_src, double* y_src, vo
   the MakeParams may not correctly convert equirectangular
   coordinates to angles in radians.
 **/
-Image * check_panini_general(struct MakeParams* pmp){
-	static double oldparm[4] = {0, 0, 0, 0};
-	Image * ppg = 0;
-	int ok = 0, i; double t,s;
-  /* select the p_g Image */
-	if( pmp->im->format == _panini_general ) ppg = pmp->im;
-	else if( pmp->pn->format == _panini_general ) ppg = pmp->pn;
-	else return 0;
-  /* default unspecified values to 0 */
-	for( i = ppg->formatParamCount; i < 3; i++ ) ppg->formatParam[i] = 0;
-  /* check for new values */
-	if( ppg->precomputedCount == 3 ){
-		ok = 1;
-		for(i=0; i< 3; i++){
-			if(ppg->formatParam[i] != oldparm[i]){
-				ok = 0;
-				break;
-			}
-		}
-	}
-	if( ok ) return ppg;	/* old values still valid */
+Image * check_panini_general(struct MakeParams* pmp)
+{
+    // DMG We cannot have a static variables. 
+    // Makes the code non-reentrant XXXX 
 
-  /* clip values legal */
-	if(ppg->formatParam[0] < -100) ppg->formatParam[0] = -100;
-	else if(ppg->formatParam[0] > 50) ppg->formatParam[0] = 50;
-	if(ppg->formatParam[1] < -50) ppg->formatParam[0] = -50;
-	else if(ppg->formatParam[1] > 50) ppg->formatParam[0] = 50;
-	if(ppg->formatParam[2] < -50) ppg->formatParam[0] = -50;
-	else if(ppg->formatParam[2] > 50) ppg->formatParam[0] = 50;
-  /* save new values */
-	for(i=0; i < 3; i++) oldparm[i] = ppg->formatParam[i];
-  /* translate to working values */
-	ppg->precomputedCount = 3;
-	t = (50 - oldparm[0]) / 50;	/* -100:50 => 3:0 */
-	s = 1.5 / (t + 0.0001) - 1.5/3.0001;
-	ppg->precomputedValue[0] = s;
-	ppg->precomputedValue[1] = oldparm[1] / 50;
-	ppg->precomputedValue[2] = oldparm[2] / 50;
+    static double oldparm[4] = {0, 0, 0, 0};
+    Image * ppg = NULL;
+    int ok = FALSE;
+    int  i; 
+    double t,s;
 
-	return ppg;
+    /* select the p_g Image */
+
+    // Only act if it is panini 
+    if( pmp->im->format == _panini_general )  // input panini --is it supported?
+        ppg = pmp->im;
+    else if( pmp->pn->format == _panini_general ) // output panini
+        ppg = pmp->pn;
+    else 
+        return NULL;
+
+    /* default unspecified values to 0 */
+    for( i = ppg->formatParamCount; i < 3; i++ ) 
+        ppg->formatParam[i] = 0;
+    /* check for new values */
+    if( ppg->precomputedCount == 3 ) {
+        ok = TRUE;
+        for(i=0; i< 3; i++){
+            if(ppg->formatParam[i] != oldparm[i]) {
+                ok = FALSE;
+                break;
+            }
+        }
+    }
+    if( ok )
+        return ppg;	/* old values still valid */
+    
+    /* clip values legal */
+    if(ppg->formatParam[0] < -100) 
+        ppg->formatParam[0] = -100;
+    else if(ppg->formatParam[0] > 50) 
+        ppg->formatParam[0] = 50;
+
+    if(ppg->formatParam[1] < -50) 
+        ppg->formatParam[0] = -50;
+    else if(ppg->formatParam[1] > 50) 
+        ppg->formatParam[0] = 50;
+
+    if(ppg->formatParam[2] < -50) 
+        ppg->formatParam[0] = -50;
+    else if(ppg->formatParam[2] > 50) 
+        ppg->formatParam[0] = 50;
+
+    /* save new values */
+    for(i=0; i < 3; i++) 
+        oldparm[i] = ppg->formatParam[i];
+
+    /* translate to working values */
+    // Tom, would you mind explanining in a comment the defaults? DMG XXX
+    ppg->precomputedCount = 3;
+    t = (50 - oldparm[0]) / 50;	/* -100:50 => 3:0 */
+    s = 1.5 / (t + 0.0001) - 1.5/3.0001;
+    ppg->precomputedValue[0] = s;
+    ppg->precomputedValue[1] = oldparm[1] / 50;
+    ppg->precomputedValue[2] = oldparm[2] / 50;
+    
+    return ppg;
 }
 
 /** convert from panini_general to erect **/
 int erect_panini_general( double x_dest,double  y_dest, double* lambda_src, double* phi_src, void* params)
 {  /* params -> MakeParams */
     double x, y, lambda, phi, d, distance;
-	double S;
-	
-	Image * ppg = check_panini_general(mp);
-	if( !ppg ) 
-		return 0;
-	d = ppg->precomputedValue[0];
+    double S;
+    
+    Image * ppg = check_panini_general(mp);
+    if( !ppg ) 
+        return FALSE;
+
+    d = ppg->precomputedValue[0];
+
     distance = mp->distance;
     y = y_dest/distance;
     x = x_dest/distance;
 
-	if( x == 0 ) lambda = 0;
-	else{
+    if( x == 0 )
+        lambda = 0;
+    else {
 	/* solve quadratic for cosine of azimuth angle */
-		double k, kk, dd, del, ca;
-		k = fabs(x) / (d + 1);
-		kk = k * k;
-		dd = d * d;
-		del = kk * kk * dd - (kk + 1) * (kk * dd - 1);
-		if( del < 0 ) 
-			return 0;
-		ca = (-kk * d + sqrt( del )) / (kk + 1);
+        double k, kk, dd, del, ca;
+        k = fabs(x) / (d + 1);
+        kk = k * k;
+        dd = d * d;
+        del = kk * kk * dd - (kk + 1) * (kk * dd - 1);
+        if( del < 0 ) 
+            return 0;
+        ca = (-kk * d + sqrt( del )) / (kk + 1);
 	/* use that to compute S, and angle */
-		S = (d + ca)/(d + 1);
-		lambda = atan2( S * x, ca );
-	}
-	phi = atan(S * y);
-  
+        S = (d + ca)/(d + 1);
+        lambda = atan2( S * x, ca );
+    }
+    phi = atan(S * y);
+    
     *lambda_src = lambda * distance;
     *phi_src = phi * distance;
-
-    return 1;
+    
+    return TRUE;
 }
 
 
 /** convert from erect to panini_general **/
 int panini_general_erect( double lambda_dest,double  phi_dest, double* x_src, double* y_src, void* params)
-{ /* params -> MakeParams */
+{
+    /* params -> MakeParams */
 
     double phi, lambda, s,y,x;
     double d;  // >= 0
     double distance;
 
-	Image * ppg = check_panini_general(mp);
-	if( !ppg ) 
-		return 0;
-    d = ppg->precomputedValue[0];
+    Image * ppg = check_panini_general(mp);
+    if( !ppg ) 
+        return 0;
 
+    d = ppg->precomputedValue[0];
+    
     distance = mp->distance;
     phi = phi_dest/distance;
     lambda = lambda_dest/distance;
 
-	s = (d + 1) / (d + cos(lambda));
+    s = (d + 1) / (d + cos(lambda));
     x = sin(lambda) * s;
     y = tan(phi)  * s;
-
+    
     *y_src = distance * y;
     *x_src = distance * x;
     return 1;

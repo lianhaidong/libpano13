@@ -1,3 +1,8 @@
+2010-01-08  dmg  <dmg@uvic.ca>
+
+	* math.c: Reviewed and reformatted code by Tom for his implementation
+	of the panini general.
+
 2010-01-03  dmg  <dmg@uvic.ca>
 
 	* Pablo fixed the bug in which, if a Tr[xyz] was present, the
