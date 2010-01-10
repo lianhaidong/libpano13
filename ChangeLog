@@ -1,3 +1,10 @@
+2010-01-09  dmg  <dmg@uvic.ca>
+
+	* queryfeature.c (panoProjectionFormatCount): Fix for one the
+	problem with the type of the pointer. This was a big error I
+	introduced some time ago. This code removes the hard coded data
+	type. 
+
 2010-01-08  dmg  <dmg@uvic.ca>
 
 	* math.c: Reviewed and reformatted code by Tom for his implementation
