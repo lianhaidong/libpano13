@@ -737,11 +737,10 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
       mp->distance = pn->width/(2.0*tx);
       break;
     case _panini_general: 
-      // We need to set the distance in the mp parameter
-      mp->distance = 1.0;
-      panini_general_erect(b/2.0, 0.0, &tx, &ty, mp);
-      mp->distance = pn->width/(2.0*fabs(tx));  
-	  // that fabs() is a workaround, needed until we have better FOV control
+      // call setup_panini_general() to set distanceparam
+		pn->precomputedCount = 0;	// clear old settings
+		setup_panini_general( mp );
+	  // should abort now if it returns NULL
       break;
     case _architectural: 
       tpara = 1;
@@ -1120,9 +1119,9 @@ void  SetInvMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , 
             mp->distance = pn->width/(2.0*tx);
             break;
         case _panini_general:
-            mp->distance = 1.0;
-            panini_general_erect(b/2.0, 0.0, &tx, &ty, mp);
-            mp->distance = pn->width/(2.0*fabs(tx));	// workaround
+		  // call setup_panini_general() to set distanceparam
+			setup_panini_general( mp );
+		  // should abort now if it returns NULL
             break;
         case _architectural:
             tpara = 1;

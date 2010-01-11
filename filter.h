@@ -890,6 +890,7 @@ int erect_equipanini		( double x_dest,double  y_dest, double* x_src, double* y_s
 
 int panini_general_erect		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
 int erect_panini_general		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
+Image * setup_panini_general	( struct MakeParams * pmp );
 
 int arch_erect		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
 int erect_arch		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );

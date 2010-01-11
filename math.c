@@ -1087,7 +1087,7 @@ Image * setup_panini_general(struct MakeParams* pmp)
 int erect_panini_general( double x_dest,double  y_dest, double* lambda_src, double* phi_src, void* params)
 {  /* params -> MakeParams */
     double x, y, lambda, phi, d, distance;
-    double S;
+    double S, q, t;
     
     Image * ppg = setup_panini_general(mp);
     if( !ppg ) 
@@ -1121,6 +1121,19 @@ int erect_panini_general( double x_dest,double  y_dest, double* lambda_src, doub
         lambda = atan2( S * x, ca );
     }
     phi = atan(S * y);
+
+  /* squeeze */
+	q = ppg->precomputedValue[y < 0 ? 1 : 2];
+	if( q > 0 ){
+	/* soft squeeze */
+		t = q * 2 * cos(lambda) / PI;
+		phi *= t + 1;
+	} else if( q < 0 ){
+	/* hard squeeze */
+		q = -q;
+		t = cos(lambda) * tan(y);
+		phi += q * (t - phi);
+	}
     
     *lambda_src = lambda * distance;
     *phi_src = phi * distance;
@@ -1134,7 +1147,7 @@ int panini_general_erect( double lambda_dest,double  phi_dest, double* x_src, do
 {
     /* params -> MakeParams */
 
-    double phi, lambda, s,y,x;
+    double phi, lambda, q,t,s,y,x;
     double d;  // >= 0
     double distance;
 
@@ -1156,7 +1169,20 @@ int panini_general_erect( double lambda_dest,double  phi_dest, double* x_src, do
     x = sin(lambda) * s;
     y = tan(phi)  * s;
     
-    *y_src = distance * y;
+  /* squeeze */
+	q = ppg->precomputedValue[y < 0 ? 1 : 2];
+	if( q > 0 ){
+	/* soft squeeze */
+		t = q * 2 * cos(lambda) / PI;
+		phi /= t + 1;
+	} else if( q < 0 ){
+	/* hard squeeze */
+		q = -q;
+		t = cos(lambda) * tan(y);
+		phi -= q * (t - phi);
+	}
+
+	*y_src = distance * y;
     *x_src = distance * x;
     return 1;
 }
