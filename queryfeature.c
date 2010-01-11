@@ -420,8 +420,8 @@ int panoProjectionFeaturesQuery(int projection, pano_projection_features *featur
 	features->maxHFOV = 359;
         break;
     case PANO_FORMAT_PANINI_GENERAL:
-	features->maxVFOV = 180;
-	features->maxHFOV = 240;
+	features->maxVFOV = 160;
+	features->maxHFOV = 320;
 	features->numberOfParameters = 3;
 	features->parm[0].name = "hcmp";
 	features->parm[1].name = "tops";

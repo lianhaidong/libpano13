@@ -981,44 +981,38 @@ int panini_erect( double x_dest,double  y_dest, double* x_src, double* y_src, vo
     return 1;
 }
 
-/** legalize the nominal parameters of panini_general 
-  and translate to working values in precomputedValue[]
+/** set up working parameters for panini_general
 
-  Returns a pointer to the panini_general image, which
-  may either be the source ("im") or destination ("pn"),
-  with its precomputed values set appropriately; or 0
-  in case of error.
+  setup_panini_general(&MakeParams) selects the Image struct
+  corresponding to the pannini_general image and returns its
+  address, or a NULL pointer for failure.
 
-  Any unspecified parameters are defaulted.
-  Hugin sets all params as doubles, quantized to integer values.
-  So the nominal range must be large:
-    cmpr -100:0:50 <-> d = 0:1:->infinity NOTE nonlinear
-    tops, bots -50:50 <-> sqz -1:1
-  These ranges are also set in queryfeature.c
-  returns 0: failed, 1: OK
-  Returns quickly if correect working values are already set.
-  Ideally a "new values" transaction with frontend will clear 
-  precomputedCount, but I don't know that to be the case, so 
-  keep static copies of the previous params to check, too.
-  
-  When panini_general is the destination, the distanceparam in
-  the MakeParams may not correctly convert equirectangular
-  coordinates to angles in radians.
+  If the selected Image has an invalid precomputedCount, it
+  posts the proper distanceparam and puts working parameter 
+  values in precomputeValue[].
+
+  SetMakeParams (adjust.c) calls this function in lieu of setting
+  distanceparam.
+
+  The 'UI' projection params, described in queryfeature.c, have 
+  extended ranges to accomodate the integer-valued control sliders 
+  in hugin.  They are mapped to the working values as follows
+    cmpr -100:0:50 <-> d = 0:1:->infinity NOTE very nonlinear
+    tops, bots -50:50 <-> sqz -1:1 linear
+  CAUTION these ranges are assumed, not read from queryfeature.c
+
+  The maximum feasible hFOV depends on the compression parameter
+  and on a projection angle limit that is hard coded here.  We
+  set distanceparam to limit the actual hFOV accordingly if the 
+  requested hFOV is larger.
+
 **/
-Image * check_panini_general(struct MakeParams* pmp)
-{
-    // DMG We cannot have a static variables. 
-    // Makes the code non-reentrant XXXX 
-
-    static double oldparm[4] = {0, 0, 0, 0};
+Image * setup_panini_general(struct MakeParams* pmp)
+{	int  i; 
+    double s,t,d,a,v;
     Image * ppg = NULL;
-    int ok = FALSE;
-    int  i; 
-    double t,s;
 
-    /* select the p_g Image */
-
-    // Only act if it is panini 
+    // Only act if it is panini_general 
     if( pmp->im->format == _panini_general )  // input panini --is it supported?
         ppg = pmp->im;
     else if( pmp->pn->format == _panini_general ) // output panini
@@ -1026,51 +1020,66 @@ Image * check_panini_general(struct MakeParams* pmp)
     else 
         return NULL;
 
-    /* default unspecified values to 0 */
+    /* check number of precomputed param values */
+    if( ppg->precomputedCount == 4 )
+		return ppg;		// OK
+	
+    /* default unspecified values to 0, giving 
+		stereographic compresssion (d = 1)
+		and no squeezes.
+	*/
     for( i = ppg->formatParamCount; i < 3; i++ ) 
         ppg->formatParam[i] = 0;
-    /* check for new values */
-    if( ppg->precomputedCount == 3 ) {
-        ok = TRUE;
-        for(i=0; i< 3; i++){
-            if(ppg->formatParam[i] != oldparm[i]) {
-                ok = FALSE;
-                break;
-            }
-        }
-    }
-    if( ok )
-        return ppg;	/* old values still valid */
-    
-    /* clip values legal */
+   /* clip values legal */
     if(ppg->formatParam[0] < -100) 
         ppg->formatParam[0] = -100;
     else if(ppg->formatParam[0] > 50) 
         ppg->formatParam[0] = 50;
-
     if(ppg->formatParam[1] < -50) 
         ppg->formatParam[0] = -50;
     else if(ppg->formatParam[1] > 50) 
         ppg->formatParam[0] = 50;
-
     if(ppg->formatParam[2] < -50) 
         ppg->formatParam[0] = -50;
     else if(ppg->formatParam[2] > 50) 
         ppg->formatParam[0] = 50;
 
-    /* save new values */
-    for(i=0; i < 3; i++) 
-        oldparm[i] = ppg->formatParam[i];
+    /* post working param values */
+    t = (50 - ppg->formatParam[0]) / 50;	/* -100:50 => 3:0 */
+    d = 1.5 / (t + 0.0001) - 1.5/3.0001;
+    ppg->precomputedValue[0] = d;
+    ppg->precomputedValue[1] = ppg->formatParam[1] / 50;
+    ppg->precomputedValue[2] = ppg->formatParam[2] / 50;
 
-    /* translate to working values */
-    // Tom, would you mind explanining in a comment the defaults? DMG XXX
-    ppg->precomputedCount = 3;
-    t = (50 - oldparm[0]) / 50;	/* -100:50 => 3:0 */
-    s = 1.5 / (t + 0.0001) - 1.5/3.0001;
-    ppg->precomputedValue[0] = s;
-    ppg->precomputedValue[1] = oldparm[1] / 50;
-    ppg->precomputedValue[2] = oldparm[2] / 50;
-    
+  /* post max feasible half-FOV as angle and x value */
+  // theoretical max angle (infeasible for d < 1.1 or so)
+	if( d > 1. )
+		s =  -1/d;
+	else 
+		s = -d;  
+	a = acos( s );
+  // actual limit may be max projection angle...
+	t = DEG_TO_RAD( 80 );	// max allowed projection angle
+	s = asin(d * sin(t)) + t ; // corresp. max azimuth
+	if( a > s ){	// clip to projection angle limit
+		a = s;	
+	} 
+  // clip hFOV to feasible limit
+	v = 0.5 * DEG_TO_RAD( ppg->hfov );
+	if( v > a )
+		v = a;
+
+  // x coordinate limit
+	s = sin( a ) * (d + 1) / (d + cos(a));
+
+  // distance param
+	t = sin(v) * (d+1) / (d + cos(v));
+	pmp->distance = 0.5 * ppg->width / t;
+       
+	ppg->precomputedValue[3] = a;	// max lambda
+	ppg->precomputedValue[4] = s;	// max x 
+
+	ppg->precomputedCount = 4; 
     return ppg;
 }
 
@@ -1080,7 +1089,7 @@ int erect_panini_general( double x_dest,double  y_dest, double* lambda_src, doub
     double x, y, lambda, phi, d, distance;
     double S;
     
-    Image * ppg = check_panini_general(mp);
+    Image * ppg = setup_panini_general(mp);
     if( !ppg ) 
         return FALSE;
 
@@ -1089,6 +1098,11 @@ int erect_panini_general( double x_dest,double  y_dest, double* lambda_src, doub
     distance = mp->distance;
     y = y_dest/distance;
     x = x_dest/distance;
+
+  // fail if outside feasible FOV
+	if( fabs(x) > ppg->precomputedValue[4] )
+		return 0;	
+
 
     if( x == 0 )
         lambda = 0;
@@ -1124,15 +1138,19 @@ int panini_general_erect( double lambda_dest,double  phi_dest, double* x_src, do
     double d;  // >= 0
     double distance;
 
-    Image * ppg = check_panini_general(mp);
+    Image * ppg = setup_panini_general(mp);
     if( !ppg ) 
         return 0;
 
     d = ppg->precomputedValue[0];
     
     distance = mp->distance;
-    phi = phi_dest/distance;
     lambda = lambda_dest/distance;
+    phi = phi_dest/distance;
+
+  // fail if outside feasible FOV
+	if( fabs(lambda) > ppg->precomputedValue[3] )
+		return 0;	
 
     s = (d + 1) / (d + cos(lambda));
     x = sin(lambda) * s;
