@@ -423,15 +423,15 @@ int panoProjectionFeaturesQuery(int projection, pano_projection_features *featur
 	features->maxVFOV = 160;
 	features->maxHFOV = 320;
 	features->numberOfParameters = 3;
-	features->parm[0].name = "hcmp";
-	features->parm[1].name = "tops";
-	features->parm[2].name = "bots";
+	features->parm[0].name = "Cmpr";
+	features->parm[1].name = "Tops";
+	features->parm[2].name = "Bots";
     features->parm[0].minValue = -100;
     features->parm[0].maxValue = 50;
-    features->parm[1].minValue = -50;
-    features->parm[1].maxValue = 50;
-    features->parm[2].minValue = -50;
-    features->parm[2].maxValue = 50;
+    features->parm[1].minValue = -100;
+    features->parm[1].maxValue = 100;
+    features->parm[2].minValue = -100;
+    features->parm[2].maxValue = 100;
 
         break;
     case PANO_FORMAT_FISHEYE_FF:

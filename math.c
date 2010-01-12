@@ -998,7 +998,9 @@ int panini_erect( double x_dest,double  y_dest, double* x_src, double* y_src, vo
   extended ranges to accomodate the integer-valued control sliders 
   in hugin.  They are mapped to the working values as follows
     cmpr -100:0:50 <-> d = 0:1:->infinity NOTE very nonlinear
-    tops, bots -50:50 <-> sqz -1:1 linear
+    tops, bots -100:100 <-> sqz -1:1 linear
+				< 0 gives soft squeeze
+				> 0 give transverse straightening squeeze
   CAUTION these ranges are assumed, not read from queryfeature.c
 
   The maximum feasible hFOV depends on the compression parameter
@@ -1021,7 +1023,7 @@ Image * setup_panini_general(struct MakeParams* pmp)
         return NULL;
 
     /* check number of precomputed param values */
-    if( ppg->precomputedCount == 4 )
+    if( ppg->precomputedCount == 5 )
 		return ppg;		// OK
 	
     /* default unspecified values to 0, giving 
@@ -1033,23 +1035,23 @@ Image * setup_panini_general(struct MakeParams* pmp)
    /* clip values legal */
     if(ppg->formatParam[0] < -100) 
         ppg->formatParam[0] = -100;
-    else if(ppg->formatParam[0] > 50) 
-        ppg->formatParam[0] = 50;
-    if(ppg->formatParam[1] < -50) 
-        ppg->formatParam[0] = -50;
-    else if(ppg->formatParam[1] > 50) 
-        ppg->formatParam[0] = 50;
-    if(ppg->formatParam[2] < -50) 
-        ppg->formatParam[0] = -50;
-    else if(ppg->formatParam[2] > 50) 
-        ppg->formatParam[0] = 50;
+    else if(ppg->formatParam[0] > 100) 
+        ppg->formatParam[0] = 100;
+    if(ppg->formatParam[1] < -100) 
+        ppg->formatParam[1] = -100;
+    else if(ppg->formatParam[1] > 100) 
+        ppg->formatParam[1] = 100;
+    if(ppg->formatParam[2] < -100) 
+        ppg->formatParam[2] = -100;
+    else if(ppg->formatParam[2] > 100) 
+        ppg->formatParam[2] = 100;
 
     /* post working param values */
     t = (50 - ppg->formatParam[0]) / 50;	/* -100:50 => 3:0 */
     d = 1.5 / (t + 0.0001) - 1.5/3.0001;
     ppg->precomputedValue[0] = d;
-    ppg->precomputedValue[1] = ppg->formatParam[1] / 50;
-    ppg->precomputedValue[2] = ppg->formatParam[2] / 50;
+    ppg->precomputedValue[1] = ppg->formatParam[1] / 100;
+    ppg->precomputedValue[2] = ppg->formatParam[2] / 100;
 
   /* post max feasible half-FOV as angle and x value */
   // theoretical max angle (infeasible for d < 1.1 or so)
@@ -1079,7 +1081,7 @@ Image * setup_panini_general(struct MakeParams* pmp)
 	ppg->precomputedValue[3] = a;	// max lambda
 	ppg->precomputedValue[4] = s;	// max x 
 
-	ppg->precomputedCount = 4; 
+	ppg->precomputedCount = 5; 
     return ppg;
 }
 
@@ -1087,7 +1089,7 @@ Image * setup_panini_general(struct MakeParams* pmp)
 int erect_panini_general( double x_dest,double  y_dest, double* lambda_src, double* phi_src, void* params)
 {  /* params -> MakeParams */
     double x, y, lambda, phi, d, distance;
-    double S, q, t;
+    double S, cl, q, t;
     
     Image * ppg = setup_panini_general(mp);
     if( !ppg ) 
@@ -1104,82 +1106,85 @@ int erect_panini_general( double x_dest,double  y_dest, double* lambda_src, doub
 		return 0;	
 
 
-    if( x == 0 )
+	if( x == 0 ){
         lambda = 0;
-    else {
+		S = 1;
+		cl = 1;
+	} else {
 	/* solve quadratic for cosine of azimuth angle */
-        double k, kk, dd, del, ca;
+        double k, kk, dd, del;
         k = fabs(x) / (d + 1);
         kk = k * k;
         dd = d * d;
         del = kk * kk * dd - (kk + 1) * (kk * dd - 1);
         if( del < 0 ) 
             return 0;
-        ca = (-kk * d + sqrt( del )) / (kk + 1);
+        cl = (-kk * d + sqrt( del )) / (kk + 1);
 	/* use that to compute S, and angle */
-        S = (d + ca)/(d + 1);
-        lambda = atan2( S * x, ca );
+        S = (d + cl)/(d + 1);
+        lambda = atan2( S * x, cl );
     }
-    phi = atan(S * y);
+	phi = atan(S * y);
 
   /* squeeze */
 	q = ppg->precomputedValue[y < 0 ? 1 : 2];
-	if( q > 0 ){
-	/* soft squeeze */
-		t = q * 2 * cos(lambda) / PI;
-		phi *= t + 1;
-	} else if( q < 0 ){
-	/* hard squeeze */
+	if( q < 0 ){
 		q = -q;
-		t = cos(lambda) * tan(y);
+	/* soft squeeze */
+		t = q * 2 * (cl - 0.707) / PI;
+		phi *= t + 1;
+	} else if( q > 0 ){
+	/* hard squeeze */
+		t = atan( y * cl );
 		phi += q * (t - phi);
 	}
+	    
+	*lambda_src = lambda * distance;
+	*phi_src = phi * distance;
     
-    *lambda_src = lambda * distance;
-    *phi_src = phi * distance;
-    
-    return TRUE;
+	return TRUE;
 }
 
 
-/** convert from erect to panini_general **/
+	/** convert from erect to panini_general **/
 int panini_general_erect( double lambda_dest,double  phi_dest, double* x_src, double* y_src, void* params)
 {
-    /* params -> MakeParams */
+	/* params -> MakeParams */
 
-    double phi, lambda, q,t,s,y,x;
-    double d;  // >= 0
-    double distance;
+	double phi, lambda, q,t,s,y,x;
+	double d;  // >= 0
+	double distance;
 
-    Image * ppg = setup_panini_general(mp);
-    if( !ppg ) 
-        return 0;
+	Image * ppg = setup_panini_general(mp);
+	if( !ppg ) 
+		return 0;
 
-    d = ppg->precomputedValue[0];
+	d = ppg->precomputedValue[0];
     
-    distance = mp->distance;
-    lambda = lambda_dest/distance;
-    phi = phi_dest/distance;
+	distance = mp->distance;
+	lambda = lambda_dest/distance;
+	phi = phi_dest/distance;
 
   // fail if outside feasible FOV
 	if( fabs(lambda) > ppg->precomputedValue[3] )
 		return 0;	
 
-    s = (d + 1) / (d + cos(lambda));
-    x = sin(lambda) * s;
-    y = tan(phi)  * s;
+	s = (d + 1) / (d + cos(lambda));
+	x = sin(lambda) * s;
+	y = tan(phi)  * s;
     
-  /* squeeze */
+  /* unsqueeze */
 	q = ppg->precomputedValue[y < 0 ? 1 : 2];
-	if( q > 0 ){
-	/* soft squeeze */
-		t = q * 2 * cos(lambda) / PI;
-		phi /= t + 1;
-	} else if( q < 0 ){
-	/* hard squeeze */
+	if( q < 0 ){
 		q = -q;
-		t = cos(lambda) * tan(y);
-		phi -= q * (t - phi);
+	/* soft squeeze */
+		t = q * 2 * (cos(lambda) - 0.707) / PI;
+		y = s * tan(phi /(t + 1));
+
+	} else if( q > 0 ){
+	/* hard squeeze */
+		t = tan(phi) * cos(lambda);
+		y += q * (t - y);
 	}
 
 	*y_src = distance * y;
