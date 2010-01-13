@@ -24,6 +24,7 @@
 			OutputDirectory="$(ConfigurationName)\$(PlatformName)"
 			IntermediateDirectory="$(ConfigurationName)\$(PlatformName)"
 			ConfigurationType="4"
+			InheritedPropertySheets=".\LocalDefs.vsprops"
 			CharacterSet="0"
 			BuildLogFile="$(IntDir)\$(InputName)BuildLog.htm"
 			>
@@ -55,6 +56,220 @@
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
+				CallingConvention="0"
+				CompileAs="0"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				ResourceOutputFileName=""
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+				CommandLine=""
+			/>
+			<Tool
+				Name="VCLibrarianTool"
+				IgnoreAllDefaultLibraries="true"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release CMD|Win32"
+			OutputDirectory="$(ConfigurationName)\$(PlatformName)"
+			IntermediateDirectory="$(ConfigurationName)\$(PlatformName)"
+			ConfigurationType="4"
+			InheritedPropertySheets=".\LocalDefs.vsprops"
+			CharacterSet="0"
+			BuildLogFile="$(IntDir)\$(InputName)BuildLog.htm"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="2"
+				InlineFunctionExpansion="0"
+				FavorSizeOrSpeed="0"
+				AdditionalIncludeDirectories="&quot;$(WXWIDGETS_HOME)\src\zlib&quot;;&quot;$(WXWIDGETS_HOME)\src\png&quot;;&quot;$(WXWIDGETS_HOME)\src\tiff&quot;;&quot;$(WXWIDGETS_HOME)\src\jpeg&quot;;&quot;$(WXWIDGETS_HOME)\src&quot;"
+				PreprocessorDefinitions="WIN32;_CONSOLE;_LIB;NDEBUG"
+				RuntimeLibrary="0"
+				StructMemberAlignment="4"
+				ProgramDataBaseFileName="$(IntDir)\pano13.pdb"
+				WarningLevel="3"
+				Detect64BitPortabilityProblems="false"
+				DebugInformationFormat="0"
+				CallingConvention="0"
+				CompileAs="0"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				ResourceOutputFileName=""
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+				CommandLine=""
+			/>
+			<Tool
+				Name="VCLibrarianTool"
+				IgnoreAllDefaultLibraries="true"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Debug GUI|Win32"
+			OutputDirectory="$(ConfigurationName)\$(PlatformName)"
+			IntermediateDirectory="$(ConfigurationName)\$(PlatformName)"
+			ConfigurationType="4"
+			InheritedPropertySheets=".\LocalDefs.vsprops"
+			CharacterSet="0"
+			BuildLogFile="$(IntDir)\$(InputName)BuildLog.htm"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="0"
+				AdditionalIncludeDirectories="&quot;$(WXWIDGETS_HOME)\src\zlib&quot;;&quot;$(WXWIDGETS_HOME)\src\png&quot;;&quot;$(WXWIDGETS_HOME)\src\tiff&quot;;&quot;$(WXWIDGETS_HOME)\src\jpeg&quot;;&quot;$(WXWIDGETS_HOME)\src&quot;"
+				PreprocessorDefinitions="WIN32;_WINDOWS;_LIB;_DEBUG"
+				MinimalRebuild="true"
+				BasicRuntimeChecks="3"
+				RuntimeLibrary="1"
+				StructMemberAlignment="4"
+				EnableFunctionLevelLinking="true"
+				ProgramDataBaseFileName="$(IntDir)\pano13.pdb"
+				WarningLevel="3"
+				Detect64BitPortabilityProblems="false"
+				DebugInformationFormat="3"
+				CallingConvention="0"
+				CompileAs="0"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				ResourceOutputFileName=""
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+				CommandLine=""
+			/>
+			<Tool
+				Name="VCLibrarianTool"
+				IgnoreAllDefaultLibraries="true"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release GUI|Win32"
+			OutputDirectory="$(ConfigurationName)\$(PlatformName)"
+			IntermediateDirectory="$(ConfigurationName)\$(PlatformName)"
+			ConfigurationType="4"
+			InheritedPropertySheets=".\LocalDefs.vsprops"
+			CharacterSet="0"
+			BuildLogFile="$(IntDir)\$(InputName)BuildLog.htm"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="2"
+				InlineFunctionExpansion="0"
+				FavorSizeOrSpeed="0"
+				AdditionalIncludeDirectories="&quot;$(WXWIDGETS_HOME)\src\zlib&quot;;&quot;$(WXWIDGETS_HOME)\src\png&quot;;&quot;$(WXWIDGETS_HOME)\src\tiff&quot;;&quot;$(WXWIDGETS_HOME)\src\jpeg&quot;;&quot;$(WXWIDGETS_HOME)\src&quot;"
+				PreprocessorDefinitions="WIN32;_WINDOWS;_LIB;NDEBUG"
+				RuntimeLibrary="0"
+				StructMemberAlignment="4"
+				ProgramDataBaseFileName="$(IntDir)\pano13.pdb"
+				WarningLevel="3"
+				Detect64BitPortabilityProblems="false"
+				DebugInformationFormat="0"
 				CallingConvention="0"
 				CompileAs="0"
 			/>
@@ -161,76 +376,6 @@
 			/>
 		</Configuration>
 		<Configuration
-			Name="Release CMD|Win32"
-			OutputDirectory="$(ConfigurationName)\$(PlatformName)"
-			IntermediateDirectory="$(ConfigurationName)\$(PlatformName)"
-			ConfigurationType="4"
-			CharacterSet="0"
-			BuildLogFile="$(IntDir)\$(InputName)BuildLog.htm"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="2"
-				InlineFunctionExpansion="0"
-				FavorSizeOrSpeed="0"
-				AdditionalIncludeDirectories="&quot;$(WXWIDGETS_HOME)\src\zlib&quot;;&quot;$(WXWIDGETS_HOME)\src\png&quot;;&quot;$(WXWIDGETS_HOME)\src\tiff&quot;;&quot;$(WXWIDGETS_HOME)\src\jpeg&quot;;&quot;$(WXWIDGETS_HOME)\src&quot;"
-				PreprocessorDefinitions="WIN32;_CONSOLE;_LIB;NDEBUG"
-				RuntimeLibrary="0"
-				StructMemberAlignment="4"
-				ProgramDataBaseFileName="$(IntDir)\pano13.pdb"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="false"
-				DebugInformationFormat="0"
-				CallingConvention="0"
-				CompileAs="0"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				ResourceOutputFileName=""
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-				CommandLine=""
-			/>
-			<Tool
-				Name="VCLibrarianTool"
-				IgnoreAllDefaultLibraries="true"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
 			Name="Release CMD|x64"
 			OutputDirectory="$(ConfigurationName)\$(PlatformName)"
 			IntermediateDirectory="$(ConfigurationName)\$(PlatformName)"
@@ -267,77 +412,6 @@
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="0"
-				CallingConvention="0"
-				CompileAs="0"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				ResourceOutputFileName=""
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-				CommandLine=""
-			/>
-			<Tool
-				Name="VCLibrarianTool"
-				IgnoreAllDefaultLibraries="true"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Debug GUI|Win32"
-			OutputDirectory="$(ConfigurationName)\$(PlatformName)"
-			IntermediateDirectory="$(ConfigurationName)\$(PlatformName)"
-			ConfigurationType="4"
-			CharacterSet="0"
-			BuildLogFile="$(IntDir)\$(InputName)BuildLog.htm"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(WXWIDGETS_HOME)\src\zlib&quot;;&quot;$(WXWIDGETS_HOME)\src\png&quot;;&quot;$(WXWIDGETS_HOME)\src\tiff&quot;;&quot;$(WXWIDGETS_HOME)\src\jpeg&quot;;&quot;$(WXWIDGETS_HOME)\src&quot;"
-				PreprocessorDefinitions="WIN32;_WINDOWS;_LIB;_DEBUG"
-				MinimalRebuild="true"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="1"
-				StructMemberAlignment="4"
-				EnableFunctionLevelLinking="true"
-				ProgramDataBaseFileName="$(IntDir)\pano13.pdb"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="false"
-				DebugInformationFormat="3"
 				CallingConvention="0"
 				CompileAs="0"
 			/>
@@ -410,76 +484,6 @@
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
-				CallingConvention="0"
-				CompileAs="0"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				ResourceOutputFileName=""
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-				CommandLine=""
-			/>
-			<Tool
-				Name="VCLibrarianTool"
-				IgnoreAllDefaultLibraries="true"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Release GUI|Win32"
-			OutputDirectory="$(ConfigurationName)\$(PlatformName)"
-			IntermediateDirectory="$(ConfigurationName)\$(PlatformName)"
-			ConfigurationType="4"
-			CharacterSet="0"
-			BuildLogFile="$(IntDir)\$(InputName)BuildLog.htm"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="2"
-				InlineFunctionExpansion="0"
-				FavorSizeOrSpeed="0"
-				AdditionalIncludeDirectories="&quot;$(WXWIDGETS_HOME)\src\zlib&quot;;&quot;$(WXWIDGETS_HOME)\src\png&quot;;&quot;$(WXWIDGETS_HOME)\src\tiff&quot;;&quot;$(WXWIDGETS_HOME)\src\jpeg&quot;;&quot;$(WXWIDGETS_HOME)\src&quot;"
-				PreprocessorDefinitions="WIN32;_WINDOWS;_LIB;NDEBUG"
-				RuntimeLibrary="0"
-				StructMemberAlignment="4"
-				ProgramDataBaseFileName="$(IntDir)\pano13.pdb"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="false"
-				DebugInformationFormat="0"
 				CallingConvention="0"
 				CompileAs="0"
 			/>
@@ -702,23 +706,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug CMD|x64"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Release CMD|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release CMD|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -734,7 +722,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug GUI|x64"
+					Name="Release GUI|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -742,7 +730,23 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release GUI|Win32"
+					Name="Debug CMD|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release CMD|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug GUI|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -774,23 +778,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug CMD|x64"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Release CMD|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release CMD|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -806,7 +794,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug GUI|x64"
+					Name="Release GUI|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -814,7 +802,23 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release GUI|Win32"
+					Name="Debug CMD|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release CMD|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug GUI|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -866,7 +870,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug GUI|x64"
+					Name="Release GUI|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -874,7 +878,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release GUI|Win32"
+					Name="Debug GUI|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -906,7 +910,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug CMD|x64"
+					Name="Release CMD|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -914,7 +918,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release CMD|Win32"
+					Name="Debug CMD|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -1020,7 +1024,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug GUI|x64"
+					Name="Release GUI|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -1028,7 +1032,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release GUI|Win32"
+					Name="Debug GUI|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -1056,7 +1060,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug CMD|x64"
+					Name="Release CMD|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -1064,7 +1068,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release CMD|Win32"
+					Name="Debug CMD|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -1106,23 +1110,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug CMD|x64"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCResourceCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Release CMD|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCResourceCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release CMD|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -1138,7 +1126,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug GUI|x64"
+					Name="Release GUI|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -1146,7 +1134,23 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release GUI|Win32"
+					Name="Debug CMD|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCResourceCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release CMD|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCResourceCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug GUI|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool
