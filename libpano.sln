@@ -1,5 +1,5 @@
 Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
+# Visual C++ Express 2008
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pano13", "libpano.vcproj", "{9B19A5C0-8DB0-448B-BF99-DC6374E9751B}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PTAInterpolate", "tools\PTAInterpolate.vcproj", "{9D68379B-FD84-4B81-B25D-6126AF2ABDA0}"
@@ -78,7 +78,6 @@ Global
 		{9D68379B-FD84-4B81-B25D-6126AF2ABDA0}.Debug CMD|x64.ActiveCfg = Debug CMD|x64
 		{9D68379B-FD84-4B81-B25D-6126AF2ABDA0}.Debug CMD|x64.Build.0 = Debug CMD|x64
 		{9D68379B-FD84-4B81-B25D-6126AF2ABDA0}.Release CMD|Win32.ActiveCfg = Release CMD|Win32
-		{9D68379B-FD84-4B81-B25D-6126AF2ABDA0}.Release CMD|Win32.Build.0 = Release CMD|Win32
 		{9D68379B-FD84-4B81-B25D-6126AF2ABDA0}.Release CMD|x64.ActiveCfg = Release CMD|x64
 		{9D68379B-FD84-4B81-B25D-6126AF2ABDA0}.Release CMD|x64.Build.0 = Release CMD|x64
 		{20D1E094-A4B5-4294-85CE-229529065789}.Debug CMD|Win32.ActiveCfg = Debug CMD|Win32
