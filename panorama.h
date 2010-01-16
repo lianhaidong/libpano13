@@ -509,10 +509,15 @@ typedef struct
     pano_projection_parameter parm[PANO_PROJECTION_MAX_PARMS]; 
 } pano_projection_features;
 
-
-
 int panoProjectionFeaturesQuery(int projection, pano_projection_features *features);
 int panoProjectionFormatCount(void);
+/** APIs to read dynamic features that depend on projection parameters
+    projection argument is an index, same as for queryFeatures()
+**/
+int queryFOVLimits( int projection,	
+				    double * params, /* length depends on projection */
+					double * lims	/* [0] = maxhfov, [1] = maxvfov */
+				  );
 
 
 

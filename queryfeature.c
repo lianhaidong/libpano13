@@ -493,5 +493,31 @@ int panoProjectionFeaturesQuery(int projection, pano_projection_features *featur
     return 1;
 }
 
+int queryFOVLimits( int projection,		/* projection index */
+				    double * params, /* length depends on projection */
+					double * lims	/* [0] = maxhfov, [1] = maxvfov */
+				  )
+{
+	pano_projection_features pf;
+	int ok = panoProjectionFeaturesQuery(projection, &pf);
+	lims[0] = lims[1] = 0;
+	if( !ok ) return 0;
+  // default fixed values
+	lims[0] = pf.maxHFOV;
+	lims[1] = pf.maxVFOV;
+  // compute dynamic values
+    switch (projection) {
+    default:
+	break;
+    case PANO_FORMAT_PANINI_GENERAL:
+		maxFOVs_panini_general	(params, lims );
+    break;
+    case PANO_FORMAT_ALBERS_EQUAL_AREA_CONIC:
+	break;
+    }
+
+	return 1;
+}
+
 
 

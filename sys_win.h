@@ -117,8 +117,13 @@ BOOL WINAPI WinFunc(HWND hDlg, UINT wMsg, WPARAM wParam, LPARAM lParam)		\
 
 typedef LPSTR *Handle;
 
+#ifdef _DLL
 extern HINSTANCE hDllInstance;
 extern HWND wndOwner;
+#else
+#define hDllInstance 0
+#define wndOwner 0
+#endif
 
 void SetWindowOwner(HWND Owner);
 void CenterDialog(HWND hDlg);
