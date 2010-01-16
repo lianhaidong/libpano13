@@ -232,6 +232,25 @@ install(TARGETS pano13a ARCHIVE DESTINATION lib)
 
 install(FILES ${pano13_install_hdr} DESTINATION "include/pano13")
 
+# install documentation expected by hugin install script
+INSTALL(
+  FILES
+	AUTHORS
+	gpl.txt
+	LICENSE.LGPL
+	README
+	TODO
+  DESTINATION "include/pano13"
+        )
+INSTALL(
+  FILES
+        doc/Optimize.txt
+        doc/PTblender.readme
+        doc/PTmender.readme
+        doc/stitch.txt
+  DESTINATION "include/pano13/doc"
+        )
+
 set(TOP_SRC_DIR ${CMAKE_SOURCE_DIR})
 
 add_subdirectory(man)
