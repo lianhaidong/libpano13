@@ -44,6 +44,29 @@
 #define round(x) (int)(x)
 #endif
 
+#ifndef htons
+// byte reordering macros -- avoids loading sockets lib on Windows
+#define LITTLE_ENDIAN	// change if your Windows box is from Mars
+#if defined(BIG_ENDIAN) && !defined(LITTLE_ENDIAN)
+#define htons(A) (A)
+#define htonl(A) (A)
+#define ntohs(A) (A)
+#define ntohl(A) (A)
+#elif defined(LITTLE_ENDIAN) && !defined(BIG_ENDIAN)
+#define htons(A) (((uint16)(A) & 0xff00) >> 8 | ((uint16)(A) & 0x00ff) << 8 )
+#define htonl(A) ((((uint32)(A) & 0xff000000) >> 24) | \
+((uint32)(A) & 0x00ff0000) >> 8 | \
+((uint32)(A) & 0x0000ff00) << 8 | \
+((uint32)(A) & 0x000000ff) << 24)
+#define ntohs htons
+#define ntohl htohl
+#else
+#error "Either BIG_ENDIAN or LITTLE_ENDIAN must be #defined, but not both."
+#endif
+#endif	/ndef htons
+
+
+
 FILE *debugFile = 0;
 
 
