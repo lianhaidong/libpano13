@@ -1,9 +1,17 @@
 ## cmakelists.txt for libpano13 in a Hugin build environment.
 ##     03-04 Aug 2009 TKSharpless
+##  Updated 16 Jan 2010 to add general Pannini projection
 ##
-## Builds libpano13 only, by default without support for the
-## Java programs ptpicker and pteditor.  To include that, you
-## can define HAVE_JAVA on the CMake command line.  The Java
+## For Windows, download just part of the panotools SVN tree:
+## https://panotools.svn.sourceforge.net/svnroot/panotools/trunk/libpano
+## into local directory libpano under the hugin SDK root.
+## Then build in-place with CMake, and build INSTALL.  That
+## will create a directory in the SDK root that the hugin
+## CMake build scripts can use.
+##    
+## Builds libpano13 and selected panotools, by default without 
+## support for the Java programs ptpicker and pteditor.  You
+## can define HAVE_JAVA on the CMake command line; the Java
 ## header jni.h and its dependencies must then be in your
 ## include search path(this script does not find them).
 ##
@@ -33,6 +41,10 @@ ELSE(HUGIN_BASE_DIR)
   GET_FILENAME_COMPONENT(SOURCE_BASE_DIR ${CMAKE_SOURCE_DIR} PATH CACHE)
   set(CMAKE_MODULE_PATH ${SOURCE_BASE_DIR}/hugin/CMakeModules)
 ENDIF(HUGIN_BASE_DIR)
+
+IF(WIN32)
+  set(CMAKE_INSTALL_PREFIX "${SOURCE_BASE_DIR}/libpano13" CACHE PATH "Install prefix for hugin SDK")
+ENDIF(WIN32)
 
 include(CheckIncludeFiles)
 
