@@ -150,6 +150,7 @@ set(pano13_hdr
 	sys_ansi.h
 	sys_win.h
 	ZComb.h
+	PaniniGeneral.h
 )
 
 set(pano13_res
@@ -196,6 +197,7 @@ set(pano13_src
 	tiff.c
 	Triangulate.c
 	ZComb.c
+	PaniniGeneral.c
 )
 # We have some header files at top source level now
 include_directories(${CMAKE_SOURCE_DIR})
