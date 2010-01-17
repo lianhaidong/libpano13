@@ -418,7 +418,7 @@ typedef struct
 
 
 // This are the maximum number of parameters accepted by a given projection
-#define PANO_PROJECTION_MAX_PARMS 3
+#define PANO_PROJECTION_MAX_PARMS 6
 // This are the maximum number of internal parameters used by a given projection
 #define PANO_PROJECTION_PRECOMPUTED_VALUES 10
 
@@ -492,6 +492,7 @@ typedef struct
 {
     double minValue;  // used only if float
     double maxValue;
+	double defValue;	// default
     char *name; // name of the parameter (for the purpose of legibility)
 } pano_projection_parameter;
 
