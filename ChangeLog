@@ -1,3 +1,8 @@
+2010-01-17  dmg  <dmg@uvic.ca>
+
+	* Makefile.am: Added new panini source code files to the building
+	of the library.
+
 2010-01-09  dmg  <dmg@uvic.ca>
 
 	* queryfeature.c (panoProjectionFormatCount): Fix for one the
