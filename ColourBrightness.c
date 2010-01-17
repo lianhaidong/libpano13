@@ -38,13 +38,17 @@
 
 #include "pttiff.h"
 
-// MSVC doesn't support round()
+
 #ifdef _MSC_VER
+
+// MSVC doesn't support round()
 //#define round(x) ( (int) (x+0.5) )
 #define round(x) (int)(x)
-#endif
 
-#ifndef htons
+// MSVC wants htons() to be a library function
+// here we define it as a macro instead
+#undef htons
+#undef htonl
 // byte reordering macros -- avoids loading sockets lib on Windows
 #define LITTLE_ENDIAN	// change if your Windows box is from Mars
 #if defined(BIG_ENDIAN) && !defined(LITTLE_ENDIAN)
@@ -63,7 +67,8 @@
 #else
 #error "Either BIG_ENDIAN or LITTLE_ENDIAN must be #defined, but not both."
 #endif
-#endif	/ndef htons
+
+#endif  //def _MSC_VER
 
 
 

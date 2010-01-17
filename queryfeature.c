@@ -378,8 +378,9 @@ int panoProjectionFormatCount(void)
 
 int panoProjectionFeaturesQuery(int projection, pano_projection_features *features)
 {
-    // Return information regarding the characteristics of each of the projections 
-    // in the library.
+    // Return static information on the characteristics of each of the projections 
+    // in the library.  This now includes min, max and defualt parameter values.
+	// All data are zero by default.
 
     int i;
 
@@ -426,8 +427,9 @@ int panoProjectionFeaturesQuery(int projection, pano_projection_features *featur
 	features->parm[0].name = "Cmpr";
 	features->parm[1].name = "Tops";
 	features->parm[2].name = "Bots";
-    features->parm[0].minValue = -100;
-    features->parm[0].maxValue = 50;
+    features->parm[0].minValue = 0;
+    features->parm[0].maxValue = 150;
+	features->parm[0].defValue = 100;
     features->parm[1].minValue = -100;
     features->parm[1].maxValue = 100;
     features->parm[2].minValue = -100;
@@ -469,6 +471,9 @@ int panoProjectionFeaturesQuery(int projection, pano_projection_features *featur
 	    features->parm[i].minValue = -90;
 	    features->parm[i].maxValue = +90;
 	}
+	features->parm[0].defValue = 0;
+	features->parm[1].defValue = 60;
+
 	break;
 	case PANO_FORMAT_BIPLANE:
         features->maxVFOV = 179;
@@ -477,6 +482,7 @@ int panoProjectionFeaturesQuery(int projection, pano_projection_features *featur
 		features->parm[0].name = "alpha";
 		features->parm[0].minValue=1;
 		features->parm[0].maxValue=179;
+		features->parm[0].defValue=45;
 		break;
 	case PANO_FORMAT_TRIPLANE:
 	    features->maxVFOV = 179;
@@ -485,6 +491,7 @@ int panoProjectionFeaturesQuery(int projection, pano_projection_features *featur
 		features->parm[0].name = "alpha";
 		features->parm[0].minValue=1;
 		features->parm[0].maxValue=120;
+		features->parm[0].defValue=60;
 		break;
     default:
 	assert(0); // A projection is missing!

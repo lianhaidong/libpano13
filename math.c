@@ -1000,7 +1000,7 @@ int panini_erect( double x_dest,double  y_dest, double* x_src, double* y_src, vo
   The user-visible projection params, described in queryfeature.c, 
   are scaled to accomodate integer-valued control sliders in a GUI.  
   unscaleParams_panini_general() sets working values as follows:
-    cmpr -100:0:50 <-> d = 0:1:->infinity NOTE very nonlinear
+    cmpr 0:100:150 <-> d = 0:1:->infinity NOTE very nonlinear
     tops, bots -100:100 <-> sqz -1:1 linear
 				< 0 gives soft squeeze
 				> 0 give transverse straightening squeeze
@@ -1021,8 +1021,8 @@ int unscaleParams_panini_general(
 	double t;
 
    /* check for legal values */
-    if(    gui_params[0] < -100
-		|| gui_params[0] > 50
+    if(    gui_params[0] < 0
+		|| gui_params[0] > 150
 	  ) return 0;
     if(    gui_params[1] < -100
 		|| gui_params[1] > 100
@@ -1032,7 +1032,7 @@ int unscaleParams_panini_general(
 	  ) return 0;
 
     /* post working param values */
-    t = (50 - gui_params[0]) / 50;	/* -100:50 => 3:0 */
+    t = (150 - gui_params[0]) / 50;	/* 0:150 => 3:0 */
     wrk_params[0] = 1.5 / (t + 0.0001) - 1.5/3.0001;
     wrk_params[1] = gui_params[1] / 100;
     wrk_params[2] = gui_params[2] / 100;
