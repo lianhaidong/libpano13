@@ -24,13 +24,13 @@
 #define VERS2 0x00
 
 //version of preferences file, used to verify data
-#define PREF_VERSION "2.9.15 "
+#define PREF_VERSION "2.9.16 "
 
 // String style of global version
-#define VERSION "2.9.15 "
+#define VERSION "2.9.16 "
 
 // Numeric style of global version, same as VERSION with more precision
-#define PTVERSION_FILEVERSIONNUMBER 2,9,15,0
+#define PTVERSION_FILEVERSIONNUMBER 2,9,16,0
 #define PTVERSION_NAME_LONG "LongVersion"
 #define LONGVERSION VERSION ", Copyright (c) 1998-2006, H. Dersch, der@fh-furtwangen.de"
 
