@@ -97,7 +97,7 @@ int panini_general_toPlane	( double lon, double lat,
 	*v = tan(lat) * S;
     
   /* squeeze */
-	q = v < 0 ? top : bot;
+	q = lat < 0 ? top : bot;
 	if( q < 0 ){
 		q = -q;
 	/* soft squeeze */
@@ -105,7 +105,9 @@ int panini_general_toPlane	( double lon, double lat,
 		*v = S * tan(lat /(t + 1));
 	} else if( q > 0 ){
 	/* hard squeeze */
-		t = tan(lat) * cos(lon);
+		t = cos(lon);
+		if( t != 0 ) 
+			t = tan(lat) / t;
 		*v += q * (t - *v);
 	}
 
