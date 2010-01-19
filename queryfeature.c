@@ -519,6 +519,12 @@ int queryFOVLimits( int projection,		/* projection index */
     case PANO_FORMAT_PANINI_GENERAL:
 		maxFOVs_panini_general	(params, lims );
     break;
+    case PANO_FORMAT_BIPLANE:
+        lims[0] = params[0] + 179;
+        break;
+    case PANO_FORMAT_TRIPLANE:
+        lims[0] = 2 * params[0] + 179;
+        break;
     case PANO_FORMAT_ALBERS_EQUAL_AREA_CONIC:
 	break;
     }

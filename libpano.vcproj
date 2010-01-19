@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="9,00"
 	Name="pano13"
 	ProjectGUID="{9B19A5C0-8DB0-448B-BF99-DC6374E9751B}"
 	RootNamespace="Panotools"
@@ -671,6 +671,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\PaniniGeneral.c"
+				>
+			</File>
+			<File
 				RelativePath=".\parser.c"
 				>
 			</File>
@@ -978,6 +982,10 @@
 			</File>
 			<File
 				RelativePath=".\metadata.h"
+				>
+			</File>
+			<File
+				RelativePath=".\PaniniGeneral.h"
 				>
 			</File>
 			<File
