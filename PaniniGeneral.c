@@ -106,8 +106,8 @@ int panini_general_toPlane	( double lon, double lat,
 	} else if( q > 0 ){
 	/* hard squeeze */
 		t = cos(lon);
-		if( t != 0 ) 
-			t = tan(lat) / t;
+		if( t > 0.01 ) 
+			t = *v / t;
 		*v += q * (t - *v);
 	}
 
