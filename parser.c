@@ -1745,7 +1745,11 @@ static int ReadImageDescription( Image *imPtr, stBuf *sPtr, char *line )
                     PrintError("Unknown variable name Ti%c in script", *ch);
                     return -1;
                 }
-                im.cP.trans    = TRUE;
+		if (im.cP.trans_x != 0.0 || 
+		    im.cP.trans_y != 0.0 || 
+		    im.cP.trans_z != 0.0) {
+		    im.cP.trans    = TRUE;
+		  }
                 break;
             case 'e':
                 ch++;
