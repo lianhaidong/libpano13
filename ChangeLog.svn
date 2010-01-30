@@ -1,3 +1,350 @@
+2010-01-30  brunopostle
+
+	* [r1248] man/PTAInterpolate.1, man/PTblender.1, man/PTcrop.1,
+	  man/PTinfo.1, man/PTmasker.1, man/PTmender.1, man/PToptimizer.1,
+	  man/PTroller.1, man/PTtiff2psd.1, man/PTtiffdump.1, man/PTuncrop.1,
+	  man/panoinfo.1: Update man pages
+	* [r1247] doc/Makefile.am: Put .txt files in the tarball
+
+2010-01-30  dmg
+
+	* [r1246] ChangeLog, configure.ac, version.h: bumped version
+	* [r1245] ChangeLog: Avoid processing of T[xyz] code when values are
+	  zero
+	* [r1244] ChangeLog, parser.c: Avoid processing of T[xyz] code when
+	  values are zero
+
+2010-01-23  tksharpless
+
+	* [r1241] PaniniGeneral.c: general Panini forward and reverse hard
+	  squeeze are now proper inverses (some small numerical discrepancies
+	  when d is near 1 need investigation).
+
+2010-01-19  tksharpless
+
+	* [r1237] PaniniGeneral.c: Fixed 2 bugs in the forward squeeze code.
+	  Further thanks to T Modes.
+	* [r1236] libpano.vcproj, queryfeature.c: Add PaniniGeneral files to
+	  libpano.vcproj (the "Watters" VC project)
+	  Add code for biplane and triplane dynamic fovs to queryfeature.c
+	  Thanks to Thomas Modes for both patches
+
+2010-01-18  kornelbenko
+
+	* [r1235] CMakeLists.txt: Removed LICENSE.LGPL form CMakeLists.txt
+
+2010-01-18  tksharpless
+
+	* [r1234] PaniniGeneral.c, PaniniGeneral.h: Changed PaniniGeneral
+	  license to BSD 3-clause
+
+2010-01-18  dmg
+
+	* [r1233] ChangeLog, Makefile.am, configure.ac, version.h: Bumped
+	  version one notch and added PaniniGeneral.h
+
+2010-01-17  dmg
+
+	* [r1232] ChangeLog, LICENSE.LGPL, Makefile.am: Removed LICENSE.LGPL
+	  and updated Makefile.am for new panini files
+
+2010-01-17  tksharpless
+
+	* [r1230] ColourBrightness.c, math.c, panorama.h, queryfeature.c:
+	  Default projection parameters and dynamic FOV limits API fixes
+	  Define htons() macro in ColourBrightness.c only for MSVC compiles
+
+2010-01-16  tksharpless
+
+	* [r1229] CMakeLists.txt: Install documentation expected by hugin
+	  Windows install script
+	* [r1228] CMakeLists.txt: Make the default install directory on
+	  Windows libpano13/ in the hugin SDK root
+	* [r1227] CMakeLists.txt, LICENSE.LGPL: Add general panini sources to
+	  CMakeLists.txt
+	  Add LGPL license text for PaniniGeneral
+	* [r1226] ColourBrightness.c, PaniniGeneral.c, PaniniGeneral.h,
+	  filter.h, math.c, panorama.h, queryfeature.c, sys_win.h: Add the
+	  reference implementation of General Pannini: PaniniGeneral.c,
+	  PaniniGeneral.h
+	  Add function to query dynamic FOV limits
+	  Make sys_win.h not assume a DLL build
+	  define htons macro in ColourBrightness.c if undefined
+
+2010-01-13  tksharpless
+
+	* [r1222] LocalDefs.vsprops, libpano.sln, libpano.vcproj,
+	  tools/PTAInterpolate.vcproj, tools/PTOptimizer.vcproj,
+	  tools/PTblender.vcproj, tools/PTcrop.vcproj, tools/PTinfo.vcproj,
+	  tools/PTmasker.vcproj, tools/PTmender.vcproj, tools/PTroller.vcproj,
+	  tools/PTtiff2psd.vcproj, tools/PTtiffdump.c,
+	  tools/PTtiffdump.vcproj, tools/PTuncrop.vcproj: MSVC projects
+	  updated
+	  1) add property sheet LocalDefs.vsprops to define local environment
+	  symbols for all projects. Can be edited in MSVC to suit your system.
+	  Only one there now is WXWIDGETS_HOME.
+	  2) exclude PTAinterpolate from builds, as it references
+	  writeProject() in ptpicker.c, which is already excluded from
+	  libpano.
+	  3) correct puntuation in the linker properties for PTuncrop.
+
+2010-01-12  tksharpless
+
+	* [r1221] math.c, queryfeature.c: Final adjustments to panini_general
+	  projection:
+	  Corrected the transverse straightening (hard) squeeze.
+	  Rescaled squeeze params to -100:100 with soft squeeze < 0 and hard
+	  squeeze > 0. Renamed params "Cmpr, Tops, Bots".
+
+2010-01-11  tksharpless
+
+	* [r1218] adjust.c, filter.h, math.c: add squeezes to panini_general.
+	  and supporting changes to adjust.c & filter.h
+	* [r1217] math.c, queryfeature.c: Limit actual hFOV for panini_general
+	  to max feasible
+
+2010-01-10  dmg
+
+	* [r1216] ChangeLog, queryfeature.c: fixed the problem with the assert
+	  in query feature
+
+2010-01-09  dangelo
+
+	* [r1215] queryfeature.c: fix assert in queryfeature on 64 bit
+	  machines (again...)
+
+2010-01-08  tksharpless
+
+	* [r1214] queryfeature.c: Added info for panini_general
+
+2010-01-08  dmg
+
+	* [r1213] ChangeLog, math.c: review of general panini code committed
+	  by Tom few days ago
+
+2010-01-06  tksharpless
+
+	* [r1212] adjust.c: Added defensive fix for panini_general FOV in
+	  another place.
+	  Now panini_general is usable from hugin (slow preview window
+	  only - fast still displays garbage, though pano is ok).
+	* [r1211] adjust.c: Removed some debug code, reinstated a workaround
+	  fix for
+	  problems that can produce negative FOV when the requested FOV
+	  exceeds the max feasible one. Better FOV control should obviate
+	  this; however the fix need not be removed.
+	* [r1210] adjust.c, math.c, parser.c, queryfeature.c: First working
+	  version of panini_general projection.
+	  Tested only with PTmender, not yet under hugin.
+
+2010-01-05  jim0watters
+
+	* [r1209] libpano.sln, libpano.vcproj, tools/PTAInterpolate.vcproj,
+	  tools/PTOptimizer.vcproj, tools/PTblender.vcproj,
+	  tools/PTcrop.vcproj, tools/PTinfo.vcproj, tools/PTmasker.vcproj,
+	  tools/PTmender.vcproj, tools/PTroller.vcproj,
+	  tools/PTtiff2psd.vcproj, tools/PTtiffdump.vcproj,
+	  tools/PTuncrop.vcproj: Update the Visual Studio projects and
+	  solutions
+	  Resolved issue of libpano always recompiling all files even when no
+	  source files changed.
+	  Resolved issue of builds use the same names for temporary files,
+	  this causes a file in use error on a multicore machines.
+	  Add pano13.lib as a dependency in the tool projects
+
+2010-01-03  dmg
+
+	* [r1207] ChangeLog, parser.c: Updated changelog and comments
+
+2010-01-03  dangelo
+
+	* [r1206] parser.c: Only use Tr(XYZ) if the are nonzero.
+
+2010-01-01  dmg
+
+	* [r1205] queryfeature.c: fixed minor errors in the panini general
+	* [r1204] ChangeLog, math.c, queryfeature.c: fixed minor errors in the
+	  panini general
+
+2010-01-01  dangelo
+
+	* [r1203] queryfeature.c: fix queryfeature to work on 64 bit systems.
+
+2009-12-27  brunopostle
+
+	* [r1200] tools/Makefile.am: Put tools/compat_win32/ files in tarball
+
+2009-12-27  dmg
+
+	* [r1199] ChangeLog, math.c, queryfeature.c, tools/panoinfo_unix.c:
+	  Added name of projection, which I forgot to do yesterday. Added
+	  assertion that verifies I donot forget in the future
+	* [r1198] PTcommon.c: Oops. Forgot to remove my debugging statemetn
+	* [r1197] ChangeLog, PTcommon.c, adjust.c, filter.h, math.c,
+	  panorama.h, parser.c, queryfeature.c: Implemented general panini.
+	  Math provided by Tom Sharpless
+
+2009-11-14  jim0watters
+
+	* [r1154] sys_ansi.c, sys_ansi.h, sys_win.c: build dynamic lib as CMD
+	  version.
+
+2009-11-12  dmg
+
+	* [r1151] libpano.sln, libpano.vcproj, libpano13.def, math.c,
+	  pano13vc.def, tools/PTAInterpolate.vcproj, tools/PTOptimizer.vcproj,
+	  tools/PTblender.vcproj, tools/PTcrop.vcproj, tools/PTinfo.vcproj,
+	  tools/PTmasker.vcproj, tools/PTmender.vcproj, tools/PTroller.vcproj,
+	  tools/PTtiff2psd.vcproj, tools/PTtiffdump.vcproj,
+	  tools/PTuncrop.vcproj: rebased changes from Jim, except ansi_sys.c
+
+2009-11-10  dmg
+
+	* [r1146] tools/PTblender.c: Went too far in revert, reverting revert
+	  of 1120
+	* [r1145] ChangeLog, libpano.sln, libpano.vcproj, libpano13.def,
+	  math.c, pano13vc.def, sys_ansi.c, sys_ansi.h,
+	  tests/simpleStitch/reference/tiff_m_cropped0000.tif,
+	  tests/simpleStitch/reference/tiff_m_cropped0001.tif,
+	  tests/simpleStitch/reference/tiff_m_uncropped0000.tif,
+	  tests/simpleStitch/reference/tiff_m_uncropped0001.tif,
+	  tools/PTAInterpolate.vcproj, tools/PTOptimizer.vcproj,
+	  tools/PTblender.c, tools/PTblender.vcproj, tools/PTcrop.vcproj,
+	  tools/PTinfo.vcproj, tools/PTmasker.vcproj, tools/PTmender.vcproj,
+	  tools/PTroller.vcproj, tools/PTtiff2psd.vcproj,
+	  tools/PTtiffdump.vcproj, tools/PTuncrop.vcproj, tools/mpremap,
+	  tools/mpremap.c, tools/mpremap.rc, tools/mpremap.vcproj,
+	  tools/ppmstream.c, tools/ppmstream.h, tools/preprocess.c,
+	  tools/spline.c, tools/string2.c, tools/string2.h: reverting to
+	  revisions 1118 due to compilation errors
+
+2009-11-08  jim0watters
+
+	* [r1137] libpano.sln, libpano.vcproj, tools/PTAInterpolate.vcproj,
+	  tools/PTOptimizer.vcproj, tools/PTblender.vcproj,
+	  tools/PTcrop.vcproj, tools/PTinfo.vcproj, tools/PTmasker.vcproj,
+	  tools/PTmender.vcproj, tools/PTroller.vcproj,
+	  tools/PTtiff2psd.vcproj, tools/PTtiffdump.vcproj,
+	  tools/PTuncrop.vcproj, tools/mpremap.vcproj: Updated Visual Studio
+	  Solution and Project files for building libpano and all the tools.
+	* [r1136] libpano13.def, pano13vc.def, sys_ansi.c, sys_ansi.h: Allow
+	  building the CMD and GUI versions of pano13.dll
+	* [r1135] math.c: Fix function not returning value
+	* [r1134] tools/ppmstream.c: Fix CR/NL in file
+
+2009-11-07  jim0watters
+
+	* [r1133] ChangeLog: Add an updated version of Helmut Dersch's Moving
+	  Panoramas Remap for libPano13
+	  http://webuser.fh-furtwangen.de/~dersch/mp/MotionPanoramas.html
+	* [r1132] tools/mpremap, tools/mpremap.c, tools/mpremap.rc,
+	  tools/mpremap.vcproj, tools/mpremap/Copying.html,
+	  tools/mpremap/Examples, tools/mpremap/Examples/fisheye.mpg,
+	  tools/mpremap/Examples/panorama.jpg,
+	  tools/mpremap/Examples/perspect.mpg,
+	  tools/mpremap/Examples/script_fisheye2cylinder,
+	  tools/mpremap/Examples/script_fisheye2rectilinear,
+	  tools/mpremap/Examples/script_panorama2grid,
+	  tools/mpremap/Examples/script_panorama2movie,
+	  tools/mpremap/Examples/script_perspect_movie, tools/mpremap/Helpers,
+	  tools/mpremap/MPRemap.jar, tools/mpremap/MPRemap.pdf,
+	  tools/mpremap/java, tools/mpremap/java/MPRemap.java,
+	  tools/mpremap/java/MainClass, tools/mpremap/java/Makefile,
+	  tools/mpremap/java/Options.java, tools/mpremap/java/classes,
+	  tools/mpremap/java/help, tools/mpremap/java/help/Mpremap_ffmpeg,
+	  tools/mpremap/java/help/Mpremap_file,
+	  tools/mpremap/java/help/Mpremap_general,
+	  tools/mpremap/java/help/Mpremap_mpremap,
+	  tools/mpremap/java/help/ffmpeg_1, tools/mpremap/java/help/ffmpeg_2,
+	  tools/mpremap/java/help/ffmpeg_3, tools/mpremap/java/help/mpremap,
+	  tools/mpremap/java/help/mpremap_script,
+	  tools/mpremap/java/pttext.java, tools/mpremap/java/ptyesno.java,
+	  tools/ppmstream.c, tools/ppmstream.h, tools/preprocess.c,
+	  tools/spline.c, tools/string2.c, tools/string2.h: Add an updated
+	  version of Helmut Dersch's Moving Panoramas Remap for libPano13
+	  http://webuser.fh-furtwangen.de/~dersch/mp/MotionPanoramas.html
+
+2009-10-24  jim0watters
+
+	* [r1120] tools/PTblender.c: Fix double free.
+	  Set default Prefix to match on screen help
+
+2009-10-23  brunopostle
+
+	* [r1118] queryfeature.c: Fix last commit intended to restrict only
+	  orthographic to 180 degrees
+	* [r1117] queryfeature.c: Orthographic can only display up to 180
+	  degrees
+
+2009-10-23  dmg
+
+	* [r1116] ColourBrightness.c: reverting last commit
+
+2009-10-23  kornelbenko
+
+	* [r1115] ColourBrightness.c: Created own version of htons() to get
+	  rid of otherwise
+	  needed extra library.
+	  Problem only on WIN32 system.
+	* [r1114] CMakeLists.txt: For WINN32:
+	  Added tools/compat_win32/getopt.c to variable win_c.
+	  getopt.o is now part of libpano13. Needed by tools.
+
+2009-10-14  dmg
+
+	* [r1108] ChangeLog, PTcommon.c, adjust.c, filter.h: this commit
+	  should have been few weeks ago... fixes incorrect normalization of
+	  angles in tilt
+
+2009-10-12  dangelo
+
+	* [r1107] math.c: replaced M_PI with PI in math.c
+
+2009-10-11  jim0watters
+
+	* [r1105] correct.c: Fix issue where using correct might think nothing
+	  was being corrected and set success to false.
+
+2009-10-11  dangelo
+
+	* [r1104] parser.c: fixed a typo
+	* [r1103] ChangeLog, filter.h, math.c: Use Te0 as plane_yaw and Te1 as
+	  plane_pitch. This allows specification of the plane that is used in
+	  the translation mosaic (TrX, TrY, TrZ) mode. Not sure if the code is
+	  bug free, though. It mostly worked as expected but didn't work
+	  nicely
+	  for the nadir usecase in my limited tests.
+
+2009-10-11  kornelbenko
+
+	* [r1102] tests/CMakeLists.txt: Prefer find_package() to
+	  find_program() if possible
+
+2009-10-08  kornelbenko
+
+	* [r1101] PTcommon.c: compile fix
+
+2009-10-08  jim0watters
+
+	* [r1100] tiff.c: revert recent change. trying to fix memory leak
+	  ended up deallocating twice.
+	* [r1099] ColourBrightness.c, tiff.c: Fixed many possible memory
+	  leaks.
+	* [r1098] ChangeLog, PTcommon.h, tools/PTmender.c: Move function to
+	  PTCommon where it belongs.
+	  Fix many possible memory leaks detected by CppCheck
+	* [r1097] ColourBrightness.c, PTcommon.c, file.c, hdrfile.c, parser.c,
+	  ptstitch.c, pttiff.h, tiff.c, tools/PTblender.c, tools/PTmasker.c,
+	  tools/PTmender.h, tools/PTroller.c: ColourBrightness.c, file.c,
+	  hdrfile.c, main.c, parser.c, PTcommon.c, ptstitch.c, tiff.c pttiff.h
+	  : Fixed many possible memory leaks with libpano.
+	  PTblender.c, PTmasker.c, PTmender.h, PTroller.c: Fixed many possible
+	  memory leaks for the tools.
+
+2009-10-04  brunopostle
+
+	* [r1096] ChangeLog.svn: update changelog
+
 2009-09-28  kornelbenko
 
 	* [r1094] CMakeLists.txt, tools/CMakeLists.txt: Use the correct target
