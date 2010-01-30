@@ -1,7 +1,7 @@
 2010-01-29  dmg  <dmg@uvic.ca>
 
 	* parser.c (ReadImageDescription): Expanded patch by Pablo to
-	avoid Translation processing when T[xyz] parms are added to the
+	avoid Translation processing when T[xyz] parms=0 are added to the
 	line.	 I hate our parser.
 
 
