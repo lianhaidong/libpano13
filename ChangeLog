@@ -1,3 +1,10 @@
+2010-01-29  dmg  <dmg@uvic.ca>
+
+	* parser.c (ReadImageDescription): Expanded patch by Pablo to
+	avoid Translation processing when T[xyz] parms are added to the
+	line.	 I hate our parser.
+
+
 2010-01-17  dmg  <dmg@uvic.ca>
 
 	* configure.ac, version.h: Updated version number to 2.9.16
