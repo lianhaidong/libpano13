@@ -128,83 +128,46 @@
 .rm #[ #] #H #V #F C
 .\" ========================================================================
 .\"
-.IX Title "PTMASKER 1"
-.TH PTMASKER 1 "2008-01-22" "2.9.17" "LIBPANO13 TOOLS"
+.IX Title "PTAINTERPOLATE 1"
+.TH PTAINTERPOLATE 1 "2009-05-01" "2.9.17" "LIBPANO13 TOOLS"
 .SH "NAME"
-PTmasker \- Compute stitching masks
+PTAInterpolate \- Interpolate intermediate images between stereo photos.
 .SH "SYNOPSIS"
 .IX Header "SYNOPSIS"
-\&\fBPTmasker\fR [options] \fItiff_file(s)\fR
+\&\fBPTAInterpolate\fR \fIscript_file\fR \fI[param2]\fR
 .SH "DESCRIPTION"
 .IX Header "DESCRIPTION"
-\&\fBPTmasker\fR computes stitching masks. It implements the ability to
-increase depth-of-field by stacking images.
-.SH "OPTIONS"
-.IX Header "OPTIONS"
-.IP "\fB\-p\fR \fIprefix\fR" 4
-.IX Item "-p prefix"
-Prefix for output files (defaults to \fImasked%4d\fR).
-.IP "\fB\-e\fR \fIfeather\fR" 4
-.IX Item "-e feather"
-Size of the feather (defaults to zero).
-.IP "\fB\-f\fR" 4
-.IX Item "-f"
-Force processing (do not stop on warnings).
-.IP "\fB\-x\fR" 4
-.IX Item "-x"
-Delete source files (use with care).
-.IP "\fB\-q\fR" 4
-.IX Item "-q"
-Quiet run.
-.IP "\fB\-h\fR" 4
-.IX Item "-h"
-Output help summary.
-.IP "\fB\-z\fR" 4
-.IX Item "-z"
-Enable Extended depth of field.
-.IP "\fB\-m\fR" 4
-.IX Item "-m"
-Focus estimation mask type.
-.RS 4
-.IP "0 hard-edged masks, mutually exclusive" 4
-.IX Item "0 hard-edged masks, mutually exclusive"
-.PD 0
-.IP "1 hard-edged masks, stack of nested masks" 4
-.IX Item "1 hard-edged masks, stack of nested masks"
-.IP "2 blended masks, stack of nested masks" 4
-.IX Item "2 blended masks, stack of nested masks"
-.RE
-.RS 4
-.PD
-.Sp
-2 is default and strongly recommended: This option includes a
-smoothing computation that seems to help a lot.
-.RE
-.IP "\fB\-w\fR \fIinteger\fR" 4
-.IX Item "-w integer"
-Focus estimation window size. Only available if \-z.
-.Sp
-Recommended value is 0.51001114526f image width, e.g. 4 pixels for an
-800\-pixel image.
-.Sp
-Computation cost for focus estimation increases proportional to N^2.
-Defaults to w4.
-.IP "\fB\-s\fR \fIinteger\fR" 4
-.IX Item "-s integer"
-Smoothing window size. Only available if \-z.
-.Sp
-Recommended value is 0.50f image width, e.g. 4 pixels for an 800\-pixel
-image.
-.Sp
-Computation cost for focus estimation increases proportional to N^2.
-Defaults to w4.
+\&\fBPTAInterpolate\fR Interpolate intermediate images between stereo photos.
+.PP
+Description: This program is an enhanced version of Helmut Dersch's
+original PTInterpolate program.  PTInterpolate's source code was never
+released, so this program was written from scratch.  It is believed that 
+this program should function as a substitute for the original PTInterpolate 
+program in most circumstances.  Enhancements to the original PTInterpolate 
+program include:
+.PP
+1. When used with the accompanying source code in the original distribution, 
+the output is in \s-1TIFF\s0 format, not \s-1PSD\s0 (with an incorrect extension)
+.PP
+2. The output files produced by this program include a numeric value
+indicating the amount of the interplation position between left and 
+right images
+.PP
+3. If no valid \*(L"i\*(R" lines are included in script, then this program
+triangulates the c lines, and ovrewrites the script file
+.PP
+Usage:
+.PP
+.Vb 1
+\&  PTAInterpolate script.txt [param2]
+.Ve
+.PP
+Where \*(L"param2\*(R" is either an image index (0=left, 1=right) to be used when 
+triangulating, or a filename prefix to be used when interpolating.
+.SH "SEE ALSO"
+.IX Header "SEE ALSO"
+<http://wiki.panotools.org/>
 .SH "AUTHORS"
 .IX Header "AUTHORS"
-Panorama Tools was originally created by Professor Helmut Dersch, it's
-now maintained by Bruno Postle <bruno@postle.net>.
-.Sp
-PTmasker was written by Daniel M German <dmgerman@uvic.ca>.
-.Sp
-This manpage was written by Cyril Brulebois
-<cyril.brulebois@enst\-bretagne.fr> and is licensed under the same
-terms as the libpano13 package itself.
+Max Lyons, January 2007. Panorama Tools was originally created by Professor
+Helmut Dersch.
