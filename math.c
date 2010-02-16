@@ -1063,7 +1063,7 @@ int maxFOVs_panini_general	( double *params, double *fovs ){
 
 Image * setup_panini_general(struct MakeParams* pmp)
 {	int  i; 
-    double s,t,d,a,v, vl[2];
+    double s,t,d,a,b,v, vl[2];
     Image * ppg = NULL;
 
     // Only act if it is panini_general 
@@ -1075,7 +1075,7 @@ Image * setup_panini_general(struct MakeParams* pmp)
         return NULL;
 
     /* check number of precomputed param values */
-    if( ppg->precomputedCount == 5 )
+    if( ppg->precomputedCount == 7 )
 		return ppg;		// OK
 	
     /* default unspecified values to 0, giving 
@@ -1091,31 +1091,31 @@ Image * setup_panini_general(struct MakeParams* pmp)
 	  return NULL;
 	d = ppg->precomputedValue[0];
 
-  /* post max feasible half-FOV as angle and x value */
+  /* get max feasible half-FOVs */
 	if( !panini_general_maxVAs( d,
-								DEG_TO_RAD( 80 ),		// max projection angle
+								DEG_TO_RAD( 80 ),	// max projection angle
 								vl					// max view angles h, v
 							  )
 	  )
 	  return 0;
-	a = vl[0];
+
+  // angle and coordinate limits
+	s = (d + 1) / (d + cos(a));
+	ppg->precomputedValue[3] = vl[0];	// max lambda
+	ppg->precomputedValue[4] = s * sin( vl[0] );	// max x 
+	ppg->precomputedValue[5] = vl[1];	// max phi
+	ppg->precomputedValue[6] = s * tan( vl[1] );	// max y 
 
   // clip hFOV to feasible limit
 	v = 0.5 * DEG_TO_RAD( ppg->hfov );
-	if( v > a )
-		v = a;
+	if( v > vl[0] )
+		v = vl[0];
 
-  // x coordinate limit
-	s = sin( a ) * (d + 1) / (d + cos(a));
-
-  // distance param
+  // set distance param
 	t = sin(v) * (d+1) / (d + cos(v));
 	pmp->distance = 0.5 * ppg->width / t;
        
-	ppg->precomputedValue[3] = a;	// max lambda
-	ppg->precomputedValue[4] = s;	// max x 
-
-	ppg->precomputedCount = 5; 
+	ppg->precomputedCount = 7; 
     return ppg;
 }
 
@@ -1134,9 +1134,12 @@ int erect_panini_general( double x_dest,double  y_dest, double* lambda_src, doub
     y = y_dest/distance;
     x = x_dest/distance;
 
-  // fail if outside feasible FOV
-	if( fabs(x) > ppg->precomputedValue[4] )
-		return 0;	
+  // fail if outside max image
+/*	if(  fabs(x) > ppg->precomputedValue[4] 
+	  || fabs(y) > ppg->precomputedValue[6]
+	  )
+	  return 0;	
+*/
   // call mapping fn
 	if( !panini_general_toSphere( &lambda, &phi, x, y,
 								 ppg->precomputedValue[0],
@@ -1145,7 +1148,7 @@ int erect_panini_general( double x_dest,double  y_dest, double* lambda_src, doub
 	  )
 	  return 0;
 	    
-	*lambda_src = lambda * distance;
+ 	*lambda_src = lambda * distance;
 	*phi_src = phi * distance;
     
 	return TRUE;
@@ -1172,9 +1175,11 @@ int panini_general_erect( double lambda_dest,double  phi_dest, double* x_src, do
 	phi = phi_dest/distance;
 
   // fail if outside feasible FOV
-	if( fabs(lambda) > ppg->precomputedValue[3] )
-		return 0;	
-
+/*	if(  fabs(lambda) > ppg->precomputedValue[3] 
+	  || fabs(phi) > ppg->precomputedValue[5]
+	  )
+	  return 0;	
+*/
   // call mapping fn
 	if( !panini_general_toPlane( lambda, phi, &x, &y,
 								 ppg->precomputedValue[0],
@@ -1183,6 +1188,12 @@ int panini_general_erect( double lambda_dest,double  phi_dest, double* x_src, do
 	  )
 	  return 0;
 
+  // fail if coords outside max image (needed for squeeze)
+/*	if(  fabs(x) > ppg->precomputedValue[4] 
+	  || fabs(y) > ppg->precomputedValue[6]
+	  )
+	  return 0;	
+*/
 	*y_src = distance * y;
     *x_src = distance * x;
     return 1;

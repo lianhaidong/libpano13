@@ -47,6 +47,7 @@ int panini_general_toSphere	( double* lon, double* lat,
 	double S, cl, q, t;
 
 	if( d < 0 ) return 0;
+	q = v < 0 ? top : bot;
 	if( h == 0 ){
         *lon = 0;
 		S = 1;
@@ -68,17 +69,17 @@ int panini_general_toSphere	( double* lon, double* lat,
 	*lat = atan(S * v);
 
   /* squeeze */
-	q = v < 0 ? top : bot;
-	if( q < 0 ){
-		q = -q;
-	/* soft squeeze */
-		t = q * 2 * (cl - 0.707) / PI;
-		*lat *= t + 1;
-	} else if( q > 0 ){
+	if( q > 0 ){
 	/* hard squeeze */
 		t = atan( v * cl );
 		t = q * (t - *lat);
 		*lat += t;
+	} else if( q < 0 ){
+	/* soft squeeze version 2 */
+		double cc = cos(0.92 * *lon) - 1;
+		double ss = 2 * d / (d + 1);
+		t = v / (1 + ss * q * cc );
+		*lat = atan( S * t );
 	}
 
 	return 1;
@@ -99,10 +100,10 @@ int panini_general_toPlane	( double lon, double lat,
   /* squeeze */
 	q = lat < 0 ? top : bot;
 	if( q < 0 ){
-		q = -q;
-	/* soft squeeze */
-		t = q * 2 * (cos(lon) - 0.707) / PI;
-		*v = S * tan(lat /(t + 1));
+	/* soft squeeze version 2 */
+		double cc = cos(0.92 * lon) - 1;
+		double ss = 2 * d / (d + 1);
+		*v *= 1 + ss * q * cc;
 	} else if( q > 0 ){
 	/* hard squeeze */
 		t = cos(lon);
