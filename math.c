@@ -1754,13 +1754,6 @@ int sphere_cp_erect( double x_dest,double  y_dest, double* x_src, double* y_src,
 	// params: double distanceparam, double b
 
 	register double phi, theta;
-#if 0	
-	phi 	= - x_dest /  ( var0 * PI / 2.0);
-	theta 	=  - ( y_dest + var1 ) / (var0 * PI / 2.0) ;
-	
-	*x_src = var0 * theta * cos( phi );
-	*y_src = var0 * theta * sin( phi );
-#endif
 	phi 	= - x_dest /  ( var0 * PI / 2.0);
 	theta 	=  - ( y_dest + var1 ) / ( PI / 2.0) ;
 	
@@ -1790,19 +1783,7 @@ int sphere_tp_erect( double x_dest,double  y_dest, double* x_src, double* y_src,
 		phi += PI;
 	}
 
-#if 0	
 
-	v[2] = *((double*)params) * sin( theta ) * cos( phi );   //  x' -> z
-	v[0] = *((double*)params) * sin( theta ) * sin( phi );	//  y' -> x
-	v[1] = *((double*)params) * cos( theta );				//  z' -> y
-	
-	theta = atan2( sqrt( v[0]*v[0] + v[1]*v[1] ) , v[2] );
-	
-	phi   = atan2( v[1], v[0] );
-	
-	*x_src = *((double*)params) * theta * cos( phi );
-	*y_src = *((double*)params) * theta * sin( phi );
-#endif
 	s = sin( theta );
 	v[0] =  s * sin( phi );	//  y' -> x
 	v[1] =  cos( theta );				//  z' -> y
@@ -2386,6 +2367,7 @@ int erect_sphere_tp( double x_dest,double  y_dest, double* x_src, double* y_src,
 	else
 		*y_src = *((double*)params) * (-theta - PI /2.0);
 #endif
+
 	r = sqrt( x_dest * x_dest + y_dest * y_dest );
 	theta = r / distanceparam;
 	if(theta == 0.0)
@@ -2471,17 +2453,42 @@ int sphere_cp_mirror( double x_dest,double  y_dest, double* x_src, double* y_src
     return 1;
 }
 
-/*
-int sphere_tp_mirror( double x_dest,double  y_dest, double* x_src, double* y_src, void* params);
+int sphere_tp_mirror( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {
+  register double c;
+  register double normalizedX, normalizedY;
+  register double azi;
+
+  normalizedX = x_dest/ distanceparam;
+  normalizedY = y_dest/ distanceparam;
+
+  c = 2 * asin(hypot(normalizedX, normalizedY));
+  azi = atan2( y_dest , x_dest );
+
+  *x_src = distanceparam * c * cos(azi);
+  *y_src = distanceparam * c * sin(azi);
+
   return 1;
 }
 
-int mirror_sphere_tp( double x_dest,double  y_dest, double* x_src, double* y_src, void* params);
+int mirror_sphere_tp( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {
+
+  register double c;
+  register double normalizedX, normalizedY;
+  register double azi;
+  normalizedY = y_dest/ distanceparam;
+  normalizedX = x_dest/ distanceparam;
+  
+
+  c = hypot(normalizedX, normalizedY);
+  azi = atan2( y_dest , x_dest );
+
+  *x_src = distanceparam * sin(c/2) * cos(azi);
+  *y_src = distanceparam * sin(c/2) * sin(azi);
+
   return 1;
 }
-*/
 
 int sphere_tp_equisolid( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {
@@ -2526,9 +2533,11 @@ int sphere_tp_orthographic( double x_dest,double  y_dest, double* x_src, double*
   
   theta = 1.0 * asin( rho/(1.0*((double*)params)[0]) );
   phi   = atan2( y_dest , x_dest );
+  
 
   *x_src = ((double*)params)[0] * theta * cos( phi );
   *y_src = ((double*)params)[0] * theta * sin( phi );
+
   return 1;
 }
 

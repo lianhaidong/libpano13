@@ -790,6 +790,7 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
 
   // calculate final scaling factor, that reverses the mp->distance
   // scaling and applies the required output scaling factor
+  printf("im format %d\n", im->format);
   switch (im->format)
   {
     case _rectilinear:
@@ -864,6 +865,25 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
 
     i = 0;
 
+
+    // Building the stack
+    //
+    // - Convert  from panorama projection to equirectangular
+    // - Rotate horizontally
+    // - Convert to spherical from equirectangular
+    // - Apply perspective correction (pitch and roll) in spherical coordinates
+    // - Convert to image format (rectilinear, pano, equirectangular)
+    // - Scale output image
+    // - Do radial correction
+    // - Do tilt
+    // - Do vertical shift
+    // - Do horizontal shift
+    // - Do shear
+
+
+    //////////////////////////////////////////////////////////////////////
+    // Convert from output projection to spherical coordinates
+    //
     if(pn->format == _rectilinear)                                  // rectilinear panorama
         {
             SetDesc(stack[i],   erect_rect,             &(mp->distance) ); i++;   // Convert rectilinear to equirect
@@ -874,6 +894,7 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
         }
     else if(pn->format == _fisheye_circ || pn->format == _fisheye_ff)
         {
+          // the sphere coordinates are actually equivalent to the equidistant fisheye projection
             SetDesc(stack[i],   erect_sphere_tp,        &(mp->distance) ); i++; // Convert fisheye to equirect
         }
     else if(pn->format == _equisolid)
@@ -950,9 +971,11 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
     else if(pn->format == _equirectangular) 
         {
             // no conversion needed     
-        } else {
-        PrintError("Projection type %d not supported, using equirectangular", pn->format);
-    }
+        } 
+    else 
+        {
+            PrintError("Projection type %d not supported. Assuming equirectangular", pn->format);
+        }
 
     if (im->cP.trans) {
         SetDesc(stack[i], plane_transfer_to_camera, mp);   i++;
@@ -962,20 +985,54 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
     SetDesc(  stack[i],   sphere_tp_erect,        &(mp->distance) ); i++; // Convert spherical image to equirect.
     SetDesc(  stack[i],   persp_sphere,           mp->perspect    ); i++; // Perspective Control spherical Image
 
+    //////////////////////////////////////////////////////////////////////
+    // Convert from spherical coordinates to input projection
+    //
     if(im->format      == _rectilinear)                                    // rectilinear image
         {
-            SetDesc(stack[i],   rect_sphere_tp,         &(mp->distance) ); i++; // Convert rectilinear to spherical
+            SetDesc(stack[i],   rect_sphere_tp,         &(mp->distance) ); i++; // Convert spherical to rectilinear
         }
     else if(im->format == _panorama)                                   //  pamoramic image
         {
-            SetDesc(stack[i],   pano_sphere_tp,         &(mp->distance) ); i++; // Convert panoramic to spherical
+            SetDesc(stack[i],   pano_sphere_tp,         &(mp->distance) ); i++; // Convert spherical to pano
         }
     else if(im->format == _equirectangular)                            //  equirectangular image
         {
-            SetDesc(stack[i],   erect_sphere_tp,        &(mp->distance) ); i++; // Convert equirectangular to spherical
+            SetDesc(stack[i],   erect_sphere_tp,        &(mp->distance) ); i++; // Convert spherical to equirect
         }
+    else if (im->format == _fisheye_circ || im->format == _fisheye_ff) 
+        {
+            ; // no conversion needed. It is already in spherical coordinates
+        }
+    else if (im->format == _mirror) 
+        {
+            SetDesc(stack[i],   mirror_sphere_tp,           &(mp->distance) ); i++; // Convert spherical to mirror
+        }
+    else if (im->format == _stereographic) 
+        {
+            SetDesc(stack[i],   erect_sphere_tp,           &(mp->distance) ); i++; // Convert spherical to equirectangular
+            SetDesc(stack[i],   stereographic_erect,       &(mp->distance) ); i++; // Convert equirectangular to stereographic
+        }
+    else if (im->format == _orthographic) 
+        {
+            SetDesc(stack[i],   orthographic_sphere_tp,           &(mp->distance) ); i++; // Convert spherical to orthographic
+        }
+    else if (im->format == _equisolid) 
+        {
+            SetDesc(stack[i],   erect_sphere_tp,           &(mp->distance) ); i++; // Convert spherical to equirectangular
+            SetDesc(stack[i],   lambertazimuthal_erect,       &(mp->distance) ); i++; // Convert equirectangular to stereographic
+        }
+    else 
+        {
+            PrintError("Invalid input projection %d. Assumed fisheye.", im->format);
+        }
+        
 
     SetDesc(  stack[i],   resize,                 mp->scale       ); i++; // Scale image
+
+    //////////////////////////////////////////////////////////////////////
+    // Apply lens corrections
+    //
 
     if( im->cP.radial )
         {
@@ -1065,7 +1122,7 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
 
 
 // Set inverse Makeparameters depending on adjustprefs, color and source image
-
+// This code is executed when optimization
 void  SetInvMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Image *pn, int color )
 {
 
@@ -1276,6 +1333,9 @@ void  SetInvMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , 
   }
   
   SetDesc(  stack[i], resize,       mp->scale   ); i++; // Scale image
+
+  //  printf("values %d %d\n", i, im->format);
+
   
   if(im->format     == _rectilinear)                  // rectilinear image
   {
@@ -1291,11 +1351,14 @@ void  SetInvMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , 
   }
   else if (im->format   == _mirror)                   //  Mirror image
   {
-//todo    SetDesc(stack[i], sphere_tp_mirror,  &(mp->distance) ); i++; // Convert mirror to spherical
+    SetDesc(stack[i],   sphere_tp_mirror,        &(mp->distance) ); i++; // Convert mirror to spherical
   }
   else if (im->format   == _equisolid)                //  Fisheye equisolid image
   {
-    SetDesc(stack[i], sphere_tp_equisolid,  &(mp->distance) ); i++; // Convert equisolid to spherical
+
+    SetDesc(stack[i], erect_lambertazimuthal,  &(mp->distance) ); i++; // Convert lambert to equirectangular
+    SetDesc(stack[i], sphere_tp_erect,  &(mp->distance) ); i++; // Convert equirectangular to spherical
+    //SetDesc(stack[i], sphere_tp_equisolid,  &(mp->distance) ); i++; // Convert equisolid to spherical
   }
   else if (im->format   == _orthographic)             //  Fisheye orthographic image
   {
@@ -1303,10 +1366,11 @@ void  SetInvMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , 
   }
   else if (im->format   == _stereographic)             //  Fisheye orthographic image
   {
-    //SetDesc(stack[i], sphere_tp_stereographic,  &(mp->distance) ); i++; // Convert stereographic to spherical
+    SetDesc(stack[i], erect_stereographic,  &(mp->distance) ); i++; // Convert orthographic to spherical
+    SetDesc(stack[i], sphere_tp_erect,  &(mp->distance) ); i++; // Convert equirectangular to spherical
   }
 
-  
+  //  printf("values %d %d\n", i, im->format);  
   SetDesc(  stack[i], persp_sphere,   mp->perspect  ); i++; // Perspective Control spherical Image
   SetDesc(  stack[i], erect_sphere_tp,  &(mp->distance) ); i++; // Convert spherical image to equirect.
   SetDesc(  stack[i], rotate_erect,   mp->rot     ); i++; // Rotate equirect. image horizontally
@@ -2499,8 +2563,11 @@ int     SetAlignParams( double *x )
                         }else{  optInfo->im[i].cP.radial_params[0][3] = optInfo->im[k-2].cP.radial_params[0][3];}
                 }
                 if( (k = optInfo->opt[i].b) > 0 ){
-                        if( k == 1 ){ optInfo->im[i].cP.radial_params[0][2]  =  x[j++] / C_FACTOR;
-                        }else{  optInfo->im[i].cP.radial_params[0][2] = optInfo->im[k-2].cP.radial_params[0][2];}
+                        if( k == 1 ){ 
+                          optInfo->im[i].cP.radial_params[0][2]  =  x[j++] / C_FACTOR;
+                        }else{  
+                          optInfo->im[i].cP.radial_params[0][2] = optInfo->im[k-2].cP.radial_params[0][2];
+                        }
                 }
                 if( (k = optInfo->opt[i].c) > 0 ){
                         if( k == 1 ){ optInfo->im[i].cP.radial_params[0][1]  =  x[j++] / C_FACTOR;

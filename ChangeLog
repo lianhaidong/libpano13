@@ -1,3 +1,11 @@
+2010-03-28  dmg  <dmg@uvic.ca>
+
+	* math.c, adjust.c, parser.c: enabled other input projections, in
+	particular: stereographic and equisolid (which is really lambert
+	equal area). We need to clean up a lot of the code from math.c,
+	because there are redundant functions. 
+
+
 2010-01-29  dmg  <dmg@Iridium.local>
 
 	* version.h, configure.ac: bumped version to 2.9.17

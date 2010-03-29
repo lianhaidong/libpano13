@@ -2,11 +2,21 @@
 This file documents the activities required before we release version
 3.0.0 of the library.
 
-* Very little testing has been done in 16 bit images.
+* TODO Very little testing has been done in 16 bit images.
 
 
-* Perhaps the most pressing issue is to create a good set of tests for
+* TODO Perhaps the most pressing issue is to create a good set of tests for
   each of the tools. So far we only have tests for PTmender (and only 2).
+
+* Input formats
+
+** TODO Create tests for various input formats, particularly stereographic and equisolid.
+
+** TODO Equisolid
+
+- equisolid and Albert Equal Area are the same. 
+
+- We need to correctly implement 
 
 What we need:
 
