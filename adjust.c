@@ -790,7 +790,7 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
 
   // calculate final scaling factor, that reverses the mp->distance
   // scaling and applies the required output scaling factor
-  printf("im format %d\n", im->format);
+  // printf("im format %d\n", im->format);
   switch (im->format)
   {
     case _rectilinear:
