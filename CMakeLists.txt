@@ -238,7 +238,6 @@ INSTALL(
 	AUTHORS
 	gpl.txt
 	README
-	TODO
   DESTINATION "include/pano13"
         )
 INSTALL(
