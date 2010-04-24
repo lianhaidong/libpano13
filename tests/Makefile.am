@@ -1,5 +1,5 @@
 EXTRA_DIST = panoAutomateTest.pl ChangeLog \
-	CMakeLists.txt
+	CMakeLists.txt compareImages.pl README.TXT
 
 SUBDIRS = simpleStitch simpleTiff16
 

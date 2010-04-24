@@ -108,7 +108,7 @@ dist-hook:
 	rm -rf `find $(distdir) -name .cvsignore`
 
 EXTRA_DIST =  gpl.txt README.linux README.windows \
-	      makefile.win32 \
+	      makefile.win32 TODO.org \
 	      CMakeLists.txt \
 	      ChangeLog.svn \
 	      bootstrap filter.r libpano13.def pano13.rc \
