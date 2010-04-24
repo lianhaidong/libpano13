@@ -1,5 +1,34 @@
+2010-04-24  brunopostle
+
+	* [r1271] Makefile.am, tests/Makefile.am,
+	  tests/simpleTiff16/Makefile.am: Add some files to tarball
+
+2010-04-11  kornelbenko
+
+	* [r1268] CMakeLists.txt: Cannot install non-existant file
+
+2010-04-10  brunopostle
+
+	* [r1267] adjust.c: Comment-out some debug verbosity
+
+2010-04-05  dmg
+
+	* [r1260] tests/compareImages.pl: Added compare images
+
+2010-03-29  dmg
+
+	* [r1259] ChangeLog, TODO, TODO.org, adjust.c, filter.h, math.c,
+	  panorama.h, parser.c: we now have equisolid and stereographic input
+	  lenses
+
+2010-02-16  tksharpless
+
+	* [r1251] PaniniGeneral.c, math.c: Improved soft squeeze
+	  (PaniniGeneral.c)
+
 2010-01-30  brunopostle
 
+	* [r1249] ChangeLog.svn: Update SVN ChangeLog
 	* [r1248] man/PTAInterpolate.1, man/PTblender.1, man/PTcrop.1,
 	  man/PTinfo.1, man/PTmasker.1, man/PTmender.1, man/PToptimizer.1,
 	  man/PTroller.1, man/PTtiff2psd.1, man/PTtiffdump.1, man/PTuncrop.1,
