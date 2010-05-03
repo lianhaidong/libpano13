@@ -1063,7 +1063,7 @@ int maxFOVs_panini_general	( double *params, double *fovs ){
 
 Image * setup_panini_general(struct MakeParams* pmp)
 {	int  i; 
-    double s,t,d,a,b,v, vl[2];
+    double s,t,d,v, vl[2];
     Image * ppg = NULL;
 
     // Only act if it is panini_general 
@@ -1100,7 +1100,7 @@ Image * setup_panini_general(struct MakeParams* pmp)
 	  return 0;
 
   // angle and coordinate limits
-	s = (d + 1) / (d + cos(a));
+	s = (d + 1) / (d + cos(vl[0]));
 	ppg->precomputedValue[3] = vl[0];	// max lambda
 	ppg->precomputedValue[4] = s * sin( vl[0] );	// max x 
 	ppg->precomputedValue[5] = vl[1];	// max phi
