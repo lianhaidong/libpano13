@@ -1,5 +1,19 @@
+2010-05-03  tksharpless
+
+	* [r1274] math.c: fix uninitialized variable bug in
+	  setup_panini_general.
+
+2010-04-27  dmg
+
+	* [r1273] ChangeLog, jpeg.c: 2010-04-27 dmg <dmg@uvic.ca>
+	  
+	  * jpeg.c: Removed dependency from file which was braking build
+	  for some Windows people. The change seems to be harmless under
+	  Linux. Reported by Volker Grabsch.
+
 2010-04-24  brunopostle
 
+	* [r1272] ChangeLog.svn: Update ChangeLog.svn
 	* [r1271] Makefile.am, tests/Makefile.am,
 	  tests/simpleTiff16/Makefile.am: Add some files to tarball
 
