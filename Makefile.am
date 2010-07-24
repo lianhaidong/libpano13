@@ -81,13 +81,23 @@ install-exec-hook:
 
 endif
 
-AM_CPPFLAGS = $(JAVA_FLAGS) $(JPEG_FLAGS) $(PNG_FLAGS) $(TIFF_FLAGS) $(ZLIB_FLAGS) $(WIN_DEFS) $(LIN_DEFS) $(DAR_DEFS) $(ENDIAN_FLAG)
+if HAVE_SOLARIS
+SOL_SRC =  sys_ansi.c ppm.c
+SOL_DEFS = -D__Ansi__=1
+SOL_LDFS = -version-info 2:0:0 -lxnet -lm -lsunmath
+
+install-exec-hook:
+	@true
+
+endif
+
+AM_CPPFLAGS = $(JAVA_FLAGS) $(JPEG_FLAGS) $(PNG_FLAGS) $(TIFF_FLAGS) $(ZLIB_FLAGS) $(WIN_DEFS) $(LIN_DEFS) $(DAR_DEFS) $(SOL_DEFS) $(ENDIAN_FLAG)
 
 lib_LTLIBRARIES = libpano13.la
 
-libpano13_la_SOURCES = $(STD_SRC) $(JAVA_SRC) $(X11_SRC) $(WIN_SRC) $(MAC_SRC) $(LIN_SRC) $(DAR_SRC)
+libpano13_la_SOURCES = $(STD_SRC) $(JAVA_SRC) $(X11_SRC) $(WIN_SRC) $(MAC_SRC) $(LIN_SRC) $(DAR_SRC) $(SOL_SRC)
 libpano13_la_LIBADD = $(LIB_JPEG) $(LIB_PNG) $(LIB_TIFF) $(LIB_ZLIB) @PANO_WIN32_RESOURCE@
-libpano13_la_LDFLAGS = $(LIN_LDFS) $(WIN_LDFS) $(DAR_LDFS)
+libpano13_la_LDFLAGS = $(LIN_LDFS) $(WIN_LDFS) $(DAR_LDFS) $(SOL_LDFS)
 libpano13_la_DEPENDENCIES = @PANO_WIN32_RESOURCE@
 
 pkginclude_HEADERS = $(STD_HDR) $(TOOL_HDR)
