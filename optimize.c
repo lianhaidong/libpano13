@@ -1,8 +1,8 @@
-#include "filter.h"
-#include "math.h"
-#include "float.h"
+#include <filter.h>
+#include <math.h>
+#include <float.h>
 
-#include "adjust.h"
+#include <adjust.h>
 
 lmfunc	fcn; 
 static int			AllocateLMStruct( struct LMStruct *LM );
