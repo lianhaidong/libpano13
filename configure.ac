@@ -50,6 +50,11 @@ case "${host_os}" in
     HSYS=darwin
     HCPU="${host_cpu}"
     ;;
+  *solaris*)
+    PANO_WIN32_RESOURCE=
+    HSYS=solaris
+    HCPU="${host_cpu}"
+    ;;
   *mingw32*)
     PANO_WIN32_RESOURCE=pano13.lo
     HSYS=mingw32
@@ -72,6 +77,7 @@ case "${host_os}" in
 esac
 
 AM_CONDITIONAL(HAVE_DARWIN, test "${HSYS}" = "darwin")
+AM_CONDITIONAL(HAVE_SOLARIS, test "${HSYS}" = "solaris")
 AM_CONDITIONAL(HAVE_LINUX, test "${HSYS}" = "linux")
 AM_CONDITIONAL(HAVE_MAC, test "${HSYS}" = "classic")
 AM_CONDITIONAL(HAVE_MINGW, test "${HSYS}" = "mingw32")

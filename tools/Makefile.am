@@ -32,7 +32,15 @@ DAR_SRC =
 DAR_DEFS = 
 endif
 
-AM_CPPFLAGS = $(JAVA_FLAGS) $(LIN_DEFS) $(DAR_DEFS) $(TIFF_FLAGS) $(JPEG_FLAGS)
+if HAVE_SOLARIS
+SOL_SRC =  panoinfo_unix.c
+SOL_DEFS = -D__Ansi__=1
+else
+SOL_SRC =
+SOL_DEFS = 
+endif
+
+AM_CPPFLAGS = $(JAVA_FLAGS) $(LIN_DEFS) $(DAR_DEFS) $(SOL_DEFS) $(TIFF_FLAGS) $(JPEG_FLAGS)
 AM_LDFLAGS  = -L${top_builddir}
 
 # PTAInterpolate can only be compiled with ptpicker.h, which in turn depends on java
@@ -77,7 +85,7 @@ PTtiffdump_LDADD   = -l${PANOLIB} -ljpeg -ltiff
 PToptimizer_SOURCES = PToptimizer.c
 PToptimizer_LDADD   = -l${PANOLIB}
 
-panoinfo_SOURCES    = $(WIN_SRC) $(LIN_SRC) $(DAR_SRC)
+panoinfo_SOURCES    = $(WIN_SRC) $(LIN_SRC) $(DAR_SRC) $(SOL_SRC)
 panoinfo_LDADD      = -l${PANOLIB}
 
 EXTRA_DIST = README.PTmender \
