@@ -1,3 +1,19 @@
+2010-07-24  brunopostle
+
+	* [r1289] optimize.c: Fix for build on Solaris (Robert Campbell)
+	* [r1288] Makefile.am, configure.ac, tools/Makefile.am: Fixes for
+	  building on Solaris (Robert Campbell)
+	  Note this is for autotools not cmake
+
+2010-07-06  brunopostle
+
+	* [r1283] Makefile.am, tools/Makefile.am: Add some visual c related
+	  files to the tarball (Aron Helser)
+
+2010-05-19  brunopostle
+
+	* [r1277] ChangeLog.svn: Update ChangeLog.svn
+
 2010-05-03  tksharpless
 
 	* [r1274] math.c: fix uninitialized variable bug in
