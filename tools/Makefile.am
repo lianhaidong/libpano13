@@ -90,6 +90,8 @@ panoinfo_LDADD      = -l${PANOLIB}
 
 EXTRA_DIST = README.PTmender \
         compat_win32/getopt.h compat_win32/getopt.c compat_win32/dirent.h \
+	PTainterpolate.rc PTblender.rc PTcrop.rc PTinfo.rc PTmasker.rc PTmender.rc \
+	PToptimizer.rc PTroller.rc PTtiff2psd.rc PTtiffdump.rc PTuncrop.rc \
 	PTAInterpolate.vcproj PTblender.vcproj PTcrop.vcproj PTinfo.vcproj PTmasker.vcproj \
 	PTmender.vcproj PTOptimizer.vcproj PTroller.vcproj PTtiff2psd.vcproj PTtiffdump.vcproj PTuncrop.vcproj \
 	CMakeLists.txt
