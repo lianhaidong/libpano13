@@ -1,3 +1,23 @@
+2010-09-09  brunopostle
+
+	* [r1299] tools/PTAInterpolate.vcproj, tools/PTOptimizer.vcproj,
+	  tools/PTblender.vcproj, tools/PTcrop.vcproj, tools/PTinfo.vcproj,
+	  tools/PTmasker.vcproj, tools/PTmender.vcproj, tools/PTroller.vcproj,
+	  tools/PTtiff2psd.vcproj, tools/PTtiffdump.vcproj,
+	  tools/PTuncrop.vcproj: Changes to visual C project files to find
+	  64bit wxwidgets (Aron Helser)
+
+2010-09-07  brunopostle
+
+	* [r1298] tools/Makefile.am: Add some more MSVC files to the tarball
+	  (Aron Helser)
+	* [r1297] optimize.c: Fix for building with MSVC 2010 Express (Aron
+	  Helser)
+
+2010-09-01  brunopostle
+
+	* [r1295] ChangeLog.svn: Update ChangeLog for rc1
+
 2010-07-24  brunopostle
 
 	* [r1289] optimize.c: Fix for build on Solaris (Robert Campbell)
