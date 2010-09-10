@@ -133,11 +133,15 @@ i n"photo1.jpg"
 #                  of the line scanner relative to the film transport
 #                  g - horizontal shear
 #                  t - vertical shear
-# Tx,Ty,Tz,Ts  tilt values.  Use to correct for off NPP nadir images
-#                  Tx the x offset of the camera (default Tx0)
-#                  Ty the y offset of the camera (default Ty0)
-#                  Tz the z offset of the camera (default Tz0)
-#                  Ts the scale offset of the camera (default Ts1, valid for values > 0)
+# TiX,TiY,TiZ,TiS  initial tilt.  Use to correct for off NPP nadir images
+#                  TiX the x offset of the camera (default TiX0)
+#                  TiY the y offset of the camera (default TiY0)
+#                  TiZ the z offset of the camera (default TiZ0)
+#                  TiS the scale offset of the camera (default TiS1, valid for
+#                  values > 0)
+# TrX,TrY,TrZ  initial mosaic mode translation offsets, alternative to Ti
+#                  parameters
+# Te0,Te1,Te2,Te3  Test parameters
 # +buf         (obsolete, -buf and +buf are now ignored when stitching)
 #                  load and merge image with buffer
 # -buf         (obsolete, -buf and +buf are now ignored when stitching)
