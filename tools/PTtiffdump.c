@@ -74,7 +74,7 @@ int Compare(unsigned char *data1,
 
 int main(int argc,char *argv[])
 {
-  char opt;
+  int opt;
   int overwrite = 0;
   int filesCount;
   char *inputFile, *otherFile;

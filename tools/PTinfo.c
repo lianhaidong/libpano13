@@ -56,7 +56,7 @@
 
 int main(int argc,char *argv[])
 {
-    char opt;
+    int opt;
     fullPath *ptrInputFiles = NULL;
     int i;
     int filesCount = 0;

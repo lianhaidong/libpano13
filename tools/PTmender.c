@@ -257,7 +257,7 @@ int main(int argc,char *argv[])
     fullPath scriptFileName;
     fullPath panoFileName;
 
-    char opt;
+    int opt;
 
     char *currentParm;
     ptrImageFileNames = NULL;

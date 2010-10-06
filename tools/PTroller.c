@@ -62,7 +62,7 @@
 int main(int argc,char *argv[])
 {
     int returnValue = -1;
-    char opt;
+    int opt;
     fullPath *ptrInputFiles   = NULL;
     fullPath *ptrOutputFiles  = NULL;
     
