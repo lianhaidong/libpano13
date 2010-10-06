@@ -1798,7 +1798,7 @@ int panoFlattenTIFF(fullPath * fullPathImages, int counterImageFiles,
 
 int panoCroppingMain(int argc,char *argv[], int operation, char *version, char *usage, char *defaultPrefix)
 {
-    char opt;
+    int opt;
     int ptForceProcessing = 0;
     int filesCount;
     int retVal;

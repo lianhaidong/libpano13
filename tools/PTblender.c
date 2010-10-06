@@ -70,7 +70,7 @@
 int main(int argc,char *argv[])
 {
     int returnValue = -1;
-    char opt;
+    int opt;
     int referenceImage = 0;
     fullPath *ptrInputFiles   = NULL;
     fullPath *ptrOutputFiles  = NULL;

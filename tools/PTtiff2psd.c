@@ -68,7 +68,7 @@
 
 int main(int argc,char *argv[])
 {
-    char opt;
+    int opt;
     char *endPtr;
     fullPath *ptrInputFiles;
     int counter;
