@@ -1,5 +1,8 @@
 2011-01-05    <dmg@uvic.ca>
 
+	* PTcommon.c: Added debugging code to verify how stable the
+	transformations are.
+	
 	* doc/stitch.txt: updated for new projection.
 	
 	* dump.c, dump.f: Functions to dump the contents of internal
