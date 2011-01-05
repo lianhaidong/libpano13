@@ -177,6 +177,7 @@ set(pano13_src
 	bmp.c
 	ColourBrightness.c
 	correct.c
+        dump.c
 	fftn.c
 	file.c
 	filter.c

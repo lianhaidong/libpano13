@@ -533,6 +533,7 @@ void getROI(TrformStr * TrPtr, aPrefs * aP, PTRect * ROIRect)
                                 newX = (int)(Dx2 + 0.5 + sw2);
                                 newY = (int)(Dy2 + 0.5 + sh2);
 
+                                #ifdef XXXXX
                                 if (newX != x || newY != y) {
                                     printf("  X,Y: %7.1f,%7.1f (%5d,%5d) -> OUT: %9.1f, %9.1f inv -> %9.1f %9.1f (%5d, %5d) -- error %5d,%5d\n", 
                                            x_d, y_d, 
@@ -544,6 +545,7 @@ void getROI(TrformStr * TrPtr, aPrefs * aP, PTRect * ROIRect)
                                            newY - y
                                            );
                                 }
+                                #endif
                                 // If this assertion fails, there is an error. The question is, how big? See the values above.
                                 // it is possible that the error is so small that it does not matter.
 /*

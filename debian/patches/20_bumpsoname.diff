@@ -1,0 +1,37 @@
+diff -NurBBp a/Makefile.am b/Makefile.am
+--- a/Makefile.am	2009-09-14 21:54:06.000000000 +0200
++++ b/Makefile.am	2009-09-17 16:33:51.000000000 +0200
+@@ -64,7 +64,7 @@ endif
+ if HAVE_LINUX
+ LIN_SRC =  sys_ansi.c ppm.c
+ LIN_DEFS = -D__Ansi__=1
+-LIN_LDFS = -version-info 1:0:0
++LIN_LDFS = -version-info 2:0:0
+ 
+ install-exec-hook:
+ 	@true
+@@ -74,7 +74,7 @@ endif
+ if HAVE_DARWIN
+ DAR_SRC =  sys_ansi.c ppm.c
+ DAR_DEFS = -D__Ansi__=1
+-DAR_LDFS = -version-info 1:0:0
++DAR_LDFS = -version-info 2:0:0
+ 
+ install-exec-hook:
+ 	@true
+diff -NurBBp a/Makefile.in b/Makefile.in
+--- a/Makefile.in	2009-09-16 19:53:37.000000000 +0200
++++ b/Makefile.in	2009-09-17 16:34:12.000000000 +0200
+@@ -295,10 +295,10 @@ SYS_HDR = sys_X11.h sys_ansi.h sys_mac.h
+ @HAVE_MAC_TRUE@MAC_HDR = 
+ @HAVE_LINUX_TRUE@LIN_SRC = sys_ansi.c ppm.c
+ @HAVE_LINUX_TRUE@LIN_DEFS = -D__Ansi__=1
+-@HAVE_LINUX_TRUE@LIN_LDFS = -version-info 1:0:0
++@HAVE_LINUX_TRUE@LIN_LDFS = -version-info 2:0:0
+ @HAVE_DARWIN_TRUE@DAR_SRC = sys_ansi.c ppm.c
+ @HAVE_DARWIN_TRUE@DAR_DEFS = -D__Ansi__=1
+-@HAVE_DARWIN_TRUE@DAR_LDFS = -version-info 1:0:0
++@HAVE_DARWIN_TRUE@DAR_LDFS = -version-info 2:0:0
+ AM_CPPFLAGS = $(JAVA_FLAGS) $(JPEG_FLAGS) $(PNG_FLAGS) $(TIFF_FLAGS) $(ZLIB_FLAGS) $(WIN_DEFS) $(LIN_DEFS) $(DAR_DEFS) $(ENDIAN_FLAG)
+ lib_LTLIBRARIES = libpano13.la
+ libpano13_la_SOURCES = $(STD_SRC) $(JAVA_SRC) $(X11_SRC) $(WIN_SRC) $(MAC_SRC) $(LIN_SRC) $(DAR_SRC)

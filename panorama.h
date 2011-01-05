@@ -284,7 +284,9 @@ enum
     _equipanini = 22,
     _biplane = 23,
    _triplane = 24,
-    _panini_general = 25
+    _panini_general = 25,
+    _thoby   = 26,             // generalizes the model found in modern fisheye lenses. It is
+                               // parametrizable but it defaults to the Nikkor 10.5 fisheye lens
 };
 
 enum
@@ -306,12 +308,13 @@ enum
     PANO_FORMAT_ORTHOGRAPHIC = 14,
     PANO_FORMAT_EQUISOLID = 15,
     PANO_FORMAT_EQUI_PANINI = 16,
-	PANO_FORMAT_BIPLANE = 17,
-	PANO_FORMAT_TRIPLANE = 18,
-	PANO_FORMAT_PANINI_GENERAL = 19,
+    PANO_FORMAT_BIPLANE = 17,
+    PANO_FORMAT_TRIPLANE = 18,
+    PANO_FORMAT_PANINI_GENERAL = 19,
+    PANO_FORMAT_THOBY   = 20,
 };
 
-#define PANO_FORMAT_COUNT 20
+#define PANO_FORMAT_COUNT 21
 
 enum
 {                               // Enumerates external number of image f<index>
@@ -324,8 +327,9 @@ enum
     IMAGE_FORMAT_FISHEYE_ORTHOGRAPHIC = 8,
     IMAGE_FORMAT_FISHEYE_STEREOGRAPHIC = 10,
     IMAGE_FORMAT_FISHEYE_EQUISOLID = 21,
+    IMAGE_FORMAT_FISHEYE_THOBY = PANO_FORMAT_THOBY,
 };
-#define IMAGE_FORMAT_COUNT 9
+#define IMAGE_FORMAT_COUNT 10
 
 // A large rectangle
 

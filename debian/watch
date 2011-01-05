@@ -1,0 +1,5 @@
+version=3
+
+opts=dversionmangle=s/\.dfsg$//,\
+uversionmangle=s/_rc/~rc/;s/_beta/~beta/ \
+http://sf.net/panotools/libpano13-(.*)\.tar\.gz
