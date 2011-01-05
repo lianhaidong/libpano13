@@ -1,5 +1,8 @@
 2011-01-05    <dmg@uvic.ca>
 
+	* parser.c (ParseScript): Removed a bogus statement added during
+	debugging.
+
 	* PTcommon.c: Added debugging code to verify how stable the
 	transformations are.
 	
