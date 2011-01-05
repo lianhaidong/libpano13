@@ -343,6 +343,7 @@ char *panoFormatNames[] = {
     "Biplane",
     "Triplane",
     "Panini General",
+    "Thoby Projection",
 };
 
 static int panoFormatID[] = {
@@ -366,6 +367,7 @@ static int panoFormatID[] = {
     _biplane,
     _triplane,
     _panini_general,
+    _thoby,
     };
 
 
@@ -437,6 +439,7 @@ int panoProjectionFeaturesQuery(int projection, pano_projection_features *featur
 
         break;
     case PANO_FORMAT_FISHEYE_FF:
+    case PANO_FORMAT_THOBY:
 	features->maxVFOV = 360;
 	features->maxHFOV = 360;
 	break;
