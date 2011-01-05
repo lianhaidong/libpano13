@@ -284,7 +284,7 @@ int ParseScript( char* script, AlignInfo *gl )
                             case IMAGE_FORMAT_FISHEYE_ORTHOGRAPHIC:       im->format = _orthographic; break;
                             case IMAGE_FORMAT_FISHEYE_STEREOGRAPHIC:      im->format = _stereographic; break;
                             case IMAGE_FORMAT_FISHEYE_EQUISOLID:          im->format = _equisolid; break;
-                            case IMAGE_FORMAT_FISHEYE_THOBY:              im->format = _thoby; exit(1);break;
+                            case IMAGE_FORMAT_FISHEYE_THOBY:              im->format = _thoby; break;
                               break;
                             default:  PrintError("Syntax error in script.  Projection not known: Line %d", lineNum);
                                 goto fail;
