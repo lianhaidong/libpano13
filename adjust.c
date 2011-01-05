@@ -774,6 +774,9 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
     case _orthographic:
       mp->distance  = (double) pn->width / (2.0 * sin(b/2.0));
        break;
+    case _thoby:
+      mp->distance  = (double) pn->width / (2.0 * THOBY_K1_PARM * sin(b * THOBY_K2_PARM/2.0));
+       break;
         case _biplane:
           biplane_distance(pn->width,b,mp);
           break;
@@ -811,6 +814,9 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
       break;
     case _orthographic:
       mp->scale[0] = (double) image_selection_width / (2.0 * sin(a/2.0)) / mp->distance;
+      break;
+    case _thoby:
+      mp->scale[0] = (double) image_selection_width / (2.0 * THOBY_K1_PARM * sin(a * THOBY_K2_PARM /2.0)) / mp->distance;
       break;
     case _stereographic:
       mp->scale[0] = (double) image_selection_width / (4.0 * tan(a/4.0)) / mp->distance;
@@ -910,6 +916,11 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
     else if(pn->format == _orthographic)
         {
             SetDesc(stack[i],   sphere_tp_orthographic, &(mp->distance) ); i++; // Convert fisheye orthographic to spherical
+            SetDesc(stack[i],   erect_sphere_tp,        &(mp->distance) ); i++; // Convert spherical to equirect
+        }
+    else if(pn->format == _thoby)
+        {
+            SetDesc(stack[i],   sphere_tp_thoby, &(mp->distance) ); i++; // Convert thoby to spherical
             SetDesc(stack[i],   erect_sphere_tp,        &(mp->distance) ); i++; // Convert spherical to equirect
         }
     else if(pn->format == _mercator)
@@ -1016,6 +1027,10 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
     else if (im->format == _orthographic) 
         {
             SetDesc(stack[i],   orthographic_sphere_tp,           &(mp->distance) ); i++; // Convert spherical to orthographic
+        }
+    else if (im->format == _thoby) 
+        {
+            SetDesc(stack[i],   thoby_sphere_tp,           &(mp->distance) ); i++; // Convert spherical to thoby
         }
     else if (im->format == _equisolid) 
         {
@@ -1207,6 +1222,9 @@ void  SetInvMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , 
         case _orthographic:
             mp->distance  = (double) pn->width / (2.0 * sin(b/2.0));
             break;
+        case _thoby:
+            mp->distance  = (double) pn->width / (2.0 * THOBY_K1_PARM * sin(b * THOBY_K2_PARM/2.0));
+            break;
         case _biplane:
             biplane_distance(pn->width,b,mp);
             break;
@@ -1242,6 +1260,9 @@ void  SetInvMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , 
             break;
         case _orthographic:
             mp->scale[0] = (double) im->width / (2.0 * sin(a/2.0)) / mp->distance;
+            break;
+        case _thoby:
+            mp->scale[0] = (double) im->width / (2.0 * THOBY_K1_PARM * sin(a * THOBY_K2_PARM/2.0)) / mp->distance;
             break;
         case _stereographic:
             mp->scale[0] = (double) im->width / (4.0 * tan(a/4.0)) / mp->distance;
@@ -1364,9 +1385,13 @@ void  SetInvMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , 
   {
     SetDesc(stack[i], sphere_tp_orthographic,  &(mp->distance) ); i++; // Convert orthographic to spherical
   }
-  else if (im->format   == _stereographic)             //  Fisheye orthographic image
+  else if (im->format   == _thoby)             //  thoby projected image
   {
-    SetDesc(stack[i], erect_stereographic,  &(mp->distance) ); i++; // Convert orthographic to spherical
+    SetDesc(stack[i], sphere_tp_thoby,  &(mp->distance) ); i++; // Convert thoby to spherical
+  }
+  else if (im->format   == _stereographic)             //  Fisheye stereographic image
+  {
+    SetDesc(stack[i], erect_stereographic,  &(mp->distance) ); i++; // Convert stereographic to spherical
     SetDesc(stack[i], sphere_tp_erect,  &(mp->distance) ); i++; // Convert equirectangular to spherical
   }
 
@@ -1454,6 +1479,11 @@ void  SetInvMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , 
   {
     SetDesc(stack[i], sphere_tp_erect,    &(mp->distance) ); i++; // Convert equirectangular to spherical
     SetDesc(stack[i], orthographic_sphere_tp,    &(mp->distance) ); i++; // Convert spherical to orthographic
+  }
+  else if(pn->format == _thoby )
+  {
+    SetDesc(stack[i], sphere_tp_erect,    &(mp->distance) ); i++; // Convert equirectangular to spherical
+    SetDesc(stack[i], thoby_sphere_tp,    &(mp->distance) ); i++; // Convert spherical to thoby
   }
   else if(pn->format == _biplane)
   {
@@ -2972,7 +3002,7 @@ int CheckParams( AlignInfo *g )
                 g->im[i].format != _fisheye_circ    && g->im[i].format != _fisheye_ff && 
                 g->im[i].format != _equirectangular && g->im[i].format != _orthographic &&
                 g->im[i].format != _mirror          && g->im[i].format != _stereographic && 
-                g->im[i].format != _equisolid)
+                g->im[i].format != _equisolid       && g->im[i].format != _thoby)
                 err = 7;
         }
 

@@ -1,0 +1,57 @@
+#!/usr/bin/make -f
+
+# We don't use tarball.mk but there's a .tgz in the way
+DEB_TARBALL=
+
+include /usr/share/cdbs/1/rules/debhelper.mk
+include /usr/share/cdbs/1/rules/patchsys-quilt.mk
+include /usr/share/cdbs/1/class/autotools.mk
+
+
+# For the repack: package name, mangled upstream version, non-free files
+PACKAGE=libpano13
+VERSION=$(shell dpkg-parsechangelog | perl -ne 'print "$$1\n" if (/^Version: (.*?)(?:\.dfsg)?\-.*?$$/)')
+
+
+# --{list,fail}-missing don't make sense when dh_install is called for each
+# package rather than once for all. See the hook below, only used to check
+# the list of installed files. This is cdbs's #461368.
+DEB_DH_INSTALL_ARGS=--autodest --sourcedir=debian/tmp
+
+# What to pass to ./configure
+DEB_CONFIGURE_EXTRA_FLAGS= \
+	--prefix=/usr \
+	--enable-shared \
+	--enable-static \
+	--with-jpeg \
+	--with-png  \
+	--with-tiff \
+	--with-zlib \
+	--without-java
+
+# Could be merged into the former, but cleaner this way
+DEB_CONFIGURE_SCRIPT_ENV += \
+	LDFLAGS="-Wl,-z,defs -Wl,--as-needed" \
+	LIBS="-lm"
+
+DEB_DH_MAKESHLIBS_ARGS_libpano13-2 := -V 'libpano13-2 (>=2.9.15~beta2-0), libpano13-2 (<<2.9.15~beta3-0)'
+DEB_MAKE_CHECK_TARGET = check
+
+
+# Between "make install" and "dh_*" calls
+common-install-arch::
+	# Clear the rpath set on some architectures (e.g. amd64)
+	chrpath -d $(CURDIR)/debian/tmp/usr/bin/*
+	chrpath -d $(CURDIR)/debian/tmp/usr/lib/*.so
+
+	rm -f $(CURDIR)/debian/tmp/usr/lib/*.la
+
+	# Check the list of installed files, see the comment above the
+	# DEB_DH_INSTALL_ARGS declaration
+	dh_install --fail-missing $(DEB_DH_INSTALL_ARGS)
+
+# Build the DFSG-free source tarball
+get-orig-source:
+	# Download
+	uscan --force-download --rename
+

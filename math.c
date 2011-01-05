@@ -2541,7 +2541,6 @@ int sphere_tp_orthographic( double x_dest,double  y_dest, double* x_src, double*
   return 1;
 }
 
-
 int orthographic_sphere_tp( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {
   // params: double distance
@@ -2557,6 +2556,52 @@ int orthographic_sphere_tp( double x_dest,double  y_dest, double* x_src, double*
   *y_src = rho * sin( phi );
   return 1;
 }
+
+// the Thoby projection is an empirically found projection for the Nikkor 10.5 lens
+// rho = THOBY_K1_PARM * sin( theta  * THOBY_K2_PARM);
+
+int sphere_tp_thoby( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
+{
+  // params: double distance
+
+  register double phi, theta, rho;
+#define SCALE (((double*)params)[0])
+
+  rho = sqrt( x_dest*x_dest + y_dest*y_dest )/ SCALE;
+
+  
+  theta = asin( rho/THOBY_K1_PARM) / THOBY_K2_PARM;
+  phi   = atan2( y_dest , x_dest );
+  
+  *x_src = SCALE * theta * cos( phi );
+  *y_src = SCALE * theta * sin( phi );
+
+#undef SCALE
+
+  return 1;
+}
+
+
+int thoby_sphere_tp( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
+{
+  // params: double distance
+
+  register double rho, phi, theta;
+
+#define SCALE (((double*)params)[0])
+
+  theta = sqrt( x_dest * x_dest + y_dest * y_dest ) / SCALE;
+  phi   = atan2( y_dest , x_dest );
+  
+  rho = THOBY_K1_PARM * sin( theta  * THOBY_K2_PARM );
+  
+  *x_src = SCALE * rho * cos( phi );
+  *y_src = SCALE * rho * sin( phi );
+
+#undef SCALE
+  return 1;
+}
+
 
 int shift_scale_rotate( double x_dest,double  y_dest, double* x_src, double* y_src, void* params){
 	// params: double shift_x, shift_y, scale, cos_phi, sin_phi

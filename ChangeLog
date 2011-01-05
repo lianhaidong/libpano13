@@ -1,3 +1,14 @@
+2011-01-05    <dmg@uvic.ca>
+
+	* doc/stitch.txt: updated for new projection.
+	
+	* dump.c, dump.f: Functions to dump the contents of internal
+	variables (for debugging purposes)
+
+	* math.c (thoby_sphere_tp, sphere_tp_thoby), adjust.c, parser.c,
+	filter.h, panorama.h: implemented Michel Thoby projection for
+	Nikkor 10.5, which is called Thoby Projection, and number 20.
+
 2010-04-27  dmg  <dmg@uvic.ca>
 
 	* jpeg.c: Removed dependency from file which was braking  build

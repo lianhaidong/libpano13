@@ -59,6 +59,7 @@ static int      ReadPanoramaDescription( Image *imPtr, stBuf *sPtr, char *line )
 static int      ReadModeDescription ( sPrefs *sP, char *line );
 static int      ReadCoordinates(    CoordInfo   *cp, char *line );
 
+static int panoExternalToInternalInputProjection(pt_int32 input);
 
 #define MY_SSCANF( str, format, ptr )       if( sscanf( str, format, ptr ) != 1 )   \
                                             {                                       \
@@ -283,6 +284,7 @@ int ParseScript( char* script, AlignInfo *gl )
                             case IMAGE_FORMAT_FISHEYE_ORTHOGRAPHIC:       im->format = _orthographic; break;
                             case IMAGE_FORMAT_FISHEYE_STEREOGRAPHIC:      im->format = _stereographic; break;
                             case IMAGE_FORMAT_FISHEYE_EQUISOLID:          im->format = _equisolid; break;
+                            case IMAGE_FORMAT_FISHEYE_THOBY:              im->format = _thoby; exit(1);break;
                               break;
                             default:  PrintError("Syntax error in script.  Projection not known: Line %d", lineNum);
                                 goto fail;
@@ -710,6 +712,9 @@ int ParseScript( char* script, AlignInfo *gl )
             case PANO_FORMAT_ORTHOGRAPHIC:
                 gl->pano.format = _orthographic;
                 break;
+            case PANO_FORMAT_THOBY:
+                gl->pano.format = _thoby;
+                break;
             case PANO_FORMAT_EQUISOLID:
                 gl->pano.format = _equisolid;
                 break;
@@ -926,6 +931,7 @@ void WriteResults( char* script, fullPath *sfile,  AlignInfo *g, double ds( int 
         case _biplane:                format = PANO_FORMAT_BIPLANE; break;
 	case _triplane:               format = PANO_FORMAT_TRIPLANE; break;
         case _panini_general:     format = PANO_FORMAT_PANINI_GENERAL; break;
+        case _thoby:                   format = PANO_FORMAT_THOBY; break;
         default:                      format = -1; break;
     }
 
@@ -947,6 +953,7 @@ void WriteResults( char* script, fullPath *sfile,  AlignInfo *g, double ds( int 
             case _orthographic:       format = IMAGE_FORMAT_FISHEYE_ORTHOGRAPHIC; break;
             case _stereographic:      format = IMAGE_FORMAT_FISHEYE_STEREOGRAPHIC; break;
             case _equisolid:          format = IMAGE_FORMAT_FISHEYE_EQUISOLID; break;
+            case _thoby:              format = IMAGE_FORMAT_FISHEYE_THOBY; break;
             default:                  format = -1; break;
         }
 
@@ -1302,6 +1309,9 @@ int readAdjust( aPrefs *p,  fullPath* sfile, int insert, sPrefs *sP )
           break;
         case PANO_FORMAT_EQUISOLID:
           p->pano.format = _equisolid;
+          break;
+        case PANO_FORMAT_THOBY:
+          p->pano.format = _thoby;
           break;
 		case PANO_FORMAT_BIPLANE:
           p->pano.format = _biplane;
@@ -1662,7 +1672,8 @@ static int ReadImageDescription( Image *imPtr, stBuf *sPtr, char *line )
     int    cropping = 0;
     int tempInt;
     char typeParm;
-    
+    pt_int32 tempInt32;
+
     memcpy( &im,    imPtr,   sizeof(Image) );
     memcpy( &sBuf,  sPtr,    sizeof(stBuf ));
     
@@ -1670,7 +1681,13 @@ static int ReadImageDescription( Image *imPtr, stBuf *sPtr, char *line )
    //  printf("************************************* Before Cut Frame %d \n", im.cP.cutFrame);
     while( *ch != 0) {
         switch(*ch) {
-        case 'f':   READ_VAR( FMT_INT32, &im.format );
+        case 'f':   READ_VAR( FMT_INT32, &tempInt32 );
+            tempInt = panoExternalToInternalInputProjection(tempInt32);
+            if (tempInt < 0) {
+                PrintError("Syntax error in script.  Projection not known: %ud", tempInt32);
+                return -1;
+            }
+            im.format = tempInt;
             if( im.format == _panorama || im.format == _equirectangular )
                 im.cP.correction_mode |= correction_mode_vertical;
             break;
@@ -2388,6 +2405,10 @@ aPrefs* readAdjustLine( fullPath *theScript ){
             free( script );
         }
     }
+
+    //panoDumpAdjustData(aP, "readAdjustLine", 0);
+
+
     return aP;
 }   
 
@@ -2432,4 +2453,25 @@ char *panoParserFindOLine(char *script, int index)
 
     }
     return NULL;
+}
+
+
+int panoExternalToInternalInputProjection(pt_int32 input)
+{
+    // Internal and external projection do not match, unfortunately.
+    // So this code does the remapping
+
+    switch (input) {
+    case IMAGE_FORMAT_RECTILINEAR:                return(_rectilinear);
+    case IMAGE_FORMAT_PANORAMA:                   return(_panorama);
+    case IMAGE_FORMAT_FISHEYE_EQUIDISTANCECIRC:   return(_fisheye_circ);
+    case IMAGE_FORMAT_FISHEYE_EQUIDISTANCEFF:     return(_fisheye_ff);
+    case IMAGE_FORMAT_EQUIRECTANGULAR:            return(_equirectangular);
+    case IMAGE_FORMAT_MIRROR:                     return(_mirror);
+    case IMAGE_FORMAT_FISHEYE_ORTHOGRAPHIC:       return(_orthographic);
+    case IMAGE_FORMAT_FISHEYE_STEREOGRAPHIC:      return(_stereographic);
+    case IMAGE_FORMAT_FISHEYE_EQUISOLID:          return(_equisolid);
+    case IMAGE_FORMAT_FISHEYE_THOBY:              return(_thoby);
+    default:     return -1;
+  }
 }

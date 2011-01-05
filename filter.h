@@ -916,6 +916,15 @@ int equisolid_sphere_tp( double x_dest,double  y_dest, double* x_src, double* y_
 int sphere_tp_orthographic( double x_dest,double  y_dest, double* x_src, double* y_src, void* params);
 int orthographic_sphere_tp( double x_dest,double  y_dest, double* x_src, double* y_src, void* params);
 
+int sphere_tp_thoby( double x_dest,double  y_dest, double* x_src, double* y_src, void* params);
+int thoby_sphere_tp( double x_dest,double  y_dest, double* x_src, double* y_src, void* params);
+
+
+
+#define THOBY_K1_PARM 1.47
+#define THOBY_K2_PARM 0.713
+
+
 int rotate_erect		( double x_dest, double y_dest, double* x_src, double* y_src, void* params );
 int inv_radial			( double x_dest, double y_dest, double* x_src, double* y_src, void* params );
 int inv_radial_brown		( double x_dest, double y_dest, double* x_src, double* y_src, void* params );

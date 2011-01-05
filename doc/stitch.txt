@@ -118,7 +118,9 @@ i n"photo1.jpg"
 #                  8 - Fisheye Orthographic (This is only allowed in PTStereo and
 #                         for the first image. This indicates a map or ground plan)
 #                 10 - Fisheye Stereographic
-#                 19 - Fisheye Equisolid
+#                 20 - Thoby Projection (rho = THOBY_K1_PARM * sin(
+#                      theta  * THOBY_K2_PARM), defaults to Nikkor 10.5
+#                 21 - Fisheye Equisolid
 # v82          horizontal field of view of image (required)
 # y0           yaw angle (required)
 # p43          pitch angle (required)
