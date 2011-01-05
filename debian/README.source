@@ -1,4 +1,0 @@
-This debian package is using cdbs with quilt as patch management system.
-
-debian/rules patch produces a patched source directory, see quilt's
-documentation for how to manage/add patches.
