@@ -85,9 +85,9 @@ void panoDumpCropInfo(CropInfo *crop, char *label, int indent)
 void panoDumpCorrectPrefs(cPrefs *cP, char *label, int indent)
 {
     char ind[MAX_INDENT+1];
+    int i,j;
 
     panoDumpSetIndent(ind, indent);
-    int i,j;
 
 
 

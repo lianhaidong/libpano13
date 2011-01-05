@@ -1,5 +1,12 @@
 2011-01-05    <dmg@uvic.ca>
 
+	* queryfeature.c: Added data for thoby projection. Patch by
+	T. Modes.
+
+	* dump.c: removed unused variables. Patch by T. Modes.
+	
+2011-01-05    <dmg@uvic.ca>
+
 	* parser.c (ParseScript): Removed a bogus statement added during
 	debugging.
 
