@@ -314,7 +314,7 @@ void Clear_Area_Outside_Selected_Region(Image * image)
     }
 
 
-    if (image->format == _fisheye_circ) {
+    if (image->format == _fisheye_circ || image->format == _thoby) {
 
 
 	// TODO
