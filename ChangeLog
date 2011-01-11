@@ -1,3 +1,7 @@
+2011-01-11    jim0watters
+
+	*version.h Update version description to indicate if build is 32 or 64 bit
+
 2011-01-06    <dmg@uvic.ca>
 
 	* PTcommon.c (Clear_Area_Outside_Selected_Region): thoby should

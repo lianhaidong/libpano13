@@ -19,6 +19,11 @@
 #ifndef PTVERSIONINFO
 #define PTVERSIONINFO
 
+#if defined(_IA64_) || defined(_AMD64_) || defined(_M_IA64) || defined(_M_AMD64) || defined(WIN64) || defined(_WIN64)
+  #define PTVERSIONBIT "64 bit"
+#else
+  #define PTVERSIONBIT "32 bit"
+#endif
 
 #define VERS1 0x2
 #define VERS2 0x00
@@ -33,6 +38,8 @@
 #define PTVERSION_FILEVERSIONNUMBER 2,9,18,0
 #define PTVERSION_NAME_LONG "LongVersion"
 #define LONGVERSION VERSION ", Copyright (c) 1998-2006, H. Dersch, der@fh-furtwangen.de"
+
+#define PTVERSION_FILEDESCRIPTION "Panorama Tools " PTVERSIONBIT " Library\0"
 
 #define PTVERSION_NAME_FILEVERSION "FileVersion"
 #define PTVERSION_FILEVERSION VERSION "\0"
