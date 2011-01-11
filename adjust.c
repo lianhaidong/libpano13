@@ -2897,9 +2897,11 @@ void    SetStitchDefaults( struct stitchBuffer *sBuf)
 {
         *sBuf->srcName          = 0;
         *sBuf->destName         = 0;
-        sBuf->feather           = 10;                   
-        sBuf->colcorrect        = 0;                    
-        sBuf->seam                      = _middle;      
+        sBuf->feather           = 10;
+        sBuf->colcorrect        = 0;
+        sBuf->seam              = _middle;
+        sBuf->psdOpacity        = 255;
+        sBuf->psdBlendingMode   = PSD_NORMAL;
 }
 
 void            SetOptDefaults( optVars *opt )
