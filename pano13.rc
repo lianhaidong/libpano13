@@ -333,7 +333,7 @@ BEGIN
         BEGIN
             VALUE "Comments", PTVERSION_COMMENT
             VALUE "CompanyName", PTVERSION_COMPNAME
-            VALUE "FileDescription", "Panorama Tools Library\0"
+            VALUE "FileDescription", PTVERSION_FILEDESCRIPTION
             VALUE PTVERSION_NAME_FILEVERSION, PTVERSION_FILEVERSION
             VALUE "InternalName", "pano13.dll\0"
             VALUE PTVERSION_NAME_LEGALCOPYRIGHT, PTVERSION_LEGALCOPYRIGHT
