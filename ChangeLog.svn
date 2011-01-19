@@ -1,5 +1,72 @@
+2011-01-19  brunopostle
+
+	* [r1320] man/PTAInterpolate.1, man/PTblender.1, man/PTcrop.1,
+	  man/PTinfo.1, man/PTmasker.1, man/PTmender.1, man/PToptimizer.1,
+	  man/PTroller.1, man/PTtiff2psd.1, man/PTtiffdump.1, man/PTuncrop.1,
+	  man/panoinfo.1: Update version string
+	* [r1319] configure.ac: Build on GNU hurd (Andreas Metzler)
+
+2011-01-11  jim0watters
+
+	* [r1317] ChangeLog, pano13.rc: Update version description to indicate
+	  if build is 32 or 64 bit
+	* [r1316] ChangeLog, adjust.c: Update SetStitchDefaults to include
+	  psdOpacity and psdBlendingMode
+	* [r1315] ChangeLog, version.h: Update version description to indicate
+	  if build is 32 or 64 bit
+
+2011-01-07  dmg
+
+	* [r1313] ChangeLog, PTcommon.c: Thoby should crop as a ciruclar
+	  fisheye
+
+2011-01-06  dmg
+
+	* [r1312] ChangeLog, configure.ac, version.h: upgraded version to
+	  2.9.18
+
+2011-01-05  dmg
+
+	* [r1311] ChangeLog, dump.c, queryfeature.c: patch by T. Modes to add
+	  thoby to queryfeatures
+	* [r1310] ChangeLog, parser.c: removed code I shouldnnot have
+	  committed
+	* [r1309] ChangeLog: updated changelog
+	* [r1308] debian: removed bogus code I added in my previous commit
+	* [r1307] dump.h: added thoby projection for Nikkor 10.5, part 2
+	* [r1306] CMakeLists.txt, ChangeLog, PTcommon.c, adjust.c, debian,
+	  debian/README.source, debian/TODO, debian/changelog, debian/compat,
+	  debian/control, debian/copyright, debian/libpano13-2.install,
+	  debian/libpano13-bin.docs, debian/libpano13-bin.install,
+	  debian/libpano13-dev.install, debian/patches,
+	  debian/patches/10_workaround_libtool_link_as_needed_bug,
+	  debian/patches/20_bumpsoname.diff, debian/patches/series,
+	  debian/rules, debian/watch, doc/stitch.txt, dump.c, filter.h,
+	  math.c, panorama.h, parser.c: added thoby projection for Nikkor 10.5
+
+2010-12-07  yuv
+
+	* [r1305] filter.c: https://bugs.launchpad.net/hugin/+bug/678763
+	  (Rogier Wolff)
+
+2010-10-13  brunopostle
+
+	* [r1304] bootstrap: Support libtool 2.4 #3086186 (ftrvxmtrx)
+
+2010-10-06  brunopostle
+
+	* [r1303] PTcommon.c, tools/PTblender.c, tools/PTinfo.c,
+	  tools/PTmasker.c, tools/PTmender.c, tools/PTroller.c,
+	  tools/PTtiff2psd.c, tools/PTtiffdump.c: Fix powerpc command-line
+	  tools endless loop #3082342, debian #599092 (Andreas Metzler)
+
+2010-09-10  brunopostle
+
+	* [r1302] doc/Optimize.txt, doc/stitch.txt: Fix docs...
+
 2010-09-09  brunopostle
 
+	* [r1300] ChangeLog.svn: Update ChangeLog for rc2
 	* [r1299] tools/PTAInterpolate.vcproj, tools/PTOptimizer.vcproj,
 	  tools/PTblender.vcproj, tools/PTcrop.vcproj, tools/PTinfo.vcproj,
 	  tools/PTmasker.vcproj, tools/PTmender.vcproj, tools/PTroller.vcproj,
