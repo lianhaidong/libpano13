@@ -27,7 +27,7 @@ case "${host_os}" in
     HSYS=unknown
     HCPU="${host_cpu}"
 	;;
-  linux*|k*bsd*)
+  linux*|k*bsd*|gnu*)
     PANO_WIN32_RESOURCE=
     HSYS=linux
     dnl
