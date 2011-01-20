@@ -188,7 +188,7 @@ int ParseScript( char* script, AlignInfo *gl )
     // end mask-from-focus Rik's hacking
     SetImageDefaults(&(gl->pano));  
     SetStitchDefaults(&(gl->st)); strcpy( gl->st.srcName, "buf" ); // Default: Use buffer 'buf' for stitching
-    printf("Number of images %d\n",gl-> numIm);
+    // printf("Number of images %d\n",gl-> numIm);
 
     for(i=0; i<gl->numIm; i++) {
         SetImageDefaults( &(gl->im[i]) );
