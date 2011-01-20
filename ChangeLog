@@ -1,3 +1,7 @@
+2011-01-20    <pablo.dangelo@web.de>
+
+	* parser.c: disabled debug printf in parsing code
+
 2011-01-11    jim0watters
 
   * adjust.c Update SetStitchDefaults to include psdOpacity and psdBlendingMode
