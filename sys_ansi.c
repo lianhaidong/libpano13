@@ -61,7 +61,7 @@ if( JavaUI ){
 	}else
 #endif
   {
-	  printf(toPrint);
+          printf("%s",toPrint);
 
 	  // Add an end of line if none is provide
 	  if (strlen(toPrint) > 0 &&
@@ -322,12 +322,14 @@ void 	myfree( void** Hdl )						// free Memory, use Handles
 
 // Display Scriptfile using plain text editor
 
-void 	showScript			( fullPath* scriptFile )
+void 	showScript			( char* scriptFile )
 {
 	char cmd[sizeof(fullPath) + 16];
 	
-	sprintf( cmd, "vi \"%s\"", scriptFile->name );
-	system( cmd );
+	sprintf( cmd, "vi \"%s\"", scriptFile );
+        fprintf(stderr, "NO LONGER SUPPORTED\n");
+        exit(1);
+        //	system( cmd );
 }
 	
 

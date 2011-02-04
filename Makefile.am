@@ -20,7 +20,7 @@ INTERNAL_HDR = fftn.h f2c.h ZComb.h adjust.h ColourBrightness.h PTcommon.h pt_st
 
 TOOL_HDR = queryfeature.h pteditor.h ptutils.h 
 
-SYS_HDR = sys_X11.h sys_ansi.h sys_mac.h sys_win.h 
+SYS_HDR = sys_X11.h sys_ansi.h sys_win.h 
 
 if HAVE_X11
 X11_SRC =  sys_X11.c 
@@ -50,15 +50,6 @@ $(PANO_WIN32_RESOURCE): pano13.rc
 
 install-exec-hook:
 	mv $(DESTDIR)$(bindir)/libpano13.dll $(DESTDIR)$(bindir)/pano13.dll
-endif
-
-if HAVE_MAC
-MAC_SRC =  shell_mac.c sys_mac.c ppm.c
-MAC_HDR =  
-
-install-exec-hook:
-	@true
-
 endif
 
 if HAVE_LINUX
@@ -146,3 +137,6 @@ darwin: libpano13.la filter.r
 
 changelog:
 	svn2cl --group-by-day --include-rev --linelen=78 --output=ChangeLog.svn
+
+tags:
+	ctags-exuberant *.c *.h tools/*.c
