@@ -259,7 +259,7 @@ struct adjust_Prefs{                  //  Preferences structure for tool adjust
     Image               pano;         //  Panorama to be created/ used for extraction
 
     stBuf               sBuf;
-    fullPath            scriptFile;   // On Mac: Cast to FSSpec; else: full path to scriptFile
+    fullPath            scriptFile;   // full path to scriptFile
     int                 nt;           // morphing triangles
     PTTriangle         *ts;           // Source triangles
     PTTriangle         *td;           // Destination triangles
@@ -654,51 +654,45 @@ void 	writePrefs			(char* p, int selector );   			// Preferences, same selector 
 
 int	LoadBufImage		( Image *image, char *fname, int mode);
 int	SaveBufImage		( Image *image, char *fname );
-int writeCroppedTIFF    ( Image *im, fullPath *sfile, CropInfo *crop_info);
-int	writeTIFF			( Image *im, fullPath *fname);			// On Mac: fname is FSSpec*				
+int writeCroppedTIFF    ( Image *im, char *sfile, CropInfo *crop_info);
+int	writeTIFF			( Image *im, char *fname);	
 void 	SaveOptions			( struct correct_Prefs * thePrefs );
 int 	LoadOptions			( struct correct_Prefs * thePrefs );
 void  	FindScript			( struct adjust_Prefs *thePrefs );
-char* 	LoadScript			( fullPath* scriptFile  );
-int 	WriteScript			( char* res, fullPath* scriptFile, int launch );
-int 	writePSD			( Image *im, fullPath* fname);			// On Mac: fname is FSSpec*	
-int 	readPSD				( Image *im, fullPath* fname, int mode);
+char* 	LoadScript			( char* scriptFile  );
+int 	WriteScript			( char* res, char* scriptFile, int launch );
+int 	writePSD			( Image *im, char* fname);
+int 	readPSD				( Image *im, char* fname, int mode);
 int 	FindFile			( fullPath *fname );
 int 	SaveFileAs			( fullPath *fname, char *prompt, char *name );
 void 	ConvFileName		( fullPath *fname,char *string);
-int 	writePSDwithLayer	( Image *im, fullPath *fname);
-int 	addLayerToFile		( Image *im, fullPath* sfile, fullPath* dfile, stBuf *sB);
-void 	showScript			( fullPath* scriptFile );
+int 	writePSDwithLayer	( Image *im, char *fname);
+int 	addLayerToFile		( Image *im, char* sfile, char* dfile, stBuf *sB);
+void 	showScript			( char* scriptFile );
 void 	MakeTempName		( fullPath *fspec, char *fname );
 void 	makePathForResult	( fullPath *path );
 int 	makePathToHost 		( fullPath *path );
 void    open_selection		( fullPath *path );
-int 	readPSDMultiLayerImage( MultiLayerImage *mim, fullPath* sfile);
+int 	readPSDMultiLayerImage( MultiLayerImage *mim, char* sfile);
 int 	GetFullPath 		(fullPath *path, char *filename); // Somewhat confusing, for compatibility easons
 int 	StringtoFullPath	(fullPath *path, char *filename);
 int 	IsTextFile			( char* fname );
 int 	readPositions		( char* script, transformCoord *tP );
-int	readJPEG			( Image *im, fullPath *sfile );
-int	readTIFF			( Image *im, fullPath *sfile );
-int 	writeJPEG			( Image *im, fullPath *sfile, 	int quality, int progressive );
-int 	writePNG			( Image *im, fullPath *sfile );
-int 	readPNG				( Image *im, fullPath *sfile );
+int	readJPEG			( Image *im, char *sfile );
+int	readTIFF			( Image *im, char *sfile );
+int 	writeJPEG			( Image *im, char *sfile, 	int quality, int progressive );
+int 	writePNG			( Image *im, char *sfile );
+int 	readPNG				( Image *im, char *sfile );
 int 	LaunchAndSendScript(char* application, char* script);
-aPrefs* readAdjustLine( fullPath *theScript );
+aPrefs* readAdjustLine( char *theScript );
 
-#ifdef __Mac__
-
- int 	readImage			( Image *im, fullPath *sfile );
- int 	writeImage			( Image *im, fullPath *sfile );
- int 	makeTempPath		( fullPath *path );
-#endif
 
 //int	readtif(Image *im, TIFF* tif);
 void getCropInformation(char *filename, CropInfo *c);
 
 // Read and Write Radiance HDR files
-int 	writeHDR			( Image *im, fullPath *sfile );
-int 	readHDR				( Image *im, fullPath *sfile );
+int 	writeHDR			( Image *im, char *filename );
+int 	readHDR				( Image *im, char *filename );
 
 #define FullPathtoString( path, string ) 		GetFullPath( path, string)
 
@@ -729,11 +723,11 @@ int 	SetUpGamma			( double pgamma, unsigned int psize);
 int 	cutTheFrame			( Image *dest, Image *src, int width, int height, int showprogress );
 int 	PositionCmp			( Image *im1, Image *im2 );
 int 	MorphImage			( Image *src, Image *dst, PTTriangle *ts, PTTriangle *td, int nt );
-int 	MorphImageFile		( fullPath *sfile, fullPath *dfile, AlignInfo *g,int nIm );
-int 	blendImages			( fullPath *f0,  fullPath *f1, fullPath *result, double s );
+int 	MorphImageFile		( char *sfile, char *dfile, AlignInfo *g,int nIm );
+int 	blendImages			( char *f0,  char *f1, char *result, double s );
 int 	InterpolateImage	( Image *src, Image *dst, PTTriangle *ts, PTTriangle *td, int nt );
 int 	InterpolateTrianglesPerspective( AlignInfo *g, int nIm, double s, PTTriangle** t  );
-int 	InterpolateImageFile( fullPath *sfile, fullPath *dfile, AlignInfo *g,int nIm );
+int 	InterpolateImageFile( char *sfile, char *dfile, AlignInfo *g,int nIm );
 void 	OneToTwoByte		( Image *im );
 void 	TwoToOneByte		( Image *im );
 void 	SetMakeParams           ( struct fDesc *stack, struct MakeParams *mp, Image *im , Image *pn, int color );
@@ -750,8 +744,8 @@ void 	DoColorCorrection( Image *im1, Image *im2, int mode );
 // Script Reading/Parsing/Writing
 
 int 	ParseScript			( char* script, AlignInfo *gl );
-void 	WriteResults		( char* script, fullPath *sfile, AlignInfo *g, double ds( int i) , int launch);
-int 	readAdjust		( aPrefs *p,  fullPath* sfile, int insert, sPrefs *sP );
+void 	WriteResults		( char* script, char *sfile, AlignInfo *g, double ds( int i) , int launch);
+int 	readAdjust		( aPrefs *p,  char* sfile, int insert, sPrefs *sP );
 void 	readControlPoints	(char* script, controlPoint *c );
 int	getVRPanoOptions	( VRPanoOptions *v, char *line );
 void 	nextWord			( register char* word, char** ch );
@@ -1010,53 +1004,31 @@ extern sPrefs			*gsPrPtr;
 
 // Cross platform file functions
 
-#ifdef __Mac__
+#define		file_spec			FILE*
+#define		nfile_spec			int
+#define		myopen( path, perm, fspec )	( (fspec = fopen( path, perm )) == NULL)
+#define		mywrite( fspec, count, data )	count = fwrite( data, 1, count, fspec)
+#define 	myread( fspec, count, data )	count = fread( data, 1, count, fspec ) 
+#define         myclose( fspec )		fclose (fspec )
+#define		mycreate( path, creator, type )		
+#define		mydelete( path )		remove((path)->name )
+#define		myrename( path, newpath )	rename ((path)->name, (newpath)->name)
+#define		write_text			"w"
+#define		write_bin			"wb"
+#define		read_text			"r"
+#define		read_bin			"rb"
+#define		read_write_text			"rw"
+#define		append_bin			"ab"
 
-	#include <Carbon/Carbon.h> // Kekus Digital<Files.h>
-	#include "sys_mac.h"
-	
-	#define			file_spec							short
-	#define			nfile_spec							short
-	#define			myopen( path, perm, fspec )			( FSpOpenDF( path, perm, &fspec ) != noErr )
-	#define			mywrite( fspec, count, data )		FSWrite	(fspec, &count, data) 
-	#define 		myread(  fspec, count, data )		FSRead  (fspec, &count, data) 
-	#define         myclose( fspec )					FSClose (fspec )
-	#define			mycreate( path, creator, type )		FSpCreate( path, creator, type,0)
-	#define			mydelete( path )					FSpDelete( path )
-	#define			myrename( path, newpath )			FSpRename (path, (newpath)->name)
-	#define			write_text							fsWrPerm
-	#define			write_bin							fsWrPerm
-	#define			read_text							fsRdPerm
-	#define			read_bin							fsRdPerm
-	#define			read_write_text						fsRdWrPerm
-			
-#else // __Mac__, use ANSI-filefunctions
-	#define		file_spec			FILE*
-	#define		nfile_spec			int
-	#define		myopen( path, perm, fspec )	( (fspec = fopen( (path)->name, perm )) == NULL)
-	#define		mywrite( fspec, count, data )	count = fwrite( data, 1, count, fspec)
-	#define 	myread( fspec, count, data )	count = fread( data, 1, count, fspec ) 
-	#define         myclose( fspec )		fclose (fspec )
-	#define		mycreate( path, creator, type )		
-	#define		mydelete( path )		remove((path)->name )
-	#define		myrename( path, newpath )	rename ((path)->name, (newpath)->name)
-	#define		write_text			"w"
-	#define		write_bin			"wb"
-	#define		read_text			"r"
-	#define		read_bin			"rb"
-	#define		read_write_text			"rw"
-	#define		append_bin			"ab"
-    
     // Ippei hack. OSX with GCC+ANSI mode.
-    #ifdef MAC_OS_X_VERSION_10_4
-        // MacOSX 10.4 has those functions predefined in Carbon API.
-        #include <Carbon/Carbon.h> // CoreServices/TextUtils.h
-    #else
-        #define		p2cstr( x )	
-        #define		c2pstr( x )
-    #endif
-
+#ifdef MAC_OS_X_VERSION_10_4
+// MacOSX 10.4 has those functions predefined in Carbon API.
+#include <Carbon/Carbon.h> // CoreServices/TextUtils.h
+#else
+#define		p2cstr( x )	
+#define		c2pstr( x )
 #endif
+
 
 /* ENDIAN aware file i/o funtions.  Used for reading and writing photoshop files */
 Boolean panoWriteUCHAR(nfile_spec fnum, UCHAR   theChar );

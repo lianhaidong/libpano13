@@ -3,35 +3,14 @@
 #include "file.h"
 #include "metadata.h"
 
-int writePNG( Image *im, fullPath *sfile )
+int writePNG( Image *im, char *filename )
 {
 	FILE * outfile;
    	png_structp png_ptr;
    	png_infop info_ptr;
-	char filename[512];
 	png_bytep *row_pointers;
 	int row;
 
-#ifdef __Mac__
-	unsigned char the_pcUnixFilePath[512];//added by Kekus Digital
-	Str255 the_cString;
-	Boolean the_bReturnValue;
-	CFStringRef the_FilePath;
-	CFURLRef the_Url;//till here
-#endif
-
-	if( GetFullPath (sfile, filename))
-		return -1;
-
-#ifdef __Mac__
-	CopyCStringToPascal(filename,the_cString);//added by Kekus Digital
-	the_FilePath = CFStringCreateWithPascalString(kCFAllocatorDefault, the_cString, kCFStringEncodingUTF8);
-	the_Url = CFURLCreateWithFileSystemPath(kCFAllocatorDefault, the_FilePath, kCFURLHFSPathStyle, false);
-	the_bReturnValue = CFURLGetFileSystemRepresentation(the_Url, true, the_pcUnixFilePath, 512);
-
-	strcpy(filename, the_pcUnixFilePath);//till here
-#endif
-	
 	if ((outfile = fopen(filename, "wb")) == NULL) 
 	{
 	    PrintError("can't open %s", filename);
@@ -111,35 +90,14 @@ int writePNG( Image *im, fullPath *sfile )
 
 	
 
-int readPNG	( Image *im, fullPath *sfile )
+int readPNG	( Image *im, char *filename )
 {
 	FILE * infile;
-	char filename[256];
    	png_structp png_ptr;
    	png_infop info_ptr;
 	png_bytep *row_pointers;
 	int row;
 	unsigned long  dataSize;
-
-#ifdef __Mac__
-	unsigned char the_pcUnixFilePath[256];//added by Kekus Digital
-	Str255 the_cString;
-	Boolean the_bReturnValue;
-	CFStringRef the_FilePath;
-	CFURLRef the_Url;//till here
-#endif
-
-	if( GetFullPath (sfile, filename))
-		return -1;
-
-#ifdef __Mac__
-	CopyCStringToPascal(filename,the_cString);//added by Kekus Digital
-	the_FilePath = CFStringCreateWithPascalString(kCFAllocatorDefault, the_cString, kCFStringEncodingUTF8);
-	the_Url = CFURLCreateWithFileSystemPath(kCFAllocatorDefault, the_FilePath, kCFURLHFSPathStyle, false);
-	the_bReturnValue = CFURLGetFileSystemRepresentation(the_Url, true, the_pcUnixFilePath, 256);
-
-	strcpy(filename, the_pcUnixFilePath);//till here
-#endif
 
 	if ((infile = fopen(filename, "rb")) == NULL) 
 	{
@@ -300,7 +258,7 @@ int readPNG	( Image *im, fullPath *sfile )
 
 
 
-int panoPNGRead(Image *im, fullPath *sfile )
+int panoPNGRead(Image *im, char *sfile )
 {
     if (readPNG(im, sfile) == 0) {
 	return panoMetadataUpdateFromImage(im);

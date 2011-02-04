@@ -29,7 +29,7 @@ static int readPPMFileHeader(file_spec src, Image * im);
 
 // image is allocated, but not image data
 
-int readPPM(Image * im, fullPath * sfile)
+int readPPM(Image * im, char* sfile)
 {
     file_spec src;
     size_t count;
@@ -191,7 +191,7 @@ static int readPPMFileHeader(file_spec src, Image * im)
 
 
 
-int writePPM(Image * im, fullPath * sfile)
+int writePPM(Image * im, char * sfile)
 {
     char header[30];
     size_t count;
@@ -251,7 +251,7 @@ int writePPM(Image * im, fullPath * sfile)
 }
 
 
-int panoPPMRead(Image * im, fullPath * sfile)
+int panoPPMRead(Image * im, char * sfile)
 {
   if (readPPM(im, sfile) == 0) {
       return panoMetadataUpdateFromImage(im);

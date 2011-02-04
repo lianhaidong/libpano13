@@ -239,7 +239,7 @@ int MorphImage( Image *src, Image *dst, PTTriangle *ts, PTTriangle *td, int nt )
 	}
 }
 
-int MorphImageFile( fullPath *sfile, fullPath *dfile, AlignInfo *g,int nIm )
+int MorphImageFile( char *sfile, char *dfile, AlignInfo *g,int nIm )
 {
 	PTTriangle *ts=NULL, *td=NULL;
 	Image src, dst;
@@ -302,7 +302,7 @@ int MorphImageFile( fullPath *sfile, fullPath *dfile, AlignInfo *g,int nIm )
 
 
 
-int blendImages( fullPath *f0,  fullPath *f1, fullPath *result, double s )
+int blendImages( char *f0,  char *f1, char *result, double s )
 {
 	double u = 1.0 - s, r;
 	pt_int32 x,y,cy,i;
@@ -360,7 +360,7 @@ int blendImages( fullPath *f0,  fullPath *f1, fullPath *result, double s )
 
 
 
-int InterpolateImageFile( fullPath *sfile, fullPath *dfile, AlignInfo *g,int nIm )
+int InterpolateImageFile( char *sfile, char *dfile, AlignInfo *g,int nIm )
 {
 	PTTriangle *ts=NULL, *td=NULL;
 	Image src, dst;
