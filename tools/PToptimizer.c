@@ -33,64 +33,64 @@
 
 
 //static  AlignInfo	*g;
-int                     CheckParams( AlignInfo *g );
+int CheckParams( AlignInfo *g );
 
 int main(int argc,char *argv[])
 {
-	aPrefs		aP;
+    aPrefs      aP;
 
-	char*		script;
-	OptInfo		opt;
-	AlignInfo	ainf;
+    char*       script;
+    OptInfo     opt;
+    AlignInfo   ainf;
 
-	fullPath	infile;
-	//fullPath	outfile;
+    fullPath    infile;
+    //fullPath  outfile;
 
-	//	
+    //  
 
-	SetAdjustDefaults(&aP);
+    SetAdjustDefaults(&aP);
 
-	if(argc != 2)
-	{
-		printf(PT_OPTIMIZER_VERSION);
-		printf("Usage: %s /path/to/script.txt\n", argv[0]);
-		exit(1);
-	}
+    if(argc != 2)
+    {
+        printf(PT_OPTIMIZER_VERSION);
+        printf("Usage: %s /path/to/script.txt\n", argv[0]);
+        exit(1);
+    }
 
-	StringtoFullPath(&infile, argv[1]);
+    StringtoFullPath(&infile, argv[1]);
 
-	script = LoadScript( &infile );
-	if( script != NULL )
-	{
-		if (ParseScript( script, &ainf ) == 0)
-		{
-			if( CheckParams( &ainf ) == 0 )
-			{
-				ainf.fcn	= fcnPano;
-				
-				SetGlobalPtr( &ainf ); 
-				
-				opt.numVars 		= ainf.numParam;
-				opt.numData 		= ainf.numPts;
-				opt.SetVarsToX		= SetLMParams;
-				opt.SetXToVars		= SetAlignParams;
-				opt.fcn			= ainf.fcn;
-				*opt.message		= 0;
+    script = LoadScript( &infile );
+    if( script != NULL )
+    {
+        if (ParseScript( script, &ainf ) == 0)
+        {
+            if( CheckParams( &ainf ) == 0 )
+            {
+                ainf.fcn    = fcnPano;
+                
+                SetGlobalPtr( &ainf ); 
+                
+                opt.numVars         = ainf.numParam;
+                opt.numData         = ainf.numPts;
+                opt.SetVarsToX      = SetLMParams;
+                opt.SetXToVars      = SetAlignParams;
+                opt.fcn         = ainf.fcn;
+                *opt.message        = 0;
 
-				RunLMOptimizer( &opt );
-				ainf.data		= opt.message;
-				WriteResults( script, &infile, &ainf, distSquared, 0);
-				exit(0);
-			}
+                RunLMOptimizer( &opt );
+                ainf.data       = opt.message;
+                WriteResults( script, &infile, &ainf, distSquared, 0);
+                exit(0);
+            }
       //TODO: if optCreatePano is 1 then should call stitcher  OR  the option removed
       //if (ainf.sP.optCreatePano == 1)
       //{
       //   Stitch();
       //}
-			DisposeAlignInfo( &ainf );
-		}
-		free( script );
-	}
-	exit(1);
+            DisposeAlignInfo( &ainf );
+        }
+        free( script );
+    }
+    exit(1);
 }
 
