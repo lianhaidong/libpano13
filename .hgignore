@@ -1,0 +1,24 @@
+syntax: glob
+CMakeFiles
+CMakeCache.txt
+Makefile
+cmake_install.cmake
+PTOparser/pto2txt
+*~
+*.so
+tools/PTblender
+tools/PTcrop
+tools/PTinfo
+tools/PTmasker
+tools/PTmender
+tools/PToptimizer
+tools/PTroller
+tools/PTtiff2psd
+tools/PTtiffdump
+tools/PTuncrop
+libpano13.a
+libpano13.pc
+libpano13.so*
+autom4te.cache
+Testing
+CTestTestfile.cmake
