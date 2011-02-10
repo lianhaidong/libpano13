@@ -1,61 +1,28 @@
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual C++ Express 2008
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pano13", "libpano.vcproj", "{9B19A5C0-8DB0-448B-BF99-DC6374E9751B}"
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pano13", "libpano.vcxproj", "{9B19A5C0-8DB0-448B-BF99-DC6374E9751B}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PTAInterpolate", "tools\PTAInterpolate.vcproj", "{9D68379B-FD84-4B81-B25D-6126AF2ABDA0}"
-	ProjectSection(ProjectDependencies) = postProject
-		{9B19A5C0-8DB0-448B-BF99-DC6374E9751B} = {9B19A5C0-8DB0-448B-BF99-DC6374E9751B}
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PTAInterpolate", "tools\PTAInterpolate.vcxproj", "{9D68379B-FD84-4B81-B25D-6126AF2ABDA0}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PTblender", "tools\PTblender.vcproj", "{20D1E094-A4B5-4294-85CE-229529065789}"
-	ProjectSection(ProjectDependencies) = postProject
-		{9B19A5C0-8DB0-448B-BF99-DC6374E9751B} = {9B19A5C0-8DB0-448B-BF99-DC6374E9751B}
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PTblender", "tools\PTblender.vcxproj", "{20D1E094-A4B5-4294-85CE-229529065789}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PTcrop", "tools\PTcrop.vcproj", "{20D1E094-A4B5-4294-85CE-229529065781}"
-	ProjectSection(ProjectDependencies) = postProject
-		{9B19A5C0-8DB0-448B-BF99-DC6374E9751B} = {9B19A5C0-8DB0-448B-BF99-DC6374E9751B}
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PTcrop", "tools\PTcrop.vcxproj", "{20D1E094-A4B5-4294-85CE-229529065781}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PTinfo", "tools\PTinfo.vcproj", "{20D1E094-A4B5-4294-85CE-229529065782}"
-	ProjectSection(ProjectDependencies) = postProject
-		{9B19A5C0-8DB0-448B-BF99-DC6374E9751B} = {9B19A5C0-8DB0-448B-BF99-DC6374E9751B}
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PTinfo", "tools\PTinfo.vcxproj", "{20D1E094-A4B5-4294-85CE-229529065782}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PTmasker", "tools\PTmasker.vcproj", "{20D1E094-A4B5-4294-85CE-229529065783}"
-	ProjectSection(ProjectDependencies) = postProject
-		{9B19A5C0-8DB0-448B-BF99-DC6374E9751B} = {9B19A5C0-8DB0-448B-BF99-DC6374E9751B}
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PTmasker", "tools\PTmasker.vcxproj", "{20D1E094-A4B5-4294-85CE-229529065783}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PTmender", "tools\PTmender.vcproj", "{20D1E094-A4B5-4294-85CE-229529065784}"
-	ProjectSection(ProjectDependencies) = postProject
-		{9B19A5C0-8DB0-448B-BF99-DC6374E9751B} = {9B19A5C0-8DB0-448B-BF99-DC6374E9751B}
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PTmender", "tools\PTmender.vcxproj", "{20D1E094-A4B5-4294-85CE-229529065784}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PTOptimizer", "tools\PTOptimizer.vcproj", "{20D1E094-A4B5-4294-85CE-229529065785}"
-	ProjectSection(ProjectDependencies) = postProject
-		{9B19A5C0-8DB0-448B-BF99-DC6374E9751B} = {9B19A5C0-8DB0-448B-BF99-DC6374E9751B}
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PTOptimizer", "tools\PTOptimizer.vcxproj", "{20D1E094-A4B5-4294-85CE-229529065785}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PTroller", "tools\PTroller.vcproj", "{20D1E094-A4B5-4294-85CE-229529065786}"
-	ProjectSection(ProjectDependencies) = postProject
-		{9B19A5C0-8DB0-448B-BF99-DC6374E9751B} = {9B19A5C0-8DB0-448B-BF99-DC6374E9751B}
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PTroller", "tools\PTroller.vcxproj", "{20D1E094-A4B5-4294-85CE-229529065786}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PTtiff2psd", "tools\PTtiff2psd.vcproj", "{20D1E094-A4B5-4294-85CE-229529065716}"
-	ProjectSection(ProjectDependencies) = postProject
-		{9B19A5C0-8DB0-448B-BF99-DC6374E9751B} = {9B19A5C0-8DB0-448B-BF99-DC6374E9751B}
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PTtiff2psd", "tools\PTtiff2psd.vcxproj", "{20D1E094-A4B5-4294-85CE-229529065716}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PTtiffdump", "tools\PTtiffdump.vcproj", "{20D1E094-A4B5-4294-85CE-229529065711}"
-	ProjectSection(ProjectDependencies) = postProject
-		{9B19A5C0-8DB0-448B-BF99-DC6374E9751B} = {9B19A5C0-8DB0-448B-BF99-DC6374E9751B}
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PTtiffdump", "tools\PTtiffdump.vcxproj", "{20D1E094-A4B5-4294-85CE-229529065711}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PTuncrop", "tools\PTuncrop.vcproj", "{20D1E094-A4B5-4294-85CE-229529065712}"
-	ProjectSection(ProjectDependencies) = postProject
-		{9B19A5C0-8DB0-448B-BF99-DC6374E9751B} = {9B19A5C0-8DB0-448B-BF99-DC6374E9751B}
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PTuncrop", "tools\PTuncrop.vcxproj", "{20D1E094-A4B5-4294-85CE-229529065712}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
