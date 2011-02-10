@@ -89,6 +89,8 @@ int panoPSDCreate(fullPath * fullPathImages, int numberImages,
     fullPath tempFile;
     char tempString[128];
     Image image;
+    Boolean bBig = FALSE;
+
 
     assert(numberImages > 0);
     assert(fullPathImages != NULL);
@@ -112,6 +114,9 @@ int panoPSDCreate(fullPath * fullPathImages, int numberImages,
         return -1;
     }
 
+    // Check to see if we need to create PSB instead of PSD file
+    if(image.height > 30000 || image.width > 30000)
+      bBig = TRUE;
 
     if (!(image.bitsPerPixel == 64 || image.bitsPerPixel == 32)) {
         PrintError("Image type not supported (%d bits per pixel)\n",
@@ -119,16 +124,18 @@ int panoPSDCreate(fullPath * fullPathImages, int numberImages,
         return -1;
     }
 
+    // New versions of Photoshop can handle multilayer 16bit files
+    // Add an option to down sample to 8bit only if user request
     if (numberImages > 1 && image.bitsPerPixel != 32) {
-        if (image.bitsPerPixel == 64) {
-            PrintError
-                ("Panotools is not able to save 16bit PSD images. Downsampling to 8 bit");
+        if (image.bitsPerPixel == 64 && flatteningParms->force8bit == 1) {
+            //PrintError
+            //    ("Panotools is not able to save 16bit PSD images. Downsampling to 8 bit");
             TwoToOneByte(&image);       //we need to downsample to 8 bit if we are provided 16 bit images
         }
     }
 
     if (numberImages == 1) {
-	if (writePSD(&image, outputFileName) != 0) {
+	if (writePS(&image, outputFileName, bBig) != 0) {
 	    PrintError("Could not write PSD-file");
 	    if (ptQuietFlag != 0)
 		Progress(_disposeProgress, tempString);
@@ -141,7 +148,7 @@ int panoPSDCreate(fullPath * fullPathImages, int numberImages,
 
     //Write out the first image as the base layer in the PSD file
 
-    if (writePSDwithLayer(&image, outputFileName) != 0) {
+    if (writePSwithLayer(&image, outputFileName,bBig) != 0) {
         PrintError("Could not write PSD-file");
         if (ptQuietFlag != 0)
             Progress(_disposeProgress, tempString);
@@ -192,8 +199,7 @@ int panoPSDCreate(fullPath * fullPathImages, int numberImages,
           stitchInfo.psdOpacity = 255;
 	stitchInfo.psdBlendingMode = flatteningParms->psdBlendingMode;
 
-        if (addLayerToFile(ptrImage, outputFileName, &tempFile, &stitchInfo)
-            != 0) {
+        if (addLayerToFile(ptrImage, outputFileName, &tempFile, &stitchInfo) != 0) {
             PrintError("Could not write Panorama File");
             return -1;
         }

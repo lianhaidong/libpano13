@@ -661,19 +661,22 @@ int 	LoadOptions			( struct correct_Prefs * thePrefs );
 void  	FindScript			( struct adjust_Prefs *thePrefs );
 char* 	LoadScript			( fullPath* scriptFile  );
 int 	WriteScript			( char* res, fullPath* scriptFile, int launch );
-int 	writePSD			( Image *im, fullPath* fname);			// On Mac: fname is FSSpec*	
-int 	readPSD				( Image *im, fullPath* fname, int mode);
+// Write PSB and PSD files
+int 	writePS 			( Image *im, fullPath* fname, Boolean bBig );			// On Mac: fname is FSSpec*	
+int 	writePSD			( Image *im, fullPath* fname );
+int 	readPSD				( Image *im, fullPath* fname, int mode); // Can handle both PSD and PSB
+int 	writePSwithLayer	( Image *im, fullPath *fname, Boolean bBig);
+int 	writePSDwithLayer	( Image *im, fullPath *fname) {return writePSwithLayer( im, fname, FALSE);}
+int 	addLayerToFile		( Image *im, fullPath* sfile, fullPath* dfile, stBuf *sB); //works with PSD & PSB
+int 	readPSDMultiLayerImage( MultiLayerImage *mim, fullPath* sfile);
 int 	FindFile			( fullPath *fname );
 int 	SaveFileAs			( fullPath *fname, char *prompt, char *name );
 void 	ConvFileName		( fullPath *fname,char *string);
-int 	writePSDwithLayer	( Image *im, fullPath *fname);
-int 	addLayerToFile		( Image *im, fullPath* sfile, fullPath* dfile, stBuf *sB);
 void 	showScript			( fullPath* scriptFile );
 void 	MakeTempName		( fullPath *fspec, char *fname );
 void 	makePathForResult	( fullPath *path );
 int 	makePathToHost 		( fullPath *path );
 void    open_selection		( fullPath *path );
-int 	readPSDMultiLayerImage( MultiLayerImage *mim, fullPath* sfile);
 int 	GetFullPath 		(fullPath *path, char *filename); // Somewhat confusing, for compatibility easons
 int 	StringtoFullPath	(fullPath *path, char *filename);
 int 	IsTextFile			( char* fname );
@@ -952,7 +955,25 @@ extern sPrefs			*gsPrPtr;
 // Endian stuff: Read and write numbers from and to memory (ptr)
 
 #ifdef PT_BIGENDIAN
-	#define	LONGNUMBER( number, ptr )					*ptr++ = ((char*)(&number))[0];	\
+#define	LONGLONGNUMBER( number, ptr )		*ptr++ = ((char*)(&number))[0];	\
+														*ptr++ = ((char*)(&number))[1];	\
+														*ptr++ = ((char*)(&number))[2];	\
+														*ptr++ = ((char*)(&number))[3];	\
+														*ptr++ = ((char*)(&number))[4];	\
+														*ptr++ = ((char*)(&number))[5];	\
+														*ptr++ = ((char*)(&number))[6];	\
+														*ptr++ = ((char*)(&number))[7];	
+
+	#define NUMBERLONGLONG( number, ptr )		((char*)(&number))[0] = *ptr++;	\
+														((char*)(&number))[1] = *ptr++;	\
+														((char*)(&number))[2] = *ptr++;	\
+														((char*)(&number))[3] = *ptr++;	\
+														((char*)(&number))[4] = *ptr++;	\
+														((char*)(&number))[5] = *ptr++;	\
+														((char*)(&number))[6] = *ptr++;	\
+														((char*)(&number))[7] = *ptr++;	
+
+#define	LONGNUMBER( number, ptr )					*ptr++ = ((char*)(&number))[0];	\
 														*ptr++ = ((char*)(&number))[1];	\
 														*ptr++ = ((char*)(&number))[2];	\
 														*ptr++ = ((char*)(&number))[3];	
@@ -969,6 +990,24 @@ extern sPrefs			*gsPrPtr;
 														((char*)(&number))[1] = *ptr++;	\
 
 #else
+	#define	LONGLONGNUMBER( number, ptr )		*ptr++ = ((char*)(&number))[7];	\
+														*ptr++ = ((char*)(&number))[6];	\
+														*ptr++ = ((char*)(&number))[5];	\
+														*ptr++ = ((char*)(&number))[4];	\
+														*ptr++ = ((char*)(&number))[3];	\
+														*ptr++ = ((char*)(&number))[2];	\
+														*ptr++ = ((char*)(&number))[1];	\
+														*ptr++ = ((char*)(&number))[0];	
+
+	#define NUMBERLONGLONG( number, ptr )		((char*)(&number))[7] = *ptr++;	\
+														((char*)(&number))[6] = *ptr++;	\
+														((char*)(&number))[5] = *ptr++;	\
+														((char*)(&number))[4] = *ptr++;	\
+														((char*)(&number))[3] = *ptr++;	\
+														((char*)(&number))[2] = *ptr++;	\
+														((char*)(&number))[1] = *ptr++;	\
+														((char*)(&number))[0] = *ptr++;	
+
 	#define	LONGNUMBER( number, ptr )					*ptr++ = ((char*)(&number))[3];	\
 														*ptr++ = ((char*)(&number))[2];	\
 														*ptr++ = ((char*)(&number))[1];	\
@@ -979,7 +1018,7 @@ extern sPrefs			*gsPrPtr;
 														((char*)(&number))[1] = *ptr++;	\
 														((char*)(&number))[0] = *ptr++;	
 
-	#define	SHORTNUMBER( number, ptr )					*ptr++ = ((char*)(&number))[1];	\
+#define	SHORTNUMBER( number, ptr )					*ptr++ = ((char*)(&number))[1];	\
 														*ptr++ = ((char*)(&number))[0];	\
 
 	#define NUMBERSHORT( number, ptr )					((char*)(&number))[1] = *ptr++;	\
@@ -1001,6 +1040,13 @@ extern sPrefs			*gsPrPtr;
 #define READINT32( theLong )                count = 4; myread(src,count,data);  \
                                             d = data; NUMBERLONG( var, d );     \
                                             theLong = var;
+                                    
+#define WRITEINT64( theLong )       var64 = theLong; d = data; LONGLONGNUMBER( var64, d ); \
+                                    count = 8; mywrite  (fnum,count,data);
+
+#define READINT64( theLong )                count = 8; myread(src,count,data);  \
+                                            d = data; NUMBERLONGLONG( var64, d );     \
+                                            theLong = var64;
                                     
 #define READSHORT( theShort )               count = 2; myread(src,count,data);  \
                                             d = data; NUMBERSHORT( svar, d );   \
@@ -1062,10 +1108,12 @@ extern sPrefs			*gsPrPtr;
 Boolean panoWriteUCHAR(nfile_spec fnum, UCHAR   theChar );
 Boolean panoWriteSHORT(nfile_spec fnum, USHORT  theShort );
 Boolean panoWriteINT32(nfile_spec fnum, ULONG   theLong );
+Boolean panoWriteINT64(nfile_spec fnum, int64_t theLongLong );
 Boolean panoReadUCHAR (nfile_spec fnum, UCHAR  *pChar );
 Boolean panoReadSHORT (nfile_spec fnum, USHORT *pShort );
 Boolean panoReadINT32 (nfile_spec fnum, ULONG  *pLong );
-    
+Boolean panoReadINT64 (nfile_spec fnum, int64_t  *pLongLong );
+
 
 #define PANO_DEFAULT_PIXELS_PER_RESOLUTION  150.0
 #define PANO_DEFAULT_TIFF_RESOLUTION_UNITS  RESUNIT_INCH

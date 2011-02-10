@@ -48,6 +48,7 @@ int panoPPMRead(Image * im, fullPath * sfile);
 typedef struct {
   int stacked;             // 1 if images are stacked
   int psdBlendingMode;     // for psd output, photoshop/gimp blending mode
+  int force8bit;           // 1 if images should be forced to 8bit per channel
 } pano_flattening_parms;
 
 typedef struct {

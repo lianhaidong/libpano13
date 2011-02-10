@@ -191,3 +191,5 @@ EXPORTS
 			setCropInformationInTiff    @188
 			writeCroppedTIFF            @189
 			dieWithError                @190
+			writePS                     @191
+			writePSwithLayer            @192

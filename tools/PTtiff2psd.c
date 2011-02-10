@@ -59,6 +59,7 @@
                          "\t-s\t\t\tStack them\n"\
                          "\t-q\t\t\tQuiet run\n"\
                          "\t-r\t\t\tReverse layers\n"\
+                         "\t-8\t\t\tReduce image to 8bit per channel\n"\
                          "\t-h\t\t\tShow this message\n"\
                          "\n"
 
@@ -127,6 +128,9 @@ int main(int argc,char *argv[])
 	case 'r':
 	    reverseLayers = 1;
 	    break;
+  case '8':
+    flatteningParms.force8bit = 1;
+    break;
 	case 'q':
 	    ptQuietFlag = 1;
 	    break;
