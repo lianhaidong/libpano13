@@ -2022,37 +2022,38 @@ _loadError:
 
 int WriteScript( char* res, char* scriptFile, int launch )
 {
-    fullPath    sfile;
-    file_spec   fnum;
-    size_t      count;
+    FILE*   file;
+    size_t  count;
+    int returnError = 0;
 
-    memset( &sfile, 0, sizeof( fullPath ) );
-    if( memcmp( scriptFile, &sfile, sizeof( fullPath ) ) == 0 )
-    {
-        PrintError("No Scriptfile selected");
-        goto _writeError;
-    }
-
-    memcpy(  &sfile, scriptFile, sizeof (fullPath) );
-    mydelete( &sfile );
-    mycreate(&sfile,'ttxt','TEXT');
-
-    if( myopen( sfile.name, write_text, fnum ) )
-    {
-        PrintError("Error Opening Scriptfile");
-        goto _writeError;
+    if (scriptFile == NULL ) {
+        // output goes to stdout in this case
+        file = stdout;
+    } else {
+        // open output file
+        if( (file = fopen( scriptFile, "w")) == NULL) {
+            PrintError("Error Opening Scriptfile");
+            goto _writeError;
+        }
     }
     
     count = strlen( res );
-    mywrite( fnum, count, res );    
-    myclose (fnum );
-
-    if( launch == 1 )
-    {
-        showScript( sfile.name);
-    }
-    return 0;
     
+    if (fwrite (res, 1, count, file) != count) {
+        PrintError("Error writing to output file.");        
+        returnError = -1;
+    }
+    if (scriptFile != NULL) {
+        // only close if 
+        fclose (file );
+    }
+
+    if( launch == 1 ) {
+        // dmg we don't support this any more, do we?
+        assert(1);
+        showScript(scriptFile);
+    }
+    return returnError;
 
 _writeError:
     return -1;
