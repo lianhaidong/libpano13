@@ -60,6 +60,7 @@
                          "\t-q\t\t\tQuiet run\n"\
                          "\t-r\t\t\tReverse layers\n"\
                          "\t-8\t\t\tReduce image to 8bit per channel\n"\
+                         "\t-B\t\t\tForce Big, PSB file format\n"\
                          "\t-h\t\t\tShow this message\n"\
                          "\n"
 
@@ -92,11 +93,11 @@ int main(int argc,char *argv[])
     printf(PT_TIFF2PSD_VERSION);
 
     if (StringtoFullPath(&outputFilename, DEFAULT_OUTPUT_FILENAME)) {
-	PrintError("Not a valid pathnamefor output filename  [%s]", DEFAULT_OUTPUT_FILENAME);
-	return(-1);
+      PrintError("Not a valid pathnamefor output filename  [%s]", DEFAULT_OUTPUT_FILENAME);
+      return(-1);
     }
 
-    while ((opt = getopt(argc, argv, "o:sb:qhfmr")) != -1) {
+    while ((opt = getopt(argc, argv, "o:sb:qhfmr8B")) != -1) {
 
 	// o and f -> set output file
 	// h       -> help
@@ -130,6 +131,9 @@ int main(int argc,char *argv[])
 	    break;
   case '8':
     flatteningParms.force8bit = 1;
+    break;
+  case 'B':
+    flatteningParms.forceBig = 1;
     break;
 	case 'q':
 	    ptQuietFlag = 1;
