@@ -49,6 +49,7 @@ typedef struct {
   int stacked;             // 1 if images are stacked
   int psdBlendingMode;     // for psd output, photoshop/gimp blending mode
   int force8bit;           // 1 if images should be forced to 8bit per channel
+  int forceBig;            // 1 if the images should be forced to create PSB instead of PSD
 } pano_flattening_parms;
 
 typedef struct {
