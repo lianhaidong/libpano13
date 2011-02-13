@@ -172,7 +172,7 @@
     <Link>
       <AdditionalDependencies>pano13.lib;wxtiff.lib;wxzlib.lib;wxjpeg.lib;wxpng.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)PTuncrop.exe</OutputFile>
-      <AdditionalLibraryDirectories>$(WXWIDGETS_HOME)\lib\vc_amd64_lib;..\$(Configuration)\$(Platform);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(WXWIDGETS_HOME)\lib\vc_lib64;..\$(Configuration)\$(Platform);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>LIBCMT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)PTuncrop.pdb</ProgramDatabaseFile>
@@ -204,7 +204,7 @@
     <Link>
       <AdditionalDependencies>pano13.lib;wxtiff.lib;wxzlib.lib;wxjpeg.lib;wxpng.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)PTuncrop.exe</OutputFile>
-      <AdditionalLibraryDirectories>$(WXWIDGETS_HOME)\lib\vc_amd64_lib;..\$(Configuration)\$(Platform);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(WXWIDGETS_HOME)\lib\vc_lib64;..\$(Configuration)\$(Platform);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
