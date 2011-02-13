@@ -22,3 +22,4 @@ libpano13.so*
 autom4te.cache
 Testing
 CTestTestfile.cmake
+dontTrack
