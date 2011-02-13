@@ -666,7 +666,7 @@ int 	writePS 			( Image *im, fullPath* fname, Boolean bBig );			// On Mac: fname
 int 	writePSD			( Image *im, fullPath* fname );
 int 	readPSD				( Image *im, fullPath* fname, int mode); // Can handle both PSD and PSB
 int 	writePSwithLayer	( Image *im, fullPath *fname, Boolean bBig);
-int 	writePSDwithLayer	( Image *im, fullPath *fname) {return writePSwithLayer( im, fname, FALSE);}
+int 	writePSDwithLayer	( Image *im, fullPath *fname);
 int 	addLayerToFile		( Image *im, fullPath* sfile, fullPath* dfile, stBuf *sB); //works with PSD & PSB
 int 	readPSDMultiLayerImage( MultiLayerImage *mim, fullPath* sfile);
 int 	FindFile			( fullPath *fname );

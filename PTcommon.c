@@ -115,7 +115,7 @@ int panoPSDCreate(fullPath * fullPathImages, int numberImages,
     }
 
     // Check to see if we need to create PSB instead of PSD file
-    if(image.height > 30000 || image.width > 30000)
+    if(image.height > 30000 || image.width > 30000 || flatteningParms->forceBig == 1)
       bBig = TRUE;
 
     if (!(image.bitsPerPixel == 64 || image.bitsPerPixel == 32)) {
@@ -178,7 +178,7 @@ int panoPSDCreate(fullPath * fullPathImages, int numberImages,
         }
 
         // We can't process 16 bit TIFFs. We have to downsample to 8 bit if necessary
-        if (image.bitsPerPixel == 64)
+        if (image.bitsPerPixel == 64 && flatteningParms->force8bit == 1)
             TwoToOneByte(ptrImage);
 
         // Create a new file with the result PSD, then delete the current one
@@ -197,7 +197,8 @@ int panoPSDCreate(fullPath * fullPathImages, int numberImages,
           stitchInfo.psdOpacity = (unsigned char) (255.0/ (i + 1));
         else
           stitchInfo.psdOpacity = 255;
-	stitchInfo.psdBlendingMode = flatteningParms->psdBlendingMode;
+
+        stitchInfo.psdBlendingMode = flatteningParms->psdBlendingMode;
 
         if (addLayerToFile(ptrImage, outputFileName, &tempFile, &stitchInfo) != 0) {
             PrintError("Could not write Panorama File");

@@ -1636,13 +1636,13 @@ int panoTiffVerifyAreCompatible(fullPath * tiffFiles, int numberImages,
     // Open TIFFs
 
     firstFile = panoTiffOpen(tiffFiles[0].name);
-    firstCropInfo = &firstFile->metadata.cropInfo;
-
 
     if (firstFile == NULL) {
         PrintError("Unable to read tiff file %s", tiffFiles[0].name);
         return FALSE;
     }
+
+    firstCropInfo = &firstFile->metadata.cropInfo;
 
     // Compare the metadata of the current file with each of the other ones
     for (currentImage = 1; currentImage < numberImages; currentImage++) {
