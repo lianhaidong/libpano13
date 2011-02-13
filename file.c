@@ -118,7 +118,7 @@ char *psdBlendingModesInternalName[] = {
 
 #define PSDHLENGTH 26
 
-int panoPSDResourceWrite(file_spec fnum, pt_uint16 resource, pt_uint16 len, pt_uint16 dataLen, char *resourceData)
+int panoPSDResourceWrite(file_spec fnum, pt_uint16 resource, pt_uint16 len, size_t dataLen, char *resourceData)
 {
 //struct _ColorModeDataBlock
 //{
@@ -129,7 +129,7 @@ int panoPSDResourceWrite(file_spec fnum, pt_uint16 resource, pt_uint16 len, pt_u
 //    BYTE Data[];   /* Resource data, padded to even length */
 //};
 //
-  int rtn = 0;
+  size_t rtn = 0;
   unsigned char  ch;
   size_t  count;
   short   svar;
@@ -156,13 +156,13 @@ int panoPSDResourceWrite(file_spec fnum, pt_uint16 resource, pt_uint16 len, pt_u
     rtn +=  dataLen;
   }
 
-  return rtn;
+  return (int)rtn;
 }
 
-int panoPSDPICTResourceWrite(file_spec fnum, unsigned char resource, unsigned char record, pt_uint16 len, char *recordData)
+int panoPSDPICTResourceWrite(file_spec fnum, unsigned char resource, unsigned char record, size_t len, char *recordData)
 {
   // See IPTC Information Intercharge Model Exchange Version 4.
-  int rtn = 0;
+  size_t rtn = 0;
   unsigned char  ch;
   size_t  count;
   short   svar  = 0;
@@ -174,7 +174,7 @@ int panoPSDPICTResourceWrite(file_spec fnum, unsigned char resource, unsigned ch
   rtn += count;
   WRITEUCHAR( record );
   rtn += count;
-  WRITESHORT( len ); //length
+  WRITESHORT( (short)len ); //length
   rtn += count;
 
   if (recordData != NULL ) {
@@ -191,7 +191,7 @@ int panoPSDPICTResourceWrite(file_spec fnum, unsigned char resource, unsigned ch
 	  rtn += count;
       }
   }
-  return rtn;
+  return (int)rtn;
 }
 
 #define CREATED_BY_PSD "Panotools " VERSION
@@ -201,14 +201,14 @@ int panoPSDPICTResourceWrite(file_spec fnum, unsigned char resource, unsigned ch
 
 int panoPSDResourcesBlockWrite(Image *im, file_spec   fnum)
 {
-  int     rtn = 0;
+  size_t    rtn = 0;
   char    data[12], *d;
   short   svar = 0;
   size_t  count;
   pt_uint32   var;
   int saveLocation = 0;
   int saveLocationForSize=0;
-  int temp;
+  size_t temp;
 
 
   // This function is a bit cryptic mainly because PSD forces the lenght to be known before a record is written. 
@@ -250,14 +250,14 @@ int panoPSDResourcesBlockWrite(Image *im, file_spec   fnum)
 
       assert(strlen(CREATED_BY_PSD) % 2 == 1) ;
 
-      temp = strlen(CREATED_BY_PSD);
+      temp = (short)strlen(CREATED_BY_PSD);
 
       /// 8 of the VERSION ID + length of Descriptor (5 header + 2 strlen + string )
       rtn += panoPSDResourceWrite(fnum, 0x0404, 8 + 5 + 2 + temp, 0, NULL);
       rtn += panoPSDPICTResourceWrite(fnum, 0x02, IPTC_VERSION_ID, 2, IPTCVersion);
       rtn += panoPSDPICTResourceWrite(fnum, 0x02, IPTC_DESCRIPTION_WRITER_ID, temp, NULL );
-      WRITESHORT(temp);
-      rtn += count;
+      WRITESHORT((short)temp);
+      rtn += (int)count;
       
       mywrite( fnum, temp, CREATED_BY_PSD);
       rtn += temp;
@@ -280,7 +280,7 @@ int panoPSDResourcesBlockWrite(Image *im, file_spec   fnum)
   WRITEINT32( saveLocation - saveLocationForSize-4 );            // Image Resources size
   fseek(fnum, saveLocation, SEEK_SET);
 
-  return rtn;
+  return (int)rtn;
 }
 
 
@@ -450,7 +450,7 @@ int writePSwithLayer(Image *im, fullPath *sfile, Boolean bBig )
 
     writeLayerAndMask( im, fnum, bBig );
 
-    writeWhiteBackground( im->width * BitsPerChannel/8, im->height, fnum, bBig );
+    writeWhiteBackground( im->width * (BitsPerChannel/8), im->height, fnum, bBig );
         
     myclose (fnum );
 
@@ -561,7 +561,7 @@ int addLayerToFile( Image *im, fullPath* sfile, fullPath* dfile, stBuf *sB)
     }
 
     
-    writeWhiteBackground( sim.width * BitsPerChannel/8, sim.height, fnum, bBig );
+    writeWhiteBackground( sim.width * (BitsPerChannel/8), sim.height, fnum, bBig );
     
 
 _addLayerToFile_exit:
@@ -599,7 +599,7 @@ static int writeImageDataPlanar( Image *im, file_spec fnum )
 
     // Buffer to hold data in one channel
     
-    count = im->width * im->height * BitsPerChannel / 8;
+    count = (size_t)im->width * im->height * (BitsPerChannel / 8);
     
     channel = (unsigned char**)mymalloc( count );
     
@@ -735,7 +735,7 @@ static void writeWhiteBackground( pt_int32 width, pt_int32 height, file_spec fnu
                  break;
     }
     
-    bytecount = d - *scanline;
+    bytecount = (int)(d - *scanline);
     
     // Scanline counts (rows*channels)
     for(i=0; i < dim; i++)
@@ -807,7 +807,7 @@ int readPSD(Image *im, fullPath *sfile, int mode)
         return 0;
     }
     
-    im->data = (unsigned char**) mymalloc( (size_t)im->dataSize );
+    im->data = (unsigned char**) mymalloc( im->dataSize );
     if( im->data == NULL )
     {
         PrintError("Not enough memory to read image");
@@ -941,7 +941,7 @@ static int readImageDataPlanar(Image *im, file_spec src )
     
     // Allocate memory for one channel
     
-    count = im->width * im->height * BitsPerChannel/8 ;
+    count = (size_t)im->width * im->height * (BitsPerChannel/8) ;
     channel = (unsigned char**)mymalloc( count );
     
     if( channel == NULL )
@@ -958,7 +958,7 @@ static int readImageDataPlanar(Image *im, file_spec src )
         
 
         myread(src,count,*channel);
-        if( count != im->width * im->height * BitsPerChannel/8)
+        if( count != (size_t)im->width * im->height * (BitsPerChannel/8))
         { 
             PrintError("Error Reading Image Data");
             result = -1;
@@ -1011,13 +1011,12 @@ static int writeLayerAndMask( Image *im, file_spec fnum, Boolean bBig )
     pt_uint32       var;
     int64_t         var64;
     PTRect          theRect;
-    int             channelLength;
     size_t          count;
     short           svar;
     char            data[12], *d;
     unsigned char   ch;
-    int64_t         lenLayerInfo64, channelLength64;
-    int             i, lenLayerInfo, numLayers,BitsPerChannel,channels,psdchannels;
+    size_t          lenLayerInfo, channelLength;
+    int             i, BitsPerChannel, channels, psdchannels;
     int             oddSized = 0;
     int             hasClipMask = 0;    // Create a mask
     int             hasShapeMask = 0;   // Create alpha channel
@@ -1042,50 +1041,45 @@ static int writeLayerAndMask( Image *im, file_spec fnum, Boolean bBig )
     //just use the data region specified "crop_info".
     getImageRectangle( im, &theRect );
 
-    numLayers = 1;
-    
-    channelLength64 = ((int64_t)theRect.right-theRect.left) * (theRect.bottom-theRect.top) * BitsPerChannel/8  + 2;
+    channelLength = ((int64_t)theRect.right-theRect.left) * (theRect.bottom-theRect.top) * (BitsPerChannel/8)  + 2;
 
     if(bBig)
     {
-      lenLayerInfo64 = 2 + numLayers * (4*4 + 2 + psdchannels * 10 + 4 + 4 + 4 * 1 + 4 + 12 + psdchannels * channelLength64);
+      lenLayerInfo = 2 + 4*4 + 2 + psdchannels * 10 + 4 + 4 + 4 * 1 + 4 + 12 + psdchannels * channelLength;
     }
     else
     {
-      lenLayerInfo64 = 2 + numLayers * (4*4 + 2 + psdchannels * 6 + 4 + 4 + 4 * 1 + 4 + 12 + psdchannels * channelLength64);
+      lenLayerInfo = 2 + 4*4 + 2 + psdchannels * 6 + 4 + 4 + 4 * 1 + 4 + 12 + psdchannels * channelLength;
     }
     
     if(hasClipMask)
-        lenLayerInfo64 += 20;
+        lenLayerInfo += 20;
     
     // Length of the layers info section, rounded up to a multiple of 2.
-    if( lenLayerInfo64/2 != (lenLayerInfo64+1)/2 ) // odd
+    if( lenLayerInfo%2 ) // odd
     {
-        lenLayerInfo64 += 1; oddSized = 1;
+        lenLayerInfo += 1; oddSized = 1;
     }
 
     if(bBig)
     {
-      WRITEINT64( lenLayerInfo64 + 4 + 8 );
+      WRITEINT64( lenLayerInfo + 4 + 8 );
       // Layer info. See table 2Ð13.
 
-      WRITEINT64( lenLayerInfo64 );
+      WRITEINT64( lenLayerInfo );
     }
     else
     {
-      lenLayerInfo  = (int)lenLayerInfo64;
-      channelLength = (int)channelLength64;
-
-      WRITEINT32( lenLayerInfo + 4 + 4 );
+      WRITEINT32( (pt_uint32)(lenLayerInfo + 4 + 4 ));
       // Layer info. See table 2Ð13.
 
-      WRITEINT32( lenLayerInfo );
+      WRITEINT32( (pt_uint32)(lenLayerInfo) );
     }
     
     // 2 bytes Count Number of layers. If <0, then number of layers is absolute value,
     // and the first alpha channel contains the transparency data for
     // the merged result.
-    WRITESHORT( numLayers );
+    WRITESHORT( 1 );
     
     // ********** Layer Structure ********************************* //  
 
@@ -1101,33 +1095,33 @@ static int writeLayerAndMask( Image *im, file_spec fnum, Boolean bBig )
     if(bBig)
     {
       WRITESHORT( 0 );            // red
-      WRITEINT64( channelLength64 )     // Length of following channel data.
+      WRITEINT64( channelLength )     // Length of following channel data.
       WRITESHORT( 1 );            // green
-      WRITEINT64( channelLength64 )     // Length of following channel data.
+      WRITEINT64( channelLength )     // Length of following channel data.
       WRITESHORT( 2 );            // blue
-      WRITEINT64( channelLength64 )     // Length of following channel data.
+      WRITEINT64( channelLength )     // Length of following channel data.
       if( hasClipMask ) // Mask channel
       {
           WRITESHORT( -1);            // Shape Mask
-          WRITEINT64( channelLength64 ); // Length of following channel data.
+          WRITEINT64( channelLength ); // Length of following channel data.
           WRITESHORT( -2);            // Clip Mask
-          WRITEINT64( channelLength64 ); // Length of following channel data.
+          WRITEINT64( channelLength ); // Length of following channel data.
       }
     }
     else
     {
       WRITESHORT( 0 );            // red
-      WRITEINT32( channelLength )     // Length of following channel data.
+      WRITEINT32( (pt_uint32)channelLength )     // Length of following channel data.
       WRITESHORT( 1 );            // green
-      WRITEINT32( channelLength )     // Length of following channel data.
+      WRITEINT32( (pt_uint32)channelLength )     // Length of following channel data.
       WRITESHORT( 2 );            // blue
-      WRITEINT32( channelLength )     // Length of following channel data.
+      WRITEINT32( (pt_uint32)channelLength )     // Length of following channel data.
       if( hasClipMask ) // Mask channel
       {
           WRITESHORT( -1);            // Shape Mask
-          WRITEINT32( channelLength ); // Length of following channel data.
+          WRITEINT32( (pt_uint32)channelLength ); // Length of following channel data.
           WRITESHORT( -2);            // Clip Mask
-          WRITEINT32( channelLength ); // Length of following channel data.
+          WRITEINT32( (pt_uint32)channelLength ); // Length of following channel data.
       }
     }
 
@@ -1248,7 +1242,7 @@ static int writeChannelData( Image *im, file_spec fnum, int channel, PTRect *the
 
     bpp = im->bitsPerPixel/8;
 
-    count = (theRect->right - theRect->left) * (theRect->bottom - theRect->top) * BitsPerChannel/8;
+    count = ((size_t)theRect->right - theRect->left) * (theRect->bottom - theRect->top) * (BitsPerChannel/8);
     
     ch = (unsigned char**)mymalloc( count );
     
@@ -1271,7 +1265,7 @@ static int writeChannelData( Image *im, file_spec fnum, int channel, PTRect *the
         return 1;
     }
     
-    c = *ch; idata = &((*(im->data))[channel*BitsPerChannel/8]);
+    c = *ch; idata = &((*(im->data))[channel*(BitsPerChannel/8)]);
     
     if(BitsPerChannel == 8)
     {
@@ -1331,7 +1325,7 @@ static int writeTransparentAlpha( Image *im, file_spec fnum, PTRect *theRect )
 
     GetBitsPerChannel( im, BitsPerChannel );
     bpp = im->bitsPerPixel/8;
-    line = (theRect->right - theRect->left) * BitsPerChannel/8;
+    line = ((size_t)theRect->right - theRect->left) * (BitsPerChannel/8);
     ch = (unsigned char**)mymalloc( line );
     if( ch == NULL )
     {
@@ -1516,21 +1510,20 @@ static int addLayer( Image *im, file_spec src, file_spec fnum, stBuf *sB, Boolea
     pt_uint32       var;
     int64_t         var64;
     PTRect          theRect, *nRect = NULL;
-    int             channelLength,  bpp, oddSized = 0, oddSizedOld = 0;
-    int64_t         channelLength64, lenLayerInfo64;
+    int             bpp, oddSized = 0, oddSizedOld = 0;
+    int64_t         channelLength, lenLayerInfo;
     int             result = 0;
     size_t          count;
     short           svar;
     char            data[12], *d;
     unsigned char   ch;
-    int             i, k, lenLayerInfo, numLayers,channels,psdchannels;
+    int             i, k, numLayers,channels,psdchannels;
     unsigned int    BitsPerChannel;
     int             *nchannel = NULL, 
                     *cnames = NULL, *nextra = NULL, 
                     *nmask = NULL, *chid = NULL, 
                     *maskdata = NULL, *nflag = NULL;
-    size_t          *chlength = NULL;
-    int64_t         *chlength64 = NULL;
+    int64_t         *chlength = NULL;
     unsigned char   **alpha = NULL, **buf = NULL;
     int             hasClipMask = 0;    // Create a mask
     int             hasShapeMask = 0;   // Create alpha channel
@@ -1552,17 +1545,17 @@ static int addLayer( Image *im, file_spec src, file_spec fnum, stBuf *sB, Boolea
         }
         if( sB->seam == _middle )   // we have to stitch
         {
-            alpha = (unsigned char**) mymalloc( (size_t)(im->width * im->height * BitsPerChannel/8));
+            alpha = (unsigned char**) mymalloc( (size_t)im->width * im->height * (BitsPerChannel/8));
         }
     }
 
     if( alpha != NULL )
     {
-        memset( *alpha, 0 , (size_t)(im->width * im->height * BitsPerChannel/8));
+        memset( *alpha, 0 , (size_t)im->width * im->height * (BitsPerChannel/8));
     }
 
     getImageRectangle( im,  &theRect );
-    channelLength64 = (theRect.right-theRect.left) * (theRect.bottom-theRect.top)  * BitsPerChannel/8 + 2;
+    channelLength = ((size_t)theRect.right-theRect.left) * (theRect.bottom-theRect.top)  * (BitsPerChannel/8) + 2;
     
     
     // Read layerinfo up to channeldata
@@ -1577,16 +1570,9 @@ static int addLayer( Image *im, file_spec src, file_spec fnum, stBuf *sB, Boolea
       READINT32( var );           // Length of the layers info section, rounded up to a multiple of 2(ignored)
     }
     READSHORT( numLayers );     // Number of layers
-    lenLayerInfo64 = 2;
+    lenLayerInfo = 2;
 
-    if(bBig)
-    {
-      chlength64 = (int64_t*) malloc( numLayers * 8);
-    }
-    else
-    {
-      chlength = (size_t*) malloc( numLayers * 4);
-    }
+    chlength = (int64_t*) malloc( numLayers * 8);
     nchannel = (int*) malloc( numLayers * sizeof( int ));
     cnames   = (int*) malloc( numLayers * sizeof( int ));
     nRect    = (PTRect*) malloc( numLayers * sizeof( PTRect ));
@@ -1595,8 +1581,7 @@ static int addLayer( Image *im, file_spec src, file_spec fnum, stBuf *sB, Boolea
     maskdata = (int*) malloc( numLayers * 5 * sizeof( int ));
     chid     = (int*) malloc( numLayers * 5 * sizeof( int ));// five posible channels
     nflag    = (int*) malloc( numLayers * 5 * sizeof( int ));
-    if( (chlength == NULL && chlength64 == NULL) || 
-        nchannel== NULL || nRect == NULL ||
+    if( chlength == NULL || nchannel== NULL || nRect == NULL ||
         cnames == NULL || nextra == NULL || nmask == NULL || 
         maskdata == NULL || chid == NULL || nflag == NULL )
     {
@@ -1619,20 +1604,20 @@ static int addLayer( Image *im, file_spec src, file_spec fnum, stBuf *sB, Boolea
         if(bBig)//PSB
         {
           READSHORT( chid[i*5 +0]);             // red
-          READINT64(chlength64[i]);             // Length of following channel data.
+          READINT64(chlength[i]);             // Length of following channel data.
           READSHORT( chid[i*5 +1] );            // green
-          READINT64(chlength64[i]);             // Length of following channel data.
+          READINT64(chlength[i]);             // Length of following channel data.
           READSHORT( chid[i*5 +2] );            // blue
-          READINT64(chlength64[i]);             // Length of following channel data.
+          READINT64(chlength[i]);             // Length of following channel data.
           if( nchannel[i] > 3 )                 // 1st alpha channel
           {
               READSHORT( chid[i*5 +3] );        // transparency mask
-              READINT64( chlength64[i]);        // Length of following channel data.
+              READINT64( chlength[i]);        // Length of following channel data.
           }
           if( nchannel[i] > 4 )                 // 2nd alpha channel
           {
               READSHORT( chid[i*5 +4] );        // transparency mask
-              READINT64( chlength64[i]);        // Length of following channel data.
+              READINT64( chlength[i]);        // Length of following channel data.
           }
         }
         else//PSD
@@ -1675,16 +1660,16 @@ static int addLayer( Image *im, file_spec src, file_spec fnum, stBuf *sB, Boolea
 
         if(bBig)
         {
-          var64 = 4*4 + 2 + nchannel[i] * 10 + 4 + 4 + 4 * 1 + 4 + 4 + nmask[i] + 8 + nchannel[i] * chlength64[i]; // length
+          var64 = 4*4 + 2 + nchannel[i] * 10 + 4 + 4 + 4 * 1 + 4 + 4 + nmask[i] + 8 + nchannel[i] * chlength[i]; // length
         }
         else
         {
           var64 = 4*4 + 2 + nchannel[i] * 6 + 4 + 4 + 4 * 1 + 4 + 4 + nmask[i] + 8 + nchannel[i] * chlength[i]; // length
         }
-        lenLayerInfo64 += var64;
+        lenLayerInfo += var64;
     }
 
-    if( 1 == lenLayerInfo64%2 ) //odd
+    if( 1 == lenLayerInfo%2 ) //odd
     {
         oddSizedOld = 1;
     }
@@ -1692,37 +1677,36 @@ static int addLayer( Image *im, file_spec src, file_spec fnum, stBuf *sB, Boolea
     // length of new channel
     if(bBig)
     {
-      var64 = 4*4 + 2 + psdchannels * 10 + 4 + 4 + 4 * 1 + 4 + 12 + psdchannels * channelLength64;
+      var64 = 4*4 + 2 + psdchannels * 10 + 4 + 4 + 4 * 1 + 4 + 12 + psdchannels * channelLength;
     }
     else
     {
-      var64 = 4*4 + 2 + psdchannels * 6 + 4 + 4 + 4 * 1 + 4 + 12 + psdchannels * channelLength64;
+      var64 = 4*4 + 2 + psdchannels * 6 + 4 + 4 + 4 * 1 + 4 + 12 + psdchannels * channelLength;
     }
     
     if(hasClipMask)
         var64 += 20;
 
-    lenLayerInfo64 += var64;
+    lenLayerInfo += var64;
 
     // Length of the layers info section, rounded up to a multiple of 2.
-    if( 1 == lenLayerInfo64%2 ) // odd
+    if( 1 == lenLayerInfo%2 ) // odd
     {
-        oddSized = 1; lenLayerInfo64++;
+        oddSized = 1; lenLayerInfo++;
     }
     
     // Length of the layers info section, rounded up to a multiple of 2.
     if(bBig)
     {
-      WRITEINT64( lenLayerInfo64 + 4 + 8 );
+      WRITEINT64( lenLayerInfo + 4 + 8 );
 
-      WRITEINT64( lenLayerInfo64 );
+      WRITEINT64( lenLayerInfo );
     }
     else
     {
-      lenLayerInfo = (int)lenLayerInfo64;
-      WRITEINT32( lenLayerInfo + 4 + 4 );
+      WRITEINT32( (pt_uint32)(lenLayerInfo + 4 + 4) );
 
-      WRITEINT32( lenLayerInfo );
+      WRITEINT32( (pt_uint32)lenLayerInfo );
     }
     
     
@@ -1745,39 +1729,39 @@ static int addLayer( Image *im, file_spec src, file_spec fnum, stBuf *sB, Boolea
         if(bBig)// PSB
         {
           WRITESHORT( chid[i*5 +0] );         // red
-          WRITEINT64( chlength64[i] );          // Length of following channel data.
+          WRITEINT64( chlength[i] );          // Length of following channel data.
           WRITESHORT( chid[i*5 +1] );         // green
-          WRITEINT64( chlength64[i] );          // Length of following channel data.
+          WRITEINT64( chlength[i] );          // Length of following channel data.
           WRITESHORT( chid[i*5 +2] );         // blue
-          WRITEINT64( chlength64[i] );          // Length of following channel data.
+          WRITEINT64( chlength[i] );          // Length of following channel data.
           if( nchannel[i] > 3 ) // 1st alpha channel
           {
               WRITESHORT( chid[i*5 +3] );     // channel ID
-              WRITEINT64( chlength64[i] );      // Length of following channel data.
+              WRITEINT64( chlength[i] );      // Length of following channel data.
           }
           if( nchannel[i] > 4 ) // 2nd alpha channel
           {
               WRITESHORT( chid[i*5 +4] );     // channel ID
-              WRITEINT64( chlength64[i] );      // Length of following channel data.
+              WRITEINT64( chlength[i] );      // Length of following channel data.
           }
         }
         else//PSD
         {
           WRITESHORT( chid[i*5 +0] );         // red
-          WRITEINT32( chlength[i] );          // Length of following channel data.
+          WRITEINT32( (pt_uint32)chlength[i] );          // Length of following channel data.
           WRITESHORT( chid[i*5 +1] );         // green
-          WRITEINT32( chlength[i] );          // Length of following channel data.
+          WRITEINT32( (pt_uint32)chlength[i] );          // Length of following channel data.
           WRITESHORT( chid[i*5 +2] );         // blue
-          WRITEINT32( chlength[i] );          // Length of following channel data.
+          WRITEINT32( (pt_uint32)chlength[i] );          // Length of following channel data.
           if( nchannel[i] > 3 ) // 1st alpha channel
           {
               WRITESHORT( chid[i*5 +3] );     // channel ID
-              WRITEINT32( chlength[i] );      // Length of following channel data.
+              WRITEINT32( (pt_uint32)chlength[i] );      // Length of following channel data.
           }
           if( nchannel[i] > 4 ) // 2nd alpha channel
           {
               WRITESHORT( chid[i*5 +4] );     // channel ID
-              WRITEINT32( chlength[i] );      // Length of following channel data.
+              WRITEINT32( (pt_uint32)chlength[i] );      // Length of following channel data.
           }
         }
         // ********** End Channel information ***************************** //
@@ -1837,34 +1821,33 @@ static int addLayer( Image *im, file_spec src, file_spec fnum, stBuf *sB, Boolea
     if(bBig)
     {
       WRITESHORT( 0 );                        // red
-      WRITEINT64( channelLength64 )           // Length of following channel data.
+      WRITEINT64( channelLength )           // Length of following channel data.
       WRITESHORT( 1 );                        // green
-      WRITEINT64( channelLength64 )           // Length of following channel data.
+      WRITEINT64( channelLength )           // Length of following channel data.
       WRITESHORT( 2 );                        // blue
-      WRITEINT64( channelLength64 )           // Length of following channel data.
+      WRITEINT64( channelLength )           // Length of following channel data.
       if( hasClipMask )                       // Mask channel
       {
           WRITESHORT( -1);                    // Shape Mask
-          WRITEINT64( channelLength64 );      // Length of following channel data.
+          WRITEINT64( channelLength );      // Length of following channel data.
           WRITESHORT( -2);                    // Clip Mask
-          WRITEINT64( channelLength64 );      // Length of following channel data.
+          WRITEINT64( channelLength );      // Length of following channel data.
       }
     }
     else
     {
-      channelLength = (int)channelLength64;
       WRITESHORT( 0 );                        // red
-      WRITEINT32( channelLength )             // Length of following channel data.
+      WRITEINT32( (pt_uint32)channelLength )             // Length of following channel data.
       WRITESHORT( 1 );                        // green
-      WRITEINT32( channelLength )             // Length of following channel data.
+      WRITEINT32( (pt_uint32)channelLength )             // Length of following channel data.
       WRITESHORT( 2 );                        // blue
-      WRITEINT32( channelLength )             // Length of following channel data.
+      WRITEINT32( (pt_uint32)channelLength )             // Length of following channel data.
       if( hasClipMask )                       // Mask channel
       {
           WRITESHORT( -1);                    // Shape Mask
-          WRITEINT32( channelLength );        // Length of following channel data.
+          WRITEINT32( (pt_uint32)channelLength );        // Length of following channel data.
           WRITESHORT( -2);                    // Clip Mask
-          WRITEINT32( channelLength );        // Length of following channel data.
+          WRITEINT32( (pt_uint32)channelLength );        // Length of following channel data.
       }
     }
 
@@ -1924,17 +1907,17 @@ static int addLayer( Image *im, file_spec src, file_spec fnum, stBuf *sB, Boolea
 
     for( i=0; i< numLayers; i++)
     {
-        buf = (unsigned char**) mymalloc( bBig?chlength64[i]:chlength[i] );
+        buf = (unsigned char**) mymalloc( chlength[i] );
         
         if( buf == NULL )
         {
-            PrintError("Not enough memory, %d bytes needed", bBig?chlength64[i]:chlength[i]);
+            PrintError("Not enough memory, %d bytes needed", chlength[i]);
             result = -1;
             goto _addLayer_exit;
         }
         for( k=0; k< nchannel[i]; k++ )
         {
-            fileCopy( src, fnum, bBig?chlength64[i]:chlength[i], *buf );
+            fileCopy( src, fnum, chlength[i], *buf );
             //printf("Compression Layer %d Channel %d: %d\n", i,k,(int)*((short*)*buf));
             
             if( chid[i*5 +k] == -1 )    // found an alpha channel
@@ -2030,7 +2013,6 @@ static int addLayer( Image *im, file_spec src, file_spec fnum, stBuf *sB, Boolea
 _addLayer_exit: 
     if( alpha       != NULL )   myfree( (void**)alpha );
     if( chlength    != NULL )   free(chlength); 
-    if( chlength64  != NULL )   free(chlength64); 
     if( nchannel    != NULL )   free(nchannel);
     if( nRect       != NULL )   free(nRect);
     if( cnames      != NULL )   free(cnames);
@@ -2313,8 +2295,7 @@ int readPSDMultiLayerImage( MultiLayerImage *mim, fullPath* sfile){
     file_spec       src;
 
     char            header[128], *h;
-    size_t          chlength;
-    int64_t         chlength64;
+    int64_t         chlength;
     size_t          count, iul, kul;
     pt_uint32       var;
     int64_t         var64;
@@ -2421,7 +2402,7 @@ int readPSDMultiLayerImage( MultiLayerImage *mim, fullPath* sfile){
         if(bBig)
         {
           READSHORT( svar ); // red
-          READINT64(chlength64);// Length of following channel data.
+          READINT64(chlength);// Length of following channel data.
           READSHORT( svar ); // green
           READINT64(var64);        // Length of following channel data.
           READSHORT( svar ); // blue
@@ -2440,7 +2421,7 @@ int readPSDMultiLayerImage( MultiLayerImage *mim, fullPath* sfile){
         else
         {
           READSHORT( svar ); // red
-          READINT32(chlength);// Length of following channel data.
+          READINT32((pt_int32)chlength);// Length of following channel data.
           READSHORT( svar ); // green
           READINT32(var);        // Length of following channel data.
           READSHORT( svar ); // blue
@@ -2478,7 +2459,7 @@ int readPSDMultiLayerImage( MultiLayerImage *mim, fullPath* sfile){
         
         if(bBig)
         {
-          var64 = 4*4 + 2 + nchannel * 10 + 4 + 4 + 4 * 1 + 4 + 12 + nchannel * chlength64; // length
+          var64 = 4*4 + 2 + nchannel * 10 + 4 + 4 + 4 * 1 + 4 + 12 + nchannel * chlength; // length
         }
         else
         {
@@ -2498,8 +2479,8 @@ int readPSDMultiLayerImage( MultiLayerImage *mim, fullPath* sfile){
     for( i=0; i< mim->numLayers; i++)
     {
         nchannel    = mim->Layer[i].bitsPerPixel/BitsPerSample;
-        chlength64    = mim->Layer[i].dataSize/ nchannel;
-        buf = (unsigned char**) mymalloc( chlength64 );
+        chlength    = mim->Layer[i].dataSize/ nchannel;
+        buf = (unsigned char**) mymalloc( chlength );
         if( buf == NULL )
         {
             PrintError("Not enough memory");
@@ -2515,7 +2496,7 @@ int readPSDMultiLayerImage( MultiLayerImage *mim, fullPath* sfile){
                 result = -1;
                 goto readPSDMultiLayerImage_exit; 
             }
-            count = chlength64;
+            count = chlength;
             myread(  src, count, *buf );
             {
                 register int x,y,cy,by;
