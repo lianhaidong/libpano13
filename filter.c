@@ -20,7 +20,7 @@
 
 // Program specific includes
 
-#include "filter.h"                     
+#include "filter.h"
 
 
 // Standard C includes
