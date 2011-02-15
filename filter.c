@@ -1329,6 +1329,14 @@ int panoWriteINT64(nfile_spec fnum, int64_t theLongLong )
     return write( fnum, data, 8 );
 }
 
+int panoWriteINT32or64(nfile_spec fnum, int64_t theLongLong, Boolean bBig )
+{
+  if(bBig)
+    return panoWriteINT64(fnum, theLongLong);
+  else
+    return panoWriteINT32(fnum, (ULONG)theLongLong);
+}
+
 Boolean panoReadUCHAR(nfile_spec fnum, UCHAR *pChar )
 {
     return read( fnum, pChar, 1 )== 1;
@@ -1369,4 +1377,17 @@ Boolean panoReadINT64(nfile_spec fnum, int64_t  *pLongLong )
     d = data;
     NUMBERLONGLONG( (*pLongLong), d );
     return TRUE;
+}
+
+Boolean panoReadINT32or64(nfile_spec fnum, int64_t  *pLongLong, Boolean bBig )
+{
+  if(bBig)
+    return panoReadINT64( fnum, pLongLong );
+  else
+  {
+    ULONG Long;
+    Boolean bRtn = panoReadINT32( fnum, &Long );
+    *pLongLong = (int64_t)Long;
+    return bRtn;
+  }
 }

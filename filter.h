@@ -1109,10 +1109,12 @@ int panoWriteUCHAR(nfile_spec fnum, UCHAR   theChar );
 int panoWriteSHORT(nfile_spec fnum, USHORT  theShort );
 int panoWriteINT32(nfile_spec fnum, ULONG   theLong );
 int panoWriteINT64(nfile_spec fnum, int64_t theLongLong );
+int panoWriteINT32or64(nfile_spec fnum, int64_t theLongLong, Boolean bBig );
 Boolean panoReadUCHAR (nfile_spec fnum, UCHAR  *pChar );
 Boolean panoReadSHORT (nfile_spec fnum, USHORT *pShort );
 Boolean panoReadINT32 (nfile_spec fnum, ULONG  *pLong );
 Boolean panoReadINT64 (nfile_spec fnum, int64_t  *pLongLong );
+Boolean panoReadINT32or64(nfile_spec fnum, int64_t  *pLongLong, Boolean bBig );
 
 
 #define PANO_DEFAULT_PIXELS_PER_RESOLUTION  150.0
