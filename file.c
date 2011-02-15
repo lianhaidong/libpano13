@@ -2421,7 +2421,7 @@ int readPSDMultiLayerImage( MultiLayerImage *mim, fullPath* sfile){
         else
         {
           READSHORT( svar ); // red
-          READINT32((pt_int32)chlength);// Length of following channel data.
+          READINT32(chlength);// Length of following channel data.
           READSHORT( svar ); // green
           READINT32(var);        // Length of following channel data.
           READSHORT( svar ); // blue
