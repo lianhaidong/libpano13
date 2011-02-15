@@ -1,0 +1,7 @@
+glob:Debug CMD
+glob:Release CMD
+glob:*.user
+glob:*.filters
+glob:*.suo
+glob:*.sdf
+glob:*.opensdf
