@@ -5,3 +5,4 @@ glob:*.filters
 glob:*.suo
 glob:*.sdf
 glob:*.opensdf
+glob:*.ipch
