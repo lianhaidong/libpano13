@@ -1105,10 +1105,10 @@ extern sPrefs			*gsPrPtr;
 #endif
 
 /* ENDIAN aware file i/o funtions.  Used for reading and writing photoshop files */
-Boolean panoWriteUCHAR(nfile_spec fnum, UCHAR   theChar );
-Boolean panoWriteSHORT(nfile_spec fnum, USHORT  theShort );
-Boolean panoWriteINT32(nfile_spec fnum, ULONG   theLong );
-Boolean panoWriteINT64(nfile_spec fnum, int64_t theLongLong );
+int panoWriteUCHAR(nfile_spec fnum, UCHAR   theChar );
+int panoWriteSHORT(nfile_spec fnum, USHORT  theShort );
+int panoWriteINT32(nfile_spec fnum, ULONG   theLong );
+int panoWriteINT64(nfile_spec fnum, int64_t theLongLong );
 Boolean panoReadUCHAR (nfile_spec fnum, UCHAR  *pChar );
 Boolean panoReadSHORT (nfile_spec fnum, USHORT *pShort );
 Boolean panoReadINT32 (nfile_spec fnum, ULONG  *pLong );
