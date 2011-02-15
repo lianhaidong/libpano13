@@ -1288,22 +1288,22 @@ void panoDumpMetadata(pano_ImageMetadata * metadata, char *message)
 }
 
 /* ENDIAN aware file i/o funtions.  Used for reading and writing photoshop files */
-Boolean panoWriteUCHAR(nfile_spec fnum, UCHAR theChar )
+int panoWriteUCHAR(nfile_spec fnum, UCHAR theChar )
 { 
-    return write( fnum, &theChar, 1 ) == 1;
+    return write( fnum, &theChar, 1 );
 }
 
-Boolean panoWriteSHORT(nfile_spec fnum, USHORT theShort )
+int panoWriteSHORT(nfile_spec fnum, USHORT theShort )
 {
     char data[2], *d;
     d = data;
     
     assert(sizeof(USHORT) == 2);
     SHORTNUMBER( theShort, d );
-    return write( fnum, data, 2 ) == 2;
+    return write( fnum, data, 2 );
 }
 
-Boolean panoWriteINT32(nfile_spec fnum, ULONG theLong )
+int panoWriteINT32(nfile_spec fnum, ULONG theLong )
 {
     size_t count = 4;
     char data[4], *d;
@@ -1313,10 +1313,10 @@ Boolean panoWriteINT32(nfile_spec fnum, ULONG theLong )
     
     LONGNUMBER( theLong, d );
     
-    return write( fnum, data, 4 ) == 4;
+    return write( fnum, data, 4 );
 }
 
-Boolean panoWriteINT64(nfile_spec fnum, int64_t theLongLong )
+int panoWriteINT64(nfile_spec fnum, int64_t theLongLong )
 {
     size_t count = 8;
     char data[8], *d;
@@ -1326,7 +1326,7 @@ Boolean panoWriteINT64(nfile_spec fnum, int64_t theLongLong )
     
     LONGLONGNUMBER( theLongLong, d );
     
-    return write( fnum, data, 8 ) == 8;
+    return write( fnum, data, 8 );
 }
 
 Boolean panoReadUCHAR(nfile_spec fnum, UCHAR *pChar )
