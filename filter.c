@@ -1288,22 +1288,28 @@ void panoDumpMetadata(pano_ImageMetadata * metadata, char *message)
 }
 
 /* ENDIAN aware file i/o funtions.  Used for reading and writing photoshop files */
-int panoWriteUCHAR(nfile_spec fnum, UCHAR theChar )
+size_t panoWriteUCHAR(file_spec fnum, UCHAR theChar )
 { 
-    return write( fnum, &theChar, 1 );
+    size_t count = 1;
+
+    mywrite( fnum, count, &theChar );
+    return count;
 }
 
-int panoWriteSHORT(nfile_spec fnum, USHORT theShort )
+size_t panoWriteSHORT(file_spec fnum, USHORT theShort )
 {
+    size_t count = 2;
     char data[2], *d;
     d = data;
     
     assert(sizeof(USHORT) == 2);
     SHORTNUMBER( theShort, d );
-    return write( fnum, data, 2 );
+
+    mywrite( fnum, count, data );
+    return count;
 }
 
-int panoWriteINT32(nfile_spec fnum, ULONG theLong )
+size_t panoWriteINT32(file_spec fnum, ULONG theLong )
 {
     size_t count = 4;
     char data[4], *d;
@@ -1312,11 +1318,12 @@ int panoWriteINT32(nfile_spec fnum, ULONG theLong )
     assert(sizeof(ULONG) == 4);
     
     LONGNUMBER( theLong, d );
-    
-    return write( fnum, data, 4 );
+
+    mywrite( fnum, count, data );
+    return count;
 }
 
-int panoWriteINT64(nfile_spec fnum, int64_t theLongLong )
+size_t panoWriteINT64(file_spec fnum, int64_t theLongLong )
 {
     size_t count = 8;
     char data[8], *d;
@@ -1325,42 +1332,50 @@ int panoWriteINT64(nfile_spec fnum, int64_t theLongLong )
     assert(sizeof(int64_t) == 8);
     
     LONGLONGNUMBER( theLongLong, d );
-    
-    return write( fnum, data, 8 );
+
+    mywrite( fnum, count, data );
+    return count;
 }
 
-int panoWriteINT32or64(nfile_spec fnum, int64_t theLongLong, Boolean bBig )
+size_t panoWriteINT32or64(file_spec fnum, int64_t theLongLong, Boolean bBig )
 {
-  if(bBig)
-    return panoWriteINT64(fnum, theLongLong);
-  else
-    return panoWriteINT32(fnum, (ULONG)theLongLong);
+    if(bBig)
+        return panoWriteINT64(fnum, theLongLong);
+    else
+        return panoWriteINT32(fnum, (ULONG)theLongLong);
 }
 
-Boolean panoReadUCHAR(nfile_spec fnum, UCHAR *pChar )
+Boolean panoReadUCHAR(file_spec fnum, UCHAR *pChar )
 {
-    return read( fnum, pChar, 1 )== 1;
+    size_t count = 1;
+
+    myread( fnum, count, pChar );
+    return (count== 1);
 }
 
-Boolean panoReadSHORT(nfile_spec fnum, USHORT *pShort )
+Boolean panoReadSHORT(file_spec fnum, USHORT *pShort )
 {
+    size_t count = 2;
     char data[2];
     char *d;
-    if (read( fnum, data, 2 ) != 2) {
+
+    myread( fnum, count, data);
+    if (count != 2) {
         return FALSE;
     }
 
     d = data;
-
-
     NUMBERSHORT( (*pShort), d );
     return TRUE;
 }
 
-Boolean panoReadINT32(nfile_spec fnum, ULONG *pLong )
+Boolean panoReadINT32(file_spec fnum, ULONG *pLong )
 {
+    size_t count = 4;
     char data[4], *d;
-    if (read( fnum, data, 4 )!= 4) {
+
+    myread( fnum, count, data);
+    if (count != 4) {
         return FALSE;
     }
     d = data;
@@ -1368,10 +1383,13 @@ Boolean panoReadINT32(nfile_spec fnum, ULONG *pLong )
     return TRUE;
 }
 
-Boolean panoReadINT64(nfile_spec fnum, int64_t  *pLongLong )
+Boolean panoReadINT64(file_spec fnum, int64_t  *pLongLong )
 {
+    size_t count = 8;
     char data[8], *d;
-    if (read( fnum, data, 8 )!= 8) {
+
+    myread( fnum, count, data);
+    if (count != 8) {
         return FALSE;
     }
     d = data;
@@ -1379,7 +1397,7 @@ Boolean panoReadINT64(nfile_spec fnum, int64_t  *pLongLong )
     return TRUE;
 }
 
-Boolean panoReadINT32or64(nfile_spec fnum, int64_t  *pLongLong, Boolean bBig )
+Boolean panoReadINT32or64(file_spec fnum, int64_t  *pLongLong, Boolean bBig )
 {
   if(bBig)
     return panoReadINT64( fnum, pLongLong );
