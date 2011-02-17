@@ -1029,6 +1029,7 @@ extern sPrefs			*gsPrPtr;
 #endif // PT_BIGENDIAN
 
 //TODO:  JMW These File i/o macros are to be replaced in code with the error catching functions below
+#if USEWRITEREADMACROS
 #define WRITEUCHAR( theChar )       ch = theChar; count = 1; mywrite(fnum,count,&ch);
 
 #define WRITESHORT( theShort )      svar = theShort; d = data; SHORTNUMBER( svar, d ); \
@@ -1053,7 +1054,7 @@ extern sPrefs			*gsPrPtr;
                                             theShort = svar;
 
 #define READUCHAR( theChar )                count = 1; myread(src,count,&ch); theChar = ch; 
-
+#endif
 // Cross platform file functions
 
 #ifdef __Mac__
@@ -1105,16 +1106,16 @@ extern sPrefs			*gsPrPtr;
 #endif
 
 /* ENDIAN aware file i/o funtions.  Used for reading and writing photoshop files */
-int panoWriteUCHAR(nfile_spec fnum, UCHAR   theChar );
-int panoWriteSHORT(nfile_spec fnum, USHORT  theShort );
-int panoWriteINT32(nfile_spec fnum, ULONG   theLong );
-int panoWriteINT64(nfile_spec fnum, int64_t theLongLong );
-int panoWriteINT32or64(nfile_spec fnum, int64_t theLongLong, Boolean bBig );
-Boolean panoReadUCHAR (nfile_spec fnum, UCHAR  *pChar );
-Boolean panoReadSHORT (nfile_spec fnum, USHORT *pShort );
-Boolean panoReadINT32 (nfile_spec fnum, ULONG  *pLong );
-Boolean panoReadINT64 (nfile_spec fnum, int64_t  *pLongLong );
-Boolean panoReadINT32or64(nfile_spec fnum, int64_t  *pLongLong, Boolean bBig );
+size_t panoWriteUCHAR(file_spec fnum, UCHAR   theChar );
+size_t panoWriteSHORT(file_spec fnum, USHORT  theShort );
+size_t panoWriteINT32(file_spec fnum, ULONG   theLong );
+size_t panoWriteINT64(file_spec fnum, int64_t theLongLong );
+size_t panoWriteINT32or64(file_spec fnum, int64_t theLongLong, Boolean bBig );
+Boolean panoReadUCHAR (file_spec fnum, UCHAR  *pChar );
+Boolean panoReadSHORT (file_spec fnum, USHORT *pShort );
+Boolean panoReadINT32 (file_spec fnum, ULONG  *pLong );
+Boolean panoReadINT64 (file_spec fnum, int64_t  *pLongLong );
+Boolean panoReadINT32or64(file_spec fnum, int64_t  *pLongLong, Boolean bBig );
 
 
 #define PANO_DEFAULT_PIXELS_PER_RESOLUTION  150.0
