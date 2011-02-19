@@ -1484,7 +1484,8 @@ static int addLayer( Image *im, file_spec src, file_spec fnum, stBuf *sB, Boolea
     panoReadINT32or64( src, &var64, bBig );           // Length of the miscellaneous information section (ignored)
     panoReadINT32or64( src, &var64, bBig );           // Length of the layers info section, rounded up to a multiple of 2(ignored)
 
-    lenLayerInfo = panoReadSHORT( src, (USHORT *)&numLayers );     // Number of layers If it is a negative number, its absolute value is the number of layers and the first alpha channel contains the transparency data for the merged result.
+    panoReadSHORT( src, (USHORT *)&numLayers );     // Number of layers If it is a negative number, its absolute value is the number of layers and the first alpha channel contains the transparency data for the merged result.
+    lenLayerInfo = 2;
 
     chlength = (int64_t*) malloc( numLayers * 8);
     uChannel = (USHORT*) malloc( numLayers * sizeof( USHORT ));
