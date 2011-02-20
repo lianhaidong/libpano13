@@ -98,7 +98,7 @@ int main(int argc,char *argv[])
 		strcat(str2 ,str1);
 		free(value);
 	}
-        printf(str2);
+        printf("%s", str2);
         printf("Number of projections %d\n", panoProjectionFormatCount());
 	for (i=0; i< panoProjectionFormatCount(); i++) {
 	    int j;

@@ -61,7 +61,7 @@ if( JavaUI ){
 	}else
 #endif
   {
-	  printf(toPrint);
+	  printf("%s", toPrint);
 
 	  // Add an end of line if none is provide
 	  if (strlen(toPrint) > 0 &&

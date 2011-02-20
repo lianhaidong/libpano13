@@ -1,3 +1,8 @@
+2011-02-20    <dmg@uvic.ca>
+
+	* tools/panoinfo_unix.c, sys_ansy.c: removed compiler
+	warnings. Patch submited by Guillaume Rousse.
+
 2011-01-20    <pablo.dangelo@web.de>
 
 	* parser.c: disabled debug printf in parsing code
