@@ -1435,7 +1435,7 @@ static int addLayer( Image *im, file_spec src, file_spec fnum, stBuf *sB, Boolea
     char            sLayerName[5];
     unsigned char   ch;
     int             i, channels, psdchannels;
-    SHORT           numLayers;
+    USHORT          numLayers;
     ULONG           k;
     unsigned int    BitsPerChannel;
     USHORT         *uChannel = NULL;

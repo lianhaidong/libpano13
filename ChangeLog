@@ -1,3 +1,7 @@
+2011-02-19    <dmg@uvic.ca>
+
+	* Fixed a small error that stopped compilation under Linux.
+
 2011-01-20    <pablo.dangelo@web.de>
 
 	* parser.c: disabled debug printf in parsing code
