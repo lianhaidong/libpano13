@@ -141,6 +141,11 @@ size_t panoPSDResourceWrite(file_spec fnum, pt_uint16 resource, pt_int32 len, si
 
     if (dataLen > 0 && resourceData != NULL) {
         mywrite( fnum, dataLen, resourceData );
+
+        if( (ftell(fnum) - startLocation)%2 )
+        {
+            panoWriteUCHAR( fnum, 0 );
+        }
     }
 
     return ftell(fnum) - startLocation;
@@ -157,13 +162,11 @@ size_t panoPSDPICTResourceWrite(file_spec fnum, unsigned char resource, unsigned
     panoWriteSHORT( fnum, (short)len ); //length
 
     if (len !=0 && recordData != NULL ) {
-
         mywrite( fnum, len,  recordData);
-        if (len % 2 == 0) {
-            // Odd size record! it should be aligned to word, but not reported in the lenght
-            // and the record header is odd length (5 bytes) so...
-            //    printf("Writing extra record to align\n");
 
+        if( len%2 )
+        {
+            // Odd size record! it should be aligned to word, but not reported in the lenght
             panoWriteUCHAR( fnum, 0 );
         }
     }
@@ -171,18 +174,15 @@ size_t panoPSDPICTResourceWrite(file_spec fnum, unsigned char resource, unsigned
     return ftell(fnum) - startLocation;
 }
 
-#define CREATED_BY_PSD "Panotools " VERSION
+#define CREATED_BY_PSD "Panotools " PTVERSIONBIT " " VERSION
 #define IPTC_VERSION_ID 0
 #define IPTC_ORIGINATING_PROGRAM_ID 0x41
 #define IPTC_DESCRIPTION_WRITER_ID  0x7a
 
-int panoPSDResourcesBlockWrite(Image *im, file_spec   fnum)
+size_t panoPSDResourcesBlockWrite(Image *im, file_spec   fnum)
 {
-    size_t    rtn = 0;
-    pt_int32  nResLength = 0;
-    int       saveLocation = 0;
-    int       saveLocationForSize=0;
-    size_t    temp;
+    size_t    saveLocation = 0;
+    size_t    saveLocationForSize=0;
 
 
     // This function is a bit cryptic mainly because PSD forces the lenght to be known before a record is written. 
@@ -205,53 +205,62 @@ int panoPSDResourcesBlockWrite(Image *im, file_spec   fnum)
             im->metadata.iccProfile.size, im->metadata.iccProfile.data);
     }
 
-    // we will refactor this chunck
-    char IPTCVersion[3];
-    IPTCVersion[0] = 0;
-    IPTCVersion[1] = 2;
-    IPTCVersion[2] = 0;
-
-    // To write PICT we need to create a resource of type IPCT
-    // Inside it write the sequence of PICT records
-
-    // THIS IS UNTIL I FIX THIS CODE. IPTC records should be aligned and the header takes
-    // 5 bytes
-    // We also need to make it easier to add new records by
-    //simplifying the computation of the length of the subrecords
-
-    temp = (short)strlen(CREATED_BY_PSD);
-
-    /// 8 of the VERSION ID + length of Descriptor (5 header + 2 strlen + string )
-    nResLength = (pt_int32)(8 + 5 + 2 + temp);
-    panoPSDResourceWrite(fnum, 0x0404, nResLength + nResLength%2, 0, NULL);
-    panoPSDPICTResourceWrite(fnum, 0x02, IPTC_VERSION_ID, 2, IPTCVersion);
-    panoPSDPICTResourceWrite(fnum, 0x02, IPTC_DESCRIPTION_WRITER_ID, temp, NULL );
-    panoWriteSHORT( fnum, (short)temp );
-      
-    mywrite( fnum, temp, CREATED_BY_PSD);
-
-    if( (ftell(fnum)-saveLocationForSize)%2)
     {
-        panoWriteUCHAR( fnum, 0 );
+        // we will refactor this chunck
+        size_t    startLocationPICT = 0;
+        size_t    saveLocationPICT = 0;
+        size_t    descLength = 0;
+        char IPTCVersion[3];
+
+        // To write PICT we need to create a resource of type IPCT
+        // Inside it write the sequence of PICT records
+
+        // IPTC records are automaticaly aligned inside panoPSDPICTResourceWrite 
+        // It is easy to add new records 
+        // The computation of the length of the subrecords is automatic
+
+        // save the location so we can rewind later and write the correct value
+        saveLocationPICT = ftell(fnum);
+        // Write an empty length first, then "rewind" and write its real
+        // one. It will make things way easier and more maintainable.
+        panoPSDResourceWrite(fnum, 0x0404, 0000, 0, NULL);
+        startLocationPICT = ftell(fnum);
+
+        IPTCVersion[0] = 0;
+        IPTCVersion[1] = 2;
+        IPTCVersion[2] = 0;
+        panoPSDPICTResourceWrite(fnum, 0x02, IPTC_VERSION_ID, 2, IPTCVersion);
+
+        // Must not exceed 32 char by IPTC standard.
+        descLength = (short)min( 32, strlen(CREATED_BY_PSD) );
+        panoPSDPICTResourceWrite(fnum, 0x02, IPTC_DESCRIPTION_WRITER_ID, descLength, CREATED_BY_PSD );
+
+        // TODO:
+        // caption abstract:    0x78 "script... (2000 bytes max)
+        // if we have them: 
+        // copyright
+        // Set the time that PTmender runs
+        // imagedescription
+        // artist               0x80 (32 max)
+
+
+        // Write length
+        saveLocation = ftell(fnum);
+        fseek(fnum,  saveLocationPICT, SEEK_SET);
+        assert(saveLocation > saveLocationForSize);
+        panoPSDResourceWrite(fnum, 0x0404, saveLocation-startLocationPICT, 0, NULL);
+        fseek(fnum, saveLocation, SEEK_SET);
     }
 
-  // TODO:
-  // caption abstract:    0x78 "script... (2000 bytes max)
-  // if we have them: 
-  // copyright
-  // Set the time that PTmender runs
-  // imagedescription
-  // artist               0x80 (32 max)
 
+      // Write length
+      saveLocation = ftell(fnum);
+      fseek(fnum,  saveLocationForSize, SEEK_SET);
+      assert(saveLocation > saveLocationForSize);
+      panoWriteINT32( fnum, saveLocation - saveLocationForSize-4 );            // Image Resources size
+      fseek(fnum, saveLocation, SEEK_SET);
 
-  // Write length
-  saveLocation = ftell(fnum);
-  fseek(fnum,  saveLocationForSize, SEEK_SET);
-  assert(saveLocation > saveLocationForSize);
-  panoWriteINT32( fnum, saveLocation - saveLocationForSize-4 );            // Image Resources size
-  fseek(fnum, saveLocation, SEEK_SET);
-
-  return (int)rtn;
+      return ftell(fnum) - saveLocationForSize;
 }
 
 
