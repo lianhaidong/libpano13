@@ -163,12 +163,6 @@ size_t panoPSDPICTResourceWrite(file_spec fnum, unsigned char resource, unsigned
 
     if (len !=0 && recordData != NULL ) {
         mywrite( fnum, len,  recordData);
-
-        if( len%2 )
-        {
-            // Odd size record! it should be aligned to word, but not reported in the lenght
-            panoWriteUCHAR( fnum, 0 );
-        }
     }
 
     return ftell(fnum) - startLocation;
@@ -176,8 +170,14 @@ size_t panoPSDPICTResourceWrite(file_spec fnum, unsigned char resource, unsigned
 
 #define CREATED_BY_PSD "Panotools " PTVERSIONBIT " " VERSION
 #define IPTC_VERSION_ID 0
+#define IPTC_DATE_CREATED_ID 0x37
+#define IPTC_TIME_CREATED_ID 0x3C
 #define IPTC_ORIGINATING_PROGRAM_ID 0x41
+#define IPTC_BY_LINE_ID 0x50
+#define IPTC_COPYRIGHTNOTICE_ID 0x74
+#define IPTC_CAPTION_ABSTRACT_ID  0x78
 #define IPTC_DESCRIPTION_WRITER_ID  0x7a
+
 
 size_t panoPSDResourcesBlockWrite(Image *im, file_spec   fnum)
 {
@@ -215,9 +215,9 @@ size_t panoPSDResourcesBlockWrite(Image *im, file_spec   fnum)
         // To write PICT we need to create a resource of type IPCT
         // Inside it write the sequence of PICT records
 
-        // IPTC records are automaticaly aligned inside panoPSDPICTResourceWrite 
         // It is easy to add new records 
         // The computation of the length of the subrecords is automatic
+        // The collection of IPTC records is padded with a single character if the length is odd
 
         // save the location so we can rewind later and write the correct value
         saveLocationPICT = ftell(fnum);
@@ -235,14 +235,92 @@ size_t panoPSDResourcesBlockWrite(Image *im, file_spec   fnum)
         descLength = (short)min( 32, strlen(CREATED_BY_PSD) );
         panoPSDPICTResourceWrite(fnum, 0x02, IPTC_DESCRIPTION_WRITER_ID, descLength, CREATED_BY_PSD );
 
-        // TODO:
-        // caption abstract:    0x78 "script... (2000 bytes max)
-        // if we have them: 
-        // copyright
-        // Set the time that PTmender runs
-        // imagedescription
-        // artist               0x80 (32 max)
+        if(im->metadata.imageDescription)
+        {
+            // caption abstract:    0x78 "script... (2000 bytes max)
+            // Must not exceed 2000 char by IPTC standard.
+            descLength = (short)min( 2000, strlen(im->metadata.imageDescription) );
+            panoPSDPICTResourceWrite(fnum, 0x02, IPTC_CAPTION_ABSTRACT_ID, descLength, im->metadata.imageDescription );
+        }
 
+        if(im->metadata.artist)
+        {
+            // By-line:    0x50 "John Smith"
+            // Must not exceed 32 char by IPTC standard.
+            descLength = (short)min( 32, strlen(im->metadata.artist) );
+            panoPSDPICTResourceWrite(fnum, 0x02, IPTC_BY_LINE_ID, descLength, im->metadata.artist );
+        }
+
+        if(im->metadata.copyright)
+        {
+            //Copyright:    0x74 "(c) John Smith, 2011"
+            // Must not exceed 128 char by IPTC standard.
+            descLength = (short)min( 128, strlen(im->metadata.copyright) );
+            panoPSDPICTResourceWrite(fnum, 0x02, IPTC_COPYRIGHTNOTICE_ID, descLength, im->metadata.copyright );
+        }
+
+        if(TRUE)
+        {
+            char *name;
+            char  AppNamePath[_MAX_PATH];
+
+            //makePathToHost ( &AppNamePath );
+            GetModuleFileName( NULL, AppNamePath, _MAX_PATH );
+
+            name = strrchr( AppNamePath, '.' );
+            if( name!= NULL )
+            {
+                *name = '\0';
+            }
+            // @ToDo use #define of SEPERATOR instead of '\\'
+            name = strrchr( AppNamePath, '\\' );
+            if( name!= NULL )
+            {
+                name++;
+            }
+            else
+            {
+                name = AppNamePath;
+            }
+
+            //Originating Program:    0x41 "PTtiff2PSD"
+            // Must not exceed 32 char by IPTC standard.
+            descLength = (short)min( 32, strlen(name) );
+            panoPSDPICTResourceWrite(fnum, 0x02, IPTC_ORIGINATING_PROGRAM_ID, descLength, name );
+        }
+
+        // date time will be the current date time the image was created
+        if(TRUE)//im->metadata.datetime)
+        {
+            char        sDateTime[12];
+            SYSTEMTIME  SysTime;
+            TIME_ZONE_INFORMATION TimeZoneInformation;
+
+            GetLocalTime(&SysTime);
+            GetTimeZoneInformation(&TimeZoneInformation);
+
+            //date:    0x37 "YYYYMMDD"
+            sprintf(sDateTime, "%04d%02d%02d", SysTime.wYear, SysTime.wMonth, SysTime.wDay);
+
+            // Must not exceed 8 char by IPTC standard.
+            descLength = (short)min( 8, strlen(sDateTime) );
+            panoPSDPICTResourceWrite(fnum, 0x02, IPTC_DATE_CREATED_ID, descLength, sDateTime );
+
+            //Time:    0x3c "HHMMSS±HHMM"
+            sprintf(sDateTime, "%02d%02d%02d%+03d%02d", SysTime.wHour, SysTime.wMinute, SysTime.wSecond, (-TimeZoneInformation.Bias)/60, (-TimeZoneInformation.Bias)%60);
+
+            // Must not exceed 11 char by IPTC standard.
+            descLength = (short)min( 11, strlen(sDateTime) );
+            panoPSDPICTResourceWrite(fnum, 0x02, IPTC_TIME_CREATED_ID, descLength, sDateTime );
+        }
+
+        // Check for odd size resource rec
+        if( (ftell(fnum) - saveLocationPICT)%2 )
+        {
+            // The section is of an odd size pad with a single character
+            panoWriteUCHAR( fnum, 0 );
+        }
+ 
 
         // Write length
         saveLocation = ftell(fnum);
