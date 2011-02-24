@@ -135,13 +135,13 @@ int panoPSDCreate(fullPath * fullPathImages, int numberImages,
     }
 
     if (numberImages == 1) {
-	if (writePS(&image, outputFileName, bBig) != 0) {
-	    PrintError("Could not write PSD-file");
-	    if (ptQuietFlag != 0)
-		Progress(_disposeProgress, tempString);
-	    return -1;
-	}
-	return 0;
+        if (writePS(&image, outputFileName, bBig) != 0) {
+            PrintError("Could not write PSD-file");
+            if (ptQuietFlag != 0)
+            Progress(_disposeProgress, tempString);
+            return -1;
+        }
+        return 0;
     }
 
     //////////////////////////////////////////////////////////////////////
@@ -208,7 +208,7 @@ int panoPSDCreate(fullPath * fullPathImages, int numberImages,
         remove(outputFileName->name);
         rename(tempFile.name, outputFileName->name);
 
-	panoImageDispose(ptrImage);
+        panoImageDispose(ptrImage);
     }
 
     if (!ptQuietFlag) {
@@ -307,7 +307,6 @@ void Clear_Area_Outside_Selected_Region(Image * image)
 
     if (right == 0)
         right = image->width;
-    
 
     if (image->bitsPerPixel == 32) {
         bytesPerPixel = 4;
@@ -316,81 +315,80 @@ void Clear_Area_Outside_Selected_Region(Image * image)
         bytesPerPixel = 8;
     }
     else {
-	PrintError("Invalid bits per pixel in image %d", image->bitsPerPixel);
+        PrintError("Invalid bits per pixel in image %d", image->bitsPerPixel);
         exit(1);
     }
 
 
     if (image->format == _fisheye_circ || image->format == _thoby) {
 
+        // TODO
+        // This routine works only in fisheyes in portrait mode
+        // it probably fails in landscape mode
+    
+        int horCenter, verCenter;
+        int horRadious;
+        int horRadious2;
 
-	// TODO
-	// This routine works only in fisheyes in portrait mode
-	// it probably fails in landscape mode
-	
-	int horCenter, verCenter;
-	int horRadious;
-	int horRadious2;
+        horCenter = (left + right) / 2;
+        verCenter = (top + bottom) / 2;
 
-	horCenter = (left + right) / 2;
-	verCenter = (top + bottom) / 2;
-	
-	// Compute the horizontal width divided by 2, 
-	// let us call it horizontal radios
+        // Compute the horizontal width divided by 2, 
+        // let us call it horizontal radios
 
-	horRadious = (right - left) / 2;
-	// Square it, so we don't have to compute this 
-	// every time
-	horRadious2 = horRadious * horRadious;
-	
-	dataPtr = *(image->data);
-	
-	// Scan the image from top to bottom
-	for (currentRow = 0; currentRow < image->height; currentRow++) {
-	    int verDistance;
-	    int verDistance2;
+        horRadious = (right - left) / 2;
+        // Square it, so we don't have to compute this 
+        // every time
+        horRadious2 = horRadious * horRadious;
 
-	    // The algorith it simple. Find the distance of each from from the 
-	    // center of the image. If the point is farther than horRadious
-	    // then set mask to zero
-	    
-	    currentColumn = 0;
-	    pixelPtr = dataPtr;
-	    
-	    // Compute the square of the vertical distance to this row from center
-	    verDistance = (currentRow - verCenter);
-	    verDistance2 = verDistance * verDistance;
-	    
-	    for (currentColumn = 0; currentColumn < image->width; currentColumn ++) {
-		int horDistance;
-		int horDistance2;
+        dataPtr = *(image->data);
 
-		// Compute square of distance of this point to center 
-		// the old Pythagoras way
-		// distance^2 = horDistance^2  + verDistance^2
-		
-		horDistance = (currentColumn - horCenter);
-		horDistance2 = horDistance * horDistance;
-		
-		if (horDistance2 + verDistance2 > horRadious2) {
+        // Scan the image from top to bottom
+        for (currentRow = 0; currentRow < image->height; currentRow++) {
+            int verDistance;
+            int verDistance2;
 
-		    // Point falls outside the circle defined its horizontal maximum distance
+            // The algorith it simple. Find the distance of each from from the 
+            // center of the image. If the point is farther than horRadious
+            // then set mask to zero
 
-		    // Set mask to zero
-		    if (bytesPerPixel == 4)
-			*pixelPtr = 0;     
-		    else if (bytesPerPixel == 8) {
-			*pixelPtr = 0;     
-			*(pixelPtr+1) = 0;     
-		    }
-			
-		}
-		pixelPtr +=  bytesPerPixel;
+            currentColumn = 0;
+            pixelPtr = dataPtr;
 
-	    } // for column
-	    dataPtr += image->bytesPerLine;
-	}  // for row
-	return;
+            // Compute the square of the vertical distance to this row from center
+            verDistance = (currentRow - verCenter);
+            verDistance2 = verDistance * verDistance;
+
+            for (currentColumn = 0; currentColumn < image->width; currentColumn ++) {
+                int horDistance;
+                int horDistance2;
+
+                // Compute square of distance of this point to center 
+                // the old Pythagoras way
+                // distance^2 = horDistance^2  + verDistance^2
+
+                horDistance = (currentColumn - horCenter);
+                horDistance2 = horDistance * horDistance;
+
+                if (horDistance2 + verDistance2 > horRadious2) {
+
+                    // Point falls outside the circle defined its horizontal maximum distance
+
+                    // Set mask to zero
+                    if (bytesPerPixel == 4)
+                        *pixelPtr = 0;     
+                    else if (bytesPerPixel == 8) {
+                        *pixelPtr = 0;     
+                        *(pixelPtr+1) = 0;     
+                    }
+
+                }
+                pixelPtr +=  bytesPerPixel;
+
+            } // for column
+            dataPtr += image->bytesPerLine;
+        }  // for row
+        return;
     }
 
 
@@ -483,7 +481,7 @@ void getROI(TrformStr * TrPtr, aPrefs * aP, PTRect * ROIRect)
     int x, y, x_jump;
     double x_d, y_d;            // Cartesian Coordinates of point in source (i.e. input) image
     double Dx, Dy;              // Coordinates of corresponding point in destination (i.e. output) image
-    double Dx2, Dy2;              // Coordinates of corresponding point in destination (i.e. output) image
+    double Dx2, Dy2;            // Coordinates of corresponding point in destination (i.e. output) image
 
     double w2 = (double) TrPtr->dest->width / 2.0 - 0.5;        //half destination image width
     double h2 = (double) TrPtr->dest->height / 2.0 - 0.5;       //half destination image height
@@ -794,11 +792,11 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
     // and maps the pixels in these input images into the output image(s)
     for (loopCounter = 0; loopCounter < counterImageFiles; loopCounter++) {
 
-	// TODO 
-	
-	// the original PTstitcher logic  is strange
+        // TODO 
 
-	// It processes a lot of data more than once. This part should really be done once for all images
+        // the original PTstitcher logic  is strange
+
+        // It processes a lot of data more than once. This part should really be done once for all images
 
 
         currentImagePtr = &image1;
@@ -810,8 +808,8 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
             goto mainError;
         }
 
-	//	printf("*********cut frame: should be zero for S and no crop %d\n",  prefs->im.cP.cutFrame);
-	
+        // printf("*********cut frame: should be zero for S and no crop %d\n",  prefs->im.cP.cutFrame);
+
         //New for PTMender...PTMender uses "cropped" TIFFs as its intermediate file 
         //format for all processing.  In contrast, PTStitcher used full-size TIFF
         //images for all intermediate processing.  PTMender can still write "uncropped" 
@@ -878,7 +876,7 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
         --tempString;           /* nextWord does ++ before testing anything, this guarantess proper execution */
         nextWord(output_file_format, &tempString);
         
-	if (strcmp(output_file_format, "TIFF_m") == 0 ) {
+        if (strcmp(output_file_format, "TIFF_m") == 0 ) {
             // CHeck if we are suppose to do cropped or uncropped
             croppedTIFFIntermediate = 1;
             if(strcmp(tempString, "") != 0) {
@@ -901,8 +899,8 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
                 croppedTIFFIntermediate = 0;
             } 
         } else {
-	    PrintError("No support for this ouput image format (%s). Output will be TIFF_m", output_file_format);
-	}
+            PrintError("No support for this ouput image format (%s). Output will be TIFF_m", output_file_format);
+        }
         // enable this to avoid cropped tiffs. usually for testing
         //croppedTIFFIntermediate = 0;
 
@@ -926,14 +924,14 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
             goto mainError;
         }
 
-	// printf("Ended reading INPUT image\n");
+        // printf("Ended reading INPUT image\n");
 
         //This "masks" the input image so that some pixels are excluded from 
         //transformation routine during pixel remapping/interpolation 
-	
+
         if (prefs->im.cP.cutFrame != 0) {       // remove frame? 0 - no; 1 - yes
-	    // THIS CODE is executed in crop C type only, but not in S type
-	    //	    printf("To crop image\n");
+            // THIS CODE is executed in crop C type only, but not in S type
+            //    printf("To crop image\n");
             if (CropImage(currentImagePtr, &(prefs->im.selection)) == 0) {
                 prefs->im.selection.left = 0;
                 prefs->im.selection.right = 0;
@@ -984,9 +982,9 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
         panoMetadataResetSize(&metadata,
                               resultPanorama.width,
                               resultPanorama.height);
-        
-	metadata.imageNumber = loopCounter;
-	metadata.imageTotalNumber = counterImageFiles;
+
+        metadata.imageNumber = loopCounter;
+        metadata.imageTotalNumber = counterImageFiles;
         metadata.imageDescription = strdup(regScript);
 
 
@@ -1025,9 +1023,9 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
         resultPanorama.bytesPerLine = metadata.bytesPerLine;
 
         panoMetadataCopy(&resultPanorama.metadata, &metadata);
-        
+
         panoMetadataFree(&metadata);
-        
+
         //////End of set metadata
 
 
@@ -1106,12 +1104,12 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
         image1.selection.left = prefs->im.selection.left;
         image1.selection.right = prefs->im.selection.right;
 
-	/*
-	printf("****** Image selection hfov %f, %d %d %d %d \n", image1.hfov, image1.selection.top,
-	       image1.selection.bottom,
-	       image1.selection.left,
-	       image1.selection.right);
-	*/
+    /*
+        printf("****** Image selection hfov %f, %d %d %d %d \n", image1.hfov, image1.selection.top,
+               image1.selection.bottom,
+               image1.selection.left,
+               image1.selection.right);
+    */
 
         CopyPosition(&resultPanorama, &(prefs->pano));
 
@@ -1137,14 +1135,14 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
 
             // Call the main pixel remapping routine...all the interpolation happens here
 
-	    /*
-	    printf("Prefs: %f\n", prefs->pano.hfov);
-	    printf("Prefs im: hvof %f, yaw %f pitch %f, roll %f\n", prefs->im.hfov, prefs->im.yaw, prefs->im.pitch, prefs->im.roll);
-	    printf("Prefs pano: hvof %f, vfov %f pitch %f, roll %f\n", prefs->pano.hfov, prefs->pano.yaw, prefs->pano.pitch, prefs->pano.roll);
-	    printf("Prefs Interpolator %d:\n", prefs->interpolator);
-	    printf("Prefs Gamma %d:\n", prefs->gamma);
-        printf("Prefs FastT %d:/n,  prefs->fastStep);
-	    */
+        /*
+            printf("Prefs: %f\n", prefs->pano.hfov);
+            printf("Prefs im: hvof %f, yaw %f pitch %f, roll %f\n", prefs->im.hfov, prefs->im.yaw, prefs->im.pitch, prefs->im.roll);
+            printf("Prefs pano: hvof %f, vfov %f pitch %f, roll %f\n", prefs->pano.hfov, prefs->pano.yaw, prefs->pano.pitch, prefs->pano.roll);
+            printf("Prefs Interpolator %d:\n", prefs->interpolator);
+            printf("Prefs Gamma %d:\n", prefs->gamma);
+            printf("Prefs FastT %d:/n,  prefs->fastStep);
+        */
 
             MyMakePano(&transform, prefs, loopCounter);
 
@@ -1207,25 +1205,25 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
         }
 
         panoTiffClose(tiffFile);
-	
+
 #ifdef UNCROP_FISHEYES
-	if (croppedTIFFIntermediate == 0) {
-	    // We can't process (yet) all files in cropped mode
-	    // To quite the roar from the masses let them think we
-	    // do. I wonder how long it will take for them to notice. Placebo effect?
-	    pano_cropping_parms croppingParms;
-	    bzero(&croppingParms, sizeof(croppingParms));
-	    
-	    if (panoTiffCrop(currentFullPath.name, currentFullPath.name, &croppingParms) == 0) {
-		PrintError("Unable to write output file %s", currentFullPath.name);
-		remove(tempScriptFile.name);
-		return (-1);
-	    }
-	}
+        if (croppedTIFFIntermediate == 0) {
+            // We can't process (yet) all files in cropped mode
+            // To quite the roar from the masses let them think we
+            // do. I wonder how long it will take for them to notice. Placebo effect?
+            pano_cropping_parms croppingParms;
+            bzero(&croppingParms, sizeof(croppingParms));
+
+            if (panoTiffCrop(currentFullPath.name, currentFullPath.name, &croppingParms) == 0) {
+                PrintError("Unable to write output file %s", currentFullPath.name);
+                remove(tempScriptFile.name);
+                return (-1);
+            }
+        }
 #endif
 
         //////////////////////////////////////////////////////////////////////
-	panoImageDispose(&image1);
+        panoImageDispose(&image1);
 
         // The memory for td and ts was allocated in morpher.c with malloc 
         // (not myMalloc), so we need to use free (not myFree)
@@ -1238,7 +1236,7 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
         }
         free(prefs);
 
-	panoImageDispose(&resultPanorama);
+        panoImageDispose(&resultPanorama);
         
     }                           //End of main image processing loop
     
@@ -1314,7 +1312,7 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
 
     if (ptQuietFlag == 0)
         Progress(_initProgress, "Writing Output Images");
-    
+
     for (loopCounter = 0; loopCounter < counterImageFiles; loopCounter++) {
         
         if (ptQuietFlag == 0) {
@@ -1324,7 +1322,7 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
                 return (1);
             }
         }
-        
+
         strcpy(outputFileName, panoFileName->name);
         sprintf(var40, "%04d", loopCounter);
         strcat(outputFileName, var40);
@@ -1335,16 +1333,14 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
         }
         rename(fullPathImages[loopCounter].name, outputFileName);
 
-        
     }
     free(fullPathImages);
 
 
     if (ptQuietFlag == 0) {
-	Progress(_setProgress, "100%");
-	Progress(_disposeProgress, "");
+        Progress(_setProgress, "100%");
+        Progress(_disposeProgress, "");
     }
-
 
     free(regScript);
     return (0);
@@ -1547,7 +1543,7 @@ void panoReplaceExt(char *filename, char *extension)
     char *dot_pos = strrchr(filename, '.');
     char *path_sep_win = strrchr(filename, '\\');
     char *path_sep_unix = strrchr(filename, '/');
-        char *path_sep = (path_sep_unix == NULL ? path_sep_win : path_sep_unix );
+    char *path_sep = (path_sep_unix == NULL ? path_sep_win : path_sep_unix );
 
     if (dot_pos != NULL && (path_sep == NULL || dot_pos>path_sep)) {
         strcpy(dot_pos, extension);
@@ -1818,35 +1814,35 @@ int panoCroppingMain(int argc,char *argv[], int operation, char *version, char *
     fullPath *ptrOutputFiles = NULL;
     int base;
     int i;
-  
+
     // Set defaults
     strcpy(outputPrefix, defaultPrefix);
     bzero(&croppingParms, sizeof(croppingParms));
     
     printf("%s", version);
-    
+
     //Need enough space for a message to be returned if something goes wrong
-  
+
     while ((opt = getopt(argc, argv, "p:fqhx")) != -1) {
 
         // o overwrite
         // h       -> help
         // q       -> quiet?
-    
+
         switch(opt) {  // fhoqs        f: 102 h:104  111 113 115  o:f:hsq
-	case 'p':
-	    if (strlen(optarg) < MAX_PATH_LENGTH) {
-		strcpy(outputPrefix, optarg);
-	    } else {
-		PrintError("Illegal length for output prefix");
-		return -1;
-	    }
-	    break;
+        case 'p':
+            if (strlen(optarg) < MAX_PATH_LENGTH) {
+                strcpy(outputPrefix, optarg);
+            } else {
+                PrintError("Illegal length for output prefix");
+                return -1;
+            }
+            break;
         case 'f':
             ptForceProcessing = 1;
             break;
-	case 'x':
-	    ptDeleteSources = 1;
+        case 'x':
+            ptDeleteSources = 1;
             break;
         case 'q':
             ptQuietFlag = 1;
@@ -1869,8 +1865,8 @@ int panoCroppingMain(int argc,char *argv[], int operation, char *version, char *
     if ((ptrInputFiles = calloc(filesCount, sizeof(fullPath))) == NULL || 
         (ptrOutputFiles = calloc(filesCount, sizeof(fullPath))) == NULL)        {
         PrintError("Not enough memory");
-	      free(ptrInputFiles);
-	      free(ptrOutputFiles);
+        free(ptrInputFiles);
+        free(ptrOutputFiles);
         return -1;
     }
 
@@ -1888,50 +1884,50 @@ int panoCroppingMain(int argc,char *argv[], int operation, char *version, char *
     }
         // Generate output file names
     if (panoFileOutputNamesCreate(ptrOutputFiles, filesCount, outputPrefix) == 0) {
-	return -1;
+        return -1;
     }
 
     if (!ptForceProcessing) {
-	char *temp;
-	if ((temp = panoFileExists(ptrOutputFiles, filesCount)) != NULL) {
-	    PrintError("Output filename exists %s. Use -f to overwrite", temp);
-	    return -1;
-	}
+        char *temp;
+        if ((temp = panoFileExists(ptrOutputFiles, filesCount)) != NULL) {
+            PrintError("Output filename exists %s. Use -f to overwrite", temp);
+            return -1;
+        }
     }
-    if (! ptQuietFlag) printf("Cropping %d files\n", filesCount);
-  
+    if (! ptQuietFlag) 
+        printf("Cropping %d files\n", filesCount);
+
     for (i=0; i< filesCount; i++) {
 
+        if (!ptQuietFlag) {
+            PrintError("Processing %d reading %s creating %s", i, ptrInputFiles[i].name, ptrOutputFiles[i].name);
+        }
+        croppingParms.forceProcessing = ptForceProcessing;
+        switch (operation) {
+        case PANO_CROPPING_CROP:
+            retVal = panoTiffCrop(ptrInputFiles[i].name, ptrOutputFiles[i].name, &croppingParms);
+            break;
+        case PANO_CROPPING_UNCROP:
+            retVal = panoTiffUnCrop(ptrInputFiles[i].name, ptrOutputFiles[i].name, &croppingParms);
+            break;
+        default:
+            PrintError("Illegal operation in panoCroppingMain. Programming error");
+            exit(0);
+        }
 
-	if (!ptQuietFlag) {
-	    PrintError("Processing %d reading %s creating %s", i, ptrInputFiles[i].name, ptrOutputFiles[i].name);
-	}
-	croppingParms.forceProcessing = ptForceProcessing;
-	switch (operation) {
-	case PANO_CROPPING_CROP:
-	    retVal = panoTiffCrop(ptrInputFiles[i].name, ptrOutputFiles[i].name, &croppingParms);
-	    break;
-	case PANO_CROPPING_UNCROP:
-	    retVal = panoTiffUnCrop(ptrInputFiles[i].name, ptrOutputFiles[i].name, &croppingParms);
-	    break;
-	default:
-	    PrintError("Illegal operation in panoCroppingMain. Programming error");
-	    exit(0);
-	}
 
-
-	if (! retVal ) {
-	    PrintError("Error cropping file %s", ptrInputFiles[i].name);
-	    return -1;
-	}
+        if (! retVal ) {
+            PrintError("Error cropping file %s", ptrInputFiles[i].name);
+            return -1;
+        }
     }
     if (ptDeleteSources) {
-	panoFileDeleteMultiple(ptrInputFiles, filesCount);
+        panoFileDeleteMultiple(ptrInputFiles, filesCount);
     }
     if (ptrInputFiles != NULL)
-	free(ptrInputFiles);
+        free(ptrInputFiles);
     if (ptrOutputFiles != NULL)
-	free(ptrOutputFiles);
+        free(ptrOutputFiles);
 
     return 0;
 }
@@ -1946,19 +1942,19 @@ void panoPrintImage(char *msg, Image *im)
         printf(">>>Roll %f\n", im->roll);
         printf(">>>Pitch %f\n", im->pitch);
         printf(">>>Yaw %f\n", im->yaw);
-        
+
         printf(">>>im->cP.shear %d\n", im->cP.shear);
         printf(">>>im->cP.tilt %d\n", im->cP.tilt);
         printf(">>>im->cP.tilt_x %f\n", im->cP.tilt_x);
         printf(">>>im->cP.tilt_y %f\n", im->cP.tilt_y);
         printf(">>>im->cP.tilt_z %f\n", im->cP.tilt_z);
         printf(">>>im->cP.tilt_scale %f\n", im->cP.tilt_scale);
-        
+
         printf(">>>im->cP.translation %d\n", im->cP.trans);
         printf(">>>im->cP.trans_x %f\n", im->cP.trans_x);
         printf(">>>im->cP.trans_y %f\n", im->cP.trans_y);
         printf(">>>im->cP.trans_z %f\n", im->cP.trans_z);
-        
+
         printf(">>>im->cP.test %d\n", im->cP.test);
         printf(">>>im->cP.test parm1 %f\n", im->cP.test_p0);
         printf(">>>im->cP.test parm2 %f\n", im->cP.test_p1);
