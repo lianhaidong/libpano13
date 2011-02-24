@@ -1288,15 +1288,15 @@ void panoDumpMetadata(pano_ImageMetadata * metadata, char *message)
 }
 
 /* ENDIAN aware file i/o funtions.  Used for reading and writing photoshop files */
-size_t panoWriteUCHAR(file_spec fnum, UCHAR theChar )
+Boolean panoWriteUCHAR(file_spec fnum, UCHAR theChar )
 { 
     size_t count = 1;
 
     mywrite( fnum, count, &theChar );
-    return count;
+    return count == 1;
 }
 
-size_t panoWriteSHORT(file_spec fnum, USHORT theShort )
+Boolean panoWriteSHORT(file_spec fnum, USHORT theShort )
 {
     size_t count = 2;
     char data[2], *d;
@@ -1306,10 +1306,10 @@ size_t panoWriteSHORT(file_spec fnum, USHORT theShort )
     SHORTNUMBER( theShort, d );
 
     mywrite( fnum, count, data );
-    return count;
+    return count == 2;
 }
 
-size_t panoWriteINT32(file_spec fnum, ULONG theLong )
+Boolean panoWriteINT32(file_spec fnum, ULONG theLong )
 {
     size_t count = 4;
     char data[4], *d;
@@ -1320,10 +1320,10 @@ size_t panoWriteINT32(file_spec fnum, ULONG theLong )
     LONGNUMBER( theLong, d );
 
     mywrite( fnum, count, data );
-    return count;
+    return count == 4;
 }
 
-size_t panoWriteINT64(file_spec fnum, int64_t theLongLong )
+Boolean panoWriteINT64(file_spec fnum, int64_t theLongLong )
 {
     size_t count = 8;
     char data[8], *d;
@@ -1334,10 +1334,10 @@ size_t panoWriteINT64(file_spec fnum, int64_t theLongLong )
     LONGLONGNUMBER( theLongLong, d );
 
     mywrite( fnum, count, data );
-    return count;
+    return count == 8;
 }
 
-size_t panoWriteINT32or64(file_spec fnum, int64_t theLongLong, Boolean bBig )
+Boolean panoWriteINT32or64(file_spec fnum, int64_t theLongLong, Boolean bBig )
 {
     if(bBig)
         return panoWriteINT64(fnum, theLongLong);
@@ -1399,13 +1399,13 @@ Boolean panoReadINT64(file_spec fnum, int64_t  *pLongLong )
 
 Boolean panoReadINT32or64(file_spec fnum, int64_t  *pLongLong, Boolean bBig )
 {
-  if(bBig)
-    return panoReadINT64( fnum, pLongLong );
-  else
-  {
-    ULONG Long;
-    Boolean bRtn = panoReadINT32( fnum, &Long );
-    *pLongLong = (int64_t)Long;
-    return bRtn;
-  }
+    if(bBig)
+        return panoReadINT64( fnum, pLongLong );
+    else
+    {
+        ULONG Long;
+        Boolean bRtn = panoReadINT32( fnum, &Long );
+        *pLongLong = (int64_t)Long;
+        return bRtn;
+    }
 }

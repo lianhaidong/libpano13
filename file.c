@@ -118,7 +118,7 @@ char *psdBlendingModesInternalName[] = {
 
 #define PSDHLENGTH 26
 
-int panoPSDResourceWrite(file_spec fnum, pt_uint16 resource, pt_int32 len, size_t dataLen, char *resourceData)
+size_t panoPSDResourceWrite(file_spec fnum, pt_uint16 resource, pt_int32 len, size_t dataLen, char *resourceData)
 {
 //struct _ColorModeDataBlock
 //{
@@ -129,137 +129,216 @@ int panoPSDResourceWrite(file_spec fnum, pt_uint16 resource, pt_int32 len, size_
 //    BYTE Data[];   /* Resource data, padded to even length */
 //};
 //
-  size_t rtn = 0;
+    size_t     startLocation = ftell(fnum);
 
-  rtn += panoWriteUCHAR( fnum, '8' );
-  rtn += panoWriteUCHAR( fnum, 'B' );
-  rtn += panoWriteUCHAR( fnum, 'I' );
-  rtn += panoWriteUCHAR( fnum, 'M' );
-  rtn += panoWriteSHORT( fnum, resource);
-  rtn += panoWriteSHORT( fnum, 0); // Null string 2 bytes (length)
-  rtn += panoWriteINT32( fnum, len); //size of the record (4 bytes)
+    panoWriteUCHAR( fnum, '8' );
+    panoWriteUCHAR( fnum, 'B' );
+    panoWriteUCHAR( fnum, 'I' );
+    panoWriteUCHAR( fnum, 'M' );
+    panoWriteSHORT( fnum, resource);
+    panoWriteSHORT( fnum, 0); // Null string 2 bytes (length)
+    panoWriteINT32( fnum, len); //size of the record (4 bytes)
 
-  if (dataLen > 0 && resourceData != NULL) {
-    mywrite( fnum, dataLen, resourceData );
-    rtn +=  dataLen;
-  }
+    if (dataLen > 0 && resourceData != NULL) {
+        mywrite( fnum, dataLen, resourceData );
 
-  return (int)rtn;
+        if( (ftell(fnum) - startLocation)%2 )
+        {
+            panoWriteUCHAR( fnum, 0 );
+        }
+    }
+
+    return ftell(fnum) - startLocation;
 }
 
-int panoPSDPICTResourceWrite(file_spec fnum, unsigned char resource, unsigned char record, size_t len, char *recordData)
+size_t panoPSDPICTResourceWrite(file_spec fnum, unsigned char resource, unsigned char record, size_t len, char *recordData)
 {
   // See IPTC Information Intercharge Model Exchange Version 4.
-  size_t  rtn = 0;
+    size_t     startLocation = ftell(fnum);
 
-  rtn += panoWriteUCHAR( fnum, 0x1c );
-  rtn += panoWriteUCHAR( fnum, resource );
-  rtn += panoWriteUCHAR( fnum, record );
-  rtn += panoWriteSHORT( fnum, (short)len ); //length
+    panoWriteUCHAR( fnum, 0x1c );
+    panoWriteUCHAR( fnum, resource );
+    panoWriteUCHAR( fnum, record );
+    panoWriteSHORT( fnum, (short)len ); //length
 
-  if (len !=0 && recordData != NULL ) {
+    if (len !=0 && recordData != NULL ) {
+        mywrite( fnum, len,  recordData);
+    }
 
-      mywrite( fnum, len,  recordData);
-      rtn += len;
-      if (len % 2 == 0) {
-        // Odd size record! it should be aligned to word, but not reported in the lenght
-        // and the record header is odd length (5 bytes) so...
-        //    printf("Writing extra record to align\n");
-
-        rtn += panoWriteUCHAR( fnum, 0 );
-      }
-  }
-
-  return (int)rtn;
+    return ftell(fnum) - startLocation;
 }
 
-#define CREATED_BY_PSD "Panotools " VERSION
+#define CREATED_BY_PSD "Panotools " PTVERSIONBIT " " VERSION
 #define IPTC_VERSION_ID 0
+#define IPTC_DATE_CREATED_ID 0x37
+#define IPTC_TIME_CREATED_ID 0x3C
 #define IPTC_ORIGINATING_PROGRAM_ID 0x41
+#define IPTC_BY_LINE_ID 0x50
+#define IPTC_COPYRIGHTNOTICE_ID 0x74
+#define IPTC_CAPTION_ABSTRACT_ID  0x78
 #define IPTC_DESCRIPTION_WRITER_ID  0x7a
 
-int panoPSDResourcesBlockWrite(Image *im, file_spec   fnum)
+
+size_t panoPSDResourcesBlockWrite(Image *im, file_spec   fnum)
 {
-  size_t    rtn = 0;
-  pt_int32  nResLength = 0;
-  int       saveLocation = 0;
-  int       saveLocationForSize=0;
-  size_t    temp;
+    size_t    saveLocation = 0;
+    size_t    saveLocationForSize=0;
 
 
-  // This function is a bit cryptic mainly because PSD forces the lenght to be known before a record is written. 
-  // What I have decided is to make the writing process non-sequential.
-  
-  // Write an empty length first, then "rewind" and write its real
-  // one. It will make things way easier and more maintainable.
+    // This function is a bit cryptic mainly because PSD forces the lenght to be known before a record is written. 
+    // What I have decided is to make the writing process non-sequential.
 
-  // Write 4 bytes
-  saveLocationForSize = ftell(fnum);
+    // Write an empty length first, then "rewind" and write its real
+    // one. It will make things way easier and more maintainable.
 
-  rtn += panoWriteINT32( fnum, 1234 );            // Image Resources size
-  if (im->metadata.iccProfile.size > 0) {
-    // Currently we only include ICC profile if it exists
-    
-    // We need to write an image Resources block
-    // Write Image resources header
-    // Write ICC Profile block
-      rtn += panoPSDResourceWrite(fnum, 0x040f, im->metadata.iccProfile.size,
-				  im->metadata.iccProfile.size, im->metadata.iccProfile.data);
-    
-  } 
+    // Write 4 bytes
+    saveLocationForSize = ftell(fnum);
 
-  { 
-      // we will refactor this chunck
-      char IPTCVersion[3];
-      IPTCVersion[0] = 0;
-      IPTCVersion[1] = 2;
-      IPTCVersion[2] = 0;
+    panoWriteINT32( fnum, 1234 );            // Image Resources size
+    if (im->metadata.iccProfile.size > 0) {
+        // Currently we only include ICC profile if it exists
 
-      // To write PICT we need to create a resource of type IPCT
-      // Inside it write the sequence of PICT records
+        // We need to write an image Resources block
+        // Write Image resources header
+        // Write ICC Profile block
+        panoPSDResourceWrite(fnum, 0x040f, im->metadata.iccProfile.size,
+            im->metadata.iccProfile.size, im->metadata.iccProfile.data);
+    }
 
-      // THIS IS UNTIL I FIX THIS CODE. IPTC records should be aligned and the header takes
-      // 5 bytes
-      // We also need to make it easier to add new records by
-      //simplifying the computation of the length of the subrecords
+    {
+        // we will refactor this chunck
+        size_t    startLocationPICT = 0;
+        size_t    saveLocationPICT = 0;
+        size_t    descLength = 0;
+        char IPTCVersion[3];
 
-      //assert(strlen(CREATED_BY_PSD) % 2 == 1) ;
+        // To write PICT we need to create a resource of type IPCT
+        // Inside it write the sequence of PICT records
 
-      temp = (short)strlen(CREATED_BY_PSD);
+        // It is easy to add new records 
+        // The computation of the length of the subrecords is automatic
+        // The collection of IPTC records is padded with a single character if the length is odd
 
-      /// 8 of the VERSION ID + length of Descriptor (5 header + 2 strlen + string )
-      nResLength = (pt_int32)(8 + 5 + 2 + temp);
-      rtn += panoPSDResourceWrite(fnum, 0x0404, nResLength + nResLength%2, 0, NULL);
-      rtn += panoPSDPICTResourceWrite(fnum, 0x02, IPTC_VERSION_ID, 2, IPTCVersion);
-      rtn += panoPSDPICTResourceWrite(fnum, 0x02, IPTC_DESCRIPTION_WRITER_ID, temp, NULL );
-      rtn += panoWriteSHORT( fnum, (short)temp );
-      
-      mywrite( fnum, temp, CREATED_BY_PSD);
-      rtn += temp;
-      if(rtn%2)
-      {
-        rtn += panoWriteUCHAR( fnum, 0 );
-      }
+        // save the location so we can rewind later and write the correct value
+        saveLocationPICT = ftell(fnum);
+        // Write an empty length first, then "rewind" and write its real
+        // one. It will make things way easier and more maintainable.
+        panoPSDResourceWrite(fnum, 0x0404, 0000, 0, NULL);
+        startLocationPICT = ftell(fnum);
 
-  // TODO:
-  // caption abstract:    0x78 "script... (2000 bytes max)
-  // if we have them: 
-  // copyright
-  // Set the time that PTmender runs
-  // imagedescription
-  // artist               0x80 (32 max)
+        IPTCVersion[0] = 0;
+        IPTCVersion[1] = 2;
+        IPTCVersion[2] = 0;
+        panoPSDPICTResourceWrite(fnum, 0x02, IPTC_VERSION_ID, 2, IPTCVersion);
+
+        // Must not exceed 32 char by IPTC standard.
+        descLength = (short)min( 32, strlen(CREATED_BY_PSD) );
+        panoPSDPICTResourceWrite(fnum, 0x02, IPTC_DESCRIPTION_WRITER_ID, descLength, CREATED_BY_PSD );
+
+        if(im->metadata.imageDescription)
+        {
+            // caption abstract:    0x78 "script... (2000 bytes max)
+            // Must not exceed 2000 char by IPTC standard.
+            descLength = (short)min( 2000, strlen(im->metadata.imageDescription) );
+            panoPSDPICTResourceWrite(fnum, 0x02, IPTC_CAPTION_ABSTRACT_ID, descLength, im->metadata.imageDescription );
+        }
+
+        if(im->metadata.artist)
+        {
+            // By-line:    0x50 "John Smith"
+            // Must not exceed 32 char by IPTC standard.
+            descLength = (short)min( 32, strlen(im->metadata.artist) );
+            panoPSDPICTResourceWrite(fnum, 0x02, IPTC_BY_LINE_ID, descLength, im->metadata.artist );
+        }
+
+        if(im->metadata.copyright)
+        {
+            //Copyright:    0x74 "(c) John Smith, 2011"
+            // Must not exceed 128 char by IPTC standard.
+            descLength = (short)min( 128, strlen(im->metadata.copyright) );
+            panoPSDPICTResourceWrite(fnum, 0x02, IPTC_COPYRIGHTNOTICE_ID, descLength, im->metadata.copyright );
+        }
+
+        if(TRUE)
+        {
+            char *name;
+            char  AppNamePath[_MAX_PATH];
+
+            //makePathToHost ( &AppNamePath );
+            GetModuleFileName( NULL, AppNamePath, _MAX_PATH );
+
+            name = strrchr( AppNamePath, '.' );
+            if( name!= NULL )
+            {
+                *name = '\0';
+            }
+            // @ToDo use #define of SEPERATOR instead of '\\'
+            name = strrchr( AppNamePath, '\\' );
+            if( name!= NULL )
+            {
+                name++;
+            }
+            else
+            {
+                name = AppNamePath;
+            }
+
+            //Originating Program:    0x41 "PTtiff2PSD"
+            // Must not exceed 32 char by IPTC standard.
+            descLength = (short)min( 32, strlen(name) );
+            panoPSDPICTResourceWrite(fnum, 0x02, IPTC_ORIGINATING_PROGRAM_ID, descLength, name );
+        }
+
+        // date time will be the current date time the image was created
+        if(TRUE)//im->metadata.datetime)
+        {
+            char        sDateTime[12];
+            SYSTEMTIME  SysTime;
+            TIME_ZONE_INFORMATION TimeZoneInformation;
+
+            GetLocalTime(&SysTime);
+            GetTimeZoneInformation(&TimeZoneInformation);
+
+            //date:    0x37 "YYYYMMDD"
+            sprintf(sDateTime, "%04d%02d%02d", SysTime.wYear, SysTime.wMonth, SysTime.wDay);
+
+            // Must not exceed 8 char by IPTC standard.
+            descLength = (short)min( 8, strlen(sDateTime) );
+            panoPSDPICTResourceWrite(fnum, 0x02, IPTC_DATE_CREATED_ID, descLength, sDateTime );
+
+            //Time:    0x3c "HHMMSS±HHMM"
+            sprintf(sDateTime, "%02d%02d%02d%+03d%02d", SysTime.wHour, SysTime.wMinute, SysTime.wSecond, (-TimeZoneInformation.Bias)/60, (-TimeZoneInformation.Bias)%60);
+
+            // Must not exceed 11 char by IPTC standard.
+            descLength = (short)min( 11, strlen(sDateTime) );
+            panoPSDPICTResourceWrite(fnum, 0x02, IPTC_TIME_CREATED_ID, descLength, sDateTime );
+        }
+
+        // Check for odd size resource rec
+        if( (ftell(fnum) - saveLocationPICT)%2 )
+        {
+            // The section is of an odd size pad with a single character
+            panoWriteUCHAR( fnum, 0 );
+        }
+ 
+
+        // Write length
+        saveLocation = ftell(fnum);
+        fseek(fnum,  saveLocationPICT, SEEK_SET);
+        assert(saveLocation > saveLocationForSize);
+        panoPSDResourceWrite(fnum, 0x0404, saveLocation-startLocationPICT, 0, NULL);
+        fseek(fnum, saveLocation, SEEK_SET);
+    }
 
 
-  }
-  // Write length
+      // Write length
+      saveLocation = ftell(fnum);
+      fseek(fnum,  saveLocationForSize, SEEK_SET);
+      assert(saveLocation > saveLocationForSize);
+      panoWriteINT32( fnum, saveLocation - saveLocationForSize-4 );            // Image Resources size
+      fseek(fnum, saveLocation, SEEK_SET);
 
-  saveLocation = ftell(fnum);
-  fseek(fnum,  saveLocationForSize, SEEK_SET);
-  assert(saveLocation > saveLocationForSize);
-  panoWriteINT32( fnum, saveLocation - saveLocationForSize-4 );            // Image Resources size
-  fseek(fnum, saveLocation, SEEK_SET);
-
-  return (int)rtn;
+      return ftell(fnum) - saveLocationForSize;
 }
 
 
@@ -1258,23 +1337,7 @@ static int writeTransparentAlpha( Image *im, file_spec fnum, PTRect *theRect )
 
     // fill in line
     memset( c, 255, line );
-#if(0)
-    if(BitsPerChannel == 8)
-    {
-        for(x=theRect->left; x<theRect->right;x++)
-        {
-            *c++ = (char)0;
-        }
-    }
-    else // 16 bit
-    {
-        for(x=theRect->left; x<theRect->right;x++)
-        {
-            *c++ = (char)0;
-            *c++ = (char)0;
-        }
-    }
-#endif
+
     // write out the results
     for(y=theRect->top; y<theRect->bottom;y++)
     {
