@@ -56,7 +56,7 @@
 
 
 // Uncomment following line to enable testing of inverses in getROI
-#define PANO_TEST_INVERSE
+//#define PANO_TEST_INVERSE
 
 
 int panoFlattenTIFF(fullPath * fullPathImages, int counterImageFiles,
