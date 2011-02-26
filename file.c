@@ -72,7 +72,6 @@ static int              hasFeather              ( Image *im );
 static int              writeTransparentAlpha   ( Image *im, file_spec fnum, PTRect *theRect );
 
 
-	
 
 char *psdBlendingModesNames[] = {
     "Normal", 
@@ -1071,13 +1070,10 @@ static int writeLayerAndMask( Image *im, file_spec fnum, Boolean bBig )
 
     channelLength = ((int64_t)theRect.right-theRect.left) * (theRect.bottom-theRect.top) * (BitsPerChannel/8)  + 2;
 
+    lenLayerInfo = 2 + 4*4 + 2 + psdchannels * 6 + 4 + 4 + 4 * 1 + 4 + 12 + psdchannels * channelLength;
     if(bBig)
     {
-      lenLayerInfo = 2 + 4*4 + 2 + psdchannels * 10 + 4 + 4 + 4 * 1 + 4 + 12 + psdchannels * channelLength;
-    }
-    else
-    {
-      lenLayerInfo = 2 + 4*4 + 2 + psdchannels * 6 + 4 + 4 + 4 * 1 + 4 + 12 + psdchannels * channelLength;
+        lenLayerInfo += psdchannels * 4;
     }
     
     if(hasClipMask)
@@ -1614,14 +1610,13 @@ static int addLayer( Image *im, file_spec src, file_spec fnum, stBuf *sB, Boolea
 
         panoReadINT32( src, &cNames[i] );                 // Layer name.  Panotools only uses 4 bytes to make 3 char name.
 
+        var64 = 4*4 + 2 + uChannel[i] * 6 + 4 + 4 + 4 * 1 + 4 + 4 + uMask[i] + 8 + uChannel[i] * chlength[i]; // length
+
         if(bBig)
         {
-          var64 = 4*4 + 2 + uChannel[i] * 10 + 4 + 4 + 4 * 1 + 4 + 4 + uMask[i] + 8 + uChannel[i] * chlength[i]; // length
+            var64 += uChannel[i] * 4;
         }
-        else
-        {
-          var64 = 4*4 + 2 + uChannel[i] * 6 + 4 + 4 + 4 * 1 + 4 + 4 + uMask[i] + 8 + uChannel[i] * chlength[i]; // length
-        }
+
         lenLayerInfo += var64;
     }
 
@@ -1631,13 +1626,11 @@ static int addLayer( Image *im, file_spec src, file_spec fnum, stBuf *sB, Boolea
     }
     
     // length of new channel
+    var64 = 4*4 + 2 + psdchannels * 6 + 4 + 4 + 4 * 1 + 4 + 12 + psdchannels * channelLength;
+
     if(bBig)
     {
-      var64 = 4*4 + 2 + psdchannels * 10 + 4 + 4 + 4 * 1 + 4 + 12 + psdchannels * channelLength;
-    }
-    else
-    {
-      var64 = 4*4 + 2 + psdchannels * 6 + 4 + 4 + 4 * 1 + 4 + 12 + psdchannels * channelLength;
+      var64 += psdchannels * 4;
     }
     
     if(hasClipMask)
@@ -2335,14 +2328,13 @@ int readPSDMultiLayerImage( MultiLayerImage *mim, fullPath* sfile){
 
         panoReadINT32( src, &var );                   // Layer name
         
+        var64 = 4*4 + 2 + uChannel * 6 + 4 + 4 + 4 * 1 + 4 + 12 + uChannel * chlength; // length
+
         if(bBig)
         {
-          var64 = 4*4 + 2 + uChannel * 10 + 4 + 4 + 4 * 1 + 4 + 12 + uChannel * chlength; // length
+          var64 += uChannel * 4;
         }
-        else
-        {
-          var64 = 4*4 + 2 + uChannel * 6 + 4 + 4 + 4 * 1 + 4 + 12 + uChannel * chlength; // length
-        }
+
         if( var64/2 != (var64+1)/2 ) // odd
         {
             odd++; 
