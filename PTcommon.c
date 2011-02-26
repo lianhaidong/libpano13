@@ -145,6 +145,8 @@ int panoPSDCreate(fullPath * fullPathImages, int numberImages,
     }
 
     //////////////////////////////////////////////////////////////////////
+    //current algorithm is O(n2) which means it will take _forever_ to  create 
+    // a huge Photoshop files with many layers.
 
     //Write out the first image as the base layer in the PSD file
 
