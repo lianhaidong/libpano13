@@ -203,7 +203,8 @@ int main(int argc,char *argv[])
 	Progress(_initProgress, tempString);
     }
 
-    if (panoPSDCreate(ptrInputFiles, filesCount, &outputFilename, &flatteningParms) != 0) {
+    //if (panoPSDCreate(ptrInputFiles, filesCount, &outputFilename, &flatteningParms) != 0) {
+    if (panoCreateLayeredPSD(ptrInputFiles, filesCount, &outputFilename, &flatteningParms) != 0) {
 	PrintError("Error while creating PSD file");
 	return -1;
     }
