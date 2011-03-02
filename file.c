@@ -261,10 +261,10 @@ size_t panoPSDResourcesBlockWrite(Image *im, file_spec   fnum)
         if(TRUE)
         {
             char *name;
-            char  AppNamePath[_MAX_PATH];
+            char  AppNamePath[MAX_PATH_LENGTH];
 
             //makePathToHost ( &AppNamePath );
-            GetModuleFileName( NULL, AppNamePath, _MAX_PATH );
+            GetModuleFileName( NULL, AppNamePath, MAX_PATH_LENGTH );
 
             name = strrchr( AppNamePath, '.' );
             if( name != NULL )
@@ -2089,7 +2089,7 @@ int panoCreateLayeredPSD(fullPath * fullPathImages, int numberImages,
         }
         panoWriteINT32( fnum, 0 );                  // Layer blending ranges
     
-        sprintf(&(sLayerName[1]), "%03.3d", i+1 );
+        sprintf(&(sLayerName[1]), "%03d", (i+1)%1000 );
         sLayerName[0] = 3;
         count = 4;
         mywrite( fnum, count, sLayerName ); // Layer Name
@@ -2630,10 +2630,10 @@ int readPSDMultiLayerImage( MultiLayerImage *mim, fullPath* sfile){
         SetImageDefaults( &mim->Layer[i] );
         mim->Layer[i].width  = im.width;
         mim->Layer[i].height = im.height;
-        panoReadINT32( src, &mim->Layer[i].selection.top );     // Layer top 
-        panoReadINT32( src, &mim->Layer[i].selection.left );    // Layer left
-        panoReadINT32( src, &mim->Layer[i].selection.bottom );  // Layer bottom 
-        panoReadINT32( src, &mim->Layer[i].selection.right );   // Layer right 
+        panoReadINT32( src, (pt_uint32*)&mim->Layer[i].selection.top );     // Layer top 
+        panoReadINT32( src, (pt_uint32*)&mim->Layer[i].selection.left );    // Layer left
+        panoReadINT32( src, (pt_uint32*)&mim->Layer[i].selection.bottom );  // Layer bottom 
+        panoReadINT32( src, (pt_uint32*)&mim->Layer[i].selection.right );   // Layer right 
 
         panoReadSHORT( src, &uChannel );                              // The number of channels in the layer.
         mim->Layer[i].bitsPerPixel = uChannel * BitsPerSample;
