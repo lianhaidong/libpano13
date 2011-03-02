@@ -90,7 +90,7 @@ char *psdBlendingModesNames[] = {
     "Screen"
 };
 
-		
+
 char *psdBlendingModesInternalName[] = {
   "norm",
   "colr",
@@ -355,7 +355,7 @@ int writePS(Image *im, fullPath *sfile, Boolean bBig )
     int         BitsPerChannel;
 
     // Check to see if we need to create PSB instead of PSD file
-    if(im->height > 30000 || im->width > 30000)
+    if(panoImageFullHeight(im) > 30000 || panoImageFullWidth(im) > 30000)
       bBig = TRUE;
 
     GetChannels( im, channels );
@@ -382,7 +382,7 @@ int writePS(Image *im, fullPath *sfile, Boolean bBig )
     // TODO: IF THE SOURCE FILE IS CROPPED THIS IS WRITING ONLY THE CROPPED AREA
 
     //    printf("It is sropped %d %d %d %d %d\n", panoImageIsCropped(im),
-    //	   panoImageHeight(im), panoImageWidth(im), panoImageFullHeight(im), panoImageFullWidth(im));
+    //    panoImageHeight(im), panoImageWidth(im), panoImageFullHeight(im), panoImageFullWidth(im));
 
 
     // The Photoshop file has the dimensions of the full size image, regardless
@@ -434,7 +434,7 @@ int writePSwithLayer(Image *im, fullPath *sfile, Boolean bBig )
     int         BitsPerChannel;
 
     // Check to see if we need to create PSB instead of PSD file
-    if(im->height > 30000 || im->width > 30000)
+    if(panoImageFullHeight(im) > 30000 || panoImageFullWidth(im) > 30000)
       bBig = TRUE;
 
     //Determine if this is a "cropped" tiff, and, if so, what is 
@@ -461,11 +461,6 @@ int writePSwithLayer(Image *im, fullPath *sfile, Boolean bBig )
     panoWriteINT32( fnum, 0 ); panoWriteSHORT( fnum, 0 ); // 6 bytes zeroed
 
     panoWriteSHORT( fnum, 3 );            // No of channels; Background always white, 3 channels
-        
-    //panoWriteINT32( fnum, im->height );
-    //panoWriteINT32( fnum, im->width  );
-    
-    //printf("It is cropped %d\n", panoImageIsCropped(im));
 
     //The Photoshop file has the dimensions of the full size image, regardless
     //of whether the TIFF file is "cropped" or not.
@@ -489,8 +484,8 @@ int writePSwithLayer(Image *im, fullPath *sfile, Boolean bBig )
 
     writeLayerAndMask( im, fnum, bBig );
 
-    writeWhiteBackground( im->width * (BitsPerChannel/8), im->height, fnum, bBig );
-        
+    writeWhiteBackground( panoImageFullWidth(im) * (BitsPerChannel/8), panoImageFullHeight(im), fnum, bBig );
+
     myclose (fnum );
 
     return 0;
@@ -1256,7 +1251,7 @@ static int writeChannelData( Image *im, file_spec fnum, int channel, PTRect *the
     if (outputRegionWidth > panoImageWidth(im) || outputRegionHeight > panoImageHeight(im)) 
     {
         printf("output region (%d x %d) is larger than input image data region (%d x %d)\n", 
-			   (int)outputRegionWidth, (int)outputRegionHeight, (int)panoImageWidth(im), (int)panoImageHeight(im));
+               (int)outputRegionWidth, (int)outputRegionHeight, (int)panoImageWidth(im), (int)panoImageHeight(im));
         return 1;
     }
     
@@ -1526,14 +1521,15 @@ static int addLayer( Image *im, file_spec src, file_spec fnum, stBuf *sB, Boolea
         }
         if( sB->seam == _middle )   // we have to stitch
         {
-            alpha = (unsigned char**) mymalloc( (size_t)im->width * im->height * (BitsPerChannel/8));
+            size_t AlaphaSize = (size_t)panoImageFullWidth(im) * panoImageFullHeight(im) * (BitsPerChannel/8);
+            alpha = (unsigned char**) mymalloc( AlaphaSize);
+            if( alpha != NULL )
+            {
+                memset( *alpha, 0 , AlaphaSize);
+            }
         }
     }
 
-    if( alpha != NULL )
-    {
-        memset( *alpha, 0 , (size_t)im->width * im->height * (BitsPerChannel/8));
-    }
 
     getImageRectangle( im,  &theRect );
     channelLength = ((size_t)theRect.right-theRect.left) * (theRect.bottom-theRect.top)  * (BitsPerChannel/8) + 2;
@@ -1926,6 +1922,441 @@ _addLayer_exit:
 }
 
 
+
+int panoCreateLayeredPSD(fullPath * fullPathImages, int numberImages,
+                         fullPath * outputFileName, pano_flattening_parms *flatteningParms)
+{
+    int                 result = 0;
+    Image               image;
+    Boolean             bBig = FALSE;
+    file_spec           fnum;
+    int                 BitsPerChannel;
+    int                 channels;
+    int                 psdchannels;
+    int                 hasClipMask = 0;    // Create a mask
+    int                 hasShapeMask = 0;   // Create alpha channel
+    unsigned char     **alpha = NULL;
+    unsigned char     **buf = NULL;
+    stBuf               stitchInfo;
+    char               *blendingModeKey;
+    char                sLayerName[5];
+    PTRect              theRect;
+    char                tempString[128];
+    size_t              saveLocation = 0;
+    size_t              saveLocationForSize=0;
+    size_t              saveLocationForLayerRecords=0;
+    int64_t             channelLength;
+    int                 count;
+    int                 i;
+    int                 j;
+
+
+    assert(numberImages > 0);
+    assert(fullPathImages != NULL);
+    assert(outputFileName != NULL);
+
+    if (ptQuietFlag == 0) {
+        Progress(_initProgress, "Converting TIFF to PSD");
+        sprintf(tempString, "%d", 100 / numberImages);
+        Progress(_setProgress, tempString);
+    }
+
+    // Process background of PSD
+    SetImageDefaults(&image);
+
+    if (panoTiffRead(&image, fullPathImages[0].name) == 0) {
+
+      PrintError("Could not read TIFF image No 0 %s", fullPathImages[0].name);
+        if (ptQuietFlag == 0)
+            Progress(_disposeProgress, tempString);
+
+        return -1;
+    }
+
+    // Check to see if we need to create PSB instead of PSD file
+    if(panoImageFullHeight(&image) > 30000 || panoImageFullWidth(&image) > 30000 || flatteningParms->forceBig == 1)
+      bBig = TRUE;
+
+    if (!(image.bitsPerPixel == 64 || image.bitsPerPixel == 32)) {
+        PrintError("Image type not supported (%d bits per pixel)\n",
+                   image.bitsPerPixel);
+        return -1;
+    }
+
+    // New versions of Photoshop can handle multilayer 16bit files.
+    // Down sample to 8bit only if user request.
+    if (numberImages > 1 && image.bitsPerPixel != 32) {
+        if (image.bitsPerPixel == 64 && flatteningParms->force8bit == 1) {
+            TwoToOneByte(&image);       //we need to downsample to 8 bit if we are provided 16 bit images
+        }
+    }
+
+    // Determine the number of channels that are going to be writen in all of the photoshop layers.
+    // All layers are going to have the same number of channels.
+    // The first image is going to determin if the layers will have shape or clip masks.
+    GetBitsPerChannel( &image, BitsPerChannel );
+    GetChannels( &image, channels );
+    psdchannels = channels;
+
+    stitchInfo.seam     = _dest; // @ToDo Pass this in with flatteningParms
+    stitchInfo.feather  = 0;
+    stitchInfo.psdOpacity = 255;
+
+    assert(PSD_NUMBER_BLENDING_MODES == sizeof(psdBlendingModesNames)/sizeof(char*));
+    assert(sizeof(psdBlendingModesNames) == sizeof(psdBlendingModesInternalName));
+    blendingModeKey = psdBlendingModesInternalName[flatteningParms->psdBlendingMode];// The blending mode key
+
+    if( channels > 3 ) // Alpha channel present
+    {
+        hasClipMask = 1;
+        psdchannels++;
+        if ( !hasFeather( &image ) )    // If there is feathering do Not use Alpha channel for Shape Mask
+        {                               // Only use alpha if there is no feathering
+            hasShapeMask = 1;           // The Alpha channel can be used as a Shape Mask
+        }
+        if( stitchInfo.seam == _middle )   // we have to stitch
+        {
+            size_t AlaphaSize = (size_t) panoImageFullWidth(&image) * panoImageFullHeight(&image) * (BitsPerChannel/8);
+            alpha = (unsigned char**) mymalloc(AlaphaSize );
+            if( alpha != NULL )
+            {
+                memset( *alpha, 0 , AlaphaSize);
+            }
+            else
+            {
+                PrintError("Not enough memory to create Alpha channel for blending");
+                // Try to continue without Alpha
+            }
+        }
+    }
+
+
+    if(  myopen( outputFileName, write_bin, fnum )   )
+    {   
+        PrintError("Error Writing Image File");
+        return -1;
+    }
+
+    // Write PSD and PSB Header
+    // panoWriteINT32( fnum, '8BPS' );
+    panoWriteUCHAR( fnum, '8' );
+    panoWriteUCHAR( fnum, 'B' );
+    panoWriteUCHAR( fnum, 'P' );
+    panoWriteUCHAR( fnum, 'S' );
+    panoWriteSHORT( fnum, bBig? 2 : 1 ); // PSD file must be 1, PSB files must be 2
+    panoWriteINT32( fnum, 0 ); panoWriteSHORT( fnum, 0 ); // 6 bytes zeroed
+
+    panoWriteSHORT( fnum, 3 );            // No of channels; Background always white, 3 channels
+
+    //The Photoshop file has the dimensions of the full size image, regardless
+    //of whether the TIFF file is "cropped" or not.
+    // PSD file is limited to 30000 in width and height, PSB are limited to 300000 in width and height
+    panoWriteINT32( fnum, panoImageFullHeight(&image)); // Rows
+    panoWriteINT32( fnum, panoImageFullWidth(&image));  // Columns
+
+    panoWriteSHORT( fnum, BitsPerChannel );        // BitsPerChannel
+    switch( image.dataformat )
+    {
+        case _Lab:  panoWriteSHORT( fnum, 9 );
+                    break;
+        case _RGB:  panoWriteSHORT( fnum, 3 );
+                    break;
+        default:    panoWriteSHORT( fnum, 3 );            
+    }
+
+    panoWriteINT32( fnum, 0 );                // Color Mode
+
+    panoPSDResourcesBlockWrite(&image, fnum);
+
+    // Write an empty length first, then "rewind" and write its real one.
+    // It will make things way easier and more maintainable.
+
+    // Save our Current location so we can come back later.
+    saveLocationForSize = ftell(fnum);
+
+    // Place holder for Length of the Layer and mask information section
+    panoWriteINT32or64( fnum, 0, bBig );
+
+    // Place holder for Length of the Layer info
+    panoWriteINT32or64( fnum, 0, bBig );
+
+    // 2 bytes Count Number of layers.
+    panoWriteSHORT( fnum, numberImages );
+
+    saveLocationForLayerRecords = ftell(fnum);
+    //Now iterate over the images and add placeholders them as layers to the PSD file
+    for (i = 0; i < numberImages; i++) {
+
+        //Add placeholders for all the layer records to be filled in later.
+        panoWriteINT32( fnum, 0 );                  // Layer top 
+        panoWriteINT32( fnum, 1 );                  // Layer left
+        panoWriteINT32( fnum, 2 );                  // Layer bottom 
+        panoWriteINT32( fnum, 3 );                  // Layer right 
+
+        panoWriteSHORT( fnum, psdchannels );        // The number of channels in the layer.
+
+        // ********** Channel information ***************************** //
+        panoWriteSHORT( fnum, 0 );                  // red
+        panoWriteINT32or64( fnum, 00, bBig );       // Length of following channel data.
+        panoWriteSHORT( fnum, 1 );                  // green
+        panoWriteINT32or64( fnum, 11, bBig );       // Length of following channel data.
+        panoWriteSHORT( fnum, 2 );                  // blue
+        panoWriteINT32or64( fnum, 22, bBig );       // Length of following channel data.
+        if( hasClipMask )                           // Mask channel
+        {
+            panoWriteSHORT( fnum, -1);              // Shape Mask
+            panoWriteINT32or64( fnum, 11, bBig );   // Length of following channel data.
+            panoWriteSHORT( fnum, -2);              // Clip Mask
+            panoWriteINT32or64( fnum, 22, bBig );   // Length of following channel data.
+        }
+
+        // ********** End Channel information ***************************** //
+        // panoWriteINT32( fnum, '8BIM'); // Blend mode signature Always 8BIM.
+        panoWriteUCHAR( fnum, '8' );
+        panoWriteUCHAR( fnum, 'B' );
+        panoWriteUCHAR( fnum, 'I' );
+        panoWriteUCHAR( fnum, 'M' );
+
+        // the next 4 bytes are the blending mode key
+        panoWriteUCHAR( fnum, 'n' );
+        panoWriteUCHAR( fnum, 'o' );
+        panoWriteUCHAR( fnum, 'r' );
+        panoWriteUCHAR( fnum, 'm' );
+
+        panoWriteUCHAR( fnum, 255);                 // 1 byte Opacity 0 = transparent ... 255 = opaque
+        panoWriteUCHAR( fnum, 0 );                  // 1 byte Clipping 0 = base, 1 = nonÐbase
+        panoWriteUCHAR( fnum, hasShapeMask );       // 1 byte Flags bit 0 = transparency protected bit 1 = visible
+        panoWriteUCHAR( fnum, 0 );                  // 1 byte (filler) (zero)
+
+        if(hasClipMask)
+        {
+            panoWriteINT32( fnum, 32);              // Extra data size Length of the extra data field. This is the total length of the next five fields.
+            panoWriteINT32( fnum, 20 );             // Yes Layer Mask data
+            panoWriteINT32( fnum, 0 );              // Layer top 
+            panoWriteINT32( fnum, 1 );              // Layer left
+            panoWriteINT32( fnum, 2 ) ;             // Layer bottom 
+            panoWriteINT32( fnum, 3  );             // Layer right 
+            panoWriteUCHAR( fnum, 0 );              // Default color 0 or 255
+            panoWriteUCHAR( fnum, 0 );              // Flag: bit 0 = position relative to layer bit 1 = layer mask disabled bit 2 = invert layer mask when blending
+            panoWriteUCHAR( fnum, 0 );              // padding
+            panoWriteUCHAR( fnum, 0 );              // padding
+        }
+        else
+        {
+            panoWriteINT32( fnum, 12);              // Extra data size Length of the extra data field. This is the total length of the next five fields.
+            panoWriteINT32( fnum, 0 );              // No Layer Mask data
+        }
+        panoWriteINT32( fnum, 0 );                  // Layer blending ranges
+    
+        sprintf(&(sLayerName[1]), "%03.3d", i+1 ); 
+        sLayerName[0] = 3;
+        count = 4; 
+        mywrite( fnum, count, sLayerName ); // Layer Name
+    }
+
+    //Now iterate over the images and add them as layers to the PSD file
+    for (i = 0; i < numberImages; i++) {
+
+        if (ptQuietFlag == 0) {
+            sprintf(tempString, "%d", i * 100 / numberImages);
+            if (Progress(_setProgress, tempString) == 0) {
+                remove(outputFileName->name);
+                return -1;
+            }
+        }
+
+        // We already read in image 0, so we skip it here
+        if (i != 0 && panoTiffRead( &image, fullPathImages[i].name) == 0) {
+
+            PrintError("Could not read TIFF image No &d", i);
+            if (ptQuietFlag == 0)
+                Progress(_disposeProgress, tempString);
+            return -1;
+        }
+
+        // downsample 16bit to 8 bit if necessary
+        if (image.bitsPerPixel == 64 && flatteningParms->force8bit == 1)
+            TwoToOneByte( &image );
+
+        if (flatteningParms->stacked) 
+          stitchInfo.psdOpacity = (unsigned char) (255.0/ (i + 1));
+        // else we leave it at 255
+
+        getImageRectangle( &image,  &theRect );
+
+        // Uncompressed channel length data
+        // @ToDo Save the data compressed and record the actual lengths
+        channelLength = ((size_t)theRect.right-theRect.left) * (theRect.bottom-theRect.top)  * (BitsPerChannel/8) + 2;
+
+        // Write color channels
+        for( j=0; j<3; j++)
+        {
+            if( writeChannelData( &image, fnum, j + channels - 3, &theRect ) )
+            {
+                result = -1;
+                goto _addLayer_exit;
+            }
+        }
+    
+        if( hasShapeMask )  // Alpha channel present
+        {       
+            if( writeChannelData( &image, fnum, 0, &theRect ) )
+            {
+                result = -1;
+                goto _addLayer_exit;
+            }
+        }
+        else
+        {
+            if( writeTransparentAlpha( &image, fnum, &theRect ) )
+            {
+                result = -1;
+                goto _addLayer_exit;
+            }
+        }
+
+        if( hasClipMask )
+        {
+            if( stitchInfo.seam == _middle && alpha != NULL ) // Create stitching mask
+            {
+//                orAlpha( *alpha, &((*buf)[2]), im, &(nRect[i]) );
+                mergeAlpha( &image, *alpha, stitchInfo.feather, &theRect );
+            }
+            if( writeChannelData( &image, fnum, 0,  &theRect ) ) 
+            {
+                result = -1;
+                goto _addLayer_exit;
+            }
+        }
+
+        // Remember our place writeing channel data
+        saveLocation = ftell(fnum);
+
+        // Go back to fill in actual data for the Layer recode
+        fseek(fnum,  saveLocationForLayerRecords, SEEK_SET);
+
+        //Replace the layer records data.
+        panoWriteINT32( fnum, theRect.top );                    // Layer top 
+        panoWriteINT32( fnum, theRect.left );                   // Layer left
+        panoWriteINT32( fnum, theRect.bottom );                 // Layer bottom 
+        panoWriteINT32( fnum, theRect.right  );                 // Layer right 
+
+        panoWriteSHORT( fnum, psdchannels );                    // The number of channels in the layer.
+
+        // ********** Channel information ***************************** //
+        
+        panoWriteSHORT( fnum, 0 );                              // red
+        panoWriteINT32or64( fnum, channelLength, bBig );        // Length of following channel data.
+        panoWriteSHORT( fnum, 1 );                              // green
+        panoWriteINT32or64( fnum, channelLength, bBig );        // Length of following channel data.
+        panoWriteSHORT( fnum, 2 );                              // blue
+        panoWriteINT32or64( fnum, channelLength, bBig );        // Length of following channel data.
+        if( hasClipMask )                                       // Mask channel
+        {
+            panoWriteSHORT( fnum, -1);                          // Shape Mask
+            panoWriteINT32or64( fnum, channelLength, bBig );    // Length of following channel data.
+            panoWriteSHORT( fnum, -2);                          // Clip Mask
+            panoWriteINT32or64( fnum, channelLength, bBig );    // Length of following channel data.
+        }
+
+
+        // ********** End Channel information ***************************** //
+    
+        // panoWriteINT32( fnum, '8BIM'); // Blend mode signature Always 8BIM.
+        panoWriteUCHAR( fnum, '8' );
+        panoWriteUCHAR( fnum, 'B' );
+        panoWriteUCHAR( fnum, 'I' );
+        panoWriteUCHAR( fnum, 'M' );
+
+        // the next 4 bytes are the blending mode key
+        /* panoWriteINT32( fnum, 'norm'); // Blend mode key */
+        if(i==0)
+        {
+            panoWriteUCHAR( fnum, 'n' );
+            panoWriteUCHAR( fnum, 'o' );
+            panoWriteUCHAR( fnum, 'r' );
+            panoWriteUCHAR( fnum, 'm' );
+        }
+        else
+        {
+            for (j = 0; j< 4; j++ )
+            {
+              panoWriteUCHAR( fnum, blendingModeKey[j]);
+            }
+        }
+
+        panoWriteUCHAR( fnum, stitchInfo.psdOpacity);           // 1 byte Opacity 0 = transparent ... 255 = opaque
+        panoWriteUCHAR( fnum, 0 );                              // 1 byte Clipping 0 = base, 1 = nonÐbase
+        panoWriteUCHAR( fnum, hasShapeMask );                   // 1 byte Flags bit 0 = transparency protected bit 1 = visible
+        panoWriteUCHAR( fnum, 0 );                              // 1 byte (filler) (zero)
+
+        if(hasClipMask)
+        {
+            panoWriteINT32( fnum, 32);                          // Extra data size Length of the extra data field. This is the total length of the next five fields.
+            panoWriteINT32( fnum, 20 );                         // Yes Layer Mask data
+            panoWriteINT32( fnum, theRect.top );                // Layer top 
+            panoWriteINT32( fnum, theRect.left );               // Layer left
+            panoWriteINT32( fnum, theRect.bottom );             // Layer bottom 
+            panoWriteINT32( fnum, theRect.right  );             // Layer right 
+            panoWriteUCHAR( fnum, 0 );                          // Default color 0 or 255
+            panoWriteUCHAR( fnum, 0 );                          // Flag: bit 0 = position relative to layer bit 1 = layer mask disabled bit 2 = invert layer mask when blending
+            panoWriteUCHAR( fnum, 0 );                          // padding
+            panoWriteUCHAR( fnum, 0 );                          // padding
+        }
+        else
+        {
+            panoWriteINT32( fnum, 12);                          // Extra data size Length of the extra data field. This is the total length of the next five fields.
+            panoWriteINT32( fnum, 0 );                          // No Layer Mask data
+        }
+        panoWriteINT32( fnum, 0 );                              // Layer blending ranges
+    
+        sprintf(&(sLayerName[1]), "%03.3d", i+1 ); 
+        sLayerName[0] = 3;
+        count = 4; 
+        mywrite( fnum, count, sLayerName ); // Layer Name
+
+        // The location of the next Layer record
+        saveLocationForLayerRecords = ftell(fnum);
+
+        // Get ready to write the next.  This should be the same as going to the end.
+        fseek(fnum,  saveLocation, SEEK_SET);
+    }
+
+    if( (ftell(fnum) - saveLocationForSize)%2 )
+    {
+        panoWriteUCHAR( fnum, 0 );
+    }
+
+
+    // Rewind back to write the actual size of all the layer data
+    saveLocation = ftell(fnum);
+    fseek( fnum, saveLocationForSize, SEEK_SET );
+    panoWriteINT32or64( fnum, saveLocation - saveLocationForSize - (bBig?8:4) + 4, bBig );
+    panoWriteINT32or64( fnum, saveLocation - saveLocationForSize - (bBig?8:4)*2 , bBig );
+
+    // write the background data
+    fseek( fnum, saveLocation, SEEK_SET );
+
+    // ************* Global layer mask info ******************************** //
+    panoWriteINT32( fnum, 0 );        // Length of global layer mask info section.
+
+    writeWhiteBackground( panoImageFullWidth(&image) * (BitsPerChannel/8), panoImageFullHeight(&image), fnum, bBig );
+        
+    myclose (fnum );
+
+    if (!ptQuietFlag) {
+        Progress(_setProgress, "100");
+        Progress(_disposeProgress, tempString);
+    }
+
+_addLayer_exit: 
+    if( alpha       != NULL )   myfree( (void**)alpha );
+
+    return result;
+}
+
+
+
 static int fileCopy( file_spec src, file_spec dest, size_t numBytes, unsigned char *buf )
 {
     size_t count = numBytes;
@@ -2269,10 +2700,10 @@ int readPSDMultiLayerImage( MultiLayerImage *mim, fullPath* sfile){
         SetImageDefaults( &mim->Layer[i] );
         mim->Layer[i].width  = im.width;
         mim->Layer[i].height = im.height;
-        panoReadINT32( src, &mim->Layer[i].selection.top )    ;  // Layer top 
-        panoReadINT32( src, &mim->Layer[i].selection.left  ); // Layer left
-        panoReadINT32( src, &mim->Layer[i].selection.bottom); // Layer bottom 
-        panoReadINT32( src, &mim->Layer[i].selection.right ); // Layer right 
+        panoReadINT32( src, &mim->Layer[i].selection.top );     // Layer top 
+        panoReadINT32( src, &mim->Layer[i].selection.left );    // Layer left
+        panoReadINT32( src, &mim->Layer[i].selection.bottom );  // Layer bottom 
+        panoReadINT32( src, &mim->Layer[i].selection.right );   // Layer right 
         
         panoReadSHORT( src, &uChannel );                              // The number of channels in the layer.
         mim->Layer[i].bitsPerPixel = uChannel * BitsPerSample;
