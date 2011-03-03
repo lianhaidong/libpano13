@@ -49,15 +49,6 @@ typedef unsigned char Boolean;
   #endif
 #endif
 
-// Create a definition if we're on a Macintosh:
-#ifndef __Mac__
-  #if (defined(macintosh) || defined(__MC68K__) || defined(__powerc))
-    #define __Mac__     1
-    #define PT_BIGENDIAN    1
-  #endif
-#endif
-
-
 #ifndef __Mac_OSX__
     #if defined(__APPLE_CC__)
         #define __Mac_OSX__			1
@@ -72,33 +63,25 @@ typedef unsigned char Boolean;
 // Use FSSpec on Macs as Path-specifyers, else strings
 #define PATH_SEP							'/'
 
-#ifdef __Mac__
-        //#include  <Files.h> // commented by Kekus Digital
-#include <Carbon/Carbon.h>      // added by Kekus Digital
-#define			fullPath							FSSpec
-#undef  PATH_SEP
-#define PATH_SEP									':'
-
-#else // __Mac__, use ANSI-filefunctions
-
 #ifdef _WIN32
-#ifndef __NO_SYSTEM__
-#include <windows.h>            // including this causes problems with libjpeg
-#endif
-#define MAX_PATH_LENGTH		260
+    #ifndef __NO_SYSTEM__
+        #include <windows.h>            // including this causes problems with libjpeg
+    #endif
+
+    #define MAX_PATH_LENGTH		260
                 // was MAX_PATH
-#undef  PATH_SEP
-#define PATH_SEP							'\\'
+    #undef  PATH_SEP
+    #define PATH_SEP							'\\'
+
 #else
-#define MAX_PATH_LENGTH		512
+    #define MAX_PATH_LENGTH		512
 #endif
 
+// I really want to get rid of this one. it is legacy from OS 9
 typedef struct
 {
     char name[MAX_PATH_LENGTH];
 } fullPath;
-
-#endif
 
 
 // Some important defaults (perhaps to be moved somewhere else later

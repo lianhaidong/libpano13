@@ -1935,7 +1935,7 @@ void panoPrintImage(char *msg, Image *im)
 {
     printf("-------------%s\n", msg);
     if (im != NULL) {
-        printf(">>>Image format %d\n", im->format);
+        printf(">>>Image format %d\n", (int)im->format);
         printf(">>>Roll %f\n", im->roll);
         printf(">>>Pitch %f\n", im->pitch);
         printf(">>>Yaw %f\n", im->yaw);

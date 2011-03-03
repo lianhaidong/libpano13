@@ -33,17 +33,8 @@
 # requires at least cmake 2.6, now
 cmake_minimum_required(VERSION 2.6)
 
-## Locate the hugin source root and its parent directory
-IF(HUGIN_BASE_DIR)
-  GET_FILENAME_COMPONENT(SOURCE_BASE_DIR ${HUGIN_BASE_DIR} PATH CACHE)
-  set(CMAKE_MODULE_PATH ${HUGIN_BASE_DIR}/CMakeModules)
-ELSE(HUGIN_BASE_DIR)
-  GET_FILENAME_COMPONENT(SOURCE_BASE_DIR ${CMAKE_SOURCE_DIR} PATH CACHE)
-  set(CMAKE_MODULE_PATH ${SOURCE_BASE_DIR}/hugin/CMakeModules)
-ENDIF(HUGIN_BASE_DIR)
-
 IF(WIN32)
-  set(CMAKE_INSTALL_PREFIX "${SOURCE_BASE_DIR}/libpano13" CACHE PATH "Install prefix for hugin SDK")
+  set(CMAKE_INSTALL_PREFIX "${SOURCE_BASE_DIR}/libpano13" CACHE PATH "Install prefix for libpano")
 ENDIF(WIN32)
 
 include(CheckIncludeFiles)
@@ -52,14 +43,10 @@ include(CheckIncludeFiles)
 project(libpano13)
 
 ##
-## wxWidgets
-##
 #  This must come before FINDs for tiff, jpeg, png, zlib to enable
 #  finding the wxWidgets distributions of those packages on Windows.
 IF(WIN32)
-  SET(wxWidgets_ROOT_DIR ${SOURCE_BASE_DIR}/wxWidgets-2.8.10)
   ADD_DEFINITIONS(-D__Win__)
-  FIND_PACKAGE(wxWidgets REQUIRED)
   set(win_c "tools/compat_win32/getopt.c")
 ENDIF(WIN32)
 
@@ -326,7 +313,6 @@ endif()
 set(CPACK_SOURCE_PACKAGE_FILE_NAME "libpano13-${PACKAGE_VERSION}")
 
 include(CPack)
-
 
 enable_testing()
 add_subdirectory(tests)

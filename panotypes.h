@@ -7,14 +7,13 @@
  *
  * See http://bugzilla.remotesensing.org/show_bug.cgi?id=39
  */
-#if defined(_H_INTTYPES) && defined(_ALL_SOURCE) && defined(USING_VISUALAGE)
 
-#define _PANO_DATA_TYPEDEFS_
-typedef unsigned char pt_uint8;
-typedef unsigned short pt_uint16;
-typedef unsigned int pt_uint32;
+#ifndef PANOTYPES_H
+#define PANOTYPES_H
 
-#endif
+// First make sure that we have the int8_t, int16_t (32, and 64) and uint8_t equivalents
+#include "pt_stdint.h"
+
 
 /*
  * Intrinsic data types required by the file format:
@@ -24,27 +23,13 @@ typedef unsigned int pt_uint32;
  * 32-bit quantities	int32/uint32
  * strings		unsigned char*
  */
-#ifndef _PANO_DATA_TYPEDEFS_
-#define _PANO_DATA_TYPEDEFS_
+typedef uint8_t  pt_uint8;
+typedef uint16_t pt_uint16;
+typedef uint32_t pt_uint32;
 
-#ifdef __STDC__
-typedef	signed char pt_int8;	/* NB: non-ANSI compilers may not grok */
-#else
-typedef	char pt_int8;
-#endif
-typedef	unsigned char pt_uint8;
-typedef	short pt_int16;
-typedef	unsigned short pt_uint16;	/* sizeof (uint16) must == 2 */
-#if defined(__s390x__) || defined(__ia64__) || defined(__alpha) || defined(__x86_64__) || (defined(_MIPS_SZLONG) && _MIPS_SZLONG == 64) || defined(__LP64__) || defined(_LP64)
-typedef	int pt_int32;
-typedef	unsigned int pt_uint32;	/* sizeof (uint32) must == 4 */
-#define FMT_INT32 "%d"
-#else
-typedef	long pt_int32;
-typedef	unsigned long pt_uint32;	/* sizeof (uint32) must == 4 */
-#define FMT_INT32 "%ld"
-#endif
-#endif /* _PANO_DATA_TYPEDEFS_ */
+typedef int8_t  pt_int8;
+typedef int16_t pt_int16;
+typedef int32_t pt_int32;
 
 /* The macro PT_UNUSED indicates that a function, function argument or
  * variable may potentially be unused.
@@ -59,3 +44,13 @@ typedef	unsigned long pt_uint32;	/* sizeof (uint32) must == 4 */
 #else
   #define PT_UNUSED
 #endif
+
+/* Simple define to reduce warnings in printfs */
+#if  __WORDSIZE == 64 /* 64 bit system */
+   #define FMT_INT32 "%ld"
+#else
+   #define FMT_INT32 "%d"
+#endif
+
+#endif
+
