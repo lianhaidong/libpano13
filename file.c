@@ -66,7 +66,7 @@ static int              writeLayerAndMask       ( Image *im, file_spec fnum );
 static void             getImageRectangle       ( Image *im, PTRect *r );
 static int              fileCopy                ( file_spec src, file_spec dest, size_t numBytes, unsigned char *buf);
 static void             orAlpha                 ( unsigned char* alpha, unsigned char *buf, Image *im, PTRect *r );
-static void             writeWhiteBackground    ( pt_int32 width, pt_int32 height, file_spec fnum );
+static void             writeWhiteBackground    ( uint32_t width, uint32_t height, file_spec fnum );
 static int              addLayer                ( Image *im, file_spec src, file_spec fnum , stBuf *sB);
 static int              hasFeather              ( Image *im );
 static int              writeTransparentAlpha   ( Image *im, file_spec fnum, PTRect *theRect );
@@ -118,7 +118,7 @@ char *psdBlendingModesInternalName[] = {
 
 #define PSDHLENGTH 26
 
-int panoPSDResourceWrite(file_spec fnum, pt_uint16 resource, pt_uint16 len, pt_uint16 dataLen, char *resourceData)
+int panoPSDResourceWrite(file_spec fnum, uint16_t resource, uint16_t len, uint16_t dataLen, char *resourceData)
 {
 //struct _ColorModeDataBlock
 //{
@@ -134,7 +134,7 @@ int panoPSDResourceWrite(file_spec fnum, pt_uint16 resource, pt_uint16 len, pt_u
   size_t  count;
   short   svar;
   char    data[12], *d;
-  pt_uint32   var;
+  uint32_t   var;
   WRITEUCHAR( '8' );
   rtn += count;
   WRITEUCHAR( 'B' );
@@ -159,7 +159,7 @@ int panoPSDResourceWrite(file_spec fnum, pt_uint16 resource, pt_uint16 len, pt_u
   return rtn;
 }
 
-int panoPSDPICTResourceWrite(file_spec fnum, unsigned char resource, unsigned char record, pt_uint16 len, char *recordData)
+int panoPSDPICTResourceWrite(file_spec fnum, unsigned char resource, unsigned char record, uint16_t len, char *recordData)
 {
   // See IPTC Information Intercharge Model Exchange Version 4.
   int rtn = 0;
@@ -205,7 +205,7 @@ int panoPSDResourcesBlockWrite(Image *im, file_spec   fnum)
   char    data[12], *d;
   short   svar = 0;
   size_t  count;
-  pt_uint32   var;
+  uint32_t   var;
   int saveLocation = 0;
   int saveLocationForSize=0;
   int temp;
@@ -298,7 +298,7 @@ int writePSD(Image *im, fullPath *sfile )
     char    data[12], *d;
     short   svar;
     size_t  count;
-    pt_uint32   var;
+    uint32_t   var;
     unsigned char  ch;
     int     channels, BitsPerChannel;
     
@@ -371,7 +371,7 @@ int writePSDwithLayer(Image *im, fullPath *sfile )
     file_spec   fnum;
     char        data[12], *d;
     size_t      count;
-    pt_uint32   var;
+    uint32_t   var;
     unsigned char  ch;
     short       svar;
     int         BitsPerChannel;
@@ -444,7 +444,7 @@ int addLayerToFile( Image *im, fullPath* sfile, fullPath* dfile, stBuf *sB)
     char        header[128], *h;
     size_t      count, len, i, srcCount = 0;
     unsigned char **buf;
-    pt_uint32   var;
+    uint32_t   var;
     char        data[12], *d;
     int         BitsPerChannel, result = 0;
 
@@ -672,10 +672,10 @@ static int writeImageDataPlanar( Image *im, file_spec fnum )
 
 // Write white background, RLE-compressed
 
-static void writeWhiteBackground( pt_int32 width, pt_int32 height, file_spec fnum )
+static void writeWhiteBackground( uint32_t width, uint32_t height, file_spec fnum )
 {
     short           svar;
-    pt_int32        w8, w;
+    uint32_t        w8, w;
     size_t          count;
     char            data[12], *d, **scanline;
     
@@ -738,7 +738,7 @@ int readPSD(Image *im, fullPath *sfile, int mode)
     char    header[128], *h;
     long    len, i;
     size_t  count;
-    pt_uint32 var;
+    uint32_t var;
     char    data[12], *d;
 
 
@@ -964,7 +964,7 @@ readImageDataPlanar_exit:
 
 static int writeLayerAndMask( Image *im, file_spec fnum )
 {
-    pt_uint32       var;
+    uint32_t       var;
     PTRect          theRect;
     int             channelLength;
     size_t          count;
@@ -1153,7 +1153,7 @@ static int writeChannelData( Image *im, file_spec fnum, int channel, PTRect *the
     size_t                  count;
     short                   svar;
     char                    data[12], *d;
-    pt_int32                outputRegionWidth, outputRegionHeight;
+    uint32_t                 outputRegionWidth, outputRegionHeight;
 
     GetBitsPerChannel( im, BitsPerChannel );
     GetChannels( im, channels );
@@ -1429,7 +1429,7 @@ static void getImageRectangle( Image *im, PTRect *theRect )
 
 static int addLayer( Image *im, file_spec src, file_spec fnum, stBuf *sB )
 {
-    pt_uint32       var;
+    uint32_t       var;
     PTRect          theRect, *nRect = NULL;
     int             channelLength,  bpp, oddSized = 0, oddSizedOld = 0;
     int             result = 0;
@@ -2119,7 +2119,7 @@ int readPSDMultiLayerImage( MultiLayerImage *mim, fullPath* sfile){
     char            header[128], *h;
     size_t          chlength;
     size_t          count, iul, kul;
-    pt_uint32       var;
+    uint32_t       var;
     char            data[12], *d;
     short           svar;
     int             i, k, result = 0,nchannel, odd = 0;

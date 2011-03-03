@@ -150,7 +150,7 @@ typedef struct PTTriangle PTTriangle;
 //----------------------- Structures -------------------------------------------
 
 struct remap_Prefs{								// Preferences Structure for remap
-		pt_int32    		magic;					//  File validity check, must be 30
+		int32_t    		magic;					//  File validity check, must be 30
 		int				from;					// Image format source image
 		int				to;						// Image format destination image
 		double			hfov;					// horizontal field of view /in degrees
@@ -160,7 +160,7 @@ struct remap_Prefs{								// Preferences Structure for remap
 typedef struct remap_Prefs rPrefs;
 
 struct perspective_Prefs{						//  Preferences structure for tool perspective
-		pt_int32			magic;					//  File validity check, must be 40
+		int32_t			magic;					//  File validity check, must be 40
 		int				format;					//  rectilinear or fisheye?
 		double  		hfov;					//  Horizontal field of view (in degree)
 		double			x_alpha;				//  New viewing direction (x coordinate or angle)
@@ -253,8 +253,8 @@ enum{										// Enumerates for aPrefs.mode
 	};
 
 struct adjust_Prefs{                  //  Preferences structure for tool adjust
-    pt_int32            magic;        //  File validity check, must be 50
-    pt_int32            mode;         //  What to do: create Panorama etc?
+    int32_t            magic;        //  File validity check, must be 50
+    int32_t            mode;         //  What to do: create Panorama etc?
     Image               im;           //  Image to be inserted/extracted
     Image               pano;         //  Panorama to be created/ used for extraction
 
@@ -286,7 +286,7 @@ typedef union panoPrefs panoPrefs;
 
 
 struct size_Prefs{                      // Preferences structure for 'pref' dialog
-    pt_int32        magic;              //  File validity check; must be 70
+    int32_t        magic;              //  File validity check; must be 70
     int             displayPart;        // Display cropped/framed image ?
     int             saveFile;           // Save to tempfile? 0-no, 1-yes
     fullPath        sFile;              // Full path to file (short name)

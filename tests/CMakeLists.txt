@@ -11,14 +11,14 @@ macro(prepare_test _testname _prjname _imagemask)
   file(GLOB references  RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/reference/*")
   set(_depends)
   foreach(_i ${images} ${references})
-    if(NOT IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${_i}")
-      add_custom_command(
-        OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/${_i}"
-        COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/${_i}" "${CMAKE_CURRENT_BINARY_DIR}/${_i}"
-        DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/${_i}")
-      SET_SOURCE_FILES_PROPERTIES("${CMAKE_CURRENT_BINARY_DIR}/${_i}" GENERATED)
-      list(APPEND _depends "${CMAKE_CURRENT_BINARY_DIR}/${_i}")
-    endif()
+#    if(NOT IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${_i}")
+#      add_custom_command(
+#        OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/${_i}"
+#        COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/${_i}" "${CMAKE_CURRENT_BINARY_DIR}/${_i}"
+#        DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/${_i}")
+#      SET_SOURCE_FILES_PROPERTIES("${CMAKE_CURRENT_BINARY_DIR}/${_i}" GENERATED)
+#      list(APPEND _depends "${CMAKE_CURRENT_BINARY_DIR}/${_i}")
+#    endif()
   endforeach(_i)
   add_custom_target(${_prjname} ALL DEPENDS ${_depends})
 

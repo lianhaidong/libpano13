@@ -43,8 +43,8 @@ extern "C" {
 /* read or write headers */
 /* you may set rgbe_header_info to null if you want to */
 
-int RGBE_WriteHeader(FILE *fp, int width, int height, rgbe_header_info *info);
-int RGBE_ReadHeader(FILE *fp, pt_int32* width, pt_int32* height, rgbe_header_info *info);
+int RGBE_WriteHeader(FILE *fp, uint32_t width, uint32_t height, rgbe_header_info *info);
+int RGBE_ReadHeader(FILE *fp, uint32_t* width, uint32_t* height, rgbe_header_info *info);
 
 /* read or write pixels */
 /* can read or write pixels in chunks of any size including single pixels*/

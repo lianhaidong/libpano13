@@ -268,7 +268,7 @@ void adjust(TrformStr *TrPtr, aPrefs *prefs)
                                                 
                         if( aPtr->pano.width == 0 && aPtr->im.hfov != 0.0)
                         {
-                                aPtr->pano.width = (pt_int32)(aPtr->im.width * aPtr->pano.hfov / aPtr->im.hfov);
+                                aPtr->pano.width = (aPtr->im.width * aPtr->pano.hfov / aPtr->im.hfov);
                                 aPtr->pano.width/=10; aPtr->pano.width*=10;
                         }
                         if( aPtr->pano.height == 0 )

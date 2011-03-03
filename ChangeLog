@@ -1,5 +1,12 @@
 2011-03-02    <dmg@uvic.ca>
 
+	* panotypes.h, and many other files: Removed pt_int* data
+	types. There are not used consistently with the uint datatypes, so
+	why add confusion?
+
+	* tests/CMakeLists.txt: I removed some code that
+	moved/copied/removed the test data files in the reference directory.
+
 	* panorama.h: We no longer need code for OS 9. We don't support
 	it. Cleaned up the file.
 
@@ -24,10 +31,10 @@
 
 2011-01-11    jim0watters
 
-  * adjust.c Update SetStitchDefaults to include psdOpacity and psdBlendingMode
+	* adjust.c Update SetStitchDefaults to include psdOpacity and psdBlendingMode
 
 	* version.h, pano13.rc Update version description to indicate if build is
-  32 or 64 bit
+	32 or 64 bit
   
 2011-01-06    <dmg@uvic.ca>
 
