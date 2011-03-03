@@ -27,3 +27,4 @@ glob:tools/PTtiffdump
 glob:tools/PTuncrop
 glob:tests/simpleTiff16/tests
 glob:tests/simpleStitch/tests
+TAGS
