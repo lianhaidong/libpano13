@@ -414,9 +414,9 @@ struct Image
 {
     // Pixel data
     uint32_t width;
-    int32_t height;
-    int32_t bytesPerLine;
-    int32_t bitsPerPixel;      // Must be 24 or 32
+    uint32_t height;
+    uint32_t bytesPerLine;
+    uint32_t bitsPerPixel;      // Must be 24 or 32
     size_t dataSize;
     unsigned char **data;
     int32_t dataformat;        // rgb, Lab etc
