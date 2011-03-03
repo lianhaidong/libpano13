@@ -48,6 +48,9 @@ WIN_LDFS = -mwindows -avoid-version -no-undefined -export-symbols $(srcdir)/libp
 $(PANO_WIN32_RESOURCE): pano13.rc
 	        $(top_srcdir)/build/win32/lt-compile-resource pano13.rc $@
 
+TAGS:
+	ctags-exuberant -e *.c *.h tools/*.c
+
 install-exec-hook:
 	mv $(DESTDIR)$(bindir)/libpano13.dll $(DESTDIR)$(bindir)/pano13.dll
 endif
