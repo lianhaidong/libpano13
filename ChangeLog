@@ -1,5 +1,8 @@
 2011-03-03    <dmg@uvic.ca>
 
+	* CMakeList.txt: Added TAGS file creation, undid removal of
+	hugin-related paths.
+
 	* PTcommon.h (min): Added min macro (needed in new PSD code under Linux)
 
 2011-03-02    <dmg@uvic.ca>
