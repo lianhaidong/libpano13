@@ -33,6 +33,15 @@
 # requires at least cmake 2.6, now
 cmake_minimum_required(VERSION 2.6)
 
+## Locate the hugin source root and its parent directory
+IF(HUGIN_BASE_DIR)
+  GET_FILENAME_COMPONENT(SOURCE_BASE_DIR ${HUGIN_BASE_DIR} PATH CACHE)
+  set(CMAKE_MODULE_PATH ${HUGIN_BASE_DIR}/CMakeModules)
+ELSE(HUGIN_BASE_DIR)
+  GET_FILENAME_COMPONENT(SOURCE_BASE_DIR ${CMAKE_SOURCE_DIR} PATH CACHE)
+  set(CMAKE_MODULE_PATH ${SOURCE_BASE_DIR}/hugin/CMakeModules)
+ENDIF(HUGIN_BASE_DIR)
+
 IF(WIN32)
   set(CMAKE_INSTALL_PREFIX "${SOURCE_BASE_DIR}/libpano13" CACHE PATH "Install prefix for libpano")
 ENDIF(WIN32)
@@ -267,6 +276,15 @@ foreach(_c_l ${_config_lines})
     endif()
   endif()
 endforeach(_c_l)
+
+# create TAGS file
+ADD_CUSTOM_COMMAND( OUTPUT ctags POST_BUILD
+                   COMMAND ctags-exuberant -e *.c *.h tools/*.c
+                   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/
+                   COMMENT "Build TAGS file"
+                 )
+ADD_CUSTOM_TARGET( TAGS DEPENDS ctags)
+
 
 # set some variables which are used in libpano13.pc.in
 set(prefix ${CMAKE_INSTALL_PREFIX})
