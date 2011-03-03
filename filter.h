@@ -45,18 +45,6 @@
 #endif
 
 
-//---------------------- Types ---------------------------------------------
-
-#define UCHAR	unsigned char
-#define USHORT  unsigned short
-#define ULONG   unsigned long
-
-enum{
-	_UCHAR,
-	_USHORT,
-	_ULONG
-	};
-
 //---------------------- Some useful math defines --------------------------
 
 #ifndef PI
@@ -150,7 +138,7 @@ typedef struct PTTriangle PTTriangle;
 //----------------------- Structures -------------------------------------------
 
 struct remap_Prefs{								// Preferences Structure for remap
-		pt_int32    		magic;					//  File validity check, must be 30
+		int32_t    		magic;					//  File validity check, must be 30
 		int				from;					// Image format source image
 		int				to;						// Image format destination image
 		double			hfov;					// horizontal field of view /in degrees
@@ -160,7 +148,7 @@ struct remap_Prefs{								// Preferences Structure for remap
 typedef struct remap_Prefs rPrefs;
 
 struct perspective_Prefs{						//  Preferences structure for tool perspective
-		pt_int32			magic;					//  File validity check, must be 40
+		int32_t			magic;					//  File validity check, must be 40
 		int				format;					//  rectilinear or fisheye?
 		double  		hfov;					//  Horizontal field of view (in degree)
 		double			x_alpha;				//  New viewing direction (x coordinate or angle)
@@ -253,8 +241,8 @@ enum{										// Enumerates for aPrefs.mode
 	};
 
 struct adjust_Prefs{                  //  Preferences structure for tool adjust
-    pt_int32            magic;        //  File validity check, must be 50
-    pt_int32            mode;         //  What to do: create Panorama etc?
+    int32_t            magic;        //  File validity check, must be 50
+    int32_t            mode;         //  What to do: create Panorama etc?
     Image               im;           //  Image to be inserted/extracted
     Image               pano;         //  Panorama to be created/ used for extraction
 
@@ -286,7 +274,7 @@ typedef union panoPrefs panoPrefs;
 
 
 struct size_Prefs{                      // Preferences structure for 'pref' dialog
-    pt_int32        magic;              //  File validity check; must be 70
+    int32_t        magic;              //  File validity check; must be 70
     int             displayPart;        // Display cropped/framed image ?
     int             saveFile;           // Save to tempfile? 0-no, 1-yes
     fullPath        sFile;              // Full path to file (short name)
@@ -587,7 +575,7 @@ void PT_setInfoDlgFcn(int (*ptr)(int, char *));            // set custom info ca
 int 	infoDlg ( int command, char* argument );	// Display info: same argumenmts as progress
 void PT_setErrorFcn( void (*ptr)( char* , va_list va));         // set custom error function
 void  	PrintError( char* fmt, ...);				// Error Reporting
-void dieWithError(const char*fmt, ...);
+void dieWithError(char*fmt, ...);
 
 int 	ccommand( char ***argvPtr);					// Shell for standalone programs
 
@@ -745,8 +733,8 @@ void 	SetInvMakeParams	( struct fDesc *stack, struct MakeParams *mp, Image *im ,
 void 	SetInvMakeParamsCorrect( struct fDesc *stack, struct MakeParams *mp, Image *im , Image *pn, int color );
 
 void 	GetControlPointCoordinates(int i, double *x, double *y, AlignInfo *gl );
-void 	ARGBtoRGBA(UCHAR* buf, int width, int bitsPerPixel);
-void 	RGBAtoARGB(UCHAR* buf, int width, int bitsPerPixel);
+void 	ARGBtoRGBA(uint8_t* buf, int width, int bitsPerPixel);
+void 	RGBAtoARGB(uint8_t* buf, int width, int bitsPerPixel);
 int 	CropImage(Image *im, PTRect *r);
 void 	DoColorCorrection( Image *im1, Image *im2, int mode );
 
@@ -1106,14 +1094,14 @@ extern sPrefs			*gsPrPtr;
 #endif
 
 /* ENDIAN aware file i/o funtions.  Used for reading and writing photoshop files */
-Boolean panoWriteUCHAR(file_spec fnum, UCHAR   theChar );
-Boolean panoWriteSHORT(file_spec fnum, USHORT  theShort );
-Boolean panoWriteINT32(file_spec fnum, ULONG   theLong );
+Boolean panoWriteUCHAR(file_spec fnum, uint8_t   theChar );
+Boolean panoWriteSHORT(file_spec fnum, uint16_t  theShort );
+Boolean panoWriteINT32(file_spec fnum, uint32_t   theLong );
 Boolean panoWriteINT64(file_spec fnum, int64_t theLongLong );
 Boolean panoWriteINT32or64(file_spec fnum, int64_t theLongLong, Boolean bBig );
-Boolean panoReadUCHAR (file_spec fnum, UCHAR  *pChar );
-Boolean panoReadSHORT (file_spec fnum, USHORT *pShort );
-Boolean panoReadINT32 (file_spec fnum, ULONG  *pLong );
+Boolean panoReadUCHAR (file_spec fnum, uint8_t  *pChar );
+Boolean panoReadSHORT (file_spec fnum, uint16_t *pShort );
+Boolean panoReadINT32 (file_spec fnum, uint32_t  *pLong );
 Boolean panoReadINT64 (file_spec fnum, int64_t  *pLongLong );
 Boolean panoReadINT32or64(file_spec fnum, int64_t  *pLongLong, Boolean bBig );
 

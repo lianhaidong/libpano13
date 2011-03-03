@@ -170,9 +170,9 @@ void ZCombEstimateFocus(Image *im) {
 	int col;
 #define KERNELSPARSENESS 1  // make larger than 1 to run faster but more approximate
 	int n;             /* number of pixels used in kernel */
-	UCHAR *pg;         /* pointer to gray (red) value */
-	UCHAR g;           /* gray value */
-	UCHAR *pa;         /* pointer to alpha value */
+	uint8_t *pg;         /* pointer to gray (red) value */
+	uint8_t g;           /* gray value */
+	uint8_t *pa;         /* pointer to alpha value */
 	int sumg, sumgsq;  /* sum of gray values and gray values squared */
 	int ming, maxg;    /* minimum and maximum gray levels in each region */
 	int kr, kc;
@@ -224,8 +224,8 @@ void ZCombEstimateFocus(Image *im) {
 void ZCombCopyEstFocusToBlue(Image *im) {
 	int row;
 	int col;
-	UCHAR *pg;         /* pointer to gray (blue) value */
-	UCHAR g;           /* gray value */
+	uint8_t *pg;         /* pointer to gray (blue) value */
+	uint8_t g;           /* gray value */
 	int height = im->height;
 	int width = im->width;
 
@@ -250,8 +250,8 @@ void ZCombCopyEstFocusToBlue(Image *im) {
 void ZCombSetMaskFromFocusData(Image *im) {
 	int row;
 	int col;
-	UCHAR *pg;         /* pointer to gray (blue) value */
-	// UCHAR g;           /* gray value */
+	uint8_t *pg;         /* pointer to gray (blue) value */
+	// uint8_t g;           /* gray value */
 	int height = im->height;
 	int width = im->width;
 	float flev;
@@ -276,7 +276,7 @@ void ZCombSetMaskFromFocusData(Image *im) {
 				} else if (ZComb.currentImageNum > flev+1.01) {
 					*pg = 0;
 				} else {
-					*pg = 255 - (UCHAR) (255.0*(ZComb.currentImageNum - (flev+0.01)));
+					*pg = 255 - (uint8_t) (255.0*(ZComb.currentImageNum - (flev+0.01)));
 				}
 			} else {
 				*pg = 255;  // unrecognized masktype, just keep from crashing
@@ -295,7 +295,7 @@ void ZCombSetMaskFromFocusData(Image *im) {
 void ZCombSetGreenTo255(Image *im) {
 	int row;
 	int col;
-	UCHAR *pg;         /* pointer to gray (green) value */
+	uint8_t *pg;         /* pointer to gray (green) value */
 	int height = im->height;
 	int width = im->width;
 

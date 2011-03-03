@@ -103,7 +103,7 @@ rgbe2float(float *red, float *green, float *blue, unsigned char rgbe[4])
 }
 
 /* default minimal header. modify if you want more information in header */
-int RGBE_WriteHeader(FILE *fp, int width, int height, rgbe_header_info *info)
+int RGBE_WriteHeader(FILE *fp, uint32_t width, uint32_t height, rgbe_header_info *info)
 {
   char *programtype = "RGBE";
 
@@ -128,7 +128,7 @@ int RGBE_WriteHeader(FILE *fp, int width, int height, rgbe_header_info *info)
 }
 
 /* minimal header reading.  modify if you want to parse more information */
-int RGBE_ReadHeader(FILE *fp, int *width, int *height, rgbe_header_info *info)
+int RGBE_ReadHeader(FILE *fp, uint32_t *width, uint32_t *height, rgbe_header_info *info)
 {
   char buf[128];
   int found_format;

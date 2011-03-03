@@ -50,6 +50,8 @@
 // Fix 16bit Radial Shift and Adjust - Kevin & Jim 2004 July
 // 2006 Max Lyons         - Various modifications
 #include <assert.h>
+#include <time.h>
+
 #include "filter.h"
 
 #include "file.h"
@@ -66,7 +68,7 @@ static int              writeLayerAndMask       ( Image *im, file_spec fnum, Boo
 static void             getImageRectangle       ( Image *im, PTRect *r );
 static int              fileCopy                ( file_spec src, file_spec dest, size_t numBytes, unsigned char *buf);
 static void             orAlpha                 ( unsigned char* alpha, unsigned char *buf, Image *im, PTRect *r );
-static void             writeWhiteBackground    ( pt_int32 width, pt_int32 height, file_spec fnum, Boolean bBig  );
+static void             writeWhiteBackground    ( uint32_t width, uint32_t height, file_spec fnum, Boolean bBig  );
 static int              addLayer                ( Image *im, file_spec src, file_spec fnum , stBuf *sB, Boolean bBig );
 static int              hasFeather              ( Image *im );
 static int              writeTransparentAlpha   ( Image *im, file_spec fnum, PTRect *theRect );
@@ -117,7 +119,7 @@ char *psdBlendingModesInternalName[] = {
 
 #define PSDHLENGTH 26
 
-size_t panoPSDResourceWrite(file_spec fnum, pt_uint16 resource, pt_int32 len, size_t dataLen, char *resourceData)
+size_t panoPSDResourceWrite(file_spec fnum, uint16_t resource, int32_t len, size_t dataLen, char *resourceData)
 {
 //struct _ColorModeDataBlock
 //{
@@ -258,12 +260,14 @@ size_t panoPSDResourcesBlockWrite(Image *im, file_spec   fnum)
             panoPSDPICTResourceWrite(fnum, 0x02, IPTC_COPYRIGHTNOTICE_ID, descLength, im->metadata.copyright );
         }
 
+#if _win
         if(TRUE)
         {
             char *name;
             char  AppNamePath[MAX_PATH_LENGTH];
 
             //makePathToHost ( &AppNamePath );
+            XXXX Jim, this does not compile under Linux. Is this to get the name of the binary?
             GetModuleFileName( NULL, AppNamePath, MAX_PATH_LENGTH );
 
             name = strrchr( AppNamePath, '.' );
@@ -273,12 +277,7 @@ size_t panoPSDResourcesBlockWrite(Image *im, file_spec   fnum)
             }
 
             // Search for both Win and Unix seperators
-            name = strrchr( AppNamePath, '\\' );
-            if( name == NULL )
-            {
-                name = strrchr(AppNamePath, '/');
-            }
-            
+            name = strrchr( AppNamePath, PATH_SEP );
             if( name != NULL )
             {
                 name++;
@@ -293,30 +292,54 @@ size_t panoPSDResourcesBlockWrite(Image *im, file_spec   fnum)
             descLength = (short)min( 32, strlen(name) );
             panoPSDPICTResourceWrite(fnum, 0x02, IPTC_ORIGINATING_PROGRAM_ID, descLength, name );
         }
-
+#endif
         // date time will be the current date time the image was created
         if(TRUE)//im->metadata.datetime)
         {
-            char        sDateTime[12];
+            char        sDate[20]; 
+            char        sTime[20];
+#ifdef __xxxxx__  
+            //Jim, can you verify if the code below works? if it does, then we don't need the windows dependent one
             SYSTEMTIME  SysTime;
             TIME_ZONE_INFORMATION TimeZoneInformation;
 
-            GetLocalTime(&SysTime);
+            GetLocalTlocalime(&SysTime);
             GetTimeZoneInformation(&TimeZoneInformation);
 
             //date:    0x37 "YYYYMMDD"
-            sprintf(sDateTime, "%04d%02d%02d", SysTime.wYear, SysTime.wMonth, SysTime.wDay);
-
-            // Must not exceed 8 char by IPTC standard.
-            descLength = (short)min( 8, strlen(sDateTime) );
-            panoPSDPICTResourceWrite(fnum, 0x02, IPTC_DATE_CREATED_ID, descLength, sDateTime );
-
+            sprintf(sDate, "%04d%02d%02d", SysTime.wYear, SysTime.wMonth, SysTime.wDay);
             //Time:    0x3c "HHMMSS±HHMM"
-            sprintf(sDateTime, "%02d%02d%02d%+03d%02d", SysTime.wHour, SysTime.wMinute, SysTime.wSecond, (-TimeZoneInformation.Bias)/60, (-TimeZoneInformation.Bias)%60);
+            sprintf(sTime, "%02d%02d%02d%+03d%02d", SysTime.wHour, SysTime.wMinute, SysTime.wSecond, (-TimeZoneInformation.Bias)/60, (-TimeZoneInformation.Bias)%60);
+
+#else
+           time_t t;
+           struct tm *tmp;
+
+           // get the local time, 
+           t = time(NULL);
+           tmp = localtime(&t);
+           //date:    0x37 "YYYYMMDD"
+           if (strftime(sDate, sizeof(sDate), "%Y%m%d", tmp) == 0) {
+               PrintError("Error converting local time in PSD creation");
+               return 0;
+           }
+           assert(length(sDateTime)== 8); // Just making sure
+           //Time:    0x3c "HHMMSS±HHMM"
+           if (strftime(sTime, sizeof(sTime), "%H%M%S%z", tmp) == 0) {
+               PrintError("Error converting local time in PSD creation");
+               return 0;
+           }
+           assert(strlen(sTime)==11); // I _think_ it should always be 11
+
+#endif
+            // Must not exceed 8 char by IPTC standard.
+            descLength = (short)min( 8, strlen(sDate) );
+            panoPSDPICTResourceWrite(fnum, 0x02, IPTC_DATE_CREATED_ID, descLength, sDate );
+
 
             // Must not exceed 11 char by IPTC standard.
-            descLength = (short)min( 11, strlen(sDateTime) );
-            panoPSDPICTResourceWrite(fnum, 0x02, IPTC_TIME_CREATED_ID, descLength, sDateTime );
+            descLength = (short)min( 11, strlen(sTime) );
+            panoPSDPICTResourceWrite(fnum, 0x02, IPTC_TIME_CREATED_ID, descLength, sTime );
         }
 
         // Check for odd size resource rec
@@ -491,7 +514,7 @@ int addLayerToFile( Image *im, fullPath* sfile, fullPath* dfile, stBuf *sB)
     Image       sim;            //  background image
     char        header[128], *h;
     size_t      count, i, srcCount = 0;
-    pt_uint32   len;
+    uint32_t   len;
     unsigned char **buf;
     int         BitsPerChannel, result = 0;
     Boolean     bBig = FALSE;
@@ -704,9 +727,9 @@ static int writeImageDataPlanar( Image *im, file_spec fnum )
 
 
 // Write white background, RLE-compressed
-static void writeWhiteBackground( pt_int32 width, pt_int32 height, file_spec fnum, Boolean bBig  )
+static void writeWhiteBackground(uint32_t width, uint32_t height, file_spec fnum, Boolean bBig  )
 {
-    pt_int32        w8, w;
+    uint32_t        w8, w;
     size_t          count;
     char           *d;
     char          **scanline;
@@ -778,8 +801,8 @@ int readPSD(Image *im, fullPath *sfile, int mode)
     file_spec       src;
     char            header[128];
     char           *h;
-    ULONG           len;
-    ULONG           i;
+    uint32           len;
+    uint32           i;
     size_t          count;
     Boolean         bBig = FALSE;
 
@@ -1182,7 +1205,7 @@ static int writeChannelData( Image *im, file_spec fnum, int channel, PTRect *the
     unsigned char           **ch;
     register unsigned char  *c, *idata;
     size_t                  count;
-    pt_int32                outputRegionWidth, outputRegionHeight;
+    uint32_t                outputRegionWidth, outputRegionHeight;
 
     GetBitsPerChannel( im, BitsPerChannel );
     GetChannels( im, channels );
@@ -1357,8 +1380,8 @@ static void getImageRectangle( Image *im, PTRect *theRect )
                     x<im->width;
                     x++, alpha += 8){
                     data = alpha + 2;
-                    if( *((USHORT*)alpha) || 
-                        *((USHORT*)data) || *(((USHORT*)data)+1) || *(((USHORT*)data)+2) ){
+                    if( *((uint16_t*)alpha) || 
+                        *((uint16_t*)data) || *(((uint16_t*)data)+1) || *(((uint16_t*)data)+2) ){
                         if (y   < theRect->top)    theRect->top = y;
                         if (y+1 > theRect->bottom) theRect->bottom = y+1;
                         if (x   < theRect->left)   theRect->left = x;
@@ -1398,7 +1421,7 @@ static void getImageRectangle( Image *im, PTRect *theRect )
                 for(x=0; x<im->width; x++)
                 {
                     data = alpha + cy + bpp*x;
-                    if( *((USHORT*)data) || *(((USHORT*)data)+1) || *(((USHORT*)data)+2) )
+                    if( *((uint16_t*)data) || *(((uint16_t*)data)+1) || *(((uint16_t*)data)+2) )
                     {
                         if (y   < theRect->top)    theRect->top = y;
                         if (y+1 > theRect->bottom) theRect->bottom = y+1;
@@ -1433,8 +1456,8 @@ static void getImageRectangle( Image *im, PTRect *theRect )
 // filepointer is at the beginning of it in both src and dest
 static int addLayer( Image *im, file_spec src, file_spec fnum, stBuf *sB, Boolean bBig )
 {
-    pt_uint32       var;
-    int64_t         var64;
+    uint32_t        var;
+    uint64_t         var64;
     PTRect          theRect, *nRect = NULL;
     int             bpp, oddSized = 0, oddSizedOld = 0;
     int64_t         channelLength, lenLayerInfo;
@@ -1443,16 +1466,16 @@ static int addLayer( Image *im, file_spec src, file_spec fnum, stBuf *sB, Boolea
     char            sLayerName[5];
     unsigned char   ch;
     int             i, channels, psdchannels;
-    USHORT          numLayers;
-    ULONG           k;
+    uint16_t          numLayers;
+    uint32_t           k;
     unsigned int    BitsPerChannel;
-    USHORT         *uChannel = NULL;
-    USHORT         *chid = NULL;
-    ULONG          *uFlag = NULL;
-    ULONG          *uExtra = NULL;
-    ULONG          *uMask = NULL;
-    ULONG          *uMaskData = NULL;
-    ULONG          *cNames = NULL; //used to store a 4 character name
+    uint16_t         *uChannel = NULL;
+    uint16_t         *chid = NULL;
+    uint32_t          *uFlag = NULL;
+    uint32_t          *uExtra = NULL;
+    uint32_t          *uMask = NULL;
+    uint32_t          *uMaskData = NULL;
+    uint32_t          *cNames = NULL; //used to store a 4 character name
     int64_t        *chlength = NULL;
     unsigned char   **alpha = NULL, **buf = NULL;
     int             hasClipMask = 0;    // Create a mask
@@ -1491,18 +1514,18 @@ static int addLayer( Image *im, file_spec src, file_spec fnum, stBuf *sB, Boolea
     panoReadINT32or64( src, &var64, bBig );           // Length of the miscellaneous information section (ignored)
     panoReadINT32or64( src, &var64, bBig );           // Length of the layers info section, rounded up to a multiple of 2(ignored)
 
-    panoReadSHORT( src, (USHORT *)&numLayers );     // Number of layers If it is a negative number, its absolute value is the number of layers and the first alpha channel contains the transparency data for the merged result.
+    panoReadSHORT( src, (uint16_t *)&numLayers );     // Number of layers If it is a negative number, its absolute value is the number of layers and the first alpha channel contains the transparency data for the merged result.
     lenLayerInfo = 2;
 
     chlength = (int64_t*) malloc( numLayers * 8 );
-    uChannel = (USHORT*) malloc( numLayers * sizeof( USHORT ) );
-    cNames   = (ULONG*) malloc( numLayers * sizeof( ULONG ) );
+    uChannel = (uint16_t*) malloc( numLayers * sizeof( uint16_t ) );
+    cNames   = (uint32_t*) malloc( numLayers * sizeof( uint32_t ) );
     nRect    = (PTRect*) malloc( numLayers * sizeof( PTRect ) );
-    uExtra   = (ULONG*) malloc( numLayers * sizeof( ULONG ) );
-    uMask    = (ULONG*) malloc( numLayers * sizeof( ULONG ) );
-    uMaskData= (ULONG*) malloc( numLayers * 5 * sizeof( ULONG ) );
-    chid     = (USHORT*) malloc( numLayers * 5 * sizeof( USHORT ) );// five posible channels
-    uFlag    = (ULONG*) malloc( numLayers * 5 * sizeof( ULONG ) );
+    uExtra   = (uint32_t*) malloc( numLayers * sizeof( uint32_t ) );
+    uMask    = (uint32_t*) malloc( numLayers * sizeof( uint32_t ) );
+    uMaskData= (uint32_t*) malloc( numLayers * 5 * sizeof( uint32_t ) );
+    chid     = (uint16_t*) malloc( numLayers * 5 * sizeof( uint16_t ) );// five posible channels
+    uFlag    = (uint32_t*) malloc( numLayers * 5 * sizeof( uint32_t ) );
     if( chlength == NULL || uChannel== NULL || nRect == NULL ||
         cNames == NULL || uExtra == NULL || uMask == NULL || 
         uMaskData == NULL || chid == NULL || uFlag == NULL )
@@ -1514,10 +1537,10 @@ static int addLayer( Image *im, file_spec src, file_spec fnum, stBuf *sB, Boolea
 
     for(i=0; i<numLayers; i++) 
     {
-        panoReadINT32( src, (ULONG *)&nRect[i].top );     // Layer top 
-        panoReadINT32( src, (ULONG *)&nRect[i].left );    // Layer left
-        panoReadINT32( src, (ULONG *)&nRect[i].bottom );  // Layer bottom 
-        panoReadINT32( src, (ULONG *)&nRect[i].right );   // Layer right 
+        panoReadINT32( src, &nRect[i].top );     // Layer top 
+        panoReadINT32( src, &nRect[i].left );    // Layer left
+        panoReadINT32( src, &nRect[i].bottom );  // Layer bottom 
+        panoReadINT32( src, &nRect[i].right );   // Layer right 
 
         panoReadSHORT( src, &uChannel[i] );               // The number of channels in the layer.
 
@@ -1736,7 +1759,8 @@ static int addLayer( Image *im, file_spec src, file_spec fnum, stBuf *sB, Boolea
     }
     panoWriteINT32( fnum, 0 );                          // Layer blending ranges
 
-    sprintf( &(sLayerName[1]), "%03.3d", numLayers+1 );
+    sprintf( &(sLayerName[1]), "%03d", numLayers+1 );
+
     sLayerName[0] = 3;
     count = 4;
     mywrite( fnum, count, sLayerName );                 // Layer Name
@@ -2246,7 +2270,7 @@ int panoCreateLayeredPSD(fullPath * fullPathImages, int numberImages,
         }
         panoWriteINT32( fnum, 0 );                              // Layer blending ranges
 
-        sprintf( &(sLayerName[1]), "%03.3d", i+1 );
+        sprintf( &(sLayerName[1]), "%03d", i+1 );
         sLayerName[0] = 3;
         count = 4;
         mywrite( fnum, count, sLayerName ); // Layer Name
@@ -2342,8 +2366,8 @@ static void orAlpha( unsigned char* alpha, unsigned char *buf, Image *im, PTRect
             {
                 for(x=theRect->left; x<theRect->right; x++)
                 {
-                    if( *((USHORT*)(buf+ by + 2*(x - theRect->left))) )
-                        *((USHORT*)(alpha + ay + 2*x) ) = 65535U;
+                    if( *((uint16_t*)(buf+ by + 2*(x - theRect->left))) )
+                        *((uint16_t*)(alpha + ay + 2*x) ) = 65535U;
                 }
             }
         }
@@ -2558,11 +2582,11 @@ int readPSDMultiLayerImage( MultiLayerImage *mim, fullPath* sfile){
     char            header[128], *h;
     int64_t         chlength;
     size_t          count, iul, kul;
-    pt_uint32       var;
-    int64_t         var64;
-    USHORT          svar;
+    uint32_t        var;
+    uint64_t        var64;
+    uint16_t          svar;
     int             i, k, result = 0, odd = 0;
-    USHORT          uChannel;
+    uint16_t          uChannel;
     unsigned char **buf = NULL, ch;
     Image           im;
     int             BitsPerSample = 8;
@@ -2630,10 +2654,10 @@ int readPSDMultiLayerImage( MultiLayerImage *mim, fullPath* sfile){
         SetImageDefaults( &mim->Layer[i] );
         mim->Layer[i].width  = im.width;
         mim->Layer[i].height = im.height;
-        panoReadINT32( src, (pt_uint32*)&mim->Layer[i].selection.top );     // Layer top 
-        panoReadINT32( src, (pt_uint32*)&mim->Layer[i].selection.left );    // Layer left
-        panoReadINT32( src, (pt_uint32*)&mim->Layer[i].selection.bottom );  // Layer bottom 
-        panoReadINT32( src, (pt_uint32*)&mim->Layer[i].selection.right );   // Layer right 
+        panoReadINT32( src, (uint32_t*)&mim->Layer[i].selection.top );     // Layer top 
+        panoReadINT32( src, (uint32_t*)&mim->Layer[i].selection.left );    // Layer left
+        panoReadINT32( src, (uint32_t*)&mim->Layer[i].selection.bottom );  // Layer bottom 
+        panoReadINT32( src, (uint32_t*)&mim->Layer[i].selection.right );   // Layer right 
 
         panoReadSHORT( src, &uChannel );                              // The number of channels in the layer.
         mim->Layer[i].bitsPerPixel = uChannel * BitsPerSample;
@@ -2705,7 +2729,7 @@ int readPSDMultiLayerImage( MultiLayerImage *mim, fullPath* sfile){
     // ************* Read Channel Image data ************************** //
     for( i=0; i< mim->numLayers; i++)
     {
-        uChannel    = (USHORT)(mim->Layer[i].bitsPerPixel/BitsPerSample);
+        uChannel    = (uint16_t)(mim->Layer[i].bitsPerPixel/BitsPerSample);
         chlength    = mim->Layer[i].dataSize/ uChannel;
         buf = (unsigned char**) mymalloc( chlength );
         if( buf == NULL )
@@ -2801,9 +2825,9 @@ int hasFeather ( Image *im )
             for(x=0, alpha = *(im->data) + y * im->bytesPerLine; x<im->width;
                 x++, alpha += 8)
             {
-                if(a && *((USHORT*)alpha) != 0 )// have data
+                if(a && *((uint16_t*)alpha) != 0 )// have data
                     a = 0;
-                if( *((USHORT*)alpha) != 0xFFFF &&  *((USHORT*)alpha) != 0 )
+                if( *((uint16_t*)alpha) != 0xFFFF &&  *((uint16_t*)alpha) != 0 )
                     return 1;
             }
         }

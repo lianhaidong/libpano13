@@ -866,15 +866,15 @@ static void ShiftImage(TrformStr *TrPtr, int xoff, int yoff)
 	}
 	else // 16
 	{
-		USHORT *dus, *sus;
+		uint16_t *dus, *sus;
 		for(y=0; y<TrPtr->dest->height; y++)
 		{
 			cdy = y * TrPtr->dest->bytesPerLine;
 			csy = (y+yoff) * TrPtr->src->bytesPerLine;
 			for(x=0; x<TrPtr->dest->width; x++)
 			{
-				dus = (USHORT *)(dest + cdy + x*bpp);
-				sus = (USHORT *)(src  + csy + (x+xoff)*bpp);
+				dus = (uint16_t *)(dest + cdy + x*bpp);
+				sus = (uint16_t *)(src  + csy + (x+xoff)*bpp);
 				if(fcb)
 				{
 					*(dus++) = *(sus++);
