@@ -1,3 +1,8 @@
+2011-03-03    <dmg@uvic.ca>
+
+	* CMakeList.txt: Added TAGS file creation, undid removal of
+	hugin-related paths.
+
 2011-03-02    <dmg@uvic.ca>
 
 	* panotypes.h, and many other files: Removed pt_int* data
