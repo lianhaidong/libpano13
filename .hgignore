@@ -5,3 +5,7 @@ glob:*.filters
 glob:*.suo
 glob:*.sdf
 glob:*.opensdf
+glob:CMakeFiles
+glob:CMakeCache.txt
+glob:Makefile
+glob:Testing
