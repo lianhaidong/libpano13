@@ -302,22 +302,10 @@ size_t panoPSDResourcesBlockWrite(Image *im, file_spec   fnum)
         {
             char        sDate[20]; 
             char        sTime[20];
-#ifdef __xxxxx__  
-            //Jim, can you verify if the code below (#else) works for you? if it does, then we don't need this windows dependent one
-            SYSTEMTIME  SysTime;
-            TIME_ZONE_INFORMATION TimeZoneInformation;
-
-            GetLocalTlocalime(&SysTime);
-            GetTimeZoneInformation(&TimeZoneInformation);
-
-            //date:    0x37 "YYYYMMDD"
-            sprintf(sDate, "%04d%02d%02d", SysTime.wYear, SysTime.wMonth, SysTime.wDay);
-            //Time:    0x3c "HHMMSS±HHMM"
-            sprintf(sTime, "%02d%02d%02d%+03d%02d", SysTime.wHour, SysTime.wMinute, SysTime.wSecond, (-TimeZoneInformation.Bias)/60, (-TimeZoneInformation.Bias)%60);
-
-#else
-           time_t t;
-           struct tm *tmp;
+            char        sZone[20];
+            time_t      t;
+            struct tm  *tmp;
+            long        lZone = 0; 
 
            // get the local time, 
            t = time(NULL);
@@ -325,25 +313,34 @@ size_t panoPSDResourcesBlockWrite(Image *im, file_spec   fnum)
            //date:    0x37 "YYYYMMDD"
            if (strftime(sDate, sizeof(sDate), "%Y%m%d", tmp) == 0) {
                PrintError("Error converting local time in PSD creation");
-               return 0;
+               //return 0;
            }
-           assert(length(sDateTime)== 8); // Just making sure
+           else
+           {
+                // Must not exceed 8 char by IPTC standard.
+                assert(strlen(sDate)== 8); // Just making sure
+                descLength = (short)min( 8, strlen(sDate) );
+                panoPSDPICTResourceWrite(fnum, 0x02, IPTC_DATE_CREATED_ID, descLength, sDate );
+           }
+
            //Time:    0x3c "HHMMSS±HHMM"
-           if (strftime(sTime, sizeof(sTime), "%H%M%S%z", tmp) == 0) {
+           // First get the time
+           // %z or %Z  in strftime produces a name of the time zone not a numeric value.
+           if (strftime(sTime, sizeof(sTime), "%H%M%S", tmp) == 0) {
                PrintError("Error converting local time in PSD creation");
-               return 0;
+               //return 0;
            }
-           assert(strlen(sTime)==11); // I _think_ it should always be 11
+           else
+           {
+               _get_timezone(&lZone);
+               sprintf(sZone, "%+03d%02d", -lZone/60/60, lZone/60%60);
+               strcat(sTime, sZone);
 
-#endif
-            // Must not exceed 8 char by IPTC standard.
-            descLength = (short)min( 8, strlen(sDate) );
-            panoPSDPICTResourceWrite(fnum, 0x02, IPTC_DATE_CREATED_ID, descLength, sDate );
-
-
-            // Must not exceed 11 char by IPTC standard.
-            descLength = (short)min( 11, strlen(sTime) );
-            panoPSDPICTResourceWrite(fnum, 0x02, IPTC_TIME_CREATED_ID, descLength, sTime );
+                // Must not exceed 11 char by IPTC standard.
+                assert(strlen(sTime)==11); // I _think_ it should always be 11
+                descLength = (short)min( 11, strlen(sTime) );
+                panoPSDPICTResourceWrite(fnum, 0x02, IPTC_TIME_CREATED_ID, descLength, sTime );
+           }
         }
 
         // Check for odd size resource rec
@@ -624,7 +621,7 @@ _addLayerToFile_exit:
 
 static int writeImageDataPlanar( Image *im, file_spec fnum )
 {
-    register int            x,y,idy, bpp;
+    register unsigned int   x,y,idy, bpp;
     unsigned char           **channel;
     register unsigned char  *ch, *idata;
     int                     color;
@@ -944,7 +941,7 @@ static int ParsePSDHeader( char *header, Image *im, Boolean *pbBig )
 
 static int readImageDataPlanar(Image *im, file_spec src ) 
 {
-    register int            x,y,idy, bpp;
+    register unsigned int   x,y,idy, bpp;
     unsigned char           **channel = NULL;
     register unsigned char  *h, *idata;
     int                     result = 0, i, chnum,BitsPerChannel, channels;
@@ -1205,7 +1202,7 @@ static int writeLayerAndMask( Image *im, file_spec fnum, Boolean bBig )
 
 static int writeChannelData( Image *im, file_spec fnum, int channel, PTRect *theRect )
 {
-    register int            x, y, idx, idy, bpp, BitsPerChannel, channels;
+    register unsigned int   x, y, idx, idy, bpp, BitsPerChannel, channels;
     unsigned char           **ch;
     register unsigned char  *c, *idata;
     size_t                  count;
@@ -1291,7 +1288,7 @@ static int writeChannelData( Image *im, file_spec fnum, int channel, PTRect *the
 
 static int writeTransparentAlpha( Image *im, file_spec fnum, PTRect *theRect )
 {
-    register int            y, bpp, BitsPerChannel;
+    register unsigned int   y, bpp, BitsPerChannel;
     size_t                  line, count;
     unsigned char           **ch;
     register unsigned char  *c;
@@ -1332,7 +1329,7 @@ static int writeTransparentAlpha( Image *im, file_spec fnum, PTRect *theRect )
 static void getImageRectangle( Image *im, PTRect *theRect )
 {
     register unsigned char *alpha, *data;
-    register int x,y,cy,bpp,channels;
+    register unsigned int   x,y,cy,bpp,channels;
     int BitsPerChannel;
 
     //If this is a cropped TIFF then we can get the image rectangle ROI from
@@ -1461,7 +1458,7 @@ static void getImageRectangle( Image *im, PTRect *theRect )
 static int addLayer( Image *im, file_spec src, file_spec fnum, stBuf *sB, Boolean bBig )
 {
     uint32_t        var;
-    uint64_t         var64;
+    int64_t         var64;
     PTRect          theRect, *nRect = NULL;
     int             bpp, oddSized = 0, oddSizedOld = 0;
     int64_t         channelLength, lenLayerInfo;
@@ -2337,7 +2334,7 @@ static int fileCopy( file_spec src, file_spec dest, size_t numBytes, unsigned ch
 
 static void orAlpha( unsigned char* alpha, unsigned char *buf, Image *im, PTRect *theRect )
 {
-    register int x,y,ay,by,w;
+    register unsigned int x,y,ay,by,w;
     int BitsPerChannel;
 
     GetBitsPerChannel( im, BitsPerChannel );
@@ -2587,7 +2584,7 @@ int readPSDMultiLayerImage( MultiLayerImage *mim, fullPath* sfile){
     int64_t         chlength;
     size_t          count, iul, kul;
     uint32_t        var;
-    uint64_t        var64;
+    int64_t         var64;
     uint16_t          svar;
     int             i, k, result = 0, odd = 0;
     uint16_t          uChannel;
@@ -2798,9 +2795,9 @@ readPSDMultiLayerImage_exit:
 //    channel can not be used as shape mask.
 int hasFeather ( Image *im )
 {
-    register int        y, x, a;
+    register unsigned int    y, x, a;
     register unsigned char  *alpha;
-    int                 BitsPerChannel;
+    int                      BitsPerChannel;
 
     GetBitsPerChannel( im, BitsPerChannel );
 
