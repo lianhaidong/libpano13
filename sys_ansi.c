@@ -41,7 +41,7 @@ void filter_main( TrformStr *TrPtr, struct size_Prefs *spref)
 
 // Error reporting
 
-void  PrintErrorIntern( char* fmt, va_list ap)
+void  PrintErrorIntern(char* fmt, va_list ap)
 {
 	char message[512];
 	char *toPrint;
@@ -61,7 +61,7 @@ if( JavaUI ){
 	}else
 #endif
   {
-	  printf(toPrint);
+	  printf("%s", toPrint);
 
 	  // Add an end of line if none is provide
 	  if (strlen(toPrint) > 0 &&
@@ -249,8 +249,12 @@ void writePrefs( char* prefs, int selector ){
 
 
 	if( (prfile = fopen( prefname, "rb" )) != NULL ){
-		fread( &prf, sizeof(prf), 1 , prfile);
-		fclose( prfile );
+            int i;
+            i = fread( &prf, sizeof(prf), 1 , prfile);
+            if (i != sizeof(prf)) {
+                PrintError("Unable to write to preference file [%s]\n", prefname);
+            }
+            fclose( prfile );
 	}
 
 	switch( selector){
@@ -327,7 +331,9 @@ void 	showScript			( fullPath* scriptFile )
 	char cmd[sizeof(fullPath) + 16];
 	
 	sprintf( cmd, "vi \"%s\"", scriptFile->name );
-	system( cmd );
+	if (system( cmd ) == -1) {
+            PrintError("Unable to execute script editor");
+        }
 }
 	
 
@@ -336,7 +342,9 @@ void 	showScript			( fullPath* scriptFile )
 int 	FindFile( fullPath *fname ){
 	printf("\n");
 	printf("Load File:\n");
-	scanf("%s", fname->name); 
+	if (scanf("%s", fname->name) != 1) {
+            return -1;
+        }
 	
 	if(strlen(fname->name) > 0)
 		return 0;
@@ -347,7 +355,9 @@ int 	FindFile( fullPath *fname ){
 int 	SaveFileAs			( fullPath *fname, char *prompt PT_UNUSED, char *name PT_UNUSED){
 	printf("\n");
 	printf("Save File As:\n");
-	scanf("%s", fname->name); 
+	if (scanf("%s", fname->name) != 1) {
+            return -1;
+        }
 	
 	if(strlen(fname->name) > 0)
 		return 0;
@@ -409,7 +419,9 @@ int LaunchAndSendScript(char *application, char *script){
 		return -1;
 	}
 	sprintf(cmd, "%s %s", application, script );
-	system( cmd );
+	if (system( cmd ) == -1) {
+            PrintError("Unable to launch script");
+        }
 	free(cmd);
 	return 0;
 }

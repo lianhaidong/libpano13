@@ -806,7 +806,7 @@ static void sinc1024_32( unsigned char *dst, unsigned char **rgb,
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // computes the source coordinates of a single pixel at position x using the math transforms
-void ComputePixelCoords( double *ax, double *ay, int *trinum, char *avalid, pt_int32 x, long offset, double w2, double y_d, 
+void ComputePixelCoords( double *ax, double *ay, int *trinum, char *avalid, uint32_t x, long offset, double w2, double y_d, 
 						  fDesc *fD, double sw2, double sh2, double min_x, double max_x, double min_y, double max_y ) {
 	double x_d, Dx, Dy;
         int tvalid;
@@ -837,9 +837,9 @@ void ComputePixelCoords( double *ax, double *ay, int *trinum, char *avalid, pt_i
 // fills a part of the arrays with the coordinates in the source image for every pixel
 // xl is the left border of the array, xr is the right border. The array values have already been
 //   computed in xl and xr.
-void ComputePartialRowCoords( double *ax, double *ay, int *trinum, char *avalid, pt_int32 xl, pt_int32 xr, long offset, double w2, double y_d, 
+void ComputePartialRowCoords( double *ax, double *ay, int *trinum, char *avalid, uint32_t xl, uint32_t xr, long offset, double w2, double y_d, 
 						  fDesc *fD, double sw2, double sh2, double min_x, double max_x, double min_y, double max_y ) {
-	pt_int32 xm, idx;
+	uint32_t xm, idx;
 	double srcX_lin, srcY_lin;
 	double deltaX, deltaY, tmpX, tmpY;
 
@@ -933,12 +933,12 @@ void ComputePartialRowCoords( double *ax, double *ay, int *trinum, char *avalid,
 // asize is the number of elements of the arrays
 // the array elements lie in the interval [0, asize], the image elements in [destRect.left, destRect.right]: the offset parameter
 //   is used for the conversion
-void ComputeRowCoords( double *ax, double *ay, int *trinum, char *avalid, pt_int32 asize, long offset, double w2, double y_d, 
+void ComputeRowCoords( double *ax, double *ay, int *trinum, char *avalid, int32_t asize, long offset, double w2, double y_d, 
 						  fDesc *fD, double sw2, double sh2, double min_x, double max_x, double min_y, double max_y, int STEP_WIDTH) {
 
 	// STEP_WIDTH is initial distance betwen correctly computed points. The distance will be reduced if needed.
 
-	pt_int32 x;
+	uint32_t x;
 
 	x = 0;
 	ComputePixelCoords( ax, ay, trinum, avalid, x, offset, w2, y_d, fD, sw2, sh2, min_x, max_x, min_y, max_y );
@@ -996,8 +996,8 @@ This function takes the parameter 'imageNum' which repesents the
 index of the image that has to be converted.*/
 void MyTransForm( TrformStr *TrPtr, fDesc *fD, int color, int imageNum)
 {
-	register pt_int32 		x, y;		// Loop through destination image
-	register pt_int32     	i, k; 	 	// Auxilliary loop variables
+	register uint32_t 		x, y;		// Loop through destination image
+	register uint32_t     	i, k; 	 	// Auxilliary loop variables
 	int 			skip = 0;	// Update progress counter
 	unsigned char 		*dest,*src,*sry;// Source and destination image data
 	register unsigned char 		*sr;	// Source  image data
@@ -1393,7 +1393,7 @@ void MyTransForm( TrformStr *TrPtr, fDesc *fD, int color, int imageNum)
 						int xn = xc, yn = yc;
 						if( xn < 0 ) xn = 0; //  -1  crashes Windows
 						if( yn < 0 ) yn = 0; //  -1  crashes Windows
-						if( *((USHORT*)(src + yn * BytesPerLine + BytesPerPixel * xn)) < 32768 )
+						if( *((uint16_t*)(src + yn * BytesPerLine + BytesPerPixel * xn)) < 32768 )
 							valid = FALSE;
 						}
 						break;
@@ -1931,7 +1931,7 @@ The function caches the transformed coordinates OC to speed things up.
 
 
 void transForm_aa( TrformStr *TrPtr, fDesc *fD,fDesc *finvD, int color, int imageNum){
-	register pt_int32 		x, y;		// Loop through destination image
+	register uint32_t 	x, y;		// Loop through destination image
 	int 			skip = 0;	// Update progress counter
 	unsigned char 		*dest,*src;// Source and destination image data
 										// Message to be displayed by progress reporter
@@ -1984,7 +1984,7 @@ void transForm_aa( TrformStr *TrPtr, fDesc *fD,fDesc *finvD, int color, int imag
 	ffQueueItem *ffStack;
 	int			srcWidth; 
 	int			srcHeight; 
-	pt_uint32 *ffIsInQueue;
+	uint32_t *ffIsInQueue;
 
 	int ccx,ccy;
 	double d,sd,ox,oy;
@@ -2182,10 +2182,10 @@ void transForm_aa( TrformStr *TrPtr, fDesc *fD,fDesc *finvD, int color, int imag
 	}
 
 	// Allocate the memory for the Stack, Floodfill markers and Cache
-	invCache=(invCacheItem *) calloc(INV_CACHE_SIZE * sizeof(invCacheItem),1);
-	ffStack=(ffQueueItem *) calloc(FF_STACK_SIZE * sizeof(ffQueueItem),1);
-	ffIsInQueueSize=(((srcWidth*srcHeight) / 32) + 1);
-	ffIsInQueue=(pt_uint32 *)  calloc(ffIsInQueueSize * sizeof(pt_uint32),1);
+	invCache= calloc(INV_CACHE_SIZE * sizeof(invCacheItem),1);
+	ffStack= calloc(FF_STACK_SIZE * sizeof(ffQueueItem),1);
+	ffIsInQueueSize= ((srcWidth*srcHeight) / 32) + 1;
+	ffIsInQueue=  calloc(ffIsInQueueSize * sizeof(uint32_t),1);
 
 	for(y=destRect.top; y<destRect.bottom; y++){
 		// Update Progress report and check for cancel every 2%.
@@ -2259,7 +2259,7 @@ void transForm_aa( TrformStr *TrPtr, fDesc *fD,fDesc *finvD, int color, int imag
 						int xn = xc, yn = yc;
 						if( xn < 0 ) xn = 0; //  -1  crashes Windows
 						if( yn < 0 ) yn = 0; //  -1  crashes Windows
-						if( *((USHORT*)(src + yn * BytesPerLine + BytesPerPixel * xn)) == 0 )
+						if( *((uint16_t*)(src + yn * BytesPerLine + BytesPerPixel * xn)) == 0 )
 							valid = FALSE;
 						}
 						break;
@@ -2282,7 +2282,7 @@ void transForm_aa( TrformStr *TrPtr, fDesc *fD,fDesc *finvD, int color, int imag
 				int bx,by,ex,ey;											
 				double DstX,DstY,rDstX,rDstY;
 				double weight,w,rd,gd,bd;
-				pt_uint32 *ptui;
+				uint32_t *ptui;
 
 				bx = (int)(floor(orgDx + sw2));
 				ex = (int)(ceil(orgDx + sw2));

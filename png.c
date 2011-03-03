@@ -233,18 +233,18 @@ int readPNG	( Image *im, fullPath *sfile )
    	png_read_image(png_ptr, row_pointers);
 	
 	if(im->bitsPerPixel == 32){ // rgba; switch to argb 
-		UCHAR pix, *p;		
-	 	LOOP_IMAGE( im, p = (UCHAR*)idata; pix=p[0]; p[0]=p[3];p[3]=p[2];p[2]=p[1];p[1]=pix; )		
+		uint8_t pix, *p;		
+	 	LOOP_IMAGE( im, p = (uint8_t*)idata; pix=p[0]; p[0]=p[3];p[3]=p[2];p[2]=p[1];p[1]=pix; )		
 	}
 	if(im->bitsPerPixel == 64){ // rgba; switch to argb 
-		USHORT pix, *p;		
-	 	LOOP_IMAGE( im, p = (USHORT*)idata; pix=p[0]; p[0]=p[3];p[3]=p[2];p[2]=p[1];p[1]=pix; )		
+		uint16_t pix, *p;		
+	 	LOOP_IMAGE( im, p = (uint16_t*)idata; pix=p[0]; p[0]=p[3];p[3]=p[2];p[2]=p[1];p[1]=pix; )		
 	}
 
 #ifndef PT_BIGENDIAN
 	// Swap bytes in shorts
 	if(im->bitsPerPixel == 48){ 
-		UCHAR  b,*id;
+		uint8_t  b,*id;
 
 // the original construct of *id = *(++id) results in:
 //.L80:
@@ -271,7 +271,7 @@ int readPNG	( Image *im, fullPath *sfile )
 				b = *id; *id = *(id + 1); id++; *(id)=b; )
 		}
 	if(im->bitsPerPixel == 64){ 
-		UCHAR  b,*id;	
+		uint8_t  b,*id;	
 	 	LOOP_IMAGE( im, id = idata; \
 				b = *id; *id = *(id + 1); id++; *(id++)=b; \
 				b = *id; *id = *(id + 1); id++; *(id++)=b; \

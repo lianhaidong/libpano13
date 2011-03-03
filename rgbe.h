@@ -1,5 +1,3 @@
-#ifndef _H_RGBE
-#define _H_RGBE
 /* THIS CODE CARRIES NO GUARANTEE OF USABILITY OR FITNESS FOR ANY PURPOSE.
  * WHILE THE AUTHORS HAVE TRIED TO ENSURE THE PROGRAM WORKS CORRECTLY,
  * IT IS STRICTLY USE AT YOUR OWN RISK.  */
@@ -12,7 +10,12 @@
    See rgbe.txt file for more details.
 */
 
+#ifndef _H_RGBE
+#define _H_RGBE
+
 #include <stdio.h>
+#include "panotypes.h"
+
 
 typedef struct {
   int valid;            /* indicate which fields are valid */
@@ -39,8 +42,9 @@ extern "C" {
 #endif
 /* read or write headers */
 /* you may set rgbe_header_info to null if you want to */
-int RGBE_WriteHeader(FILE *fp, int width, int height, rgbe_header_info *info);
-int RGBE_ReadHeader(FILE *fp, int *width, int *height, rgbe_header_info *info);
+
+int RGBE_WriteHeader(FILE *fp, uint32_t width, uint32_t height, rgbe_header_info *info);
+int RGBE_ReadHeader(FILE *fp, uint32_t* width, uint32_t* height, rgbe_header_info *info);
 
 /* read or write pixels */
 /* can read or write pixels in chunks of any size including single pixels*/
@@ -57,12 +61,6 @@ int RGBE_ReadPixels_RLE(FILE *fp, float *data, int scanline_width,
 int RGBE_ReadPixels_Raw_RLE(FILE *fp, unsigned char *data, int scanline_width,
             size_t num_scanlines);
 
-#ifdef _CPLUSPLUS
-/* define if your compiler understands inline commands */
-#define INLINE inline
-#else
-#define INLINE
-#endif
 
 INLINE void float2rgbe(unsigned char rgbe[4], float red, float green, float blue);
 INLINE void rgbe2float(float *red, float *green, float *blue, unsigned char rgbe[4]);

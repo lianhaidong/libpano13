@@ -1,6 +1,45 @@
-2011-02-19    <dmg@uvic.ca>
+2011-03-03    <dmg@uvic.ca>
 
+	* PTcommon.h (min): Added min macro (needed in new PSD code under Linux)
+
+2011-03-02    <dmg@uvic.ca>
+
+	* PTcommon.c, PTcommon.h, ZComb.c, adjust.c, correct.c, doc/Makefile.am
+           file.c, filter.c filter.h, fourier.c, man/Makefile.am,
+	   morpher.c, panorama.h, panotypes.h, parser.c, perspect.c,
+	   png.c, pt_stdint.h, resample.c, rgbe.c, rgbe.h, sys_ansi.c,
+	   sys_common.c, tests/CMakeLists.txt, tiff.c, tools/panoinfo_unix.c:
+	Merges changes from default, plus fixed compilation
+	   errors. Removed UCHAR, UINT, UINT16, UINT32 in favour of their
+	   standard names.
+
+	* panotypes.h, and many other files: Removed pt_int* data
+	types. There are not used consistently with the uint datatypes, so
+	why add confusion?
+	
+	* tests/CMakeLists.txt: I removed some code that
+	moved/copied/removed the test data files in the reference directory.
+
+	* panorama.h: We no longer need code for OS 9. We don't support
+	it. Cleaned up the file.
+
+	* filter.h, sys_common.c (dieWithError): Removed const as it just
+	adds compiler warnings, and we don't really use const parameters
+	anyways.
+
+	* sys_ansi.c: Cleaned up the file from compiler warnings.
+
+	* pt_stdint.h: Cleaned up this file.
+
+	* panotypes.h: Cleaned up this file. 
+
+2011-02-19    <dmg@uvic.ca>
 	* Fixed a small error that stopped compilation under Linux.
+
+2011-02-20    <dmg@uvic.ca>
+
+	* tools/panoinfo_unix.c, sys_ansy.c: removed compiler
+	warnings. Patch submited by Guillaume Rousse.
 
 2011-01-20    <pablo.dangelo@web.de>
 
@@ -8,10 +47,10 @@
 
 2011-01-11    jim0watters
 
-  * adjust.c Update SetStitchDefaults to include psdOpacity and psdBlendingMode
+	* adjust.c Update SetStitchDefaults to include psdOpacity and psdBlendingMode
 
 	* version.h, pano13.rc Update version description to indicate if build is
-  32 or 64 bit
+	32 or 64 bit
   
 2011-01-06    <dmg@uvic.ca>
 

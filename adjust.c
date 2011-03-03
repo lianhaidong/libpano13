@@ -65,7 +65,7 @@ int                     CheckParams( AlignInfo *g );
 static int              CheckMakeParams( aPrefs *aP);
 //static int            GetOverlapRect( PTRect *OvRect, PTRect *r1, PTRect *r2 );
 int                     AddEdgePoints( AlignInfo *gl );
-int                     pt_average( UCHAR* pixel, int BytesPerLine, double rgb[3], int bytesPerChannel );
+int                     pt_average( uint8_t* pixel, int BytesPerLine, double rgb[3], int bytesPerChannel );
 double                  distsqLine(int N0, int N1);
 
 
@@ -268,7 +268,7 @@ void adjust(TrformStr *TrPtr, aPrefs *prefs)
                                                 
                         if( aPtr->pano.width == 0 && aPtr->im.hfov != 0.0)
                         {
-                                aPtr->pano.width = (pt_int32)(aPtr->im.width * aPtr->pano.hfov / aPtr->im.hfov);
+                                aPtr->pano.width = (aPtr->im.width * aPtr->pano.hfov / aPtr->im.hfov);
                                 aPtr->pano.width/=10; aPtr->pano.width*=10;
                         }
                         if( aPtr->pano.height == 0 )
@@ -1613,14 +1613,14 @@ void addAlpha( Image *im ){
                                         {
                                                 c1 = y * im->bytesPerLine;
                                                 for(x = 0; x < im->width; x++)
-                                                        *((USHORT*)(src + c1 + 8 * x )) = 0;
+                                                        *((uint16_t*)(src + c1 + 8 * x )) = 0;
                                         }
                                 }
                                 for(y = framey; y < yend; y++)
                                 {
                                         c1 = y * im->bytesPerLine;
                                         for(x = framex; x < xend; x++)
-                                                *((USHORT*)(src + c1 + 8 * x )) = USHRT_MAX;
+                                                *((uint16_t*)(src + c1 + 8 * x )) = USHRT_MAX;
                                 }
                         }
                 }
@@ -1666,7 +1666,7 @@ void addAlpha( Image *im ){
                                         if( (y < topCircle) || (y > botCircle) )  // Always invalid
                                         {
                                                 for(x = 0; x < im->width; x++)
-                                                        *((USHORT*)(src + y * im->bytesPerLine + 8 * x)) = 0;
+                                                        *((uint16_t*)(src + y * im->bytesPerLine + 8 * x)) = 0;
                                         }
                                         else
                                         {
@@ -1679,11 +1679,11 @@ void addAlpha( Image *im ){
                                                 if( x2 > im->width ) x2 = im->width;
                         
                                                 for(x = 0; x < x1; x++)
-                                                        *((USHORT*)(src + y * im->bytesPerLine + 8 * x)) = 0;
+                                                        *((uint16_t*)(src + y * im->bytesPerLine + 8 * x)) = 0;
                                                 for(x = x1; x < x2; x++)
-                                                        *((USHORT*)(src + y * im->bytesPerLine + 8 * x)) = USHRT_MAX;
+                                                        *((uint16_t*)(src + y * im->bytesPerLine + 8 * x)) = USHRT_MAX;
                                                 for(x = x2; x < im->width; x++)
-                                                        *((USHORT*)(src + y * im->bytesPerLine + 8 * x)) = 0;
+                                                        *((uint16_t*)(src + y * im->bytesPerLine + 8 * x)) = 0;
                                         }
                                 }
                         }
@@ -2298,8 +2298,8 @@ void GetColCoeff( Image *src, Image *buf, double ColCoeff[3][2] ){
                         c1 = y * src->bytesPerLine;
                         for( x=1; x<src->width-1; x++){
                                 c2 = c1 + x*bpp;
-                                if( *((USHORT*)(source + c2)) != 0  &&  *((USHORT*)(buff + c2)) != 0 ) { //&& // In overlap region?
-                                 //( *((USHORT*)(source + c2)) != USHRT_MAX  ||  *((USHORT*)(buff + c2)) != USHRT_MAX ) ){ // above seam?
+                                if( *((uint16_t*)(source + c2)) != 0  &&  *((uint16_t*)(buff + c2)) != 0 ) { //&& // In overlap region?
+                                 //( *((uint16_t*)(source + c2)) != USHRT_MAX  ||  *((uint16_t*)(buff + c2)) != USHRT_MAX ) ){ // above seam?
                                         if( pt_average( source + c2, src->bytesPerLine, xav, 2 ) &&
                                             pt_average( buff + c2, src->bytesPerLine, yav, 2 )){
                                                 numPts++;
@@ -2330,9 +2330,9 @@ void GetColCoeff( Image *src, Image *buf, double ColCoeff[3][2] ){
 }
 #endif
 // Average 9 pixels
-int pt_average( UCHAR* pixel, int BytesPerLine, double rgb[3], int bytesPerChannel ){
+int pt_average( uint8_t* pixel, int BytesPerLine, double rgb[3], int bytesPerChannel ){
         int x, y, i;
-        UCHAR *px;
+        uint8_t *px;
         double sum = 1.0 + 4 * 0.5 + 8 * 0.2 + 8 * 0.1 ;//2.6;
 #if 0
         double bl[3][3] =      {{ 0.1, 0.3, 0.1}, // Blurr overlap using this matrix
@@ -2424,16 +2424,16 @@ void GetColCoeff( Image *src, Image *buf, double ColCoeff[3][2] )
                         for( x=0; x<src->width; x++)
                         {
                                 c2 = c1 + x*bpp;
-                                if( *((USHORT*)(source + c2)) != 0  &&  *((USHORT*)(buff + c2)) != 0 ) // In overlap region?
+                                if( *((uint16_t*)(source + c2)) != 0  &&  *((uint16_t*)(buff + c2)) != 0 ) // In overlap region?
                                 {
                                         numPts++;
                                         for( i=0; i<3; i++)
                                         {
                                                 c2++;
-                                                xi[i]   += (double) *((USHORT*)(source + c2));
-                                                yi[i]   += (double) *((USHORT*)(buff + c2));
-                                                xi2[i]  += ((double) *((USHORT*)(source + c2)))*((double) *((USHORT*)(source + c2)));
-                                                xy[i]   += ((double) *((USHORT*)(source + c2)))*((double) *((USHORT*)(buff + c2)));
+                                                xi[i]   += (double) *((uint16_t*)(source + c2));
+                                                yi[i]   += (double) *((uint16_t*)(buff + c2));
+                                                xi2[i]  += ((double) *((uint16_t*)(source + c2)))*((double) *((uint16_t*)(source + c2)));
+                                                xy[i]   += ((double) *((uint16_t*)(source + c2)))*((double) *((uint16_t*)(buff + c2)));
                                         }
                                 }
                         }
@@ -2506,13 +2506,13 @@ void ColCorrect( Image *im, double ColCoeff[3][2] )
                         for( x=0; x<im->width; x++ )
                         {
                                 c2 = c1 + x * bpp;
-                                if( *((USHORT*)(data + c2 )) != 0 ) // Alpha channel set
+                                if( *((uint16_t*)(data + c2 )) != 0 ) // Alpha channel set
                                 {
                                         for( i=0; i<3; i++)
                                         {
                                                 c2++;
-                                                result = ColCoeff[i][0] * *((USHORT*)(data + c2 )) + ColCoeff[i][1];
-                                                DBL_TO_US( *((USHORT*)(data + c2 )) , result );
+                                                result = ColCoeff[i][0] * *((uint16_t*)(data + c2 )) + ColCoeff[i][1];
+                                                DBL_TO_US( *((uint16_t*)(data + c2 )) , result );
                                         }
                                 }
                         }

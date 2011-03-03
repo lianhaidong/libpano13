@@ -59,7 +59,7 @@ static int      ReadPanoramaDescription( Image *imPtr, stBuf *sPtr, char *line )
 static int      ReadModeDescription ( sPrefs *sP, char *line );
 static int      ReadCoordinates(    CoordInfo   *cp, char *line );
 
-static int panoExternalToInternalInputProjection(pt_int32 input);
+static int panoExternalToInternalInputProjection(int32_t input);
 
 #define MY_SSCANF( str, format, ptr )       if( sscanf( str, format, ptr ) != 1 )   \
                                             {                                       \
@@ -780,7 +780,7 @@ int ParseScript( char* script, AlignInfo *gl )
     
     if( gl->pano.width == 0 && gl->im[0].hfov != 0.0)  // Set default for panorama width based on first image
         {
-            gl->pano.width = (pt_int32)(( gl->pano.hfov / gl->im[0].hfov ) * gl->im[0].width);
+            gl->pano.width = ( gl->pano.hfov / gl->im[0].hfov ) * gl->im[0].width;
             gl->pano.width /= 10; gl->pano.width *= 10; // Round to multiple of 10
         }
 
@@ -1672,7 +1672,7 @@ static int ReadImageDescription( Image *imPtr, stBuf *sPtr, char *line )
     int    cropping = 0;
     int tempInt;
     char typeParm;
-    pt_int32 tempInt32;
+    int32_t tempInt32;
 
     memcpy( &im,    imPtr,   sizeof(Image) );
     memcpy( &sBuf,  sPtr,    sizeof(stBuf ));
@@ -2456,7 +2456,7 @@ char *panoParserFindOLine(char *script, int index)
 }
 
 
-int panoExternalToInternalInputProjection(pt_int32 input)
+int panoExternalToInternalInputProjection(int input)
 {
     // Internal and external projection do not match, unfortunately.
     // So this code does the remapping

@@ -672,10 +672,10 @@ void ThreeToFourBPP( Image *im ){
                         for( x= im->width-1; x>=0; x--){
                                 c1 = (y * im->width + x) * 4;
                                 c2 = y * im->bytesPerLine/2 + x * 3;
-                                ((USHORT*)(*(im->data)))[c1++] = USHRT_MAX;
-                                ((USHORT*)(*(im->data)))[c1++] = ((USHORT*)(*(im->data)))[c2++];
-                                ((USHORT*)(*(im->data)))[c1++] = ((USHORT*)(*(im->data)))[c2++];
-                                ((USHORT*)(*(im->data)))[c1++] = ((USHORT*)(*(im->data)))[c2++];
+                                ((uint16_t*)(*(im->data)))[c1++] = USHRT_MAX;
+                                ((uint16_t*)(*(im->data)))[c1++] = ((uint16_t*)(*(im->data)))[c2++];
+                                ((uint16_t*)(*(im->data)))[c1++] = ((uint16_t*)(*(im->data)))[c2++];
+                                ((uint16_t*)(*(im->data)))[c1++] = ((uint16_t*)(*(im->data)))[c2++];
                         }
                 }
                 im->bitsPerPixel = 64;
@@ -728,7 +728,7 @@ void    FourToThreeBPP          ( Image *im )
         }
         else if( im->bitsPerPixel == 64 )// Convert to 6byte / pixel
         {
-                register USHORT *data = (USHORT*)*(im->data);
+                register uint16_t *data = (uint16_t*)*(im->data);
                 for( y = 0; y < im->height; y++)
                 {
                         for( x=0; x < im->width; x++)
@@ -785,7 +785,7 @@ void OneToTwoByte( Image *im )
                         
                         for(i=0; i<bpp; i++)
                         {
-                                *((USHORT*)(*im->data + c1)) = ((USHORT)(*(im->data))[c2++]) << 8; c1 += 2;
+                                *((uint16_t*)(*im->data + c1)) = ((uint16_t)(*(im->data))[c2++]) << 8; c1 += 2;
                         }
                 }
         }
@@ -809,7 +809,7 @@ void TwoToOneByte( Image *im ){
                         c2 = y * im->bytesPerLine + x * bpp_old;
                         
                         for(i=0; i<bpp_new; i++){
-                                (*(im->data))[c1++] = *((USHORT*)(*im->data + c2)) >> 8; c2 += 2;
+                                (*(im->data))[c1++] = *((uint16_t*)(*im->data + c2)) >> 8; c2 += 2;
                         }
                 }
         }
@@ -981,10 +981,10 @@ void    SetVRPanoOptionsDefaults( VRPanoOptions *v)
 // Crop Image to selection rectangle    
 int CropImage(Image *im, PTRect *r){
 
-        pt_int32 x,y,i;
+        uint32_t x,y,i;
         unsigned char *src, *dst, **data = NULL;
-        pt_int32 width = r->right - r->left;
-        pt_int32 height = r->bottom - r->top;
+        uint32_t width = r->right - r->left;
+        uint32_t height = r->bottom - r->top;
         int bytesPerPixel = im->bitsPerPixel / 8 ;
         int bytesPerLine = width * im->bitsPerPixel / 8 ;
         size_t dataSize = bytesPerLine * height;
@@ -1288,7 +1288,7 @@ void panoDumpMetadata(pano_ImageMetadata * metadata, char *message)
 }
 
 /* ENDIAN aware file i/o funtions.  Used for reading and writing photoshop files */
-Boolean panoWriteUCHAR(file_spec fnum, UCHAR theChar )
+Boolean panoWriteUCHAR(file_spec fnum, uint8_t theChar )
 { 
     size_t count = 1;
 
@@ -1296,26 +1296,26 @@ Boolean panoWriteUCHAR(file_spec fnum, UCHAR theChar )
     return count == 1;
 }
 
-Boolean panoWriteSHORT(file_spec fnum, USHORT theShort )
+Boolean panoWriteSHORT(file_spec fnum, uint16_t theShort )
 {
     size_t count = 2;
     char data[2], *d;
     d = data;
     
-    assert(sizeof(USHORT) == 2);
+    assert(sizeof(uint16_t) == 2);
     SHORTNUMBER( theShort, d );
 
     mywrite( fnum, count, data );
     return count == 2;
 }
 
-Boolean panoWriteINT32(file_spec fnum, ULONG theLong )
+Boolean panoWriteINT32(file_spec fnum, uint32_t theLong )
 {
     size_t count = 4;
     char data[4], *d;
     d = data;
     
-    assert(sizeof(ULONG) == 4);
+    assert(sizeof(uint32_t) == 4);
     
     LONGNUMBER( theLong, d );
 
@@ -1342,10 +1342,10 @@ Boolean panoWriteINT32or64(file_spec fnum, int64_t theLongLong, Boolean bBig )
     if(bBig)
         return panoWriteINT64(fnum, theLongLong);
     else
-        return panoWriteINT32(fnum, (ULONG)theLongLong);
+        return panoWriteINT32(fnum, (uint32_t)theLongLong);
 }
 
-Boolean panoReadUCHAR(file_spec fnum, UCHAR *pChar )
+Boolean panoReadUCHAR(file_spec fnum, uint8_t *pChar )
 {
     size_t count = 1;
 
@@ -1353,7 +1353,7 @@ Boolean panoReadUCHAR(file_spec fnum, UCHAR *pChar )
     return (count== 1);
 }
 
-Boolean panoReadSHORT(file_spec fnum, USHORT *pShort )
+Boolean panoReadSHORT(file_spec fnum, uint16_t *pShort )
 {
     size_t count = 2;
     char data[2];
@@ -1369,7 +1369,7 @@ Boolean panoReadSHORT(file_spec fnum, USHORT *pShort )
     return TRUE;
 }
 
-Boolean panoReadINT32(file_spec fnum, ULONG *pLong )
+Boolean panoReadINT32(file_spec fnum, uint32_t *pLong )
 {
     size_t count = 4;
     char data[4], *d;
@@ -1403,7 +1403,7 @@ Boolean panoReadINT32or64(file_spec fnum, int64_t  *pLongLong, Boolean bBig )
         return panoReadINT64( fnum, pLongLong );
     else
     {
-        ULONG Long;
+        uint32_t Long;
         Boolean bRtn = panoReadINT32( fnum, &Long );
         *pLongLong = (int64_t)Long;
         return bRtn;

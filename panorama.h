@@ -49,15 +49,6 @@ typedef unsigned char Boolean;
   #endif
 #endif
 
-// Create a definition if we're on a Macintosh:
-#ifndef __Mac__
-  #if (defined(macintosh) || defined(__MC68K__) || defined(__powerc))
-    #define __Mac__     1
-    #define PT_BIGENDIAN    1
-  #endif
-#endif
-
-
 #ifndef __Mac_OSX__
     #if defined(__APPLE_CC__)
         #define __Mac_OSX__			1
@@ -72,33 +63,25 @@ typedef unsigned char Boolean;
 // Use FSSpec on Macs as Path-specifyers, else strings
 #define PATH_SEP							'/'
 
-#ifdef __Mac__
-        //#include  <Files.h> // commented by Kekus Digital
-#include <Carbon/Carbon.h>      // added by Kekus Digital
-#define			fullPath							FSSpec
-#undef  PATH_SEP
-#define PATH_SEP									':'
-
-#else // __Mac__, use ANSI-filefunctions
-
 #ifdef _WIN32
-#ifndef __NO_SYSTEM__
-#include <windows.h>            // including this causes problems with libjpeg
-#endif
-#define MAX_PATH_LENGTH		260
+    #ifndef __NO_SYSTEM__
+        #include <windows.h>            // including this causes problems with libjpeg
+    #endif
+
+    #define MAX_PATH_LENGTH		260
                 // was MAX_PATH
-#undef  PATH_SEP
-#define PATH_SEP							'\\'
+    #undef  PATH_SEP
+    #define PATH_SEP							'\\'
+
 #else
-#define MAX_PATH_LENGTH		512
+    #define MAX_PATH_LENGTH		512
 #endif
 
+// I really want to get rid of this one. it is legacy from OS 9
 typedef struct
 {
     char name[MAX_PATH_LENGTH];
 } fullPath;
-
-#endif
 
 
 // Some important defaults (perhaps to be moved somewhere else later
@@ -186,7 +169,7 @@ enum
 
 struct correct_Prefs
 {                               //  Preferences structure for tool correct
-    pt_uint32 magic;            //  File validity check, must be 20
+    uint32_t magic;            //  File validity check, must be 20
     int radial;                 //  Radial correction requested?
     double radial_params[3][5]; //  3 colors x (4 coeffic. for 3rd order polys + correction radius)
     int vertical;               //  Vertical shift requested ?
@@ -217,8 +200,8 @@ struct correct_Prefs
 
 
     int resize;                 //  scaling requested ?
-    pt_int32 width;             //  new width
-    pt_int32 height;            //  new height
+    uint32_t width;             //  new width
+    uint32_t height;            //  new height
     int luminance;              //  correct luminance variation?
     double lum_params[3];       //  parameters for luminance corrections
     int correction_mode;        //  0 - radial correction;1 - vertical correction;2 - deregistration
@@ -335,30 +318,30 @@ enum
 
 typedef struct
 {
-    pt_int32 top;
-    pt_int32 bottom;
-    pt_int32 left;
-    pt_int32 right;
+    uint32_t top;
+    uint32_t bottom;
+    uint32_t left;
+    uint32_t right;
 } PTRect;
 
 typedef struct
 {
-    pt_int32 full_width;
-    pt_int32 full_height;
-    pt_int32 cropped_width;
-    pt_int32 cropped_height;
-    pt_int32 x_offset;
-    pt_int32 y_offset;
+    uint32_t full_width;
+    uint32_t full_height;
+    uint32_t cropped_width;
+    uint32_t cropped_height;
+    uint32_t x_offset;
+    uint32_t y_offset;
 } CropInfo;
 
 typedef struct
 {
-    pt_int32 fullWidth;
-    pt_int32 fullHeight;
-    pt_int32 croppedWidth;
-    pt_int32 croppedHeight;
-    pt_int32 xOffset;
-    pt_int32 yOffset;
+    uint32_t fullWidth;
+    uint32_t fullHeight;
+    uint32_t croppedWidth;
+    uint32_t croppedHeight;
+    uint32_t xOffset;
+    uint32_t yOffset;
 } pano_CropInfo;
 
 typedef struct
@@ -369,7 +352,7 @@ typedef struct
 
 typedef struct
 {
-    pt_int32 size;
+    uint32_t size;
     char *data;
 } pano_ICCProfile;
 
@@ -430,14 +413,14 @@ typedef struct
 struct Image
 {
     // Pixel data
-    pt_int32 width;
-    pt_int32 height;
-    pt_int32 bytesPerLine;
-    pt_int32 bitsPerPixel;      // Must be 24 or 32
+    uint32_t width;
+    uint32_t height;
+    uint32_t bytesPerLine;
+    uint32_t bitsPerPixel;      // Must be 24 or 32
     size_t dataSize;
     unsigned char **data;
-    pt_int32 dataformat;        // rgb, Lab etc
-    pt_int32 format;            // Projection: rectilinear etc
+    int32_t dataformat;        // rgb, Lab etc
+    int32_t format;            // Projection: rectilinear etc
     int formatParamCount;       // Number of format parameters.
     double formatParam[PANO_PROJECTION_MAX_PARMS];  // Parameters for format.
     int precomputedCount;   // number of values precomputed for a given pano
@@ -462,17 +445,17 @@ struct TrformStr                // This structure holds all image information
 {
     Image          *src;        // Source image, must be supplied on entry
     Image          *dest;       // Destination image data, valid if success = 1 
-    pt_int32        success;    // 0 - no, 1 - yes 
+    int32_t        success;    // 0 - no, 1 - yes 
 
 
-    pt_int32        tool;       // Panorama Tool requested
-    pt_int32        mode;       // how to run transformation
+    int32_t        tool;       // Panorama Tool requested
+    int32_t        mode;       // how to run transformation
     void           *data;       // data for tool requested.
     // Required only if mode = _usedata; then it
     // must point to valid preferences structure
     // for requested tool (see filter.h).
 
-    pt_int32        interpolator;// Select interpolator
+    int32_t        interpolator;// Select interpolator
     double          gamma;      // Gamma value for internal gamma correction
     int             fastStep;   // 0 no fast Transformation (default), FAST_TRANSFORM_STEP_MORPH, FAST_TRANSFORM_STEP_NORMAL
 };

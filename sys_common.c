@@ -55,7 +55,7 @@ void PT_setInfoDlgFcn(int (*ptr)(int, char *))
 /**
  * Print an error message and then exit program
  */
-void dieWithError(const char*fmt, ...)
+void dieWithError(char*fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);

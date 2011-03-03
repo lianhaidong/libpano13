@@ -12,3 +12,5 @@ EXTRA_DIST = panoinfo.pod PTAInterpolate.pod PTblender.pod PTcrop.pod PTinfo.pod
 
 install-data-local: install-man
 
+MAINTAINERCLEANFILES = Makefile.in
+
