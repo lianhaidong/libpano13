@@ -946,7 +946,7 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
             if (prefs->pano.width == 0) {
                 // if the pano did not set the width, then try to set it
                 if (prefs->im.hfov != 0.0) {
-                    prefs->pano.width = (pt_int32)(prefs->im.width * prefs->pano.hfov / prefs->im.hfov);
+                    prefs->pano.width = prefs->im.width * prefs->pano.hfov / prefs->im.hfov;
                     prefs->pano.width /= 10;    // Round to multiple of 10
                     prefs->pano.width *= 10;
                 }

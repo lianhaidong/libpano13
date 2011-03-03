@@ -305,7 +305,7 @@ int MorphImageFile( fullPath *sfile, fullPath *dfile, AlignInfo *g,int nIm )
 int blendImages( fullPath *f0,  fullPath *f1, fullPath *result, double s )
 {
 	double u = 1.0 - s, r;
-	pt_int32 x,y,cy,i;
+	uint32_t x,y,cy,i;
 	Image im0, im1;
 	unsigned char *c0, *c1;
 	

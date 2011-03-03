@@ -981,10 +981,10 @@ void    SetVRPanoOptionsDefaults( VRPanoOptions *v)
 // Crop Image to selection rectangle    
 int CropImage(Image *im, PTRect *r){
 
-        pt_int32 x,y,i;
+        uint32_t x,y,i;
         unsigned char *src, *dst, **data = NULL;
-        pt_int32 width = r->right - r->left;
-        pt_int32 height = r->bottom - r->top;
+        uint32_t width = r->right - r->left;
+        uint32_t height = r->bottom - r->top;
         int bytesPerPixel = im->bitsPerPixel / 8 ;
         int bytesPerLine = width * im->bitsPerPixel / 8 ;
         size_t dataSize = bytesPerLine * height;

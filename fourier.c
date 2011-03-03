@@ -22,12 +22,12 @@
 #include "f2c.h"
 
 static  void 	fconvolution		( TrformStr *TrPtr, Image *psf );
-static 	void 	makePSF				( pt_int32 width, pt_int32 height, Image *image, double *re, double *im, int color, int direction );
+static 	void 	makePSF				( uint32_t width, uint32_t height, Image *image, double *re, double *im, int color, int direction );
 static  void 	makeDoubleDiffImage ( Image *src, Image *fimage, double *re, double *im, int color );
 static  int 	makeDoubleImage		( Image *image, double *re, double *im, int color, double pgamma );
 static  void 	makeUcharImage		( Image *image, double *re, int color );
 // static  void 	makeGaussPSF		( Image *im, double s );
-static  void 	windowFunction		( double *im, pt_int32 width, pt_int32 height, double frame);
+static  void 	windowFunction		( double *im, uint32_t width, uint32_t height, double frame);
 // static  void 	invWindowFunction	( double *im, int width, int height, double frame);
 static void 	fresize				( TrformStr *TrPtr );
 
@@ -425,10 +425,10 @@ _fwiener_exit:
 // Move point from center to (x|y) = (0|0)
 // Mirror image (both x & y) if backXform (direction = -1)
 
-static void makePSF( pt_int32 width, pt_int32 height, Image *image, double *re, double *im, int color, int direction )
+static void makePSF( uint32_t width, uint32_t height, Image *image, double *re, double *im, int color, int direction )
 {
-	pt_int32 w, h, w2, h2, dim = width*height, cb, bpp, bpl, yw, cy;
-	register pt_int32 i,x,y;
+	uint32_t w, h, w2, h2, dim = width*height, cb, bpp, bpl, yw, cy;
+	register uint32_t i,x,y;
 	register unsigned char *data = *(image->data);
 	register double scale, *r;
 	
@@ -661,12 +661,12 @@ static void makeGaussPSF( Image *im, double s )
 // Mask image with window function exp( -frame/x )
 #define MEDIUMGRAY	127.0
 
-static void windowFunction( double *im, pt_int32 width, pt_int32 height, double frame)
+static void windowFunction( double *im, uint32_t width, uint32_t height, double frame)
 {
 	double *wf;
 	register double z;
-	pt_int32 w2 = width/2, h2 = height/2,dx,dy,cy,i,x,y;
-	pt_int32 dl = (width < height ? width : height) / 2 + 1;
+	uint32_t w2 = width/2, h2 = height/2,dx,dy,cy,i,x,y;
+	uint32_t dl = (width < height ? width : height) / 2 + 1;
 	
 	
 	wf = (double*)malloc( dl * sizeof( double ) );
