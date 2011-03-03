@@ -260,14 +260,17 @@ size_t panoPSDResourcesBlockWrite(Image *im, file_spec   fnum)
             panoPSDPICTResourceWrite(fnum, 0x02, IPTC_COPYRIGHTNOTICE_ID, descLength, im->metadata.copyright );
         }
 
-#if _win
         if(TRUE)
         {
             char *name;
-            char  AppNamePath[MAX_PATH_LENGTH];
-
+#ifdef __linux__
+            // under linux compilers
+            // __progname contains the base filename of the executable
+            extern char *__progname;
+            name = __progname;
+#else
             //makePathToHost ( &AppNamePath );
-            XXXX Jim, this does not compile under Linux. Is this to get the name of the binary?
+            char  AppNamePath[MAX_PATH_LENGTH];
             GetModuleFileName( NULL, AppNamePath, MAX_PATH_LENGTH );
 
             name = strrchr( AppNamePath, '.' );
@@ -286,20 +289,21 @@ size_t panoPSDResourcesBlockWrite(Image *im, file_spec   fnum)
             {
                 name = AppNamePath;
             }
+#endif
 
             //Originating Program:    0x41 "PTtiff2PSD"
             // Must not exceed 32 char by IPTC standard.
             descLength = (short)min( 32, strlen(name) );
             panoPSDPICTResourceWrite(fnum, 0x02, IPTC_ORIGINATING_PROGRAM_ID, descLength, name );
         }
-#endif
+
         // date time will be the current date time the image was created
         if(TRUE)//im->metadata.datetime)
         {
             char        sDate[20]; 
             char        sTime[20];
 #ifdef __xxxxx__  
-            //Jim, can you verify if the code below works? if it does, then we don't need the windows dependent one
+            //Jim, can you verify if the code below (#else) works for you? if it does, then we don't need this windows dependent one
             SYSTEMTIME  SysTime;
             TIME_ZONE_INFORMATION TimeZoneInformation;
 
