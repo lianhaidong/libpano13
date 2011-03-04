@@ -1,5 +1,8 @@
 2011-03-03    <dmg@uvic.ca>
 
+	* tools/PTtiff2psd.c (PT_TIFF2PSD_VERSION): Added Jim to the list
+	of credits.
+
 	* file.c: writing of current time is disabled to simplify testing
 	(until we find a way to solve it).
 	
