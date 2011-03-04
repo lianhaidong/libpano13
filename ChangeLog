@@ -30,6 +30,13 @@
 	* tools/panoinfo_unix.c, sys_ansy.c: removed compiler
 	warnings. Patch submited by Guillaume Rousse.
 
+2011-02-12    <dmg@uvic.ca>
+
+	* tools/PToptimizer.c (main): Added options for command line.
+
+	* file.c (WriteScript): Simplified the funcion, and added the
+	ability to write to stdout.
+
 2011-01-20    <pablo.dangelo@web.de>
 
 	* parser.c: disabled debug printf in parsing code

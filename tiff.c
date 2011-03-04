@@ -258,42 +258,10 @@ void setCropInformationInTiff(TIFF * tiffFile, CropInfo * crop_info)
 
 
 
-int readTIFF(Image * im, fullPath * sfile)
+int readTIFF(Image * im, char *filename)
 {
-    char filename[512];
     TIFF *tif;
     int result = 0;
-    
-
-
-#ifdef __Mac__
-    unsigned char the_pcUnixFilePath[512];      //added by Kekus Digital
-    Str255 the_cString;
-    Boolean the_bReturnValue;
-    CFStringRef the_FilePath;
-    CFURLRef the_Url;           //till here
-#endif
-
-    if (FullPathtoString(sfile, filename))
-    {
-        PrintError("Could not get filename");
-        return -1;
-    }
-
-#ifdef __Mac__
-    CopyCStringToPascal(filename, the_cString); //Added by Kekus Digital
-    the_FilePath =
-        CFStringCreateWithPascalString(kCFAllocatorDefault, the_cString,
-                                       kCFStringEncodingUTF8);
-    the_Url =
-        CFURLCreateWithFileSystemPath(kCFAllocatorDefault, the_FilePath,
-                                      kCFURLHFSPathStyle, false);
-    the_bReturnValue =
-        CFURLGetFileSystemRepresentation(the_Url, true, the_pcUnixFilePath,
-                                         512);
-
-    strcpy(filename, the_pcUnixFilePath);       //till here
-#endif
 
     tif = TIFFOpen(filename, "r");
 
@@ -313,44 +281,14 @@ int readTIFF(Image * im, fullPath * sfile)
     return result;
 }
 
-int writeCroppedTIFF(Image * im, fullPath * sfile, CropInfo * crop_info)
+int writeCroppedTIFF(Image * im, char * filename, CropInfo * crop_info)
 {
-    char string[512];
     TIFF *tif;
     UCHAR *buf;
     unsigned int y;
     size_t bufsize;
 
-#ifdef __Mac__
-    unsigned char the_pcUnixFilePath[512];      //added by Kekus Digital
-    Str255 the_cString;
-    Boolean the_bReturnValue;
-    CFStringRef the_FilePath;
-    CFURLRef the_Url;           //till here
-#endif
-
-    if (FullPathtoString(sfile, string))
-    {
-        PrintError("Could not get filename");
-        return -1;
-    }
-
-#ifdef __Mac__
-    CopyCStringToPascal(string, the_cString);   //added by Kekus Digital
-    the_FilePath =
-        CFStringCreateWithPascalString(kCFAllocatorDefault, the_cString,
-                                       kCFStringEncodingUTF8);
-    the_Url =
-        CFURLCreateWithFileSystemPath(kCFAllocatorDefault, the_FilePath,
-                                      kCFURLHFSPathStyle, false);
-    the_bReturnValue =
-        CFURLGetFileSystemRepresentation(the_Url, true, the_pcUnixFilePath,
-                                         512);
-
-    strcpy(string, the_pcUnixFilePath); //till here
-#endif
-
-    tif = TIFFOpen(string, "w");
+    tif = TIFFOpen(filename, "w");
     if (!tif)
     {
         PrintError("Could not create TIFF-file");
@@ -358,7 +296,7 @@ int writeCroppedTIFF(Image * im, fullPath * sfile, CropInfo * crop_info)
     }
 
     // Rik's mask-from-focus hacking
-    if (ZCombSeeImage(im, string))
+    if (ZCombSeeImage(im, filename))
     {
         PrintError("failed ZCombSeeImage");
     }
@@ -457,7 +395,7 @@ int writeCroppedTIFF(Image * im, fullPath * sfile, CropInfo * crop_info)
 }
 
 
-int writeTIFF(Image * im, fullPath * sfile)
+int writeTIFF(Image * im, char * sfile)
 {
     return writeCroppedTIFF(im, sfile, &(im->cropInformation));
 }

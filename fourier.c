@@ -42,7 +42,7 @@ void	fourier	( TrformStr *TrPtr, cPrefs *cP )
 	switch( cP->fourier_mode )
 	{
 		case _faddBlurr:
-				if( readPSD( &psf, &(cP->psf), 1) != 0 )
+				if( readPSD( &psf, (cP->psf).name, 1) != 0 )
 				{
 					PrintError("Error reading Point Spread Image");
 					TrPtr->success = 0;
@@ -52,7 +52,7 @@ void	fourier	( TrformStr *TrPtr, cPrefs *cP )
 				break;
 		
 		case _fremoveBlurr:
-				if( readPSD( &psf, &(cP->psf), 1) != 0 )
+				if( readPSD( &psf, (cP->psf).name, 1) != 0 )
 				{
 					PrintError("Error reading Point Spread Image");
 					TrPtr->success = 0;
@@ -72,7 +72,7 @@ void	fourier	( TrformStr *TrPtr, cPrefs *cP )
 				}
 				else 
 				{
-					if(  readPSD( &nff, &(cP->nff), 1) != 0 )
+					if(  readPSD( &nff, (cP->nff).name, 1) != 0 )
 					{
 						PrintError("Error reading Filtered Image");
 						TrPtr->success = 0;

@@ -292,7 +292,7 @@ int panoPSDResourcesBlockWrite(Image *im, file_spec   fnum)
 
 // Save image as single layer PSD file
 // Image is background
-int writePSD(Image *im, fullPath *sfile )
+int writePSD(Image *im, char *sfile )
 {
     file_spec   fnum;
     char    data[12], *d;
@@ -366,7 +366,7 @@ int writePSD(Image *im, fullPath *sfile )
 
 // Save image as single layer PSD file
 // Image is layer in front of white background
-int writePSDwithLayer(Image *im, fullPath *sfile )
+int writePSDwithLayer(Image *im, char *sfile )
 {
     file_spec   fnum;
     char        data[12], *d;
@@ -436,7 +436,7 @@ int writePSDwithLayer(Image *im, fullPath *sfile )
 
 
 // Add image as additional layer into PSD-file (exported function)
-int addLayerToFile( Image *im, fullPath* sfile, fullPath* dfile, stBuf *sB)
+int addLayerToFile( Image *im, char* sfile, char* dfile, stBuf *sB)
 {
     file_spec   src;
     file_spec   fnum;
@@ -732,7 +732,7 @@ static void writeWhiteBackground( uint32_t width, uint32_t height, file_spec fnu
 // mode = 0: only load image struct
 // mode = 1: also allocate and load data
 
-int readPSD(Image *im, fullPath *sfile, int mode)
+int readPSD(Image *im, char *sfile, int mode)
 {
     file_spec   src;
     char    header[128], *h;
@@ -1940,7 +1940,7 @@ int LoadOptions( cPrefs * thePrefs )
         return -1;
     }
     
-    if( myopen( &path, read_bin, fnum ))
+    if( myopen( path.name, read_bin, fnum ))
     {
         PrintError("Could not open file");
         return -1;
@@ -1965,7 +1965,7 @@ int LoadOptions( cPrefs * thePrefs )
 }
 
 
-char* LoadScript( fullPath* scriptFile )
+char* LoadScript( char* scriptFile )
 {
     fullPath    sfile;
     int         i;
@@ -1982,7 +1982,7 @@ char* LoadScript( fullPath* scriptFile )
 
     if( myopen( scriptFile, read_text, fnum ))
     {
-        PrintError("Error Opening Scriptfile: %s", scriptFile->name);
+        PrintError("Error Opening Scriptfile: %s", scriptFile);
         goto _loadError;
     }
     
@@ -2004,7 +2004,7 @@ char* LoadScript( fullPath* scriptFile )
     }
     if( myopen( scriptFile, read_text, fnum ))
     {
-        PrintError("Error Opening Scriptfile: %s", scriptFile->name);
+        PrintError("Error Opening Scriptfile: %s", scriptFile);
         free(script);
         goto _loadError;
     }
@@ -2020,39 +2020,40 @@ _loadError:
 }
 
 
-int WriteScript( char* res, fullPath* scriptFile, int launch )
+int WriteScript( char* res, char* scriptFile, int launch )
 {
-    fullPath    sfile;
-    file_spec   fnum;
-    size_t      count;
+    FILE*   file;
+    size_t  count;
+    int returnError = 0;
 
-    memset( &sfile, 0, sizeof( fullPath ) );
-    if( memcmp( scriptFile, &sfile, sizeof( fullPath ) ) == 0 )
-    {
-        PrintError("No Scriptfile selected");
-        goto _writeError;
-    }
-
-    memcpy(  &sfile, scriptFile, sizeof (fullPath) );
-    mydelete( &sfile );
-    mycreate(&sfile,'ttxt','TEXT');
-
-    if( myopen( &sfile, write_text, fnum ) )
-    {
-        PrintError("Error Opening Scriptfile");
-        goto _writeError;
+    if (scriptFile == NULL ) {
+        // output goes to stdout in this case
+        file = stdout;
+    } else {
+        // open output file
+        if( (file = fopen( scriptFile, "w")) == NULL) {
+            PrintError("Error Opening Scriptfile");
+            goto _writeError;
+        }
     }
     
     count = strlen( res );
-    mywrite( fnum, count, res );    
-    myclose (fnum );
-
-    if( launch == 1 )
-    {
-        showScript( &sfile);
-    }
-    return 0;
     
+    if (fwrite (res, 1, count, file) != count) {
+        PrintError("Error writing to output file.");        
+        returnError = -1;
+    }
+    if (scriptFile != NULL) {
+        // only close if 
+        fclose (file );
+    }
+
+    if( launch == 1 ) {
+        // dmg we don't support this any more, do we?
+        assert(1);
+        showScript(scriptFile);
+    }
+    return returnError;
 
 _writeError:
     return -1;
@@ -2071,7 +2072,7 @@ void SaveOptions( cPrefs * thePrefs )
         
     mycreate    (&path,'GKON','TEXT');
     
-    if( myopen( &path, write_bin, fspec ) )
+    if( myopen( path.name, write_bin, fspec ) )
         return;
     
     count = sizeof( cPrefs );
@@ -2094,7 +2095,7 @@ int SaveBufImage( Image *image, char *fname )
     mydelete( &fspec );
     mycreate( &fspec, '8BIM', '8BPS');
     
-    return writePSD(image,  &fspec);
+    return writePSD(image,  fspec.name);
 }
 
 // Load a saved 32bit image (including Alpha-channel) using name fname
@@ -2108,12 +2109,12 @@ int LoadBufImage( Image *image, char *fname, int mode)
     fullPath    fspec;
 
     MakeTempName( &fspec, fname );
-    return readPSD(image, &fspec,  mode);
+    return readPSD(image, fspec.name,  mode);
 }
 
 
 // Read Photoshop Multilayer-image
-int readPSDMultiLayerImage( MultiLayerImage *mim, fullPath* sfile){
+int readPSDMultiLayerImage( MultiLayerImage *mim, char* sfile){
     file_spec       src;
 
     char            header[128], *h;
@@ -2395,7 +2396,7 @@ int panoFileMakeTemp(fullPath * path)
 			// TODO (dmg -- 060730)
 			// THis routine is not perfect. IT does not check if the
 			// file is really a file, nor that there is write access to it
-            if (myopen(path, read_bin, fnum)) {
+            if (myopen(path->name, read_bin, fnum)) {
 				return TRUE;
 			}
             myclose(fnum);
@@ -2409,7 +2410,7 @@ int panoFileMakeTemp(fullPath * path)
 }
 
 // Read an image
-int panoImageRead(Image * im, fullPath * sfile)
+int panoImageRead(Image * im, char * sfile)
 {
     char *ext, extension[5];
     int i;
@@ -2417,8 +2418,8 @@ int panoImageRead(Image * im, fullPath * sfile)
     assert(sfile != NULL);
     assert(im != NULL);
     
-    printf("Filename %s\n", sfile->name);
-    ext = strrchr(sfile->name, '.');
+    printf("Filename %s\n", sfile);
+    ext = strrchr(sfile, '.');
     if (ext == NULL || strlen(ext) < 4 || strlen(ext) > 5) {
 	PrintError("Unsupported file format [%s]: must have extension JPG, PNG, TIF, BMP or HDR", sfile);
 	return 0;
@@ -2436,7 +2437,7 @@ int panoImageRead(Image * im, fullPath * sfile)
         return panoJPEGRead(im, sfile);
     } 
     else if (strcmp(extension, "tif") == 0 || strcmp(extension, "tiff") == 0) {
-        return panoTiffRead(im, sfile->name);
+        return panoTiffRead(im, sfile);
     } 
     else if (strcmp( extension, "bmp" ) == 0 ) {
 #ifdef WIN32		
@@ -2534,12 +2535,12 @@ I am not sure this function is used at all
 
 
 
-int writeImage( Image *im, fullPath *sfile )
+int writeImage( Image *im, char *sfile )
 {
     char *ext,extension[4];
     int i;
     
-    ext = strrchr( sfile->name, '.' );
+    ext = strrchr( sfile, '.' );
     ext++;
     strcpy( extension, ext );
     for(i=0; i<3; i++)

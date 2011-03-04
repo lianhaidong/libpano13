@@ -76,12 +76,12 @@ static int hasPathInfo(char *aName);
 static int panoMenderSortingFunction(const void *p1, const void *p2);
 
 
-static void panoMenderDuplicateScriptFile(char *scriptFileName, char *script, fullPath  *scriptPathName)
+static void panoMenderDuplicateScriptFile(fullPath *scriptFileName, char *script, fullPath  *scriptPathName)
 {
     FILE* scriptFD;
     int temp;
     
-    strcpy(scriptPathName->name, scriptFileName);
+    strcpy(scriptPathName->name, scriptFileName->name);
       
     // Get a temp filename for the copy of the script
     if (panoFileMakeTemp(scriptPathName) == 0) {
@@ -106,7 +106,7 @@ static void panoMenderDuplicateScriptFile(char *scriptFileName, char *script, fu
     
 }
 
-void panoMenderSetFileName(fullPath *ptrImageFileName, char *name, fullPath *scriptFileName)
+void panoMenderSetFileName(fullPath *ptrImageFileName, char *name, char *scriptFileName)
 {
     //Only prepend the path to the script to the filenames if the filenames
     //don't already have path information
@@ -115,7 +115,7 @@ void panoMenderSetFileName(fullPath *ptrImageFileName, char *name, fullPath *scr
     assert(scriptFileName != NULL);
 
     if ( (hasPathInfo(name)) == 0 )
-	strcpy(ptrImageFileName->name, scriptFileName->name);
+	strcpy(ptrImageFileName->name, scriptFileName);
     else
 	strcpy(ptrImageFileName->name, "");
     
@@ -134,7 +134,7 @@ static int panoMenderImageFileNamesReadFromScript(fullPath **ptrImageFileNames, 
 	fprintf(stderr, "Loading script [%s]\n", scriptFileName->name);
     }
 	
-    script = LoadScript(scriptFileName);
+    script = LoadScript(scriptFileName->name);
     
     if (script == NULL) {
 	PrintError("Could not load script [%s]", scriptFileName->name);
@@ -180,7 +180,7 @@ static int panoMenderImageFileNamesReadFromScript(fullPath **ptrImageFileNames, 
 		fprintf(stderr, "Processing image [%s] from 'i' line %d\n", alignInfo.im[i].name, i);
 	    }
 
-	    panoMenderSetFileName(&((*ptrImageFileNames)[i]), alignInfo.im[i].name, scriptFileName);
+	    panoMenderSetFileName(&((*ptrImageFileNames)[i]), alignInfo.im[i].name, scriptFileName->name);
 	    
 	    if (ptDebug) {
 		fprintf(stderr, "Reading image filename [%s] from 'i' line %d\n", (*ptrImageFileNames)[i].name, i);
@@ -211,11 +211,11 @@ static int panoMenderImageFileNamesReadFromScript(fullPath **ptrImageFileNames, 
 	}
 	
 	
-	panoMenderDuplicateScriptFile(scriptFileName->name, script, &scriptPathName);
+	panoMenderDuplicateScriptFile(scriptFileName, script, &scriptPathName);
 	
 	for (i = 0; i < counter; i++) {
 	    aPrefs* preferences;
-	    if ( (preferences = readAdjustLine(&scriptPathName)) == NULL) {
+	    if ( (preferences = readAdjustLine(scriptPathName.name)) == NULL) {
 		PrintError("No 'i' line for image number %d", i);
 		exit(1);
 	    }
@@ -224,7 +224,7 @@ static int panoMenderImageFileNamesReadFromScript(fullPath **ptrImageFileNames, 
 		fprintf(stderr, "Processing image [%s] from 'o' line %d\n", preferences->im.name, i);
 	    }
 
-	    panoMenderSetFileName(&((*ptrImageFileNames)[i]), preferences->im.name, scriptFileName);
+	    panoMenderSetFileName(&((*ptrImageFileNames)[i]), preferences->im.name, scriptFileName->name);
 	    
 	    if (ptDebug) {
 		fprintf(stderr, "Reading image filename [%s] from 'i' line %d\n",
@@ -378,7 +378,7 @@ int main(int argc,char *argv[])
     // By now we should have loaded up the input filename array, the output 
     // panorama name, and the name of the script file (copied to a temporary
     // directory).  Now we can create the output image.
-    return panoCreatePanorama(ptrImageFileNames, counter, &panoFileName, &scriptFileName);
+    return panoCreatePanorama(ptrImageFileNames, counter, &panoFileName, scriptFileName.name);
 
 }
 

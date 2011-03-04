@@ -1,5 +1,15 @@
+2011-02-07  brunopostle
+
+	* [r1323] Makefile.am, doc/Makefile.am, man/Makefile.am: Add some more
+	  files to the tarball
+
+2011-01-20  dangelo
+
+	* [r1322] ChangeLog, parser.c: removed debug printf
+
 2011-01-19  brunopostle
 
+	* [r1321] ChangeLog.svn: Update ChangeLog
 	* [r1320] man/PTAInterpolate.1, man/PTblender.1, man/PTcrop.1,
 	  man/PTinfo.1, man/PTmasker.1, man/PTmender.1, man/PToptimizer.1,
 	  man/PTroller.1, man/PTtiff2psd.1, man/PTtiffdump.1, man/PTuncrop.1,
