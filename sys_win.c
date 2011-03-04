@@ -59,6 +59,7 @@ caused annoying warnings about unknown tags while loading each tiff source image
 
 #include "sys_win.h"
 #include "direct.h"
+#include "sys_compat.h"
 
 #define CG_IDD_PROGRESS                 101
 #define CG_IDS_PROGRESS_CAPTION         102
@@ -969,3 +970,57 @@ DllMain (HANDLE hDll, DWORD dwReason, LPVOID lpReserved)
     return TRUE;
 }
 #endif
+
+
+// Return the base filename of current executable
+
+char *panoBasenameOfExecutable(void)
+{
+
+    // Make it static so we don't have to worry about allocating storage
+    // and to make it compatible with what linux does
+    // I presume this is reeentrant safe
+    static char  AppNamePath[MAX_PATH_LENGTH] = "";
+    static char *name = NULL;
+
+    if (name  == NULL) {
+        // Only do it if we haven't yet
+        // to make it reentrant
+        GetModuleFileName( NULL, AppNamePath, MAX_PATH_LENGTH );
+    
+        // Remove extension
+        name = strrchr( AppNamePath, '.' );
+        if( name != NULL ) 
+            *name = '\0';
+        
+        // Search for directory separator
+        name = strrchr( AppNamePath, PATH_SEP );
+        if( name != NULL )
+            name++;
+        else 
+            // No directory, use name
+            name = AppNamePath;
+    }
+    return name;
+}
+
+
+int panoTimeToStrWithTimeZone(char *sTime, int len, struct tm  *time) 
+{
+    int success;
+    char sZone[20];
+    time_t      t;
+    long        lZone = 0; 
+
+    assert(len > 11); // This function needs at least 11 characters + null
+    // %z or %Z  in strftime produces a name of the time zone not a numeric value.
+    if (strftime(sTime, len, "%H%M%S", time) != 0) {
+        _get_timezone(&lZone);
+        sprintf(sZone, "%+03d%02d", -lZone/60/60, lZone/60%60);
+        strncat(sTime, sZone, len-1); // Copy at most len -1
+        // so we can force the end character to be null
+        sTime[len-1] = 0;
+        return 1;
+    }  else 
+        return 0;
+}

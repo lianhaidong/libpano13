@@ -57,6 +57,7 @@
 #include "file.h"
 #include "pttiff.h"
 #include "metadata.h"
+#include "sys_compat.h"
 
 // local functions
 
@@ -243,7 +244,7 @@ size_t panoPSDResourcesBlockWrite(Image *im, file_spec   fnum)
             descLength = (short)min( 2000, strlen(im->metadata.imageDescription) );
             panoPSDPICTResourceWrite(fnum, 0x02, IPTC_CAPTION_ABSTRACT_ID, descLength, im->metadata.imageDescription );
         }
-
+        
         if(im->metadata.artist)
         {
             // By-line:    0x50 "John Smith"
@@ -263,34 +264,8 @@ size_t panoPSDResourcesBlockWrite(Image *im, file_spec   fnum)
         if(TRUE)
         {
             char *name;
-#ifdef __linux__
-            // under linux compilers
-            // __progname contains the base filename of the executable
-            extern char *__progname;
-            name = __progname;
-#else
-            //makePathToHost ( &AppNamePath );
-            char  AppNamePath[MAX_PATH_LENGTH];
-            GetModuleFileName( NULL, AppNamePath, MAX_PATH_LENGTH );
-
-            name = strrchr( AppNamePath, '.' );
-            if( name != NULL )
-            {
-                *name = '\0';
-            }
-
-            // Search for both Win and Unix seperators
-            name = strrchr( AppNamePath, PATH_SEP );
-            if( name != NULL )
-            {
-                name++;
-            }
-            else
-            {
-                name = AppNamePath;
-            }
-#endif
-
+            name = panoBasenameOfExecutable();
+            
             //Originating Program:    0x41 "PTtiff2PSD"
             // Must not exceed 32 char by IPTC standard.
             descLength = (short)min( 32, strlen(name) );
@@ -302,49 +277,36 @@ size_t panoPSDResourcesBlockWrite(Image *im, file_spec   fnum)
         {
             char        sDate[20]; 
             char        sTime[20];
-            char        sZone[20];
             time_t      t;
-            struct tm  *tmp;
-            long        lZone = 0; 
+            struct tm  *currentTime;
 
            // get the local time, 
-           t = time(NULL);
-           tmp = localtime(&t);
-           //date:    0x37 "YYYYMMDD"
-           if (strftime(sDate, sizeof(sDate), "%Y%m%d", tmp) == 0) {
-               PrintError("Error converting local time in PSD creation");
-               //return 0;
-           }
-           else
-           {
+            t = time(NULL);
+            currentTime = localtime(&t);
+            //date:    0x37 "YYYYMMDD"
+            if (strftime(sDate, sizeof(sDate), "%Y%m%d", currentTime) != 0) {
                 // Must not exceed 8 char by IPTC standard.
                 assert(strlen(sDate)== 8); // Just making sure
                 descLength = (short)min( 8, strlen(sDate) );
                 panoPSDPICTResourceWrite(fnum, 0x02, IPTC_DATE_CREATED_ID, descLength, sDate );
-           }
-
-           //Time:    0x3c "HHMMSS±HHMM"
-           // First get the time
-           // %z or %Z  in strftime produces a name of the time zone not a numeric value.
-           if (strftime(sTime, sizeof(sTime), "%H%M%S", tmp) == 0) {
-               PrintError("Error converting local time in PSD creation");
-               //return 0;
-           }
-           else
-           {
-               _get_timezone(&lZone);
-               sprintf(sZone, "%+03d%02d", -lZone/60/60, lZone/60%60);
-               strcat(sTime, sZone);
-
-                // Must not exceed 11 char by IPTC standard.
-                assert(strlen(sTime)==11); // I _think_ it should always be 11
+                
+            }
+            else 
+                PrintError("Error converting local time in PSD creation");
+            
+            //Time:    0x3c "HHMMSS±HHMM"
+            // First get the time
+            
+            if (panoTimeToStrWithTimeZone(sTime, sizeof(sTime), currentTime)) {
+                assert(strlen(sTime)==11); //  it should always be 11
                 descLength = (short)min( 11, strlen(sTime) );
                 panoPSDPICTResourceWrite(fnum, 0x02, IPTC_TIME_CREATED_ID, descLength, sTime );
-           }
+            } else 
+                PrintError("Error converting local time in PSD creation");                
         }
 
         // Check for odd size resource rec
-        if( (ftell(fnum) - saveLocationPICT)%2 )
+        if( (ftell(fnum) - saveLocationPICT) %2 )
         {
             // The section is of an odd size pad with a single character
             panoWriteUCHAR( fnum, 0 );
