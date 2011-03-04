@@ -1,3 +1,8 @@
+2011-03-04    <dmg@uvic.ca>
+
+	* tests/panoAutomateOptimizerTest.pl, tests/CMakeLists.txt,
+	simpleOptimizer/*: added test case for PToptimizer.
+
 2011-03-03    <dmg@uvic.ca>
 
 	* CMakeList.txt: Added TAGS file creation, undid removal of

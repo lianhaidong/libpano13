@@ -28,6 +28,7 @@ endmacro()
 
 find_package(Perl)
 if(PERL_FOUND)
+    add_subdirectory(simpleOptimizer)
     add_subdirectory(simpleStitch)
     add_subdirectory(simpleTiff16)
 endif()
