@@ -1,7 +1,7 @@
 2011-03-03    <dmg@uvic.ca>
 
 	* file.c: writing of current time is disabled to simplify testing
-	(until we find a way to solve it)
+	(until we find a way to solve it).
 	
 	* tests/CMakeLists.txt, tests/simpleTiff2psd: added simple tests
 	for PSD
