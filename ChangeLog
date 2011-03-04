@@ -1,6 +1,7 @@
 2011-03-04    <dmg@uvic.ca>
 
-	* .hgignore: Added some files. 
+	* .hgignore: Added some files. Sorted files, so it is easier to
+	merge when the time comes.
 
 2011-03-03    <dmg@uvic.ca>
 
