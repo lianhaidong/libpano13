@@ -273,7 +273,7 @@ size_t panoPSDResourcesBlockWrite(Image *im, file_spec   fnum)
         }
 
         // date time will be the current date time the image was created
-        if(TRUE)//im->metadata.datetime)
+        if(FALSE)//im->metadata.datetime)
         {
             char        sDate[20]; 
             char        sTime[20];

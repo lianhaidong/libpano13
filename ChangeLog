@@ -1,5 +1,15 @@
 2011-03-03    <dmg@uvic.ca>
 
+	* file.c: writing of current time is disabled to simplify testing
+	(until we find a way to solve it)
+	
+	* tests/CMakeLists.txt, tests/simpleTiff2psd: added simple tests
+	for PSD
+	
+	* tests/panoAutomatePSDtest.pl: Added PSD script test.
+
+	* .hgignore (glob): Added more files to .hgignore
+
 	* file.c (panoPSDResourcesBlockWrite), sys_win.c, sys_ansi.c,
 	sys_compat.h: Refectored system dependent code.
 
