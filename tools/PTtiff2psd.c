@@ -64,7 +64,7 @@
                          "\t-h\t\t\tShow this message\n"\
                          "\n"
 
-#define PT_TIFF2PSD_VERSION "PTtiff2psd Version " VERSION ", based on PTstitcher by Helmut Dersch, rewritten by Daniel M German\n"
+#define PT_TIFF2PSD_VERSION "PTtiff2psd Version " VERSION ", based on code by Helmut Dersch, rewritten by Daniel M German and Jim Watters\n"
 
 #define DEFAULT_OUTPUT_FILENAME "merged.psd"
 
