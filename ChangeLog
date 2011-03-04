@@ -1,5 +1,10 @@
 2011-03-03    <dmg@uvic.ca>
 
+	* file.c (panoPSDResourcesBlockWrite), sys_win.c, sys_ansi.c,
+	sys_compat.h: Refectored system dependent code.
+
+	* CMakeLists.txt: Added sys_compat.h to the build.
+
 	* CMakeList.txt: Added TAGS file creation, undid removal of
 	hugin-related paths.
 

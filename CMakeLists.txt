@@ -155,6 +155,7 @@ set(pano13_hdr
 	f2c.h
 	fftn.h
 	rgbe.h
+        sys_compat.h
 	sys_ansi.h
 	sys_win.h
 	ZComb.h
