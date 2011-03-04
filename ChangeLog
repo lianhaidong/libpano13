@@ -1,3 +1,7 @@
+2011-03-04    <dmg@uvic.ca>
+
+	* .hgignore: Added some files. 
+
 2011-03-03    <dmg@uvic.ca>
 
 	* CMakeList.txt: Added TAGS file creation, undid removal of
