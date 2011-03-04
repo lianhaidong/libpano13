@@ -26,8 +26,18 @@ macro(prepare_test _testname _prjname _imagemask)
   add_dependencies(${_prjname} tools)
 endmacro()
 
+
+macro(prepare_test_psd2 _testname _prjname _output _image _image2)
+  set(_depends)
+
+  add_custom_target(${_prjname} ALL DEPENDS ${_depends})
+  add_dependencies(${_prjname} tools)
+endmacro()
+
+
 find_package(Perl)
 if(PERL_FOUND)
     add_subdirectory(simpleStitch)
     add_subdirectory(simpleTiff16)
+    add_subdirectory(simpleTiff2psd)
 endif()

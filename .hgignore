@@ -1,5 +1,7 @@
 glob:Debug CMD
 glob:Release CMD
+glob:*~
+glob:_PTStitcher_tmp_*
 glob:*.user
 glob:*.filters
 glob:*.suo
@@ -25,6 +27,8 @@ glob:tools/PTroller
 glob:tools/PTtiff2psd
 glob:tools/PTtiffdump
 glob:tools/PTuncrop
-glob:tests/simpleTiff16/tests
-glob:tests/simpleStitch/tests
+tests/simpleTiff16/tests
+tests/simpleStitch/tests
+tests/simpleTiff2psd/tests
+tests/simpleStitch/temp.txt
 TAGS
