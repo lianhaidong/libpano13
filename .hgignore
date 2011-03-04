@@ -1,22 +1,25 @@
-glob:Debug CMD
-glob:Release CMD
-glob:*.user
-glob:*.filters
-glob:*.suo
-glob:*.sdf
-glob:*.opensdf
-glob:CMakeFiles
-glob:CMakeCache.txt
-glob:Makefile
-glob:Testing
-glob:CPackSourceConfig.cmake
+TAGS
 glob:*.cmake
-glob:*~
-glob:libpano13.so*
+glob:*.filters
+glob:*.opensdf
+glob:*.sdf
+glob:*.suo
+glob:*.user
 glob:*_PTStitcher*
+glob:*~
+glob:CMakeCache.txt
+glob:CMakeFiles
+glob:CPackSourceConfig.cmake
+glob:Debug CMD
+glob:Makefile
+glob:Release CMD
+glob:Testing
+glob:libpano13.so*
 libpano13.a
 libpano13.o
 libpano13.pc
+tests/simpleStitch/tests
+tests/simpleTiff16/tests
 tools/PTblender
 tools/PTcrop
 tools/PTinfo
@@ -27,6 +30,3 @@ tools/PTroller
 tools/PTtiff2psd
 tools/PTtiffdump
 tools/PTuncrop
-tests/simpleTiff16/tests
-tests/simpleStitch/tests
-TAGS
