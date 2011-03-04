@@ -905,7 +905,7 @@ void ConvFileName( fullPath *fspec,char *string)
 
 
 // get the full path as string, garantee filename fits in 256 bytes
-int GetFullPath (fullPath *path, char *filename)
+int GetFullPath (chat *path, char *filename)
 {
 	Str255			pfilename;
 	Str63			dirName;	/* allow room for a 31 char file/dir name + a ':' */

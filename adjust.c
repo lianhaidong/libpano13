@@ -102,7 +102,6 @@ void panoAdjustPrintMakeParams(char *msg, struct MakeParams *mp, Image *im)
 
 }
 
-
 void adjust(TrformStr *TrPtr, aPrefs *prefs)
 {
         int             destwidth, destheight;
@@ -119,7 +118,7 @@ void adjust(TrformStr *TrPtr, aPrefs *prefs)
                 case _insert:
                 case _extract:
                         if( prefs->mode & _useScript ){
-                                aPtr = readAdjustLine( &(prefs->scriptFile) );
+                                aPtr = readAdjustLine( prefs->scriptFile.name );
                                 if(aPtr==NULL){
                                         PrintError("Error processing script file" );
                                         TrPtr->success = 0;
@@ -150,7 +149,7 @@ void adjust(TrformStr *TrPtr, aPrefs *prefs)
                                              p->bottom == TrPtr->dest->height) )
                                                 readmode = 0;
                                 }
-                                if( readAdjust( aPtr, &(prefs->scriptFile), readmode, gsPrPtr ) != 0 )
+                                if( readAdjust( aPtr, prefs->scriptFile.name, readmode, gsPrPtr ) != 0 )
                                 {
                                         PrintError("Error processing script file" );
                                         TrPtr->success = 0;
@@ -409,7 +408,7 @@ void adjust(TrformStr *TrPtr, aPrefs *prefs)
                                 char                    *script, *newscript, cdesc[1000];
                                 controlPoint    cp[NUMPTS];                     // List of Control points
 
-                                script = LoadScript( &(prefs->scriptFile) );
+                                script = LoadScript( prefs->scriptFile.name );
                                 if( script != NULL )                                    // We can read the scriptfile
                                 {
                                         newscript = (char*) malloc( strlen(script) + NUMPTS * 60 ); // One line per pair of points
@@ -421,7 +420,7 @@ void adjust(TrformStr *TrPtr, aPrefs *prefs)
                                                 
                                                 sprintf( newscript, "%s\n%s", script, cdesc );
                                                 
-                                                if( WriteScript( newscript,&( prefs->scriptFile), 0 ) != 0 )
+                                                if( WriteScript( newscript, prefs->scriptFile.name, 0 ) != 0 )
                                                                                 PrintError( "Could not write Scriptfile" );
                                                 free( newscript );
                                         }
@@ -440,7 +439,7 @@ void adjust(TrformStr *TrPtr, aPrefs *prefs)
                                 OptInfo                         opt;
                                 AlignInfo                       ainf;
 
-                                script = LoadScript( &(prefs->scriptFile) );
+                                script = LoadScript( prefs->scriptFile.name );
                                 if( script != NULL )                                    // We can read the scriptfile
                                 {
                                         if (ParseScript( script, &ainf ) == 0)
@@ -460,7 +459,7 @@ void adjust(TrformStr *TrPtr, aPrefs *prefs)
                                                         *opt.message            = 0;
                                                         RunLMOptimizer( &opt );
                                                         optInfo->data                           = opt.message;
-                                                        WriteResults( script, &(prefs->scriptFile), optInfo, distSquared ,
+                                                        WriteResults( script,prefs->scriptFile.name, optInfo, distSquared ,
                                                                     ( TrPtr->mode & 7 ) != _usedata );
                                                 }
                                                 DisposeAlignInfo( &ainf );                                      // These were allocated by 'ParseScript()'

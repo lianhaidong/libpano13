@@ -8,43 +8,16 @@
 #include "jpegicc.h"
 
 
-int writeJPEG(Image * im, fullPath * sfile, int quality, int progressive)
+int writeJPEG(Image * im, char * filename, int quality, int progressive)
 {
     struct jpeg_compress_struct cinfo;
     struct jpeg_error_mgr jerr;
     FILE *outfile;
-    char filename[512];
     int scanlines_written;
     unsigned char *data, *buf;
 
-#ifdef __Mac__
-    unsigned char the_pcUnixFilePath[512];      // added by Kekus Digital
-    Str255 the_cString;
-    Boolean the_bReturnValue;
-    CFStringRef the_FilePath;
-    CFURLRef the_Url;           //till here
-#endif
-
     cinfo.err = jpeg_std_error(&jerr);
     jpeg_create_compress(&cinfo);
-
-    if (GetFullPath(sfile, filename))
-        return -1;
-
-#ifdef __Mac__
-    CopyCStringToPascal(filename, the_cString); //Added by Kekus Digital
-    the_FilePath =
-        CFStringCreateWithPascalString(kCFAllocatorDefault, the_cString,
-                                       kCFStringEncodingUTF8);
-    the_Url =
-        CFURLCreateWithFileSystemPath(kCFAllocatorDefault, the_FilePath,
-                                      kCFURLHFSPathStyle, false);
-    the_bReturnValue =
-        CFURLGetFileSystemRepresentation(the_Url, true, the_pcUnixFilePath,
-                                         512);
-
-    strcpy(filename, the_pcUnixFilePath);       //till here
-#endif
 
     if ((outfile = fopen(filename, "wb")) == NULL)
     {
@@ -128,12 +101,11 @@ int writeJPEG(Image * im, fullPath * sfile, int quality, int progressive)
 }
 
 
-int readJPEG(Image * im, fullPath * sfile)
+int readJPEG(Image * im, char *filename)
 {
     struct jpeg_decompress_struct cinfo;
     struct jpeg_error_mgr jerr;
     FILE *infile;
-    char filename[256];
     int scan_lines_to_be_read, scan_lines_read;
     unsigned int i, scanheight;
     unsigned char *data;
@@ -143,14 +115,6 @@ int readJPEG(Image * im, fullPath * sfile)
 
 
 
-#ifdef __Mac__
-    unsigned char the_pcUnixFilePath[256];      // added by Kekus Digital
-    Str255 the_cString;
-    Boolean the_bReturnValue;
-    CFStringRef the_FilePath;
-    CFURLRef the_Url;           //till here
-#endif
-
     //PrintError("%s", sfile->name);        
 
     cinfo.err = jpeg_std_error(&jerr);
@@ -159,24 +123,6 @@ int readJPEG(Image * im, fullPath * sfile)
     // Prepare the library for reading the ICC profile, see its source code
     // for further information
     jpegICCSetupReadICCProfile(&cinfo);
-
-    if (GetFullPath(sfile, filename))
-        return -1;
-
-#ifdef __Mac__
-    CopyCStringToPascal(filename, the_cString); //Added by Kekus Digital
-    the_FilePath =
-        CFStringCreateWithPascalString(kCFAllocatorDefault, the_cString,
-                                       kCFStringEncodingUTF8);
-    the_Url =
-        CFURLCreateWithFileSystemPath(kCFAllocatorDefault, the_FilePath,
-                                      kCFURLHFSPathStyle, false);
-    the_bReturnValue =
-        CFURLGetFileSystemRepresentation(the_Url, true, the_pcUnixFilePath,
-                                         256);
-
-    strcpy(filename, the_pcUnixFilePath);       //till here
-#endif
 
     if ((infile = fopen(filename, "rb")) == NULL) {
         PrintError("can't open %s", filename);
@@ -256,7 +202,7 @@ int readJPEG(Image * im, fullPath * sfile)
 // so it should be considered a hack until 
 // we are able to read all the JPEG metadata
 
-int panoJPEGRead(Image * im, fullPath * sfile)
+int panoJPEGRead(Image * im, char * sfile)
 {
   if ( readJPEG(im, sfile) == 0) {
       return panoMetadataUpdateFromImage(im);

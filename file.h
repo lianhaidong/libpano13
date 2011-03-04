@@ -32,17 +32,17 @@
 #define __FILE_H__
 // these are defined in file.c
 
-int panoImageRead(Image * im, fullPath * sfile);
+int panoImageRead(Image * im, char * sfile);
 int panoFileMakeTemp(fullPath * path);
 
 // and these are defined in bmp.c, jpeg.c, hdrfile.c, png.c, and ppm.c
 // but there is no point in creating a file for each one of them
 
-int panoBMPRead(Image *im, fullPath *sfile );
-int panoJPEGRead(Image * im, fullPath * sfile);
-int panoHDRRead(Image *im, fullPath *sfile );
-int panoPNGRead(Image *im, fullPath *sfile );
-int panoPPMRead(Image * im, fullPath * sfile);
+int panoBMPRead(Image *im, char *sfile );
+int panoJPEGRead(Image * im, char * sfile);
+int panoHDRRead(Image *im, char *sfile );
+int panoPNGRead(Image *im, char *sfile );
+int panoPPMRead(Image * im, char * sfile);
 
 	
 typedef struct {

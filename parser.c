@@ -884,7 +884,7 @@ int ParseScript( char* script, AlignInfo *gl )
 
 // Report Results 
 
-void WriteResults( char* script, fullPath *sfile,  AlignInfo *g, double ds( int i), int launch)
+void WriteResults( char* script, char *sfile,  AlignInfo *g, double ds( int i), int launch)
 {
     char        *res, **hres, *line;
     int         optHfov;         // Has hfov being optimized?
@@ -1170,7 +1170,7 @@ void WriteResults( char* script, fullPath *sfile,  AlignInfo *g, double ds( int 
 // Reads 'adjust' parameters from script 'sfile'
 // return 0 on success/ -1 if failed
 
-int readAdjust( aPrefs *p,  fullPath* sfile, int insert, sPrefs *sP )
+int readAdjust( aPrefs *p,  char* sfile, int insert, sPrefs *sP )
 {
     char*               script;
     // Variables used by parser
@@ -1191,7 +1191,7 @@ int readAdjust( aPrefs *p,  fullPath* sfile, int insert, sPrefs *sP )
 
     
     
-    script = LoadScript( sfile );
+    script = LoadScript( sfile);
     if( script == NULL )
 	goto fail;
     
@@ -2350,7 +2350,7 @@ void SetCoordDefaults( CoordInfo *c, int num )
 }
 
 
-aPrefs* readAdjustLine( fullPath *theScript ){  
+aPrefs* readAdjustLine( char *theScript ){  
     sPrefs sP;
     aPrefs *aP = (aPrefs*)malloc(sizeof(aPrefs));
     if(aP==NULL) return NULL;

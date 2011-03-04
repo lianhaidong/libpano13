@@ -40,7 +40,7 @@ typedef struct tagwin3xBitmapInfoHeader{
 
 
 
-int writeBMP( Image *im, fullPath *sfile )
+int writeBMP( Image *im, char *sfile )
 {
 	file_spec  output;
 	unsigned char *buf, *data;
@@ -161,7 +161,7 @@ int writeBMP( Image *im, fullPath *sfile )
 
 
 // Read bitmap file
-static int readBMP( Image *im, fullPath *sfile )
+static int readBMP( Image *im, char *sfile )
 {
 	file_spec input;
 	unsigned char *data, *buf;
@@ -319,7 +319,7 @@ static int readBMPFileHeader(Image *im, file_spec input)
 }
 
 
-int panoBMPRead( Image *im, fullPath *sfile )
+int panoBMPRead( Image *im, char *sfile )
 {
   if (readBMP(im, sfile) == 0) {
     return panoMetadataUpdateFromImage(im);

@@ -326,14 +326,14 @@ void 	myfree( void** Hdl )						// free Memory, use Handles
 
 // Display Scriptfile using plain text editor
 
-void 	showScript			( fullPath* scriptFile )
+void 	showScript			( char* scriptFile )
 {
 	char cmd[sizeof(fullPath) + 16];
 	
-	sprintf( cmd, "vi \"%s\"", scriptFile->name );
-	if (system( cmd ) == -1) {
-            PrintError("Unable to execute script editor");
-        }
+	sprintf( cmd, "vi \"%s\"", scriptFile );
+        fprintf(stderr, "NO LONGER SUPPORTED\n");
+        exit(1);
+        //	system( cmd );
 }
 	
 

@@ -81,7 +81,7 @@ void InsertFileName(fullPath * fp, char *fname)
 
 
 int panoPSDCreate(fullPath * fullPathImages, int numberImages,
-                  fullPath * outputFileName, pano_flattening_parms *flatteningParms)
+                  char * outputFileName, pano_flattening_parms *flatteningParms)
 {
     Image *ptrImage;
     int i;
@@ -157,7 +157,7 @@ int panoPSDCreate(fullPath * fullPathImages, int numberImages,
         if (ptQuietFlag == 0) {
             sprintf(tempString, "%d", i * 100 / numberImages);
             if (Progress(_setProgress, tempString) == 0) {
-                remove(outputFileName->name);
+                remove(outputFileName);
                 return -1;
             }
         }
@@ -176,7 +176,7 @@ int panoPSDCreate(fullPath * fullPathImages, int numberImages,
 
         // Create a new file with the result PSD, then delete the current one
 
-        strcpy(tempFile.name, outputFileName->name);
+        strcpy(tempFile.name, outputFileName);
 
         if (panoFileMakeTemp(&tempFile) == 0) {
             PrintError("Could not make Tempfile");
@@ -192,14 +192,14 @@ int panoPSDCreate(fullPath * fullPathImages, int numberImages,
           stitchInfo.psdOpacity = 255;
 	stitchInfo.psdBlendingMode = flatteningParms->psdBlendingMode;
 
-        if (addLayerToFile(ptrImage, outputFileName, &tempFile, &stitchInfo)
+        if (addLayerToFile(ptrImage, outputFileName, tempFile.name, &stitchInfo)
             != 0) {
             PrintError("Could not write Panorama File");
             return -1;
         }
 
-        remove(outputFileName->name);
-        rename(tempFile.name, outputFileName->name);
+        remove(outputFileName);
+        rename(tempFile.name, outputFileName);
 
 	panoImageDispose(ptrImage);
     }
@@ -680,7 +680,7 @@ void setFullSizeImageParameters(pt_tiff_parms * imageParameters,
 
 
 int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
-                       fullPath * panoFileName, fullPath * scriptFileName)
+                       fullPath * panoFileName, char * scriptFileName)
 {
 
     Image *currentImagePtr;
@@ -798,7 +798,7 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
 
         // Read the next adjust line (contains yaw, pitch, roll and other information)
         // for one input image from the script file
-        if ((prefs = readAdjustLine(&tempScriptFile)) == 0) {
+        if ((prefs = readAdjustLine(tempScriptFile.name)) == 0) {
             PrintError("Could not read Scriptfile");
             goto mainError;
         }
@@ -914,7 +914,7 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
         }
 
         //Read input image into transform.src
-        if (panoImageRead(currentImagePtr, &ptrImageFileNames[loopCounter]) == 0) {
+        if (panoImageRead(currentImagePtr, ptrImageFileNames[loopCounter].name) == 0) {
             PrintError("Could not read input image [%s]", ptrImageFileNames[loopCounter].name);
             goto mainError;
         }

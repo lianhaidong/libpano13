@@ -5,35 +5,15 @@
 
 
 
-int writeHDR( Image *im, fullPath *sfile)
+int writeHDR( Image *im, char *filename)
 {
 	rgbe_header_info rgbe_h;
 	FILE * outfile;
-	char filename[512];
 	unsigned char *data;
 	float *fdata = NULL;
 	int i;
 
 
-#ifdef __Mac__
-	unsigned char the_pcUnixFilePath[512];// added by Kekus Digital
-	Str255 the_cString;
-	Boolean the_bReturnValue;
-	CFStringRef the_FilePath;
-	CFURLRef the_Url;//till here
-#endif
-	
-	if( GetFullPath (sfile, filename))
-		return -1;
-
-#ifdef __Mac__
-	CopyCStringToPascal(filename,the_cString);//Added by Kekus Digital
-	the_FilePath = CFStringCreateWithPascalString(kCFAllocatorDefault, the_cString, kCFStringEncodingUTF8);
-	the_Url = CFURLCreateWithFileSystemPath(kCFAllocatorDefault, the_FilePath, kCFURLHFSPathStyle, false);
-	the_bReturnValue = CFURLGetFileSystemRepresentation(the_Url, true, the_pcUnixFilePath, 512);
-
-	strcpy(filename, the_pcUnixFilePath);//till here
-#endif
 	
 	data=malloc(im->width * im->height * 4 * 3);
 
@@ -104,33 +84,12 @@ int writeHDR( Image *im, fullPath *sfile)
 }
 
 
-int readHDR ( Image *im, fullPath *sfile )
+int readHDR ( Image *im, char *filename )
 {
 	rgbe_header_info rgbe_h;
 	FILE * infile;
 	float *srcdata, *fdata;
-	char filename[256];
 	int i;
-
-#ifdef __Mac__
-	unsigned char the_pcUnixFilePath[256];// added by Kekus Digital
-	Str255 the_cString;
-	Boolean the_bReturnValue;
-	CFStringRef the_FilePath;
-	CFURLRef the_Url;//till here
-#endif
-
-	if( GetFullPath (sfile, filename))
-		return -1;
-
-#ifdef __Mac__
-	CopyCStringToPascal(filename,the_cString);//Added by Kekus Digital
-	the_FilePath = CFStringCreateWithPascalString(kCFAllocatorDefault, the_cString, kCFStringEncodingUTF8);
-	the_Url = CFURLCreateWithFileSystemPath(kCFAllocatorDefault, the_FilePath, kCFURLHFSPathStyle, false);
-	the_bReturnValue = CFURLGetFileSystemRepresentation(the_Url, true, the_pcUnixFilePath, 256);
-
-	strcpy(filename, the_pcUnixFilePath);//till here
-#endif
 
 	if ((infile = fopen(filename, "rb")) == NULL) 
 	{
@@ -138,7 +97,7 @@ int readHDR ( Image *im, fullPath *sfile )
 	    return -1;
 	}
 	SetImageDefaults( im );
-	RGBE_ReadHeader(infile,&im->width,&im->height,&rgbe_h);
+	RGBE_ReadHeader(infile,(int*)&im->width,(int*)&im->height,&rgbe_h);
 
 	im->bitsPerPixel = 96;
 	im->bytesPerLine = im->width * 4 * 4;
@@ -170,7 +129,7 @@ int readHDR ( Image *im, fullPath *sfile )
 	return 0;
 }
 
-int panoHDRRead(Image *im, fullPath *sfile )
+int panoHDRRead(Image *im, char *sfile )
 {
     if (readHDR(im, sfile) == 0) {
 	return panoMetadataUpdateFromImage(im);
