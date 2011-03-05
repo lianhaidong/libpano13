@@ -123,7 +123,7 @@ dist-hook:
 EXTRA_DIST =  gpl.txt README.linux README.windows \
 	      makefile.win32 TODO.org \
 	      CMakeLists.txt \
-	      ChangeLog.svn \
+	      ChangeLog.hg \
 	      dump.c dump.h \
 	      bootstrap filter.r libpano13.def pano13.rc \
 	      seamer_.c sys_X11.c sys_win.c bmp.c shell_mac.c \
@@ -149,4 +149,4 @@ darwin: libpano13.la filter.r
 	/Developer/Tools/Rez -t APPL -o libpano13.dynlib filter.r
 
 changelog:
-	svn2cl --group-by-day --include-rev --linelen=78 --output=ChangeLog.svn
+	hg log --follow --style=changelog > ChangeLog.hg
