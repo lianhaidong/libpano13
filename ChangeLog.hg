@@ -1,4 +1,11 @@
-2011-03-05 22:34 +0000  Bruno Postle  <bruno@postle.net>  (3209bc93c5ae [tip] <libpano13-2.9.18>)
+2011-03-05 23:04 +0000  Bruno Postle  <bruno@postle.net>  (1dbe4f806f26 [tip] <libpano13-2.9.18>)
+
+	* ChangeLog.hg: new file.
+	* ChangeLog.svn: deleted file.
+	* ChangeLog.hg, ChangeLog.svn, Makefile.am:
+	Switch ChangeLog generator from svn to hg
+
+2011-03-05 22:34 +0000  Bruno Postle  <bruno@postle.net>  (3209bc93c5ae <libpano13-2.9.18>)
 
 	* png.c:
 	Fix build with libpng-1.5 Bug #719076 (Thomas Klausner)
