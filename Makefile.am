@@ -120,8 +120,9 @@ dist-hook:
 	rm -rf `find $(distdir) -name CVS`
 	rm -rf `find $(distdir) -name .cvsignore`
 
-EXTRA_DIST =  gpl.txt README.linux README.windows \
+EXTRA_DIST =  README.linux README.windows \
 	      makefile.win32 TODO.org \
+	      COPYING INSTALL \
 	      CMakeLists.txt \
 	      ChangeLog.hg \
 	      dump.c dump.h \
@@ -132,8 +133,6 @@ EXTRA_DIST =  gpl.txt README.linux README.windows \
 	      pano13vc.def libpano.vcproj PanoTools.pbproj.tgz
 
 MAINTAINERCLEANFILES = \
-	COPYING				\
-	INSTALL				\
 	aclocal.m4			\
 	config.h.in			\
 	config.h.in~		\
