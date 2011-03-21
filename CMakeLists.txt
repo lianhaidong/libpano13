@@ -233,7 +233,7 @@ install(FILES ${pano13_install_hdr} DESTINATION "include/pano13")
 INSTALL(
   FILES
 	AUTHORS
-	gpl.txt
+	COPYING
 	README
   DESTINATION "include/pano13"
         )
@@ -312,7 +312,7 @@ set(CPACK_SET_DESTDIR "ON")
 set(CPACK_PACKAGE_CONTACT "${PACKAGE_BUGREPORT}")
 set(CPACK_SOURCE_PACKAGE_FILE_NAME "libpano13")
 set(CPACK_PACKAGE_DESCRIPTION_FILE "${TOP_SRC_DIR}/README")
-set(CPACK_RESOURCE_FILE_LICENSE "${TOP_SRC_DIR}/gpl.txt")
+set(CPACK_RESOURCE_FILE_LICENSE "${TOP_SRC_DIR}/COPYING")
 
 # Find the revision number and use it as the release in rpm-package-build.
 # This way we may omit the otherwise needed "--force" parameter when
