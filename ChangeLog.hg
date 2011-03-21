@@ -1,4 +1,17 @@
-2011-03-06 23:07 +0000  Bruno Postle  <bruno@postle.net>  (6382dc6d6a88 [tip] <libpano13-2.9.18>)
+2011-03-21 21:30 +0000  Bruno Postle  <bruno@postle.net>  (6efc2267ff19 [tip] <libpano13-2.9.18>)
+
+	* CMakeLists.txt, man/CMakeLists.txt, tests/CMakeLists.txt,
+	tests/simpleStitch/CMakeLists.txt,
+	tests/simpleTiff16/CMakeLists.txt, tools/CMakeLists.txt:
+	Fixes for cmake after switching from gpl.txt to COPYING, Bug #739612
+	(Thomas Modes)
+
+2011-03-06 23:44 +0000  Bruno Postle  <bruno@postle.net>  (bea8d3f35359 <libpano13-2.9.18>)
+
+	* ChangeLog.hg:
+	Update changelog
+
+2011-03-06 23:07 +0000  Bruno Postle  <bruno@postle.net>  (6382dc6d6a88 <libpano13-2.9.18>)
 
 	* tests/simpleStitch/Makefile.am, tests/simpleTiff16/Makefile.am:
 	Rename "clean" target to "clean-local" in Makefile.am. This way the
