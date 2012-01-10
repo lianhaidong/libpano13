@@ -151,11 +151,11 @@ JNIEXPORT void JNICALL Java_pteditor_CExtract
 	ap.pano.hfov	= phfov;
 
 	if( ap.pano.format == _equirectangular ){ // extract image from panorama	
-		ap.im.width = (pt_int32)((hfov / ap.pano.hfov) * 2 * ap.pano.width);
+		ap.im.width = (int32_t)((hfov / ap.pano.hfov) * 2 * ap.pano.width);
 	}else{ // extract image from fisheye source
-		ap.im.width = (pt_int32)((hfov / ap.pano.hfov) * ap.pano.width);
+		ap.im.width = (int32_t)((hfov / ap.pano.hfov) * ap.pano.width);
 	}
-	ap.im.height	= (pt_int32)((double)ap.im.width / aspect);
+	ap.im.height	= (int32_t)((double)ap.im.width / aspect);
 	ap.im.format	= _rectilinear;
 	ap.im.yaw		= yaw;
 	ap.im.pitch		= pitch;
