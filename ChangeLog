@@ -1,43 +1,19 @@
+2011-03-04    <dmg@uvic.ca>
+
+	* .hgignore: Added some files. Sorted files, so it is easier to
+	merge when the time comes.
+
 2011-03-03    <dmg@uvic.ca>
-
-	* tools/PTtiff2psd.c (PT_TIFF2PSD_VERSION): Added Jim to the list
-	of credits.
-
-	* file.c: writing of current time is disabled to simplify testing
-	(until we find a way to solve it).
-	
-	* tests/CMakeLists.txt, tests/simpleTiff2psd: added simple tests
-	for PSD
-	
-	* tests/panoAutomatePSDtest.pl: Added PSD script test.
-
-	* .hgignore (glob): Added more files to .hgignore
-
-	* file.c (panoPSDResourcesBlockWrite), sys_win.c, sys_ansi.c,
-	sys_compat.h: Refectored system dependent code.
-
-	* CMakeLists.txt: Added sys_compat.h to the build.
 
 	* CMakeList.txt: Added TAGS file creation, undid removal of
 	hugin-related paths.
 
-	* PTcommon.h (min): Added min macro (needed in new PSD code under Linux)
-
 2011-03-02    <dmg@uvic.ca>
-
-	* PTcommon.c, PTcommon.h, ZComb.c, adjust.c, correct.c, doc/Makefile.am
-           file.c, filter.c filter.h, fourier.c, man/Makefile.am,
-	   morpher.c, panorama.h, panotypes.h, parser.c, perspect.c,
-	   png.c, pt_stdint.h, resample.c, rgbe.c, rgbe.h, sys_ansi.c,
-	   sys_common.c, tests/CMakeLists.txt, tiff.c, tools/panoinfo_unix.c:
-	Merges changes from default, plus fixed compilation
-	   errors. Removed UCHAR, UINT, UINT16, UINT32 in favour of their
-	   standard names.
 
 	* panotypes.h, and many other files: Removed pt_int* data
 	types. There are not used consistently with the uint datatypes, so
 	why add confusion?
-	
+
 	* tests/CMakeLists.txt: I removed some code that
 	moved/copied/removed the test data files in the reference directory.
 
@@ -53,9 +29,6 @@
 	* pt_stdint.h: Cleaned up this file.
 
 	* panotypes.h: Cleaned up this file. 
-
-2011-02-19    <dmg@uvic.ca>
-	* Fixed a small error that stopped compilation under Linux.
 
 2011-02-20    <dmg@uvic.ca>
 
