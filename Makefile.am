@@ -120,10 +120,11 @@ dist-hook:
 	rm -rf `find $(distdir) -name CVS`
 	rm -rf `find $(distdir) -name .cvsignore`
 
-EXTRA_DIST =  gpl.txt README.linux README.windows \
+EXTRA_DIST =  README.linux README.windows \
 	      makefile.win32 TODO.org \
+	      COPYING INSTALL \
 	      CMakeLists.txt \
-	      ChangeLog.svn \
+	      ChangeLog.hg \
 	      dump.c dump.h \
 	      bootstrap filter.r libpano13.def pano13.rc \
 	      seamer_.c sys_X11.c sys_win.c bmp.c shell_mac.c \
@@ -132,8 +133,6 @@ EXTRA_DIST =  gpl.txt README.linux README.windows \
 	      pano13vc.def libpano.vcproj PanoTools.pbproj.tgz
 
 MAINTAINERCLEANFILES = \
-	COPYING				\
-	INSTALL				\
 	aclocal.m4			\
 	config.h.in			\
 	config.h.in~		\
@@ -149,4 +148,4 @@ darwin: libpano13.la filter.r
 	/Developer/Tools/Rez -t APPL -o libpano13.dynlib filter.r
 
 changelog:
-	svn2cl --group-by-day --include-rev --linelen=78 --output=ChangeLog.svn
+	hg log --follow --style=changelog > ChangeLog.hg

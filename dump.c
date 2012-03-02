@@ -144,8 +144,8 @@ void panoDumpCorrectPrefs(cPrefs *cP, char *label, int indent)
     }
     /* I don't think these files are read as parameters... we'll see
     int resize;                 
-    pt_int32 width;             
-    pt_int32 height;            
+    int32_t width;             
+    int32_t height;            
     int luminance;              
     double lum_params[3];       
     int correction_mode;        

@@ -46,6 +46,24 @@ IF(WIN32)
   set(CMAKE_INSTALL_PREFIX "${SOURCE_BASE_DIR}/libpano13" CACHE PATH "Install prefix for libpano")
 ENDIF(WIN32)
 
+set(ARCH_TRIPLET)         
+if(UNIX)
+  FIND_PROGRAM(DPKG_ARCHITECTURE_EXECUTABLE dpkg-architecture)
+  if(DPKG_ARCHITECTURE_EXECUTABLE)
+    EXECUTE_PROCESS(COMMAND dpkg-architecture -qDEB_HOST_MULTIARCH
+      OUTPUT_VARIABLE ARCH_TRIPLET
+      ERROR_VARIABLE ERROR_ARCH_TRIPLET
+      OUTPUT_STRIP_TRAILING_WHITESPACE)
+  endif()
+endif()
+if(ARCH_TRIPLET)
+  set(SYSTEM_LIB_DIRS /usr/lib /usr/lib/${ARCH_TRIPLET} /usr/local/lib)
+else()
+  set(SYSTEM_LIB_DIRS /usr/lib /usr/local/lib)
+endif()
+
+set(HUGIN_SHARED OFF)
+
 include(CheckIncludeFiles)
 
 ##  global setup
@@ -234,7 +252,7 @@ install(FILES ${pano13_install_hdr} DESTINATION "include/pano13")
 INSTALL(
   FILES
 	AUTHORS
-	gpl.txt
+	COPYING
 	README
   DESTINATION "include/pano13"
         )
@@ -313,7 +331,7 @@ set(CPACK_SET_DESTDIR "ON")
 set(CPACK_PACKAGE_CONTACT "${PACKAGE_BUGREPORT}")
 set(CPACK_SOURCE_PACKAGE_FILE_NAME "libpano13")
 set(CPACK_PACKAGE_DESCRIPTION_FILE "${TOP_SRC_DIR}/README")
-set(CPACK_RESOURCE_FILE_LICENSE "${TOP_SRC_DIR}/gpl.txt")
+set(CPACK_RESOURCE_FILE_LICENSE "${TOP_SRC_DIR}/COPYING")
 
 # Find the revision number and use it as the release in rpm-package-build.
 # This way we may omit the otherwise needed "--force" parameter when
@@ -330,6 +348,10 @@ if(NOT ${_svnversion} MATCHES "-NOTFOUND")
 endif()
 
 set(CPACK_SOURCE_PACKAGE_FILE_NAME "libpano13-${PACKAGE_VERSION}")
+
+# Use dpkg-shlibdeps to get the needed dependences
+SET(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
+
 
 include(CPack)
 
