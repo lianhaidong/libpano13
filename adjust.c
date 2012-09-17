@@ -3026,7 +3026,8 @@ int CheckParams( AlignInfo *g )
         g->pano.format != _panini               && g->pano.format != _architectural      &&
         g->pano.format != _equisolid            && g->pano.format != _equipanini         &&
         g->pano.format != _biplane              && g->pano.format != _triplane &&
-        g->pano.format != _panini_general
+        g->pano.format != _panini_general       && g->pano.format != _thoby              &&
+        g->pano.format != _orthographic
         ) err=11;
     
     // Check Control Points
