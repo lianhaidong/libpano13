@@ -2569,7 +2569,12 @@ int sphere_tp_thoby( double x_dest,double  y_dest, double* x_src, double* y_src,
 
   rho = sqrt( x_dest*x_dest + y_dest*y_dest )/ SCALE;
 
-  
+  if(fabs(rho)>THOBY_K1_PARM)
+  {
+    *x_src=0;
+    *y_src=0;
+    return 0;
+  };
   theta = asin( rho/THOBY_K1_PARM) / THOBY_K2_PARM;
   phi   = atan2( y_dest , x_dest );
   
