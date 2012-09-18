@@ -119,11 +119,10 @@ typedef LPSTR *Handle;
 
 #ifdef _DLL
 extern HINSTANCE hDllInstance;
-extern HWND wndOwner;
 #else
 #define hDllInstance 0
-#define wndOwner 0
 #endif
+HWND wndOwner;
 
 void SetWindowOwner(HWND Owner);
 void CenterDialog(HWND hDlg);

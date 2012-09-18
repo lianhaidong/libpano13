@@ -17,6 +17,10 @@ endif()
 
 if(WIN32)
   list(APPEND commands panoinfo)
+  IF(BUILD_DLL)
+    add_library(getopt STATIC compat_win32/getopt.c compat_win32/getopt.h)
+    list(APPEND _common_libs getopt)
+  ENDIF(BUILD_DLL)
 endif()
 
 include_directories(${TOP_SRC_DIR})

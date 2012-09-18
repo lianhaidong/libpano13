@@ -8,7 +8,8 @@
 #ifndef PT_STDINT__H
 #define PT_STDINT__H
 
-#ifdef _MSC_VER  /* Microsoft Visual C++ */
+// define some int
+#if defined _MSC_VER && _MSC_VER<1600 /* Microsoft Visual C++ */
    typedef signed char             int8_t;
    typedef short int               int16_t;
    typedef int                     int32_t;
@@ -20,7 +21,11 @@
    /* no uint64_t */
    
    #define INT32_MAX _I32_MAX
-   
+# else /* #ifdef _MSC_VER */
+   #include <stdint.h>
+#endif /* #ifdef _MSC_VER */
+
+#ifdef _MSC_VER
    #define vsnprintf _vsnprintf
    #define snprintf _snprintf
    
@@ -31,12 +36,9 @@
    #define INLINE
    #endif
 # else /* #ifdef _MSC_VER */
-   #include <stdint.h>
-
    #ifndef INLINE
    #define INLINE inline
    #endif
-
 #endif /* #ifdef _MSC_VER */
 
 #endif

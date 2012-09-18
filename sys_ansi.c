@@ -20,9 +20,6 @@
 #include "sys_ansi.h"
 #include "panotypes.h"
 #include <signal.h>
-#include <assert.h>
-#include <time.h>
-
 
 //------------------ Public functions required by filter.h -------------------------------
 
@@ -435,19 +432,4 @@ int StringtoFullPath(fullPath *path, char *filename){
 	}else{
 		return -1;
 	}
-}
-
-
-
-int panoTimeToStrWithTimeZone(char *sTime, int len, struct tm  *time) 
-{
-    assert(len >= 11);
-    return strftime(sTime, len, "%H%M%S%z", time);
-
-}
-
-char *panoBasenameOfExecutable(void)
-{
-    extern char *__progname;
-    return __progname;
 }

@@ -20,7 +20,7 @@ INTERNAL_HDR = fftn.h f2c.h ZComb.h adjust.h ColourBrightness.h PTcommon.h pt_st
 
 TOOL_HDR = queryfeature.h pteditor.h ptutils.h 
 
-SYS_HDR = sys_X11.h sys_ansi.h sys_mac.h sys_win.h 
+SYS_HDR = sys_X11.h sys_ansi.h sys_mac.h sys_win.h sys_compat.h
 
 if HAVE_X11
 X11_SRC =  sys_X11.c 
@@ -29,7 +29,7 @@ X11_SRC =
 endif
 
 if HAVE_CYGWIN
-WIN_SRC =  sys_ansi.c bmp.c
+WIN_SRC =  sys_ansi.c sys_compat_win.c bmp.c 
 WIN_DEFS = -D__Win__=1
 WIN_LDFS = -mwindows -avoid-version -no-undefined -export-symbols $(srcdir)/libpano13.def 
 
@@ -41,7 +41,7 @@ install-exec-hook:
 endif
 
 if HAVE_MINGW
-WIN_SRC =  sys_ansi.c bmp.c
+WIN_SRC =  sys_ansi.c sys_compat_win.c bmp.c
 WIN_DEFS = -D__Win__=1
 WIN_LDFS = -mwindows -avoid-version -no-undefined -export-symbols $(srcdir)/libpano13.def 
 
@@ -56,7 +56,7 @@ install-exec-hook:
 endif
 
 if HAVE_MAC
-MAC_SRC =  shell_mac.c sys_mac.c ppm.c
+MAC_SRC =  shell_mac.c sys_mac.c sys_compat_unix.c ppm.c
 MAC_HDR =  
 
 install-exec-hook:
@@ -65,7 +65,7 @@ install-exec-hook:
 endif
 
 if HAVE_LINUX
-LIN_SRC =  sys_ansi.c ppm.c
+LIN_SRC =  sys_ansi.c sys_compat_unix.c ppm.c
 LIN_DEFS = -D__Ansi__=1
 LIN_LDFS = -version-info 2:0:0
 
@@ -75,7 +75,7 @@ install-exec-hook:
 endif
 
 if HAVE_DARWIN
-DAR_SRC =  sys_ansi.c ppm.c
+DAR_SRC =  sys_ansi.c sys_compat_unix.c ppm.c
 DAR_DEFS = -D__Ansi__=1
 DAR_LDFS = -version-info 2:0:0
 
@@ -85,7 +85,7 @@ install-exec-hook:
 endif
 
 if HAVE_SOLARIS
-SOL_SRC =  sys_ansi.c ppm.c
+SOL_SRC =  sys_ansi.c sys_compat_unix.c ppm.c
 SOL_DEFS = -D__Ansi__=1
 SOL_LDFS = -version-info 2:0:0 -lxnet -lm -lsunmath
 
