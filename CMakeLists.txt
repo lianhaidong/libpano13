@@ -74,7 +74,21 @@ project(libpano13)
 #  finding the wxWidgets distributions of those packages on Windows.
 IF(WIN32)
   ADD_DEFINITIONS(-D__Win__)
+  OPTION(BUILD_DLL "Build dynamic libpano 13" OFF)
+  OPTION(BUILD_WINGUI "Build with Windows GUI, otherwise the information is printed to shell/cmd.exe" OFF)
   set(win_c "tools/compat_win32/getopt.c")
+  IF(BUILD_WINGUI)
+    SET(sys_c "sys_win.c")
+    SET(sys_h "sys_win.h")
+  ELSE(BUILD_WINGUI)
+    SET(sys_c "sys_ansi.c")
+    SET(sys_h "sys_ansi.h")
+  ENDIF(BUILD_WINGUI)
+  SET(sys_compat_c "sys_compat_win.c")
+ELSE(WIN32)
+  SET(sys_c "sys_ansi.c")
+  SET(sys_h "sys_ansi.h")
+  SET(sys_compat_c "sys_compat_unix.c")
 ENDIF(WIN32)
 
 
@@ -118,29 +132,34 @@ ELSE(UNIX)
     ADD_DEFINITIONS(/D_SCL_SECURE_NO_WARNINGS)
     # Stop MSVC9 from bitching about POSIX names without underscores
     ADD_DEFINITIONS(/D_CRT_NONSTDC_NO_DEPRECATE)
-    # compile everything for the static C runtime
-	FOREACH(TYPE C CXX)
-		# makefiles use blank configuration
-		FOREACH(CFG "_DEBUG" "_MINSIZEREL" "_RELEASE" "_RELWITHDEBINFO")
-			#MESSAGE("Replacing CMAKE_${TYPE}_FLAGS${CFG}: ${CMAKE_${TYPE}_FLAGS${CFG}}")
-			SET(NEW_FLAGS "${CMAKE_${TYPE}_FLAGS${CFG}}")
-			# fix up static libc flags
-			STRING(REPLACE "/MD" "/MT" NEW_FLAGS "${NEW_FLAGS}")
-			# *FORCE* to override whats already placed into the cache
-			SET(CMAKE_${TYPE}_FLAGS${CFG} "${NEW_FLAGS}" CACHE STRING
-				"CMAKE_${TYPE}_FLAGS${CFG} (overwritten to ensure static build)" FORCE)
-			#MESSAGE("New       CMAKE_${TYPE}_FLAGS${CFG}: ${CMAKE_${TYPE}_FLAGS${CFG}}")
-		ENDFOREACH(CFG)
-	ENDFOREACH(TYPE)
-    # link only with the static C runtime !! THIS IS A MUST !!
-	SET(NEW_FLAGS "${CMAKE_EXE_LINKER_FLAGS}")
-	# ensure that the flags are not duplicaated on subsequent runs
-	STRING(REPLACE " /NODEFAULTLIB:\"MSVCRT.lib\" /NODEFAULTLIB:\"MSVCRTd.lib\"" "" NEW_FLAGS "${NEW_FLAGS}")
-	# note that flag names(NODEFAULTLIB) etc.) are case sensitive
-    SET(CMAKE_EXE_LINKER_FLAGS
-        "${NEW_FLAGS} /NODEFAULTLIB:\"MSVCRT.lib\" /NODEFAULTLIB:\"MSVCRTd.lib\""
-       CACHE STRING "for MSVC" FORCE
-)
+    IF(NOT BUILD_WINGUI)
+      ADD_DEFINITIONS(/D__Ansi__)
+    ENDIF()
+    IF(NOT BUILD_DLL)
+      # compile everything for the static C runtime
+		FOREACH(TYPE C CXX)
+			# makefiles use blank configuration
+			FOREACH(CFG "_DEBUG" "_MINSIZEREL" "_RELEASE" "_RELWITHDEBINFO")
+				#MESSAGE("Replacing CMAKE_${TYPE}_FLAGS${CFG}: ${CMAKE_${TYPE}_FLAGS${CFG}}")
+				SET(NEW_FLAGS "${CMAKE_${TYPE}_FLAGS${CFG}}")
+				# fix up static libc flags
+				STRING(REPLACE "/MD" "/MT" NEW_FLAGS "${NEW_FLAGS}")
+				# *FORCE* to override whats already placed into the cache
+				SET(CMAKE_${TYPE}_FLAGS${CFG} "${NEW_FLAGS}" CACHE STRING
+					"CMAKE_${TYPE}_FLAGS${CFG} (overwritten to ensure static build)" FORCE)
+				#MESSAGE("New       CMAKE_${TYPE}_FLAGS${CFG}: ${CMAKE_${TYPE}_FLAGS${CFG}}")
+			ENDFOREACH(CFG)
+		ENDFOREACH(TYPE)
+	    # link only with the static C runtime !! THIS IS A MUST !!
+		SET(NEW_FLAGS "${CMAKE_EXE_LINKER_FLAGS}")
+		# ensure that the flags are not duplicaated on subsequent runs
+		STRING(REPLACE " /NODEFAULTLIB:\"MSVCRT.lib\" /NODEFAULTLIB:\"MSVCRTd.lib\"" "" NEW_FLAGS "${NEW_FLAGS}")
+		# note that flag names(NODEFAULTLIB) etc.) are case sensitive
+    	SET(CMAKE_EXE_LINKER_FLAGS
+        	"${NEW_FLAGS} /NODEFAULTLIB:\"MSVCRT.lib\" /NODEFAULTLIB:\"MSVCRTd.lib\""
+	       CACHE STRING "for MSVC" FORCE
+		)
+	ENDIF(NOT BUILD_DLL)
   ENDIF(MSVC)
 ENDIF(UNIX)
 
@@ -174,8 +193,7 @@ set(pano13_hdr
 	fftn.h
 	rgbe.h
         sys_compat.h
-	sys_ansi.h
-	sys_win.h
+	${sys_h}
 	ZComb.h
 	PaniniGeneral.h
 )
@@ -220,7 +238,8 @@ set(pano13_src
 	resample.c
 	rgbe.c
 	seamer.c
-	sys_ansi.c
+	${sys_c}
+	${sys_compat_c}
 	sys_common.c
 	tiff.c
 	Triangulate.c
@@ -237,14 +256,36 @@ if(NOT WIN32)
   set_target_properties(pano13 PROPERTIES VERSION "2.0.0" SOVERSION "2")
   install(TARGETS pano13 LIBRARY DESTINATION lib)
   set(_pano_target pano13)
+  #create and install static library
+  add_library(pano13a STATIC ${pano13_hdr} ${pano13_res} ${pano13_src})
+  set_target_properties(pano13a PROPERTIES OUTPUT_NAME pano13)
+  install(TARGETS pano13a ARCHIVE DESTINATION lib)
 else()
-  set(_pano_target pano13a)
+  IF(BUILD_DLL)
+    # Create and install shared library
+    add_library(pano13 SHARED ${pano13_hdr} ${pano13_res} ${pano13_src})
+    target_link_libraries(pano13 ${_common_libs})
+    set_target_properties(pano13 PROPERTIES VERSION "2.0.0" SOVERSION "2")
+    install(TARGETS pano13 RUNTIME DESTINATION bin ARCHIVE DESTINATION lib LIBRARY DESTINATION lib)
+  ELSE(BUILD_DLL)
+    #create and install static library
+    add_library(pano13 STATIC ${pano13_hdr} ${pano13_res} ${pano13_src})
+    install(TARGETS pano13 ARCHIVE DESTINATION lib)
+  ENDIF(BUILD_DLL)
+  set(_pano_target pano13)
 endif()
 
-#create and install static library
-add_library(pano13a STATIC ${pano13_hdr} ${pano13_res} ${pano13_src})
-set_target_properties(pano13a PROPERTIES OUTPUT_NAME pano13)
-install(TARGETS pano13a ARCHIVE DESTINATION lib)
+IF( CMAKE_SIZEOF_VOID_P EQUAL 8 AND MSVC )
+	# Error detected with generator Visual Studio 10 Win64
+	# > LINK : warning LNK4068: /MACHINE not specified; defaulting to X86
+	# > fatal error LNK1112: module machine type 'x64' conflicts with target machine type 'X86'
+	#
+	# There is no default value for static libraries and cmake isn't setting it either.
+	# We fix this by adding the flag manually.
+	IF(NOT BUILD_DLL)
+		SET_TARGET_PROPERTIES(pano13 PROPERTIES STATIC_LIBRARY_FLAGS \"/machine:x64\")
+	ENDIF()
+ENDIF()
 
 install(FILES ${pano13_install_hdr} DESTINATION "include/pano13")
 
