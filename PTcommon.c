@@ -576,12 +576,12 @@ void getROI(TrformStr * TrPtr, aPrefs * aP, PTRect * ROIRect)
                         //a divide by zero error somewhere in the mapping function.  This should
                         //be solved, but, for now, discard this value and keep going
                         if (!isnan(Dx)) {
-                            if ((int)Dx < ROIRect->left) ROIRect->left = (int)(Dx + 0.5);
-                            if ((int)Dx > ROIRect->right) ROIRect->right = (int)(Dx + 0.5);
+                            if ((int32_t)Dx < ROIRect->left) ROIRect->left = (int32_t)(Dx + 0.5);
+                            if ((int32_t)Dx > ROIRect->right) ROIRect->right = (int32_t)(Dx + 0.5);
                         }
                         if (!isnan(Dy)){                
-                            if ((int)Dy < ROIRect->top) ROIRect->top = (int)(Dy + 0.5);
-                            if ((int)Dy > ROIRect->bottom) ROIRect->bottom = (int)(Dy + 0.5);
+                            if ((int32_t)Dy < ROIRect->top) ROIRect->top = (int32_t)(Dy + 0.5);
+                            if ((int32_t)Dy > ROIRect->bottom) ROIRect->bottom = (int32_t)(Dy + 0.5);
                         }
                 }
         }
