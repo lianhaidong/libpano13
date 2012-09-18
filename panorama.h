@@ -318,10 +318,10 @@ enum
 
 typedef struct
 {
-    uint32_t top;
-    uint32_t bottom;
-    uint32_t left;
-    uint32_t right;
+    int32_t top;
+    int32_t bottom;
+    int32_t left;
+    int32_t right;
 } PTRect;
 
 typedef struct
