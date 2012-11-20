@@ -646,8 +646,8 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
     {
       image_selection_width  = im->selection.right  - im->selection.left;
       image_selection_height = im->selection.bottom - im->selection.top;
-      mp->horizontal += (im->selection.right  + im->selection.left - im->width)/2.0;
-      mp->vertical   += (im->selection.bottom + im->selection.top  - im->height)/2.0;
+      mp->horizontal += (im->selection.right  + im->selection.left - (int32_t)im->width)/2.0;
+      mp->vertical   += (im->selection.bottom + im->selection.top  - (int32_t)im->height)/2.0;
     }
   }
 
