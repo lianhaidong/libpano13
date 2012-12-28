@@ -2531,6 +2531,13 @@ int sphere_tp_orthographic( double x_dest,double  y_dest, double* x_src, double*
 
   rho = sqrt( x_dest*x_dest + y_dest*y_dest );
   
+  // orthographic projection is limited to fov of 180 deg
+  if(rho>((double*)params)[0])
+  {
+      *x_src = 0;
+      *y_src = 0;
+      return 0;
+  };
   theta = 1.0 * asin( rho/(1.0*((double*)params)[0]) );
   phi   = atan2( y_dest , x_dest );
   
@@ -2549,7 +2556,14 @@ int orthographic_sphere_tp( double x_dest,double  y_dest, double* x_src, double*
 
   theta = sqrt( x_dest * x_dest + y_dest * y_dest ) / ((double*)params)[0];
   phi   = atan2( y_dest , x_dest );
-  
+  //orthographic projection is limited to fov of 180 deg
+  if(fabs(theta)>HALF_PI)
+  {
+      *x_src=0;
+      *y_src=0;
+      return 0;
+  };
+
   rho = 1.0 * ((double*)params)[0] * sin( theta / 1.0 );
   
   *x_src = rho * cos( phi );
