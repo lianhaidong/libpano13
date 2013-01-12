@@ -813,7 +813,11 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
       mp->scale[0] = (double) image_selection_width / (4.0 * sin(a/4.0)) / mp->distance;
       break;
     case _orthographic:
-      mp->scale[0] = (double) image_selection_width / (2.0 * sin(a/2.0)) / mp->distance;
+      {
+          //generate monotonic scale function to help optimizer
+          int t=(int)ceil((a-PI)/(2.0*PI));
+          mp->scale[0] = (double) image_selection_width / (2.0 * (2 * t + pow(-1.0, t) * sin(a/2.0))) / mp->distance;
+      };
       break;
     case _thoby:
       mp->scale[0] = (double) image_selection_width / (2.0 * THOBY_K1_PARM * sin(a * THOBY_K2_PARM /2.0)) / mp->distance;
@@ -1259,7 +1263,11 @@ void  SetInvMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , 
             mp->scale[0] = (double) im->width / (4.0 * sin(a/4.0)) / mp->distance;
             break;
         case _orthographic:
-            mp->scale[0] = (double) im->width / (2.0 * sin(a/2.0)) / mp->distance;
+            {
+                //generate monotonic scale function to help optimizer
+                int t=(int)ceil((a-PI)/(2.0*PI));
+                mp->scale[0] = (double) im->width / (2.0 * (2 * t + pow(-1.0, t) * sin(a/2.0))) / mp->distance;
+            };
             break;
         case _thoby:
             mp->scale[0] = (double) im->width / (2.0 * THOBY_K1_PARM * sin(a * THOBY_K2_PARM/2.0)) / mp->distance;
