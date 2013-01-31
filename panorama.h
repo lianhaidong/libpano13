@@ -393,8 +393,6 @@ typedef struct
     int bitsPerPixel;           // This is a common value to use
 } pano_ImageMetadata;
 
-#define PANO_PATH_LEN 255
-
 // THe following constants define the number of parameters used by a projection
 
 // THe first is the number provided by the user. In most cases it is
@@ -430,7 +428,7 @@ struct Image
     double pitch;
     double roll;
     cPrefs cP;                  // How to correct the image
-    char name[PANO_PATH_LEN+1];
+    char name[MAX_PATH_LENGTH];
     PTRect selection;
     CropInfo cropInformation; // TO BE DEPRECATED
 
