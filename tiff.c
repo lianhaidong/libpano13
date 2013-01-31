@@ -1544,8 +1544,7 @@ int panoTiffRead(Image * im, char *fileName)
     }
 
     //Store name of TIFF file
-    strncpy(im->name, fileName, PANO_PATH_LEN);
-
+    snprintf(im->name, MAX_PATH_LENGTH, "%s", fileName);
 
     //printf("after update metadata tiff\n");
     result = TRUE;
