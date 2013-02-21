@@ -2653,21 +2653,40 @@ int     SetAlignParams( double *x )
                 }
                 // test
                 if( (k = optInfo->opt[i].testP0opt) > 0 ){
-                        if( k == 1 ){ optInfo->im[i].cP.test_p0  =      x[j++];
+                        if( k == 1 ){
+                        	optInfo->im[i].cP.test_p0  =      x[j++];
+                        	NORM_ANGLE( optInfo->im[i].cP.test_p0 );
                         }else{  optInfo->im[i].cP.test_p0 = optInfo->im[k-2].cP.test_p0;}
                 }
                 if( (k = optInfo->opt[i].testP1opt) > 0 ){
-                        if( k == 1 ){ optInfo->im[i].cP.test_p1  =      x[j++];
+                        if( k == 1 ){
+                        	optInfo->im[i].cP.test_p1  =      x[j++];
+                        	NORM_ANGLE( optInfo->im[i].cP.test_p1 );
                         }else{  optInfo->im[i].cP.test_p1 = optInfo->im[k-2].cP.test_p1;}
                 }
                 if( (k = optInfo->opt[i].testP2opt) > 0 ){
-                        if( k == 1 ){ optInfo->im[i].cP.test_p2  =      x[j++];
+                        if( k == 1 ){ optInfo->im[i].cP.test_p2  =      x[j++];  NORM_ANGLE( optInfo->im[i].cP.test_p2 );
                         }else{  optInfo->im[i].cP.test_p2 = optInfo->im[k-2].cP.test_p2;}
                 }
                 if( (k = optInfo->opt[i].testP3opt) > 0 ){
                         if( k == 1 ){ optInfo->im[i].cP.test_p3  =      x[j++];
                         }else{  optInfo->im[i].cP.test_p3 = optInfo->im[k-2].cP.test_p3;}
                 }
+                // Dev: if optimizing both tilt and spin:
+                //      force tilt to be between -90 and 90. also force spin to be between -90 and 90
+                if (( (k = optInfo->opt[i].testP0opt) > 0 ) & ( (k = optInfo->opt[i].testP1opt) > 0 )){
+                	if ((optInfo->im[i].cP.test_p0 > 90.0) & (optInfo->im[i].cP.test_p1 < 90.0) & (optInfo->im[i].cP.test_p1 > -90))
+                	{
+                		optInfo->im[i].cP.test_p0 = optInfo->im[i].cP.test_p0 - 180.0;
+                		optInfo->im[i].cP.test_p1 = -optInfo->im[i].cP.test_p1;
+                	}
+                	if ((optInfo->im[i].cP.test_p0 < -90.0) & (optInfo->im[i].cP.test_p1 < 90.0) & (optInfo->im[i].cP.test_p1 > -90))
+                	{
+                		optInfo->im[i].cP.test_p0 = optInfo->im[i].cP.test_p0 + 180.0;
+                		optInfo->im[i].cP.test_p1 = -optInfo->im[i].cP.test_p1;
+                	}
+                }
+
 
                 //shear
                 if( (k = optInfo->opt[i].shear_x) > 0 ){

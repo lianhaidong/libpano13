@@ -410,10 +410,10 @@ int ParseScript( char* script, AlignInfo *gl )
                             // Make sure that we only apply trans when these parameters are not zero
                             // Otherwise images are not rendered beyond 180 degrees FOV
 			    if (im->cP.trans_x != 0.0 || 
-				im->cP.trans_y != 0.0 || 
-				im->cP.trans_z != 0.0)
+				    im->cP.trans_y != 0.0 ||
+				    im->cP.trans_z != 1.0)  		// Dev: trans_z = camera height, 1 == default
 			    {
-				im->cP.trans    = TRUE;
+				    im->cP.trans    = TRUE;
 			    }
                             break;
                         case 'e': // test parameters
@@ -436,7 +436,13 @@ int ParseScript( char* script, AlignInfo *gl )
                                 return -1;
                             }
                             if (li == NULL) return -1;
-                            im->cP.test    = TRUE;
+                            if (im->cP.test_p0 != 0.0 ||
+							    im->cP.test_p1 != 0.0 ||
+							    im->cP.test_p2 != 0.0)  	// if spin,tilt,rot are all zero, don't need to apply transforms
+							{								// meaning setMakeParams() won't add plane_transfer_to_camera()
+							    im->cP.test    = TRUE;		// to transform stack
+							}
+                            //im->cP.test    = TRUE;
                             break;
                         default:
                             PrintError("Unkonwn parameter T%c in script: Line %d", *li, lineNum);
@@ -1140,8 +1146,8 @@ void WriteResults( char* script, fullPath *sfile,  AlignInfo *g, double ds( int 
             {
                 GetControlPointCoordinates(i, x, y, g );
                 // Write only points inside image
-                if( x[0] >= 0.0 && x[0] < g->pano.width && x[1] >= 0.0 && x[1] < g->pano.width &&
-                    y[0] >= 0.0 && y[0] < g->pano.height && y[1] >= 0.0 && y[1] < g->pano.height)
+//                if( x[0] >= 0.0 && x[0] < g->pano.width && x[1] >= 0.0 && x[1] < g->pano.width &&
+//                    y[0] >= 0.0 && y[0] < g->pano.height && y[1] >= 0.0 && y[1] < g->pano.height)
                 {
                     xd = (x[0]+x[1]) / 2.0;
                     yd = (y[0]+y[1]) / 2.0;
@@ -1765,7 +1771,7 @@ static int ReadImageDescription( Image *imPtr, stBuf *sPtr, char *line )
                 }
 		if (im.cP.trans_x != 0.0 || 
 		    im.cP.trans_y != 0.0 || 
-		    im.cP.trans_z != 0.0) {
+		    im.cP.trans_z != 1.0) {   	// Dev: TrZ == 1 -> no translation
 		    im.cP.trans    = TRUE;
 		  }
                 break;
@@ -1788,7 +1794,13 @@ static int ReadImageDescription( Image *imPtr, stBuf *sPtr, char *line )
                     PrintError("Unknown variable name Te%c in script", *ch);
                     return -1;
                 }
-                im.cP.test    = TRUE;
+                if (im.cP.test_p0 != 0.0 ||
+				im.cP.test_p1 != 0.0 ||
+				im.cP.test_p2 != 0.0)  		// if spin,tilt,rot are all zero, don't need to apply transforms
+				{								// meaning setMakeParams() won't add plane_transfer_to_camera()
+					im.cP.test    = TRUE;		// to transform stack
+				}
+                //im.cP.test    = TRUE;
                 break;
             default:
                 PrintError("Unkonwn parameter T%c in script", *ch);
