@@ -2065,65 +2065,237 @@ int line_plane_intersection(double n[4],
 
 	return 1;
 }
+// transfer point from panosphere of radius distance to plane at z0 = distance from origin 
+int sphere2plane( double x_dest, double y_dest, double * xyz_plane, double distance)
+{
 
+
+
+    // phi is azimuth (negative angle around y axis, starting at the z axis)
+	double phi = x_dest / distance;	
+	double theta_zenith = M_PI/2.0 - (y_dest / distance);
+	// compute cartesian coordinates..
+	//pos[2] = cos(-phi)*sin(theta_zenith);	//pablo
+	//pos[0] = sin(-phi)*sin(theta_zenith);	//pablo
+	//pos[1] = cos(theta_zenith);			//pablo
+	// if pablo is correct that phi must be measured as a negative angle, 
+	// sign may be wrong below!
+
+	double z0 = distance;
+	
+	// xplane = z0 * x1/z1 = z0 * (sin(theta)sin(phi)) / (sin(theta)cos(phi)) = z0*tan(phi)
+	// yplane = z0 * y1/z1 = z0 * cos(theta) / (sin(theta)cos(phi))
+	// zplane = z0
+    //xyz_plane[0] = z0 * tan(phi);
+    xyz_plane[0] = (z0 * sin(theta_zenith) * sin(phi)) / (sin(theta_zenith) * cos(phi));
+	xyz_plane[1] = (z0 * cos(theta_zenith)) / (sin(theta_zenith) * cos(phi));
+	xyz_plane[2] = z0;
+	//printf("In sphere2plane: (%f,%f,%f)\n",xyz_plane[0],xyz_plane[1],xyz_plane[2]);
+
+
+
+	return 1;
+}
+
+// transfer point from plane at z0 = distance to panosphere of radius "distance"
+int plane2sphere(double * xyz, double *x_sphere, double *y_sphere, double distance)
+{
+
+	*x_sphere = atan2(xyz[0],xyz[2]) * distance;
+	*y_sphere = distance * (M_PI/2.0 - atan2(1.0,(xyz[1]/xyz[2])*cos(*x_sphere/distance)));
+	
+
+
+  return 1;
+}
+
+
+int unspinfunc(double theta, double * v)
+{
+	// unspinfunc is passed a spin angle, theta and vector, v and returns an "un-spun"
+	// vector, v
+	double unspin[3][3];
+
+	unspin[0][0] = cos(theta);		unspin[0][1] = -sin(theta);	unspin[0][2] = 0;
+	unspin[1][0] = sin(theta);		unspin[1][1] =  cos(theta);	unspin[1][2] = 0;
+	unspin[2][0] = 0;       		unspin[2][1] = 0;			unspin[2][2] = 1;
+
+	matrix_mult(unspin,v);
+
+	return 1;
+
+}
+
+int spinfunc(double theta, double * v)
+{
+	// unspinfunc is passed a spin angle, theta and vector, v and returns an "un-spun"
+	// vector, v
+	double spin[3][3];
+
+	spin[0][0] = cos(-theta);	spin[0][1] = -sin(-theta);		spin[0][2] = 0;
+	spin[1][0] = sin(-theta);	spin[1][1] = cos(-theta);       spin[1][2] = 0;
+	spin[2][0] = 0;       		spin[2][1] = 0;					spin[2][2] = 1;
+
+	matrix_mult(spin,v);
+
+	return 1;
+}
+
+
+// Pablo's forward transformation from PANO to IMAGE
 /** transfer a point from the master camera through a plane into camera 
  *  at TrX, TrY, TrZ using the plane located at Te0 (yaw), Te1 (pitch)
  */
 int plane_transfer_to_camera( double x_dest, double y_dest, double * x_src, double * y_src, void * params)
 {
-	// params: distance, x1,y1,z1
+// *********************************
+	// ***** Begin Dev's code here *****
+	// *********************************
+	// plane_transfer_to_camera() gets spherical output image coordinates on the panosphere
+	// (x_dest,ydest). Convert those coords to planar coordinates on the output image plane
+	// (xplane, yplane, zplane) using sphere_to_plane()
 
-	double plane_coeff[4];
-	double p1[3];
-	double p2[3];
-	double intersection[3];
+	// Now we have planar image coordinates ranging from -(xmax-1)/2 to (xmax-1)/2.
+	// For example, for a 499x499 image, the ranges are: -249 <= xplane <= 249 and
+	//													 -249 <= yplane <= 249.
+	// The output is an image of a UNTILTED object.  The TILT matrix maps points from the
+	// untilted destination image to the tilted source image.
+	// In an equation, [x_tilt y_tilt z_tilt]' = M_tilt * [xplane y_uplane zplane]'
 
-	// compute ray of sight for the current pixel in
-	// the master panorama camera.
-	// camera point
-	p1[0] = p1[1] = p1[2] = 0;
-	// point on sphere.
-	cart_erect(x_dest, y_dest, &p2[0], mp->distance);
+	// We'll divide the procedure into two steps.  First, we scale and translate the object.
+	// Next we'll "untilt" the image of the object plane
+	// This is done by 1) spinning by theta
+	//                 2) untilting by phi (multiply by TILT matrix)
+	//                 3) spinning by negative theta
+	// Just like Pablo, we need five parameters.
+	// Let's assign them as follows:
+	// 						1) Te0 = theta, spin angle (in radians)		mp->test[0]
+	// 						2) Te1 = phi, untilt angle (in radians)		mp->test[1]
+	// 						3) TrX = translation in X (in pixels)		mp->trans[0]
+	// 						4) TrY = translation in Y (in pixels)		mp->trans[1]
+	//						5) TrZ = scale factor (1: no scaling)		mp->trans[2]
 
-	// compute plane description
-	cart_erect(DEG_TO_RAD(mp->test[0]), -DEG_TO_RAD(mp->test[1]),
-			   &plane_coeff[0], 1.0);
 
-	// plane_coeff[0..2] is both the normal and a point
-	// on the plane.
-	plane_coeff[3] = - plane_coeff[0]*plane_coeff[0]
-		             - plane_coeff[1]*plane_coeff[1]
-		             - plane_coeff[2]*plane_coeff[2];
+	//printf("Entered plane_transfer_TO_camera function\n");
 
-	/*
-	printf("Plane: y:%f p:%f coefficients: %f %f %f %f, ray direction: %f %f %f\n", 
-	       mp->test[0], mp->test[1], plane_coeff[0], plane_coeff[1], plane_coeff[2], plane_coeff[3],
-		   p2[0],p2[1],p2[2]);
-	*/
+	// Step 0 - spherical coordinates are left-handed.  y increases downwards.  all our code is
+	// right-handed.  convert
+	y_dest = -y_dest;
 
-	// perform intersection.
+	// Step 1 - spin, tilt, unspin
+        //mp->test[1] = 45; mp->test[0] = 0; mp->test[2] = 0;
+	/*mp->test[0] = fmod(mp->test[0],360.0);
+	mp->test[1] = fmod(mp->test[1],360.0);
+	mp->test[2] = fmod(mp->test[2],360.0);*/
 
-	if (!line_plane_intersection(plane_coeff, p1, p2, &intersection[0])) {
-		// printf("No intersection found, %f %f %f\n", p2[0], p2[1], p2[2]);
-		return 0;
-	}
+        double theta, phi, rot;
+// Dev: 1/27/2012 - force spin, tilt, and rotate to fall between -90 and 90
+        /*if (mp->test[0] > 90.0) {mp->test[0] = 90.0;}
 
-	// compute ray leading to the camera.
-	intersection[0] -= mp->trans[0];
-	intersection[1] -= mp->trans[1];
-	intersection[2] -= mp->trans[2];
+	if (mp->test[0] < -90.0) {mp->test[0] = -90.0;}	
 
-	// transform into erect
-	erect_cart(&intersection[0], x_src, y_src, mp->distance);
+	if (mp->test[1] > 90.0) {mp->test[1] = 90.0;}
 
-	/*
-	printf("pano->plane->cam(%.1f, %.1f, %.1f, y:%1f,p:%1f): %8.5f %8.5f -> %8.5f %8.5f %8.5f -> %8.5f %8.5f\n",
-		   mp->trans[0], mp->trans[1], mp->trans[2], mp->test[0], mp->test[1],
-		   x_dest, y_dest, 
-		   intersection[0], intersection[1], intersection[2],
-		   *x_src, *y_src);
-	*/
+        if (mp->test[1] < -90.0) {mp->test[1] = -90.0;}*/
 
+        /*if (mp->test[2] > 90.0) {rot = DEG_TO_RAD(90.0);}
+        else {rot = DEG_TO_RAD(mp->test[2]);}
+
+        if (mp->test[2] < -90.0) {rot = DEG_TO_RAD(-90.0);}
+        else {rot = DEG_TO_RAD(mp->test[2]);}*/
+
+	phi = DEG_TO_RAD(mp->test[1]);           
+	theta = DEG_TO_RAD(mp->test[0]);	
+	rot = DEG_TO_RAD(mp->test[2]);	// rotation angle
+	double tilt[3][3];
+        double v[3];                            // 3D projective coordinate vector
+    
+        double z0;
+        double xyz_plane[3];
+
+    // Convert spherical coords (xdest,ydest) to planar coords (xplane,yplane,zplane)
+	sphere2plane(x_dest, y_dest, &xyz_plane[0], mp->distance);
+	double xplane, yplane, zplane;
+	xplane = xyz_plane[0];
+	yplane = xyz_plane[1];
+	zplane = xyz_plane[2];
+	
+//	static int count_tilt=0;
+//	count_tilt++;
+//	// Write source pixels to file and plot them in MATLAB
+//	FILE *out2;
+//	out2 = fopen("SourcePixels.txt","a");
+//	if (out2 != NULL)
+//	{
+//		fprintf(out2, "%d, %f, %f, %f, %f, %f\n",count_tilt,x_dest, y_dest, xplane, yplane, zplane);
+//		fflush(out2);
+//	}
+//	fclose(out2);
+//	//printf("UNTILT: count = %d\n",count_tilt);
+//	fflush(stdout);
+     
+    //printf("TrX: %8.5f\n", mp->trans[0]);
+
+    // Translate PANO pixels here xyz_plane here, not at the end!  (Image pixels)
+    // Step 2 - translate and scale
+    // first translate...
+    xplane = xplane - mp->trans[0] * mp->scale[0];
+    yplane = yplane - mp->trans[1] * mp->scale[1];
+    // ... then scale
+    xplane = xplane / mp->trans[2];
+    yplane = yplane / mp->trans[2];
+
+    v[0] = xplane;
+    v[1] = yplane;
+//    v[0]  = -101.5212;
+//    v[1] = -143.5726;
+//    v[2] = zplane;
+    // place camera view of planar surface at focal distance of camera
+    v[2] = (double) mp->im->width / (2.0 * tan(DEG_TO_RAD( mp->im->hfov )/2.0));
+    z0 = v[2];
+    //printf("+++ forward: z0 = %f, mp->distance = %f, tilt = %f\n",z0,mp->distance,mp->test[1]);
+//    z0 = zplane;
+
+    tilt[0][0] = 1;	  tilt[0][1] =  0;		tilt[0][2] = 0;
+    tilt[1][0] = 0;	  tilt[1][1] =  cos(phi);	tilt[1][2] = 0;
+    tilt[2][0] = 0;       tilt[2][1] = -sin(phi);	tilt[2][2] = 1;
+
+    //printf("Input coords: (x,y,z) = (%f,%f,%f)\n",v[0],v[1],v[2]);
+
+    unspinfunc(theta+rot, v);
+
+    //printf("After spin: (x,y,z) = (%f,%f,%f)\n",v[0],v[1],v[2]);
+    matrix_mult(tilt,v);
+    //printf("After tilt transform: (x,y,z) = (%f,%f,%f)\n",v[0],v[1],v[2]);
+    // After untilting, project on to x-y plane:
+    double x =  v[0]* z0 /v[2];
+    double y =  v[1]* z0 /v[2];
+    
+    v[0] = x;
+    v[1] = y;
+    v[2] = z0;
+    //printf("After projecting onto image plane: (x,y,z) = (%f,%f,%f)\n\n",v[0],v[1],v[2]);
+
+    spinfunc(theta,v);
+
+    //printf("After projecting onto image plane: (x,y,z) = (%f,%f,%f)\n\n",v[0],v[1],v[2]);
+    
+    x = v[0];
+    y = v[1];
+    
+	double planar_pt[3];
+	planar_pt[0] = x; planar_pt[1] = y; planar_pt[2] = z0;
+	// take planar point and put it back on panosphere
+	plane2sphere(&planar_pt[0], x_src, y_src, mp->distance);
+	
+	//printf("Forward Transform: image dest (%f,%f) --> pano src (%f,%f)\n",x_dest,y_dest,*x_src,*y_src);
+
+	// Last step - spherical coordinates are left-handed.  y increases downwards.  all our code
+	// above is right-handed.  convert
+	y_dest = -y_dest;
+	// We've computed y_src in right-handed coordinates.  Convert to left-handed:
+	*y_src = -*y_src;
+	// **** END of Dev's code *****
 	return 1;
 }
 
@@ -2131,69 +2303,226 @@ int plane_transfer_to_camera( double x_dest, double y_dest, double * x_src, doub
 /** transfer a point from a camera centered at x1,y1,z1 into the camera at x2,y2,z2 */
 int plane_transfer_from_camera( double x_dest, double y_dest, double * x_src, double * y_src, void * params)
 {
+    // ****************************
+	// ***** Begin Dev's code *****
+	// ****************************
 
-	double phi, theta;
-	double plane_coeff[4];
-	double p1[3];
-	double p2[3];
-	double intersection[3];
+	// Optimizer passes points on sphere.  Scale our points by scale factor necessary to
+	// put points on sphere of size mp->distance
+	// print make parameters
+//	panoAdjustPrintMakeParams("plane_transfer_from_camera", mp, mp->pn);
+//	printf("var0 = %f, var1 = %f   \n",var0, var1);
+//	printf("mp->scale[0] = %f, mp->scale[1]=%f\n",mp->scale[0],mp->scale[1]);
+//	printf("source image format: %d, output pano format: %d\n",mp->im->format,mp->pn->format);
+//	printf("input fov = %f, output fov = %f\n", mp->im->hfov, mp->pn->hfov);
+	// apply scale factor to coordinates
+//	x_dest = (1/var0) * x_dest;
+//	y_dest = (1/var1) * y_dest;
+//	printf("x_dest = %f, y_dest = %f\n",x_dest,y_dest);
 
-	// params: MakeParams
-
-	// compute ray of sight for the current pixel in
-	// the master panorama camera.
-	// camera point
-	p1[0] = mp->trans[0];
-	p1[1] = mp->trans[1];
-	p1[2] = mp->trans[2];
-
-	// point on sphere (direction vector in camera coordinates)
-	cart_erect(x_dest, y_dest, &p2[0], mp->distance);
-	// add camera position to get point on ray
-	p2[0] += p1[0];
-	p2[1] += p1[1];
-	p2[2] += p1[2];	
+	// Step 0 - spherical coordinates are left-handed.  y increases downwards.  all our code is
+	// right-handed.  convert
+	y_dest = -y_dest;
 
 
-	// compute plane description
-	cart_erect(DEG_TO_RAD(mp->test[0]), -DEG_TO_RAD(mp->test[1]),
-			   &plane_coeff[0], 1.0);
-
-	// plane_coeff[0..2] is both the normal and a point
-	// on the plane.
-	plane_coeff[3] = - plane_coeff[0]*plane_coeff[0]
-		             - plane_coeff[1]*plane_coeff[1]
-		             - plane_coeff[2]*plane_coeff[2];
-
-	/*
-	printf("Plane: y:%f p:%f coefficients: %f %f %f %f, ray direction: %f %f %f\n", 
-	       mp->test[0], mp->test[1], plane_coeff[0], plane_coeff[1], plane_coeff[2], plane_coeff[3],
-		   p2[0],p2[1],p2[2]);
-	*/
+	double x = x_dest;
+	double y = y_dest;
 
 
-	// compute intersection
-	if (!line_plane_intersection(plane_coeff, p1, p2, &intersection[0])) {
-		//printf("No intersection found, %f %f %f\n", p2[0], p2[1], p2[2]);
-		return 0;
+	double xyz_plane[3];
+	sphere2plane(x_dest, y_dest, &xyz_plane[0], mp->distance);
+	double xplane, yplane, zplane;
+	xplane = xyz_plane[0];
+	yplane = xyz_plane[1];
+	//xplane = 0; yplane = 0;
+	zplane = xyz_plane[2];
+	
+	/* static int count=0;
+	//count++;
+	// Write destination pixels to file and plot them in MATLAB
+	//FILE *out;
+	//out = fopen("DestPixels.txt","a");
+	//if (out != NULL)
+	//{
+	//	fprintf(out, "%d, %f, %f, %f, %f, %f\n",count,x_dest, y_dest,xplane,yplane,zplane);
+	//	fflush(out);
+	//}
+	//fclose(out); */
+		
+
+
+	// Now reverse step 1: unspin, tilt, and spin
+	//mp->test[1] = 45.0; mp->test[0] = 0; mp->test[2] = 0;
+	/*mp->test[0] = fmod(mp->test[0],360.0);
+	mp->test[1] = fmod(mp->test[1],360.0);
+	mp->test[2] = fmod(mp->test[2],360.0);*/
+
+        double theta, phi, rot;
+// Dev: 1/27/2012 - force spin, tilt, and rotate to fall between -90 and 90
+        /*if (mp->test[0] > 90.0) {mp->test[0] = 90.0;}
+
+	if (mp->test[0] < -90.0) {mp->test[0] = -90.0;}	
+
+	if (mp->test[1] > 90.0) {mp->test[1] = 90.0;}
+
+        if (mp->test[1] < -90.0) {mp->test[1] = -90.0;}*/
+
+        /*if (mp->test[2] > 90.0) {rot = DEG_TO_RAD(90.0);}
+        else {rot = DEG_TO_RAD(mp->test[2]);}
+
+        if (mp->test[2] < -90.0) {rot = DEG_TO_RAD(-90.0);}
+        else {rot = DEG_TO_RAD(mp->test[2]);}*/
+
+
+	phi = DEG_TO_RAD(mp->test[1]);
+	theta = DEG_TO_RAD(mp->test[0]);
+
+	// rotation angle
+	rot = DEG_TO_RAD(mp->test[2]);
+
+	double untilt[3][3];
+	
+    double v[3];                            // 3D projective coordinate vector
+    //double piv[3];
+    
+    //double xmax = mp->pn->width/2;          // maximum x value is image width divided by 2
+    //double ymax = mp->pn->height/2;
+    
+    double z0, z1, s;
+    //double FOV = DEG_TO_RAD(mp->im->hfov/scale);	// German/Gat approach
+    //double FOV = DEG_TO_RAD(mp->pn->hfov);
+    
+    //z0 = xmax/tan(FOV/2);           // FOV is full angle FOV in radians
+
+    // When the optimizer calls stack functions, pano parameters such as the width
+    // (mp->pn->width) or field of view (mp->pn->hfov) are overwritten with panosphere parameters
+    // rather than the requested output pano width/height/FOV from the script file.  Attempt to
+    // use distance parameter rather than z0
+    z0 = mp->distance;
+    //z0 = (double) mp->im->width / (2.0 * tan(DEG_TO_RAD( mp->im->hfov )/2.0));
+    //printf("***reverse: z0 = %f, mp->distance = %f, spin = %f, tilt = %f,rotate = %f\n",z0,mp->distance,mp->test[0],mp->test[1],mp->test[2]);
+    //printf("optinfo->pano->width = %f",optInfo->pano->width);
+    
+    //printf("UNTILT: count = %d\n",count);
+	//printf("z0 = %f (based on pano parameters)\n", z0);
+	//printf("radius of sphere: %f pixels/radian \n",mp->distance);
+    //printf(" pano width: %f, pano HFOV: %f, NEW z0: %f\n",panoxmax,panoFOV,panoz0);
+	fflush(stdout);
+    //printf("Entered plane_transfer_TO_camera function\n");
+
+    untilt[0][0] = 1;	  untilt[0][1] =  0;			untilt[0][2] = 0;
+    untilt[1][0] = 0;	  untilt[1][1] = 1/cos(phi);            untilt[1][2] = 0; 
+    untilt[2][0] = 0;     untilt[2][1] = tan(phi);		untilt[2][2] = 1;
+
+    //printf("Called Panotools Inverse function \n");
+	//printf("%f, %f, %f, %f, %f, tilt = %f\n",x_dest, y_dest,xplane,yplane,zplane, mp->test[1]);
+	//printf("Input coords: (x,y) = (%f,%f)\n",x,y);
+
+	v[0] = xplane;
+	v[1] = yplane;
+	v[2] = z0;
+	//z0 = zplane;
+	
+	unspinfunc(theta,v);
+
+        //v[0] = -74.5;
+	//v[1] = 74.5;
+        //v[2] = z0;
+
+	//printf("Before un-tilt: (x,y,z) = (%f,%f,%f)\n",v[0],v[1],v[2]);
+	
+	// Scale immediately before untilt
+	z1 = (z0 * z0) /(v[1] * tan(phi) + z0);
+    s = z1 / z0;
+    //printf("z0 = %f, z1 = %f, s = %f\n",z0,z1,s);
+    // Scale x and y coordinates:
+    v[0] = s*v[0];
+    v[1] = s*v[1];
+    v[2] = z1; //Xiang check latter
+    // end of scaling
+	//printf("*SCALED* coords: (x,y,z) = (%f,%f,%f)\n",v[0],v[1],v[2]);
+	matrix_mult(untilt,v);
+    //printf("After untilt: (x,y,z) = (%f,%f,%f)\n",v[0],v[1],v[2]);
+
+	spinfunc(theta+rot,v);
+    //printf("After spin: (x,y,z) = (%f,%f,%f)\n",v[0],v[1],v[2]);
+	
+    x = v[0];
+    y = v[1];
+
+    // We will reverse the steps in the Forward case so begin with Step 2
+    // Reverse step 2 - scale and translate
+    // first scale...
+    y = y * mp->trans[2];
+    x = x * mp->trans[2];
+    // ... then translate
+    // y = y + mp->trans[1];
+    // x = x + mp->trans[0];
+
+    // Multiply the translation by scale so output translations are in pixels rather
+    // than distances on the sphere of radius 57
+    y = y + mp->trans[1] * mp->scale[1];
+    x = x + mp->trans[0] * mp->scale[0];
+    //printf("%f,%f\n",mp->trans[1], mp->trans[0]);
+
+
+    v[0] = x;
+    v[1] = y;
+
+    //printf("final panoplane position (x,y) = (%f,%f)\n",x,y);
+
+	// take planar point and put it back on panosphere
+	plane2sphere(&v[0], x_src, y_src, mp->distance);
+
+    // Dev - 3/5/2012 - using plane2sphere to transform (x,y) from panoplane
+    //                  to panosphere MAY be introducing a non-linearity to
+    //                  to the optimization surface, resulting in a local minimum.
+    //                  Instead, let untilt function, plane_transfer_from_camera()
+    //                  output points on panoplane:
+//    *x_src =   v[0];
+//    *y_src =   v[1];
+    // **************** end of 3/5/12 modifications
+	
+	//printf("Inverse Transform (im to pano): pano dest (%f,%f) --> image src (%f,%f)\n",x_dest,y_dest,*x_src,*y_src);
+
+
+	// ***** End of Dev's code *****
+	
+	
+//	printf("Entered plane_transfer_FROM_camera function\n");
+//	*x_src = x_dest;
+//	*y_src = y_dest;
+	
+	
+	// Last step - spherical coordinates are left-handed.  y increases downwards.  all our code
+	// above is right-handed.  convert
+	y_dest = -y_dest;
+	// We've computed y_src above in right handed coordinates.  Now we convert back to left-handed
+	*y_src = -*y_src;
+
+        /*static int count=0;
+	count++;
+	// Write destination pixels to file and plot them in MATLAB
+	FILE *out;
+	out = fopen("DestPixels_nonCP.txt","a");
+	if (out != NULL)
+	{
+		if (abs(zplane - 57.295780) < 0.01 )  //if (abs(zplane - 279.903811) < 0.01 )
+		{
+			fprintf(out, "%d, %f, %f, %f, %f, %f\n",count,x_dest, y_dest,xplane,yplane,zplane);
+			fflush(out);
+		}
 	}
+	fclose(out); */
 
-	// the intersection vector is the vector of the ray of sight from
-	// the master panorama camera.
 
-	// transform into erect
-	erect_cart(&intersection[0], x_src, y_src, mp->distance);
+	// *x_src = x_dest;
+	// *y_src = y_dest;
 
-	/*
-	printf("cam->plane->pano(%.1f, %.1f, %.1f, y:%1f,p:%1f): %8.5f %8.5f -> %8.5f %8.5f %8.5f -> %8.5f %8.5f\n",
-		   mp->trans[0], mp->trans[1], mp->trans[2], mp->test[0], mp->test[1],
-		   x_dest, y_dest, 
-		   intersection[0], intersection[1], intersection[2],
-		   *x_src, *y_src);
-		   
-	*/
 
+	//printf("TrX: %8.5f\n", mp->trans[0]);
 	return 1;
+	
 }
 
 

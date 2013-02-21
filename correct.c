@@ -914,7 +914,7 @@ void SetCorrectDefaults( cPrefs *prefs )
 	prefs->trans 	=  	FALSE;
         prefs->trans_x   = 0;
         prefs->trans_y   = 0;
-        prefs->trans_z   = 0;
+        prefs->trans_z   = 0; // Dev: should be 1??
         
         prefs->test = FALSE;
         prefs->test_p0 = 0;

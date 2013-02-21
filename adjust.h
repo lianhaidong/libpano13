@@ -27,3 +27,4 @@ AlignInfo   *GetGlobalPtr(void);
 void setFcnPanoHuberSigma(double sigma);
 
 int EvaluateControlPointErrorAndComponents (int num, double *errptr, double errComponent[2]);
+int sphere2plane( double x_dest, double y_dest, double * xyz_plane, double distance);
