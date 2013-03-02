@@ -409,12 +409,11 @@ int ParseScript( char* script, AlignInfo *gl )
                             if (li == NULL) return -1;
                             // Make sure that we only apply trans when these parameters are not zero
                             // Otherwise images are not rendered beyond 180 degrees FOV
-			    if (im->cP.trans_x != 0.0 || 
-				im->cP.trans_y != 0.0 || 
-				im->cP.trans_z != 0.0)
-			    {
-				im->cP.trans    = TRUE;
-			    }
+                            if (im->cP.trans_x != 0.0 || 
+                                im->cP.trans_y != 0.0 || 
+                                im->cP.trans_z != 0.0) {
+                                im->cP.trans    = TRUE;
+                            }
                             break;
                         case 'e': // test parameters
                             li++;
@@ -603,7 +602,7 @@ int ParseScript( char* script, AlignInfo *gl )
                                     READ_OPT_VAR(transZopt);
                                     break;
                                 default:
-                                    PrintError("Unknown variable name to optimize Ti%c in script: Line %d", *li, lineNum);
+                                    PrintError("Unknown variable name to optimize Tr%c in script: Line %d", *li, lineNum);
                                     return -1;
                                 }
                                 break;
@@ -1760,14 +1759,14 @@ static int ReadImageDescription( Image *imPtr, stBuf *sPtr, char *line )
                     READ_VAR("%lf",&(im.cP.trans_z));
                     break;
                 default:
-                    PrintError("Unknown variable name Ti%c in script", *ch);
+                    PrintError("Unknown variable name Tr%c in script", *ch);
                     return -1;
                 }
-		if (im.cP.trans_x != 0.0 || 
-		    im.cP.trans_y != 0.0 || 
-		    im.cP.trans_z != 0.0) {
-		    im.cP.trans    = TRUE;
-		  }
+                if (im.cP.trans_x != 0.0 ||
+                    im.cP.trans_y != 0.0 || 
+                    im.cP.trans_z != 0.0) {
+                    im.cP.trans    = TRUE;
+                }
                 break;
             case 'e':
                 ch++;

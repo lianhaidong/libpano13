@@ -186,7 +186,7 @@ struct correct_Prefs
     double tilt_z;             //  tilt on z values
     double tilt_scale;         //  scale for tilting
 
-    int trans;                  //  traslation of camera plane requested?
+    int trans;                  //  translation of camera plane requested?
     double trans_x;            //  x component of translation vector
     double trans_y;            //  y component of translation vector
     double trans_z;             //  z component of translation vector
