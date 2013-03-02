@@ -378,17 +378,25 @@ set(CPACK_RESOURCE_FILE_LICENSE "${TOP_SRC_DIR}/COPYING")
 # This way we may omit the otherwise needed "--force" parameter when
 # installing from that rpm package.
 # ... Disabled for the moment, because configure.ac supplies a value
-find_program(_svnversion svnversion)
-message(STATUS "svnversion = ${_svnversion}")
-if(NOT ${_svnversion} MATCHES "-NOTFOUND")
-  execute_process(COMMAND ${_svnversion} WORKING_DIRECTORY "${TOP_SRC_DIR}" OUTPUT_VARIABLE CPACK_RPM_PACKAGE_RELEASE OUTPUT_STRIP_TRAILING_WHITESPACE)
-  # We use this value also to set the package-patch-value
-  if(CPACK_RPM_PACKAGE_RELEASE MATCHES "^\([0-9]+\)")
-    #set(CPACK_PACKAGE_VERSION_PATCH ${CMAKE_MATCH_1})
+IF(EXISTS ${PROJECT_SOURCE_DIR}/.hg)
+  FIND_PROGRAM(_hg hg)
+  if(_hg)
+    execute_process(COMMAND ${_hg} summary
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        OUTPUT_VARIABLE LIBPANO_TIP_OUT
+        ERROR_VARIABLE LIBPANO_TIP_ERROR
+        OUTPUT_STRIP_TRAILING_WHITESPACE)
+    STRING(REGEX REPLACE "\n" ";" LIBPANO_TIP_LINES ${LIBPANO_TIP_OUT})
+    foreach(_v_l ${LIBPANO_TIP_LINES})
+      if(_v_l MATCHES ".*:[ ]+\([0-9]+\):[0-9a-f]+ tip$")
+        set(CPACK_PACKAGE_VERSION_PATCH "${LIBPANO_PATCH_VERSION}-${CMAKE_MATCH_1}hg")
+        break()
+      endif()
+    endforeach()
   endif()
 endif()
 
-set(CPACK_SOURCE_PACKAGE_FILE_NAME "libpano13-${PACKAGE_VERSION}")
+set(CPACK_SOURCE_PACKAGE_FILE_NAME "libpano13-${PANO_MAJOR_VERSION}.${PANO_MINOR_VERSION}.${CPACK_PACKAGE_VERSION_PATCH}")
 
 # Use dpkg-shlibdeps to get the needed dependences
 SET(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
