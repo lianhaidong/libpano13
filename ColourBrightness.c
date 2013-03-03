@@ -38,12 +38,13 @@
 
 #include "pttiff.h"
 
-
+#ifdef WIN32
 #ifdef _MSC_VER
 
 // MSVC doesn't support round()
 //#define round(x) ( (int) (x+0.5) )
 #define round(x) (int)(x)
+#endif // _MSC_VER
 
 // MSVC wants htons() to be a library function
 // here we define it as a macro instead
@@ -68,7 +69,7 @@
 #error "Either BIG_ENDIAN or LITTLE_ENDIAN must be #defined, but not both."
 #endif
 
-#endif  //def _MSC_VER
+#endif  //def WIN32
 
 
 

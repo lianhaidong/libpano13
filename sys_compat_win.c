@@ -52,7 +52,7 @@ char *panoBasenameOfExecutable(void)
     return name;
 }
 
-
+#ifdef _MSC_VER
 int panoTimeToStrWithTimeZone(char *sTime, int len, struct tm  *time) 
 {
     char sZone[20];
@@ -70,3 +70,13 @@ int panoTimeToStrWithTimeZone(char *sTime, int len, struct tm  *time)
     }  else 
         return 0;
 }
+#else
+#ifdef __MINGW32__
+int panoTimeToStrWithTimeZone(char *sTime, int len, struct tm  *time) 
+{
+    assert(len >= 11);
+    return strftime(sTime, len, "%H%M%S%z", time);
+
+}
+#endif
+#endif
