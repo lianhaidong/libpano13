@@ -329,7 +329,7 @@ int inv_radial( double x_dest, double y_dest, double* x_src, double* y_src, void
                                 ((double*)params)[1]) * rs + ((double*)params)[0]) * rs;
         }
 
-        scale = rs / rd;
+        scale = (rd!=0.0) ? rs / rd : 1.0f;
 //      printf("scale = %lg iter = %d\n", scale,iter);  
         
         *x_src = x_dest * scale  ;
