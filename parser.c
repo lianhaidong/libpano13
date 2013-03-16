@@ -690,6 +690,9 @@ int ParseScript( char* script, AlignInfo *gl )
             case PANO_FORMAT_LAMBERT_AZIMUTHAL:
                 gl->pano.format = _lambertazimuthal;
                 break;
+            case PANO_FORMAT_HAMMER:
+                gl->pano.format = _hammer;
+                break;
             case PANO_FORMAT_ALBERS_EQUAL_AREA_CONIC:
                 gl->pano.format = _albersequalareaconic;
                 break;
@@ -920,6 +923,7 @@ void WriteResults( char* script, fullPath *sfile,  AlignInfo *g, double ds( int 
         case _sinusoidal:             format = PANO_FORMAT_SINUSOIDAL; break;
         case _lambert:                format = PANO_FORMAT_LAMBERT_EQUAL_AREA_CONIC; break;
         case _lambertazimuthal:       format = PANO_FORMAT_LAMBERT_AZIMUTHAL; break;
+        case _hammer:                 format = PANO_FORMAT_HAMMER; break;
         case _albersequalareaconic:   format = PANO_FORMAT_ALBERS_EQUAL_AREA_CONIC; break;
         case _millercylindrical:      format = PANO_FORMAT_MILLER_CYLINDRICAL; break;
         case _panini:                 format = PANO_FORMAT_PANINI; break;
@@ -1284,6 +1288,9 @@ int readAdjust( aPrefs *p,  fullPath* sfile, int insert, sPrefs *sP )
           break;
         case PANO_FORMAT_LAMBERT_AZIMUTHAL:
           p->pano.format = _lambertazimuthal;
+          break;
+        case PANO_FORMAT_HAMMER:
+          p->pano.format = _hammer;
           break;
         case PANO_FORMAT_ALBERS_EQUAL_AREA_CONIC:
           p->pano.format = _albersequalareaconic;

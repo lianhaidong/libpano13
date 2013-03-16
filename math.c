@@ -874,7 +874,48 @@ int erect_lambertazimuthal( double x_dest,double  y_dest, double* x_src, double*
     return 1;
 }
 
+/** convert from erect to hammer */
+int hammer_erect( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
+{
+    if(lambertazimuthal_erect(x_dest/2.0, y_dest, x_src, y_src, params))
+    {
+        *x_src *= 2.0;
+        return 1;
+    }
+    else
+    {
+        *x_src=0;
+        *y_src=0;
+        return 0;
+    };
+}
 
+/** convert from hammer to erect */
+int erect_hammer( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
+{
+    double x, y, z;
+    x = x_dest/distanceparam;
+    y = y_dest/distanceparam;
+    z = 1.0 - (x * x / 16.0) - (y * y / 4.0);
+    if(z<0)
+    {
+        *x_src=0;
+        *y_src=0;
+        return 0;
+    };
+    z = sqrt(z);
+    *x_src = 2.0 * atan2(z*x, 2.0*(2.0*z*z-1.0));
+    *y_src = asin(y*z);
+    if(fabs(*x_src) > PI || fabs(*y_src) > HALF_PI)
+    {
+        *x_src=0;
+        *y_src=0;
+        return 0;
+    };
+    *x_src *= distanceparam;
+    *y_src *= distanceparam;
+    return 1;
+}
 
 /** convert from erect to mercator FORWARD */
 int mercator_erect( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)

@@ -863,6 +863,8 @@ int lambert_erect		( double x_dest,double  y_dest, double* x_src, double* y_src,
 int erect_lambert		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
 int erect_lambertazimuthal( double x_dest,double  y_dest, double* x_src, double* y_src, void* params);
 int lambertazimuthal_erect( double x_dest,double  y_dest, double* x_src, double* y_src, void* params);
+int erect_hammer( double x_dest,double  y_dest, double* x_src, double* y_src, void* params);
+int hammer_erect( double x_dest,double  y_dest, double* x_src, double* y_src, void* params);
 int transmercator_erect		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
 int erect_transmercator		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
 int sinusoidal_erect		( double x_dest,double  y_dest, double* x_src, double* y_src, void* params );
