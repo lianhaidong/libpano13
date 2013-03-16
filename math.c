@@ -395,7 +395,7 @@ int tiltInverse( double x_dest, double y_dest, double* x_src, double* y_src, voi
     double m_tilt[3][3];                            // tilt matrix
     double m_rotate[3][3];                            // tilt matrix
     double xmax = mp->im->width/2;          // maximum y value is image width divided by 2
-    double z0, z1;
+    double z0;
     double FOV = DEG_TO_RAD(mp->im->hfov/scale);                  
     double m_slant[3][3];                           // slant matrix
     
@@ -2173,7 +2173,6 @@ int plane_transfer_to_camera( double x_dest, double y_dest, double * x_src, doub
 int plane_transfer_from_camera( double x_dest, double y_dest, double * x_src, double * y_src, void * params)
 {
 
-	double phi, theta;
 	double plane_coeff[4];
 	double p1[3];
 	double p2[3];
