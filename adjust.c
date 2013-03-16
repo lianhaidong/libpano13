@@ -752,6 +752,11 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
       lambertazimuthal_erect(b/2.0, 0.0, &tx, &ty, & tpara);
       mp->distance = pn->width/(2.0*tx);
       break;
+    case _hammer:
+      tpara = 1;
+      hammer_erect(b/2.0, 0.0, &tx, &ty, & tpara);
+      mp->distance = pn->width/(2.0*tx);
+      break;
     case _stereographic:
       tpara = 1;
       stereographic_erect(b/2.0, 0.0, &tx, &ty, & tpara);
@@ -958,6 +963,10 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
     else if(pn->format == _lambertazimuthal)
         {
             SetDesc(stack[i],   erect_lambertazimuthal, &(mp->distance) ); i++; // Convert lambert to equirect
+        }
+    else if(pn->format == _hammer)
+        {
+            SetDesc(stack[i],   erect_hammer, &(mp->distance) ); i++; // Convert hammer to equirect
         }
     else if(pn->format == _trans_mercator)
         {
@@ -1182,6 +1191,11 @@ void  SetInvMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , 
         case _lambertazimuthal:
             tpara = 1;
             lambertazimuthal_erect(b/2.0, 0.0, &tx, &ty, & tpara);
+            mp->distance = pn->width/(2.0*tx);
+            break;
+        case _hammer:
+            tpara = 1;
+            hammer_erect(b/2.0, 0.0, &tx, &ty, & tpara);
             mp->distance = pn->width/(2.0*tx);
             break;
         case _panini:
@@ -1457,6 +1471,10 @@ void  SetInvMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , 
   else if(pn->format == _lambertazimuthal)
   {
     SetDesc(stack[i], lambertazimuthal_erect,   &(mp->distance) ); i++; // Convert equirectangular to lambert azimuthal
+  }
+  else if(pn->format == _hammer)
+  {
+    SetDesc(stack[i], hammer_erect,   &(mp->distance) ); i++; // Convert equirectangular to hammer
   }
   else if(pn->format == _trans_mercator)
   {
@@ -3035,7 +3053,7 @@ int CheckParams( AlignInfo *g )
         g->pano.format != _equisolid            && g->pano.format != _equipanini         &&
         g->pano.format != _biplane              && g->pano.format != _triplane &&
         g->pano.format != _panini_general       && g->pano.format != _thoby              &&
-        g->pano.format != _orthographic
+        g->pano.format != _orthographic         && g->pano.format != _hammer
         ) err=11;
     
     // Check Control Points

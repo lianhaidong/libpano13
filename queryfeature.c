@@ -96,6 +96,9 @@ TStringFeature stringFeatures[]={
   {"PanoType16","Equirectangular Panini"},
   {"PanoType17","Biplane"},
   {"PanoType18","Triplane"},
+  {"PanoType19","Panini General"},
+  {"PanoType20", "Thoby Projection"},
+  {"PanoType21", "Hammer-Aitoff Equal Area"},
 
   // Filter Types
 
@@ -344,6 +347,7 @@ char *panoFormatNames[] = {
     "Triplane",
     "Panini General",
     "Thoby Projection",
+    "Hammer-Aitoff Equal Area",
 };
 
 static int panoFormatID[] = {
@@ -368,6 +372,7 @@ static int panoFormatID[] = {
     _triplane,
     _panini_general,
     _thoby,
+    _hammer,
     };
 
 
@@ -465,6 +470,7 @@ int panoProjectionFeaturesQuery(int projection, pano_projection_features *featur
     case PANO_FORMAT_SINUSOIDAL:
     case PANO_FORMAT_LAMBERT_EQUAL_AREA_CONIC:
     case PANO_FORMAT_LAMBERT_AZIMUTHAL:
+    case PANO_FORMAT_HAMMER:
 	break;
     case PANO_FORMAT_ALBERS_EQUAL_AREA_CONIC:
 	features->numberOfParameters = 2;
