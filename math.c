@@ -940,12 +940,17 @@ int erect_mercator( double x_dest,double  y_dest, double* x_src, double* y_src, 
 int millercylindrical_erect( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {
     // params: distanceparam
-    double phi;
+    double phi, tanPhi;
 
     *x_src = x_dest;
     phi = y_dest/distanceparam;
-
-   *y_src = distanceparam*log(tan(PI/4 +0.4 * phi))/0.8;
+    tanPhi = tan(PI/4 +0.4 * phi);
+    if (tanPhi < 0) {
+        *x_src = 0;
+        *y_src = 0;
+        return 0;
+    };    
+    *y_src = distanceparam*log(tanPhi)/0.8;
     return 1;
 }
 
@@ -953,46 +958,40 @@ int millercylindrical_erect( double x_dest,double  y_dest, double* x_src, double
 int arch_erect( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {
     // params: distanceparam
-    double phi;
-
-    phi = y_dest/distanceparam;
-    if (phi < 0) {
-        millercylindrical_erect(x_dest, y_dest, x_src, y_src, params);
+    if (y_dest < 0) {
+        return millercylindrical_erect(x_dest, y_dest, x_src, y_src, params);
     } else {
-        lambert_erect(x_dest, y_dest, x_src, y_src, params);
+        return lambert_erect(x_dest, y_dest, x_src, y_src, params);
     }
-
-    return 1;
 }
 
 /** convert from erect to miller */
 int erect_arch( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {
     // params: distanceparam
-    double y;
-
-    y = y_dest/distanceparam;
-    if (y < 0) {
-        erect_millercylindrical(x_dest, y_dest, x_src, y_src, params);
+    if (y_dest < 0) {
+        return erect_millercylindrical(x_dest, y_dest, x_src, y_src, params);
     } else {
-        erect_lambert(x_dest, y_dest, x_src, y_src, params);
+        return erect_lambert(x_dest, y_dest, x_src, y_src, params);
     }
-
-    return 1;
 }
 
 
 
-/** convert from mercator to erect */
+/** convert from miller cylindrical to erect */
 int erect_millercylindrical( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {
     double y;
 
     *x_src = x_dest;
     y = y_dest/distanceparam;
-
-    *y_src = 1.25 * atan(sinh(4 * y /5.0));
-    *y_src *= distanceparam;
+    y = 1.25 * atan(sinh(4 * y /5.0));
+    if ( fabs(y) > HALF_PI) {
+        *x_src = 0;
+        *y_src = 0;
+        return 0;
+    };
+    *y_src = distanceparam * y;
     return 1;
 }
 
@@ -1336,8 +1335,15 @@ int lambert_erect( double x_dest,double  y_dest, double* x_src, double* y_src, v
 int erect_lambert( double x_dest,double  y_dest, double* x_src, double* y_src, void* params)
 {
     // params: distanceparam
+    double y;
     *x_src = x_dest;
-    *y_src = distanceparam*asin(y_dest/distanceparam);
+    y = y_dest / distanceparam;
+    if (fabs(y) > 1) {
+        *x_src = 0;
+        *y_src = 0;
+        return 0;
+    };
+    *y_src = distanceparam*asin(y);
     return 1;
 }
 
