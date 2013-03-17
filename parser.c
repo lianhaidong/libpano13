@@ -415,6 +415,21 @@ int ParseScript( char* script, AlignInfo *gl )
                                 im->cP.trans    = TRUE;
                             }
                             break;
+                        case 'p': // Translation remap plane
+                            li++;
+                            switch (*li) {
+                            case 'y':  
+                                li = panoParseVariable(buf, li, lineNum, &(opt->transYawOpt), &(im->cP.trans_yaw));
+                                break;
+                            case 'p': 
+                                li = panoParseVariable(buf, li, lineNum, &(opt->transPitchOpt), &(im->cP.trans_pitch));
+                                break;
+                            default:
+                                PrintError("Unknown translation parameter Tp%c in script: Line %d", *li, lineNum);
+                                return -1;
+                            }
+                            if (li == NULL) return -1;
+                            break;
                         case 'e': // test parameters
                             li++;
                             switch (*li) {
@@ -603,6 +618,20 @@ int ParseScript( char* script, AlignInfo *gl )
                                     break;
                                 default:
                                     PrintError("Unknown variable name to optimize Tr%c in script: Line %d", *li, lineNum);
+                                    return -1;
+                                }
+                                break;
+                            case 'p':
+                                li++;
+                                switch (*li) {
+                                case 'y':
+                                    READ_OPT_VAR(transYawOpt);
+                                    break;
+                                case 'p':
+                                    READ_OPT_VAR(transPitchOpt);
+                                    break;
+                                default:
+                                    PrintError("Unknown variable name to optimize Tp%c in script: Line %d", *li, lineNum);
                                     return -1;
                                 }
                                 break;
@@ -852,6 +881,12 @@ int ParseScript( char* script, AlignInfo *gl )
         k = gl->opt[i].transZopt - 2;
         if( k >= 0 ) gl->im[i].cP.trans_z = gl->im[ k ].cP.trans_z;
 
+        k = gl->opt[i].transYawOpt - 2;
+        if( k >= 0 ) gl->im[i].cP.trans_yaw = gl->im[ k ].cP.trans_yaw;
+
+        k = gl->opt[i].transPitchOpt - 2;
+        if( k >= 0 ) gl->im[i].cP.trans_pitch = gl->im[ k ].cP.trans_pitch;
+
         // test variables ----------------------------------------------------------------------
 
         k = gl->opt[i].testP0opt - 2;
@@ -1013,6 +1048,8 @@ void WriteResults( char* script, fullPath *sfile,  AlignInfo *g, double ds( int 
                          g->im[i].cP.trans_x, (g->opt[i].transXopt ? '*':'p'),
                          g->im[i].cP.trans_y, (g->opt[i].transYopt ? '*':'p'),
                          g->im[i].cP.trans_z, (g->opt[i].transZopt ? '*':'p'),
+                         g->im[i].cP.trans_yaw,   (g->opt[i].transYawOpt   ? '*':'p'),
+                         g->im[i].cP.trans_pitch, (g->opt[i].transPitchOpt ? '*':'p'),
                          // test parameters
                          g->im[i].cP.test_p0, (g->opt[i].testP0opt ? '*':'p'),
                          g->im[i].cP.test_p1, (g->opt[i].testP1opt ? '*':'p'),
@@ -1040,7 +1077,7 @@ void WriteResults( char* script, fullPath *sfile,  AlignInfo *g, double ds( int 
             line += sprintf( line, "TiX%f TiY%f TiZ%f TiS%f ", g->im[i].cP.tilt_x, g->im[i].cP.tilt_y, g->im[i].cP.tilt_z, g->im[i].cP.tilt_scale);
         }
         if( g->im[i].cP.trans ) {
-            line += sprintf( line, "TrX%f TrY%f TrZ%f ", g->im[i].cP.trans_x, g->im[i].cP.trans_y, g->im[i].cP.trans_z);
+            line += sprintf( line, "TrX%f TrY%f TrZ%f Tpy%f Tpp%f", g->im[i].cP.trans_x, g->im[i].cP.trans_y, g->im[i].cP.trans_z, g->im[i].cP.trans_yaw, g->im[i].cP.trans_pitch);
         }
         if( g->im[i].cP.test ) {
             line += sprintf( line, "Te0%f Te1%f Te2%f Te3%f ", g->im[i].cP.test_p0, g->im[i].cP.test_p1, g->im[i].cP.test_p2, g->im[i].cP.test_p3 );
@@ -1773,6 +1810,20 @@ static int ReadImageDescription( Image *imPtr, stBuf *sPtr, char *line )
                     im.cP.trans_y != 0.0 || 
                     im.cP.trans_z != 0.0) {
                     im.cP.trans    = TRUE;
+                }
+                break;
+            case 'p':
+                ch++;
+                switch (*ch) {
+                case 'y':
+                    READ_VAR("%lf",&(im.cP.trans_yaw));
+                    break;
+                case 'p':
+                    READ_VAR("%lf",&(im.cP.trans_pitch));
+                    break;
+                default:
+                    PrintError("Unknown variable name Tp%c in script", *ch);
+                    return -1;
                 }
                 break;
             case 'e':

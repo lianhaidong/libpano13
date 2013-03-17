@@ -134,6 +134,8 @@ void panoDumpCorrectPrefs(cPrefs *cP, char *label, int indent)
         PRINT_F(trans_x);
         PRINT_F(trans_y);
         PRINT_F(trans_z);
+        PRINT_F(trans_yaw);
+        PRINT_F(trans_pitch);
     }
 
     if (cP->test) {

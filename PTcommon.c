@@ -1956,6 +1956,8 @@ void panoPrintImage(char *msg, Image *im)
         printf(">>>im->cP.trans_x %f\n", im->cP.trans_x);
         printf(">>>im->cP.trans_y %f\n", im->cP.trans_y);
         printf(">>>im->cP.trans_z %f\n", im->cP.trans_z);
+        printf(">>>im->cP.trans_yaw %n", im->cP.trans_yaw);
+        printf(">>>im->cP.trans_pitch %f\n", im->cP.trans_pitch);
 
         printf(">>>im->cP.test %d\n", im->cP.test);
         printf(">>>im->cP.test parm1 %f\n", im->cP.test_p0);
