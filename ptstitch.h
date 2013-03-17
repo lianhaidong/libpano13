@@ -30,7 +30,7 @@
 
 #define __PTSTITCH_H__
 
-void panoStitchBlendLayers(unsigned char **imageDataBuffers,
+PANO13_IMPEX void panoStitchBlendLayers(unsigned char **imageDataBuffers,
                            unsigned int counterImageFiles,
                            unsigned char *resultBuffer, 
                            unsigned int linesToRead,
@@ -39,11 +39,11 @@ void panoStitchBlendLayers(unsigned char **imageDataBuffers,
                            unsigned int scanLineSize);
 
 
-int panoStitchReplaceMasks(fullPath * inputFiles, fullPath * outputFiles,
+PANO13_IMPEX int panoStitchReplaceMasks(fullPath * inputFiles, fullPath * outputFiles,
                            int numberImages, int featherSize);
 
-unsigned int panoStitchPixelChannelGet(unsigned char *ptr, int bytesPerPixel, int channel);
-void panoStitchPixelChannelSet(unsigned char *ptr, int bytesPerPixel, int channel, unsigned int value);
+PANO13_IMPEX unsigned int panoStitchPixelChannelGet(unsigned char *ptr, int bytesPerPixel, int channel);
+PANO13_IMPEX void panoStitchPixelChannelSet(unsigned char *ptr, int bytesPerPixel, int channel, unsigned int value);
 
 
 

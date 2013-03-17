@@ -15,11 +15,11 @@
    along with this program; if not, write to the Free Software
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.  */
 
-void ZCombSetDisabled(void);
-void ZCombSetEnabled(void);
-void ZCombSetMaskType(int mt);
-void ZCombSetFocusWindowHalfwidth(int fwh);
-void ZCombSetSmoothingWindowHalfwidth(int swh);
-void ZCombSetMaskFromFocusData(Image *im);
-void ZCombSetGreenTo255(Image *im);
-int  ZCombSeeImage(Image *im, char *filename);
+PANO13_IMPEX void ZCombSetDisabled(void);
+PANO13_IMPEX void ZCombSetEnabled(void);
+PANO13_IMPEX void ZCombSetMaskType(int mt);
+PANO13_IMPEX void ZCombSetFocusWindowHalfwidth(int fwh);
+PANO13_IMPEX void ZCombSetSmoothingWindowHalfwidth(int swh);
+PANO13_IMPEX void ZCombSetMaskFromFocusData(Image *im);
+PANO13_IMPEX void ZCombSetGreenTo255(Image *im);
+PANO13_IMPEX int  ZCombSeeImage(Image *im, char *filename);

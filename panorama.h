@@ -22,6 +22,16 @@
 #ifndef PANORAMA_H
 #define PANORAMA_H
 
+#if defined _WIN32 && defined PANO13_DLL
+#if defined pano13_EXPORTS
+#define PANO13_IMPEX __declspec(dllexport)
+#else
+#define PANO13_IMPEX __declspec(dllimport)
+#endif
+#else
+#define PANO13_IMPEX
+#endif
+
 #include "pt_stdint.h"
 #include "version.h"
 #include "panotypes.h"
@@ -498,17 +508,15 @@ typedef struct
     pano_projection_parameter parm[PANO_PROJECTION_MAX_PARMS]; 
 } pano_projection_features;
 
-int panoProjectionFeaturesQuery(int projection, pano_projection_features *features);
-int panoProjectionFormatCount(void);
+PANO13_IMPEX int panoProjectionFeaturesQuery(int projection, pano_projection_features *features);
+PANO13_IMPEX int panoProjectionFormatCount(void);
 /** APIs to read dynamic features that depend on projection parameters
     projection argument is an index, same as for queryFeatures()
 **/
-int queryFOVLimits( int projection,	
+PANO13_IMPEX int queryFOVLimits( int projection,	
 				    double * params, /* length depends on projection */
 					double * lims	/* [0] = maxhfov, [1] = maxvfov */
 				  );
-
-
 
 //void filter_main();
 
