@@ -2133,7 +2133,7 @@ int plane_transfer_to_camera( double x_dest, double y_dest, double * x_src, doub
 	cart_erect(x_dest, y_dest, &p2[0], mp->distance);
 
 	// compute plane description
-	cart_erect(DEG_TO_RAD(mp->test[0]), -DEG_TO_RAD(mp->test[1]),
+    cart_erect(mp->trans[3], -mp->trans[4],
 			   &plane_coeff[0], 1.0);
 
 	// plane_coeff[0..2] is both the normal and a point
@@ -2144,7 +2144,7 @@ int plane_transfer_to_camera( double x_dest, double y_dest, double * x_src, doub
 
 	/*
 	printf("Plane: y:%f p:%f coefficients: %f %f %f %f, ray direction: %f %f %f\n", 
-	       mp->test[0], mp->test[1], plane_coeff[0], plane_coeff[1], plane_coeff[2], plane_coeff[3],
+	       mp->trans[3], mp->trans[4], plane_coeff[0], plane_coeff[1], plane_coeff[2], plane_coeff[3],
 		   p2[0],p2[1],p2[2]);
 	*/
 
@@ -2165,7 +2165,7 @@ int plane_transfer_to_camera( double x_dest, double y_dest, double * x_src, doub
 
 	/*
 	printf("pano->plane->cam(%.1f, %.1f, %.1f, y:%1f,p:%1f): %8.5f %8.5f -> %8.5f %8.5f %8.5f -> %8.5f %8.5f\n",
-		   mp->trans[0], mp->trans[1], mp->trans[2], mp->test[0], mp->test[1],
+		   mp->trans[0], mp->trans[1], mp->trans[2], mp->trans[3], mp->trans[4],
 		   x_dest, y_dest, 
 		   intersection[0], intersection[1], intersection[2],
 		   *x_src, *y_src);
@@ -2202,7 +2202,7 @@ int plane_transfer_from_camera( double x_dest, double y_dest, double * x_src, do
 
 
 	// compute plane description
-	cart_erect(DEG_TO_RAD(mp->test[0]), -DEG_TO_RAD(mp->test[1]),
+	cart_erect(mp->trans[3], -mp->trans[4],
 			   &plane_coeff[0], 1.0);
 
 	// plane_coeff[0..2] is both the normal and a point
@@ -2213,7 +2213,7 @@ int plane_transfer_from_camera( double x_dest, double y_dest, double * x_src, do
 
 	/*
 	printf("Plane: y:%f p:%f coefficients: %f %f %f %f, ray direction: %f %f %f\n", 
-	       mp->test[0], mp->test[1], plane_coeff[0], plane_coeff[1], plane_coeff[2], plane_coeff[3],
+	       mp->trans[3], mp->trans[4], plane_coeff[0], plane_coeff[1], plane_coeff[2], plane_coeff[3],
 		   p2[0],p2[1],p2[2]);
 	*/
 
@@ -2232,7 +2232,7 @@ int plane_transfer_from_camera( double x_dest, double y_dest, double * x_src, do
 
 	/*
 	printf("cam->plane->pano(%.1f, %.1f, %.1f, y:%1f,p:%1f): %8.5f %8.5f -> %8.5f %8.5f %8.5f -> %8.5f %8.5f\n",
-		   mp->trans[0], mp->trans[1], mp->trans[2], mp->test[0], mp->test[1],
+		   mp->trans[0], mp->trans[1], mp->trans[2], mp->trans[3], mp->trans[4],
 		   x_dest, y_dest, 
 		   intersection[0], intersection[1], intersection[2],
 		   *x_src, *y_src);

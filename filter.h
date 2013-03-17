@@ -187,6 +187,8 @@ struct optVars{									//  Indicate to optimizer which variables to optimize
 		int transXopt;
 		int transYopt;
 		int transZopt;
+        int transYawOpt;
+        int transPitchOpt;
 
 		int testP0opt;
 		int testP1opt;
@@ -370,7 +372,7 @@ struct MakeParams{								// Actual parameters used by Xform functions for pano-
     // Tilt 
 	double tilt[4]; // 0 around x, 1 around y, 2 around z, 3 scaling factor
     // Translation of camera plane
-    double trans[3];
+    double trans[5]; // 0 x, 1 y, 2 z, 3 yaw, 4 pitch
     // For testing new projections
     double test[4];
 

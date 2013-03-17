@@ -87,6 +87,8 @@ void panoAdjustPrintMakeParams(char *msg, struct MakeParams *mp, Image *im)
         printf("trans[0] %f\n", mp->trans[0]);
         printf("trans[1] %f\n", mp->trans[1]);
         printf("trans[2] %f\n", mp->trans[2]);
+        printf("trans[3] %f\n", mp->trans[3]);
+        printf("trans[4] %f\n", mp->trans[4]);
         
         printf("test[0] %f\n", mp->test[0]);
         printf("test[1] %f\n", mp->test[1]);
@@ -853,7 +855,8 @@ void SetMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , Imag
     mp->trans[0] = im->cP.trans_x;
     mp->trans[1] = im->cP.trans_y;
     mp->trans[2] = im->cP.trans_z;
-
+    mp->trans[3] = DEG_TO_RAD(im->cP.trans_yaw);
+    mp->trans[4] = DEG_TO_RAD(im->cP.trans_pitch);
 
     mp->test[0] = im->cP.test_p0;
     mp->test[1] = im->cP.test_p1;
@@ -1309,6 +1312,8 @@ void  SetInvMakeParams( struct fDesc *stack, struct MakeParams *mp, Image *im , 
   mp->trans[0] = im->cP.trans_x;
   mp->trans[1] = im->cP.trans_y;
   mp->trans[2] = im->cP.trans_z;
+  mp->trans[3] = DEG_TO_RAD(im->cP.trans_yaw);
+  mp->trans[4] = DEG_TO_RAD(im->cP.trans_pitch);
 
   mp->test[0] = im->cP.test_p0;
   mp->test[1] = im->cP.test_p1;
@@ -2677,6 +2682,18 @@ int     SetAlignParams( double *x )
                         if( k == 1 ){ optInfo->im[i].cP.trans_z  =      x[j++];
                         }else{  optInfo->im[i].cP.trans_z = optInfo->im[k-2].cP.trans_z;}
                 }
+                if( (k = optInfo->opt[i].transYawOpt) > 0 ){
+                        if( k == 1 ) { optInfo->im[i].cP.trans_yaw  = x[j++]; //NORM_ANGLE(optInfo->im[i].cP.trans_yaw);
+                           while( optInfo->im[i].cP.trans_yaw > optInfo->im[i].yaw + 80) optInfo->im[i].cP.trans_yaw -= 180.0; 
+                           while( optInfo->im[i].cP.trans_yaw < optInfo->im[i].yaw - 80) optInfo->im[i].cP.trans_yaw += 180.0;
+                        } else { optInfo->im[i].cP.trans_yaw = optInfo->im[k-2].cP.trans_yaw;}
+                }
+                if( (k = optInfo->opt[i].transPitchOpt) > 0 ){
+                        if( k == 1 ){ optInfo->im[i].cP.trans_pitch = x[j++]; //NORM_ANGLE(optInfo->im[i].cP.trans_pitch);
+                           while( optInfo->im[i].cP.trans_pitch > optInfo->im[i].pitch + 80) optInfo->im[i].cP.trans_pitch -= 180.0; 
+                           while( optInfo->im[i].cP.trans_pitch < optInfo->im[i].pitch - 80) optInfo->im[i].cP.trans_pitch += 180.0;
+                        }else{  optInfo->im[i].cP.trans_pitch = optInfo->im[k-2].cP.trans_pitch;}
+                }
                 // test
                 if( (k = optInfo->opt[i].testP0opt) > 0 ){
                         if( k == 1 ){ optInfo->im[i].cP.test_p0  =      x[j++];
@@ -2775,12 +2792,19 @@ int SetLMParams( double *x )
                 if(optInfo->opt[i].transXopt == 1) { //  optimize trans_x? 0-no 1-yes
                         x[j++] = optInfo->im[i].cP.trans_x  ;
                 }
-                if(optInfo->opt[i].transYopt == 1)  //  optimize trans_y? 0-no 1-yes
+                if(optInfo->opt[i].transYopt == 1) { //  optimize trans_y? 0-no 1-yes
                         x[j++] = optInfo->im[i].cP.trans_y  ;
-
+                }
                 if(optInfo->opt[i].transZopt == 1) { //  optimize trans_Z? 0-no 1-yes
                         x[j++] = optInfo->im[i].cP.trans_z  ;
                 }
+                if(optInfo->opt[i].transYawOpt == 1) { //  optimize trans_yaw? 0-no 1-yes
+                        x[j++] = optInfo->im[i].cP.trans_yaw  ;
+                }
+                if(optInfo->opt[i].transPitchOpt == 1) { //  optimize trans_pitch? 0-no 1-yes
+                        x[j++] = optInfo->im[i].cP.trans_pitch  ;
+                }
+
                 // Test
                 if(optInfo->opt[i].testP0opt == 1) {
                     x[j++] = optInfo->im[i].cP.test_p0;  ;
@@ -2935,7 +2959,7 @@ void            SetOptDefaults( optVars *opt )
     opt->hfov = opt->yaw = opt->pitch = opt->roll = 0; 
     opt->a = opt->b = opt->c = opt->d = opt->e = 0; 
     opt->tiltXopt = opt->tiltYopt = opt->tiltZopt = opt->tiltScaleOpt = 0;
-    opt->transXopt = opt->transYopt = opt->transZopt  = 0;
+    opt->transXopt = opt->transYopt = opt->transZopt  = opt->transYawOpt = opt->transPitchOpt = 0;
     opt->testP0opt = opt->testP1opt = opt->testP2opt = opt->testP3opt = 0;
     opt->shear_x = opt->shear_y = 0;
 }

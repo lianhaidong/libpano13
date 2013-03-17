@@ -190,7 +190,8 @@ struct correct_Prefs
     double trans_x;            //  x component of translation vector
     double trans_y;            //  y component of translation vector
     double trans_z;             //  z component of translation vector
-
+    double trans_yaw;          // yaw of remapping plane for translation
+    double trans_pitch;        // pitch of remapping plane for translation
 
     int test;                  //  these parameters are for testing new projections
     double test_p0;            //  and make it easier for others to experiment
