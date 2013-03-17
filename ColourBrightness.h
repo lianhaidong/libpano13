@@ -66,27 +66,27 @@ typedef struct {
 } calla_struct;
 
 
-histograms_struct*ReadHistograms (fullPath *fullPathImages, int counterImages);
-int               ComputeColourBrightnessCorrection(calla_struct *calla);
-int               CorrectFileColourBrightness(fullPath *inPath, fullPath *outPath, magnolia_struct *magnolia, int parm3);
-int               FindNextCandidate(int candidates[], calla_struct *calla);
+PANO13_IMPEX histograms_struct*ReadHistograms (fullPath *fullPathImages, int counterImages);
+PANO13_IMPEX int               ComputeColourBrightnessCorrection(calla_struct *calla);
+PANO13_IMPEX int               CorrectFileColourBrightness(fullPath *inPath, fullPath *outPath, magnolia_struct *magnolia, int parm3);
+PANO13_IMPEX int               FindNextCandidate(int candidates[], calla_struct *calla);
 
-magnolia_struct   *InitializeMagnolia(int numberImages, int size, calla_function parm2);
-void              ColourBrightness(  fullPath *fullPathImages, fullPath *outFullPathImages, int counterImages, int indexReferenceImage, int parm3,int createCurvesType);
-void              CorrectImageColourBrigthness(Image *image, magnolia_struct *magnolia, int parm3);
-void              FreeHistograms(histograms_struct *ptrHistograms, int count);
-void              RemapHistogram(int *histogram, double *array, magnolia_struct *magnolia, int channel);
-void              ComputeAdjustmentCurve(double *sourceHistogram, double *targetHistogram, double *curve) ;
+PANO13_IMPEX magnolia_struct   *InitializeMagnolia(int numberImages, int size, calla_function parm2);
+PANO13_IMPEX void              ColourBrightness(  fullPath *fullPathImages, fullPath *outFullPathImages, int counterImages, int indexReferenceImage, int parm3,int createCurvesType);
+PANO13_IMPEX void              CorrectImageColourBrigthness(Image *image, magnolia_struct *magnolia, int parm3);
+PANO13_IMPEX void              FreeHistograms(histograms_struct *ptrHistograms, int count);
+PANO13_IMPEX void              RemapHistogram(int *histogram, double *array, magnolia_struct *magnolia, int channel);
+PANO13_IMPEX void              ComputeAdjustmentCurve(double *sourceHistogram, double *targetHistogram, double *curve) ;
 unsigned char Unknown47(unsigned char parm0, unsigned char parm1, unsigned char parm2);
 unsigned char Unknown48(unsigned char parm0, unsigned char parm1, unsigned char parm2);
 unsigned char Unknown49(unsigned char parm0, unsigned char parm1, unsigned char parm2);
 
-double            MapFunction(double p[], double x, int n);
-int               RemapPoint(int value, double mapTable[]) ;
+PANO13_IMPEX double            MapFunction(double p[], double x, int n);
+PANO13_IMPEX int               RemapPoint(int value, double mapTable[]) ;
 
-unsigned char panoColourComputeHue(unsigned char red, unsigned char green, unsigned char blue);
-unsigned char panoColourComputeIntensity(unsigned char red, unsigned char green, unsigned char blue);
-unsigned char panoColourComputeSaturation (unsigned char red, unsigned char green, unsigned char blue);
+PANO13_IMPEX unsigned char panoColourComputeHue(unsigned char red, unsigned char green, unsigned char blue);
+PANO13_IMPEX unsigned char panoColourComputeIntensity(unsigned char red, unsigned char green, unsigned char blue);
+PANO13_IMPEX unsigned char panoColourComputeSaturation (unsigned char red, unsigned char green, unsigned char blue);
 
 
 /* The parameter createCurvesType indicates the type of output format: arbitrary map (.amp) or smooth map (.acv).

@@ -39,14 +39,15 @@
 
 #ifndef _QUERYFEATURE_H
 #define _QUERYFEATURE_H
+#include "panorama.h"
 
 typedef enum {p12FeatureUnknown=0,p12FeatureInt=1,p12FeatureDouble=2,p12FeatureString=3} Tp12FeatureType;
 
-int queryFeatureCount();
-void queryFeatures(int index,char** name,Tp12FeatureType* type);
-int queryFeatureInt(const char *name, int *result);
-int queryFeatureDouble(const char *name, double *result);
-int queryFeatureString(const char *name,char *result, const int bufsize);
+PANO13_IMPEX int queryFeatureCount();
+PANO13_IMPEX void queryFeatures(int index,char** name,Tp12FeatureType* type);
+PANO13_IMPEX int queryFeatureInt(const char *name, int *result);
+PANO13_IMPEX int queryFeatureDouble(const char *name, double *result);
+PANO13_IMPEX int queryFeatureString(const char *name,char *result, const int bufsize);
 
 /** defined if progress and output dialogs can be overridden by using
  *  setProgressFcn, setInfoDlgFcn and setErrorFcn

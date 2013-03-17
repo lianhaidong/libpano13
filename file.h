@@ -32,17 +32,17 @@
 #define __FILE_H__
 // these are defined in file.c
 
-int panoImageRead(Image * im, fullPath * sfile);
-int panoFileMakeTemp(fullPath * path);
+PANO13_IMPEX int panoImageRead(Image * im, fullPath * sfile);
+PANO13_IMPEX int panoFileMakeTemp(fullPath * path);
 
 // and these are defined in bmp.c, jpeg.c, hdrfile.c, png.c, and ppm.c
 // but there is no point in creating a file for each one of them
 
-int panoBMPRead(Image *im, fullPath *sfile );
-int panoJPEGRead(Image * im, fullPath * sfile);
-int panoHDRRead(Image *im, fullPath *sfile );
-int panoPNGRead(Image *im, fullPath *sfile );
-int panoPPMRead(Image * im, fullPath * sfile);
+PANO13_IMPEX int panoBMPRead(Image *im, fullPath *sfile );
+PANO13_IMPEX int panoJPEGRead(Image * im, fullPath * sfile);
+PANO13_IMPEX int panoHDRRead(Image *im, fullPath *sfile );
+PANO13_IMPEX int panoPNGRead(Image *im, fullPath *sfile );
+PANO13_IMPEX int panoPPMRead(Image * im, fullPath * sfile);
 
 	
 typedef struct {
@@ -79,17 +79,16 @@ enum {
 
 
 
-extern char *psdBlendingModesNames[PSD_NUMBER_BLENDING_MODES];
+PANO13_IMPEX extern char *psdBlendingModesNames[PSD_NUMBER_BLENDING_MODES];
 		
-extern char *psdBlendingModesInternalName[PSD_NUMBER_BLENDING_MODES];
+PANO13_IMPEX extern char *psdBlendingModesInternalName[PSD_NUMBER_BLENDING_MODES];
 
-int panoFileOutputNamesCreate(fullPath *ptrOutputFiles, int filesCount, char* outputPrefix);
+PANO13_IMPEX int panoFileOutputNamesCreate(fullPath *ptrOutputFiles, int filesCount, char* outputPrefix);
 
-char *panoFileExists(fullPath *ptrFiles, int filesCount);
+PANO13_IMPEX char *panoFileExists(fullPath *ptrFiles, int filesCount);
 
-int panoSingleFileExists(char * filename);
+PANO13_IMPEX int panoSingleFileExists(char * filename);
 
-int panoFileDeleteMultiple(fullPath* files, int filesCount);
-
+PANO13_IMPEX int panoFileDeleteMultiple(fullPath* files, int filesCount);
 
 #endif

@@ -33,7 +33,6 @@
 
 
 //static  AlignInfo	*g;
-int                     CheckParams( AlignInfo *g );
 
 int main(int argc,char *argv[])
 {

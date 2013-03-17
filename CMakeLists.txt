@@ -205,7 +205,6 @@ set(pano13_hdr
 
 set(pano13_res
 	pano13.rc
-	pano13vc.def
 )
 
 set(pano13_src
@@ -268,6 +267,7 @@ if(NOT WIN32)
 else()
   IF(BUILD_DLL)
     # Create and install shared library
+    ADD_DEFINITIONS(-DPANO13_DLL)
     add_library(pano13 SHARED ${pano13_hdr} ${pano13_res} ${pano13_src})
     target_link_libraries(pano13 ${_common_libs})
     set_target_properties(pano13 PROPERTIES VERSION "2.0.0" SOVERSION "2")

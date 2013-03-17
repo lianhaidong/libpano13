@@ -48,44 +48,41 @@ void setCropInformationInTiff(TIFF *tiffFile, CropInfo *crop_info);
 //int TiffGetImageParameters(TIFF *tiffFile, pt_tiff_parms *tiffData);
 //int TiffSetImageParameters(TIFF *tiffFile, pt_tiff_parms *tiffData);
 
-int panoTiffUnCrop(char *inputFile, char *outputFile, pano_cropping_parms *croppingParms);
-int panoTiffCrop(char *inputFile, char *outputFile, pano_cropping_parms *croppingParms);
+PANO13_IMPEX int panoTiffUnCrop(char *inputFile, char *outputFile, pano_cropping_parms *croppingParms);
+PANO13_IMPEX int panoTiffCrop(char *inputFile, char *outputFile, pano_cropping_parms *croppingParms);
 
-int panoTiffGetCropInformation(pano_Tiff * file);
-int panoTiffRowInsideROI(pano_Tiff * image, int row);
-int panoTiffIsCropped(pano_Tiff * file);
-int panoTiffBytesPerLine(pano_Tiff * file);
-int panoTiffSamplesPerPixel(pano_Tiff * file);
-int panoTiffBitsPerPixel(pano_Tiff * file);
-int panoTiffBytesPerPixel(pano_Tiff * file);
-int panoTiffImageHeight(pano_Tiff * file);
-int panoTiffImageWidth(pano_Tiff * file);
-int panoTiffXOffset(pano_Tiff * file);
-int panoTiffYOffset(pano_Tiff * file);
-pano_ImageMetadata *panoTiffImageMetadata(pano_Tiff * file);
-int panoTiffFullImageWidth(pano_Tiff * file);
-int panoTiffFullImageHeight(pano_Tiff * file);
-int panoTiffReadScanLineFullSize(pano_Tiff * file, void *buffer, int row);
-int panoTiffWriteScanLineFullSize(pano_Tiff * file, void *buffer, int row);
-int panoTiffSetCropInformation(pano_Tiff * file);
-int panoTiffGetImageProperties(pano_Tiff * tiff);
-int panoTiffSetImageProperties(pano_Tiff * file);
-void panoTiffClose(pano_Tiff * file);
-pano_Tiff *panoTiffCreateUnCropped(char *fileName,
+PANO13_IMPEX int panoTiffGetCropInformation(pano_Tiff * file);
+PANO13_IMPEX int panoTiffRowInsideROI(pano_Tiff * image, int row);
+PANO13_IMPEX int panoTiffIsCropped(pano_Tiff * file);
+PANO13_IMPEX int panoTiffBytesPerLine(pano_Tiff * file);
+PANO13_IMPEX int panoTiffSamplesPerPixel(pano_Tiff * file);
+PANO13_IMPEX int panoTiffBitsPerPixel(pano_Tiff * file);
+PANO13_IMPEX int panoTiffBytesPerPixel(pano_Tiff * file);
+PANO13_IMPEX int panoTiffImageHeight(pano_Tiff * file);
+PANO13_IMPEX int panoTiffImageWidth(pano_Tiff * file);
+PANO13_IMPEX int panoTiffXOffset(pano_Tiff * file);
+PANO13_IMPEX int panoTiffYOffset(pano_Tiff * file);
+PANO13_IMPEX pano_ImageMetadata *panoTiffImageMetadata(pano_Tiff * file);
+PANO13_IMPEX int panoTiffFullImageWidth(pano_Tiff * file);
+PANO13_IMPEX int panoTiffFullImageHeight(pano_Tiff * file);
+PANO13_IMPEX int panoTiffReadScanLineFullSize(pano_Tiff * file, void *buffer, int row);
+PANO13_IMPEX int panoTiffWriteScanLineFullSize(pano_Tiff * file, void *buffer, int row);
+PANO13_IMPEX int panoTiffSetCropInformation(pano_Tiff * file);
+PANO13_IMPEX int panoTiffGetImageProperties(pano_Tiff * tiff);
+PANO13_IMPEX int panoTiffSetImageProperties(pano_Tiff * file);
+PANO13_IMPEX void panoTiffClose(pano_Tiff * file);
+PANO13_IMPEX pano_Tiff *panoTiffCreateUnCropped(char *fileName,
                                    pano_ImageMetadata * metadata);
-pano_Tiff *panoTiffCreate(char *fileName, pano_ImageMetadata * metadata);
-pano_Tiff *panoTiffOpen(char *fileName);
-int panoTiffReadData(Image * im, pano_Tiff * tif);
-int panoTiffWrite(Image * im, char *fileName);
-int panoTiffRead(Image * im, char *fileName);
-int panoTiffVerifysAreCompatible(fullPath * tiffFiles, int numberImages,
-                                 int optionalCheck);
+PANO13_IMPEX pano_Tiff *panoTiffCreate(char *fileName, pano_ImageMetadata * metadata);
+PANO13_IMPEX pano_Tiff *panoTiffOpen(char *fileName);
+PANO13_IMPEX int panoTiffReadData(Image * im, pano_Tiff * tif);
+PANO13_IMPEX int panoTiffWrite(Image * im, char *fileName);
+PANO13_IMPEX int panoTiffRead(Image * im, char *fileName);
 
-int panoTiffDisplayInfo(char *fileName);
-void panoTiffSetErrorHandler(void);
-int panoTiffVerifyAreCompatible(fullPath * tiffFiles, int numberImages,
+PANO13_IMPEX void panoTiffSetErrorHandler(void);
+PANO13_IMPEX int panoTiffVerifyAreCompatible(fullPath * tiffFiles, int numberImages,
 				int optionalCheck);
-int panoTiffDisplayInfo(char *fileName);
+PANO13_IMPEX int panoTiffDisplayInfo(char *fileName);
 
 void panoImageDispose(Image *im) ;
 

@@ -48,40 +48,38 @@ typedef struct {
 } pt_tiff_parms;
 
 
-extern int ptQuietFlag;
+PANO13_IMPEX extern int ptQuietFlag;
 
-int panoVerifyTiffsAreCompatible(fullPath *tiffFiles, int filesCount, int optionalCheck);
-int panoAddStitchingMasks(fullPath *inputFiles, fullPath *outputFiles, int numberImages, int featherSize);
+PANO13_IMPEX int panoVerifyTiffsAreCompatible(fullPath *tiffFiles, int filesCount, int optionalCheck);
+PANO13_IMPEX int panoAddStitchingMasks(fullPath *inputFiles, fullPath *outputFiles, int numberImages, int featherSize);
 
 /*  defined in ptpicker.c, but never exported */
 
-int panoFlattenTIFF(fullPath *fullPathImages, int counterImageFiles, fullPath *outputFileName, int removeOriginals);
-
-
+PANO13_IMPEX int panoFlattenTIFF(fullPath *fullPathImages, int counterImageFiles, fullPath *outputFileName, int removeOriginals);
 
 extern int quietFlag;
 
-int  panoPSDCreate(  fullPath *fullPathImages, int, fullPath*, pano_flattening_parms*);
-int  panoCreateLayeredPSD(  fullPath *fullPathImages, int, fullPath*, pano_flattening_parms*);
+PANO13_IMPEX int  panoPSDCreate(  fullPath *fullPathImages, int, fullPath*, pano_flattening_parms*);
+PANO13_IMPEX int  panoCreateLayeredPSD(  fullPath *fullPathImages, int, fullPath*, pano_flattening_parms*);
 
-int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles, fullPath *panoFileName, fullPath *scriptFileName);
-void ARGtoRGBAImage(Image *im);
-void panoReplaceExt(char* filename, char *extension);
-int panoUnCropTiff(char *inputFile, char *outputFile);
+PANO13_IMPEX int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles, fullPath *panoFileName, fullPath *scriptFileName);
+PANO13_IMPEX void ARGtoRGBAImage(Image *im);
+PANO13_IMPEX void panoReplaceExt(char* filename, char *extension);
+PANO13_IMPEX int panoUnCropTiff(char *inputFile, char *outputFile);
 
 
-int 	StringtoFullPath	(fullPath *path, char *filename);
-void InsertFileName( fullPath *fp, char *fname );
-int ApplyFeather(fullPath * inputFile, fullPath * outputFile,
+PANO13_IMPEX int StringtoFullPath(fullPath *path, char *filename);
+PANO13_IMPEX void InsertFileName( fullPath *fp, char *fname );
+PANO13_IMPEX int ApplyFeather(fullPath * inputFile, fullPath * outputFile,
 		 int featherSize);
 
 /*****************/
 #define PANO_CROPPING_UNCROP 1
 #define PANO_CROPPING_CROP   2
 
-int panoCroppingMain(int argc,char *argv[], int operation, char *version,char *usage, char *defaultPrefix);
+PANO13_IMPEX int panoCroppingMain(int argc,char *argv[], int operation, char *version,char *usage, char *defaultPrefix);
 
-void panoPrintImage(char *msg, Image *im);
+PANO13_IMPEX void panoPrintImage(char *msg, Image *im);
 
 #ifndef min
    #define min(a,b) ((a) <= (b) ? (a) : (b))

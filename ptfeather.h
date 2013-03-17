@@ -30,7 +30,7 @@
 
 #define __PTFEATHER_H__
 
-int panoFeatherFile(fullPath * inputFile, fullPath * outputFile,
+PANO13_IMPEX int panoFeatherFile(fullPath * inputFile, fullPath * outputFile,
 		    int featherSize);
 
 
