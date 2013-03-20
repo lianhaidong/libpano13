@@ -126,11 +126,11 @@ EXTRA_DIST =  README.linux README.windows \
 	      CMakeLists.txt \
 	      ChangeLog.hg \
 	      dump.c dump.h \
-	      bootstrap filter.r libpano13.def pano13.rc \
+	      bootstrap filter.r pano13.rc \
 	      seamer_.c sys_X11.c sys_win.c bmp.c shell_mac.c \
 	      sys_mac.c ppm.c sys_ansi.c ppm.c ZComb.h adjust.h \
 	      libpano.sln LocalDefs.vsprops \
-	      pano13vc.def libpano.vcproj PanoTools.pbproj.tgz
+	      libpano.vcproj PanoTools.pbproj.tgz
 
 MAINTAINERCLEANFILES = \
 	aclocal.m4			\
