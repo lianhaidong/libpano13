@@ -2322,8 +2322,8 @@ int triplane_erect		( double x_dest,double  y_dest, double* x_src, double* y_src
 	};
 	if(x_dest < -mp->pn->precomputedValue[0] / 2)
 	{
-		x=x_dest -mp->pn->precomputedValue[0] * mp->distance;
-		offset = mp->pn->precomputedValue[1];
+		x=x_dest + mp->pn->precomputedValue[0] * mp->distance;
+		offset = - mp->pn->precomputedValue[1];
 	}
 	else if (x_dest < mp->pn->precomputedValue[0] / 2)
 	{
@@ -2332,8 +2332,8 @@ int triplane_erect		( double x_dest,double  y_dest, double* x_src, double* y_src
 	}
 	else
 	{
-		x=x_dest + mp->pn->precomputedValue[0] * mp->distance;
-		offset = - mp->pn->precomputedValue[1];
+		x=x_dest - mp->pn->precomputedValue[0] * mp->distance;
+		offset = + mp->pn->precomputedValue[1];
 	}
 	rect_erect(x,y_dest,x_src,y_src,&mp->distance);
 	*x_src += offset;
