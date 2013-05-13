@@ -1,8 +1,7 @@
 Readme Sources
 
 This file discribes how to build the library libpano13.so
-for the Linux operating system. This library is required
-for running any of the Panorama Tools applications (PTStitcher, etc). 
+for the Linux operating system.
 
 Legal Issues:
 
@@ -10,30 +9,11 @@ This software is distributed under GNU-license, see the
 file COPYING for details. Some parts of the software
 are derived from other sources, which are distributed under
 different copyrights. These are:
-(1) The JPEG-library distributed by the Independent JPEG group.
-This package contains a precompiled binary of the JPEG
-library and the header files required for compilation
-in the folder Sources/libs/. The legal terms for using the
-JPEG library can be found in the file /copyright/README_JPEG.
-(2) The PNG-library written by G.E.Schalnat et al.
-This package contains a precompiled binary of the PNG
-library and the header files required for compilation
-in the folder Sources/libs/. The legal terms for using the
-PNG library can be found in the file Sources/libs/png.h
-(3) The TIFF-library by Sam Leffler/ Silicon Graphics Inc.
-This package contains a precompiled binary of the TIFF
-library and the header files required for compilation
-in the folder Sources/libs/. The legal terms for using the
-TIFF library can be found in the file /copyright/README_TIFF.
-(4) The ZLIB-library by Jean-loup Gailly and Mark Adler.
-This package contains a precompiled binary of the ZLIB
-library and the header files required for compilation
-in the folder Sources/libs/. The legal terms for using the
-ZLIB library can be found in the file zlib.h.
-(5) The public domain Levenberg-Marquardt solver 
+
+- The public domain Levenberg-Marquardt solver 
 of the Argonne National Laboratories MINPACK mathematical library,
 C translation by Steve Moshier (file lmdif.c).
-(6) Fast fourier transformation, code by:
+- Fast fourier transformation, code by:
 RC Singleton, Stanford Research Institute, Sept. 1968
 Copyright MJ Olesen, Queen's University at Kingston, 1995-97.
 See the file fftn.c for details.
@@ -53,8 +33,8 @@ Compilation is straightforward:
 make
 make install
 
-If you have downloaded from CVS, you will need to bootstrap the build system
-first:
+If you have downloaded from Mercurial, you will need to bootstrap the build
+system first:
 
 ./bootstrap
 
