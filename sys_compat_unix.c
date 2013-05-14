@@ -20,6 +20,10 @@
 #include "sys_compat.h"
 #include <assert.h>
 
+#ifdef __APPLE__
+#include <stdlib.h>
+#endif
+
 int panoTimeToStrWithTimeZone(char *sTime, int len, struct tm  *time) 
 {
     assert(len >= 11);
@@ -29,6 +33,10 @@ int panoTimeToStrWithTimeZone(char *sTime, int len, struct tm  *time)
 
 char *panoBasenameOfExecutable(void)
 {
+#ifdef __APPLE__
+    return getprogname();
+#else
     extern char *__progname;
     return __progname;
+#endif
 }
