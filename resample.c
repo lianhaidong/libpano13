@@ -1530,7 +1530,7 @@ Trform_exit:
 	if( evaluateError ) {
 		FILE *fp;
 		fp = fopen( "Errors.txt", "a+t" );
-		fprintf( fp, "%f  "FMT_INT32"\n", maxErrX, destRect.top );
+		fprintf( fp, "%f  %d\n", maxErrX, destRect.top );
 		fprintf( fp, "%f\n", maxErrY );
 		fclose( fp );
 	}
