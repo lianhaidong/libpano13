@@ -230,8 +230,8 @@ int ParseScript( char* script, AlignInfo *gl )
 
                 switch(*li)
                     {
-                    case 'w':   READ_VAR( FMT_INT32, &(im->width) ); break;
-                    case 'h':   READ_VAR( FMT_INT32, &(im->height)); break;
+                    case 'w':   READ_VAR( "%ud", &(im->width) ); break;
+                    case 'h':   READ_VAR( "%ud", &(im->height)); break;
                     case 'v':   if( *(li+1) == '=' ){
                             li++;
                             READ_VAR( "%d", &(opt->hfov));
@@ -487,10 +487,10 @@ int ParseScript( char* script, AlignInfo *gl )
                     case 'Z':   READ_VAR( "%lf", &ci->x[2] );
                         break;
                     case 'S':   nextWord( buf, &li );       
-                        sscanf( buf, FMT_INT32","FMT_INT32","FMT_INT32","FMT_INT32, &im->selection.left, &im->selection.right, &im->selection.top, &im->selection.bottom );
+                        sscanf( buf, "%d,%d,%d,%d", &im->selection.left, &im->selection.right, &im->selection.top, &im->selection.bottom );
                         break;
                     case 'C':   nextWord( buf, &li );       
-                        sscanf( buf, FMT_INT32","FMT_INT32","FMT_INT32","FMT_INT32, &im->selection.left, &im->selection.right, &im->selection.top, &im->selection.bottom );
+                        sscanf( buf, "%d,%d,%d,%d", &im->selection.left, &im->selection.right, &im->selection.top, &im->selection.bottom );
                         im->cP.cutFrame = TRUE;
                         break;
                     case 'V':
@@ -973,7 +973,7 @@ void WriteResults( char* script, fullPath *sfile,  AlignInfo *g, double ds( int 
         default:                      format = -1; break;
     }
 
-    line += sprintf( line, "# p f%d w"FMT_INT32" h"FMT_INT32" v%g n\"%s\"\n\n", format, g->pano.width, g->pano.height, g->pano.hfov, g->pano.name );
+    line += sprintf( line, "# p f%d w %ud h%ud v%g n\"%s\"\n\n", format, g->pano.width, g->pano.height, g->pano.hfov, g->pano.name );
 
     line += sprintf( line, "# Parameters for Each Input Image:\n" );
     line += sprintf( line, "# (*) - optimized         (p) - preset \n\n");
@@ -1121,10 +1121,10 @@ void WriteResults( char* script, fullPath *sfile,  AlignInfo *g, double ds( int 
         }
         if( g->im[i].selection.bottom != 0 || g->im[i].selection.right != 0 ){
             if( g->im[i].cP.cutFrame ){
-                line += sprintf( line, " C"FMT_INT32","FMT_INT32","FMT_INT32","FMT_INT32" ",g->im[i].selection.left, g->im[i].selection.right,
+                line += sprintf( line, " C%d,%d,%d,%d ",g->im[i].selection.left, g->im[i].selection.right,
                                g->im[i].selection.top, g->im[i].selection.bottom );
             }else{
-                line += sprintf( line, " S"FMT_INT32","FMT_INT32","FMT_INT32","FMT_INT32" ",g->im[i].selection.left, g->im[i].selection.right,
+                line += sprintf( line, " S%d,%d,%d,%d ",g->im[i].selection.left, g->im[i].selection.right,
                                g->im[i].selection.top, g->im[i].selection.bottom );
             }
         }
@@ -1724,7 +1724,7 @@ static int ReadImageDescription( Image *imPtr, stBuf *sPtr, char *line )
    //  printf("************************************* Before Cut Frame %d \n", im.cP.cutFrame);
     while( *ch != 0) {
         switch(*ch) {
-        case 'f':   READ_VAR( FMT_INT32, &tempInt32 );
+        case 'f':   READ_VAR( "%d", &tempInt32 );
             tempInt = panoExternalToInternalInputProjection(tempInt32);
             if (tempInt < 0) {
                 PrintError("Syntax error in script.  Projection not known: %ud", tempInt32);
@@ -1872,7 +1872,7 @@ static int ReadImageDescription( Image *imPtr, stBuf *sPtr, char *line )
             cropping = 1;
             
             nextWord( buf, &ch );       
-            sscanf( buf, FMT_INT32","FMT_INT32","FMT_INT32","FMT_INT32, &im.selection.left, &im.selection.right, &im.selection.top, &im.selection.bottom );
+            sscanf( buf, "%d,%d,%d,%d", &im.selection.left, &im.selection.right, &im.selection.top, &im.selection.bottom );
             break;
         case 'C':  
             if (cropping) {
@@ -1884,7 +1884,7 @@ static int ReadImageDescription( Image *imPtr, stBuf *sPtr, char *line )
             cropping = 1;
             
             nextWord( buf, &ch );       
-            sscanf( buf, FMT_INT32","FMT_INT32","FMT_INT32","FMT_INT32, &im.selection.left, &im.selection.right, &im.selection.top, &im.selection.bottom );
+            sscanf( buf, "%d,%d,%d,%d", &im.selection.left, &im.selection.right, &im.selection.top, &im.selection.bottom );
             im.cP.cutFrame = TRUE;
             break;
             
@@ -1946,9 +1946,9 @@ static int ReadImageDescription( Image *imPtr, stBuf *sPtr, char *line )
             READ_VAR( "%d", &i );
             PrintError("Feathering is ignored. Use PTmasker");
             break;  
-        case 'w':   READ_VAR( FMT_INT32, &im.width );
+        case 'w':   READ_VAR( "%ud", &im.width );
             break;
-        case 'h':   READ_VAR( FMT_INT32, &im.height );
+        case 'h':   READ_VAR( "%ud", &im.height );
             break;
         case 'n':  // Name string (used for input image name)
             nextWord( buf, &ch );
@@ -2012,11 +2012,11 @@ static int ReadPanoramaDescription( Image *imPtr, stBuf *sPtr, char *line )
     //  printf("************************************* Before Cut Frame %d \n", im.cP.cutFrame);
     while( *ch != 0) {
         switch(*ch) {
-        case 'w':   READ_VAR( FMT_INT32, &im.width );
+        case 'w':   READ_VAR( "%ud", &im.width );
         break;
-        case 'h':   READ_VAR( FMT_INT32, &im.height );
+        case 'h':   READ_VAR( "%ud", &im.height );
         break;
-        case 'f':   READ_VAR( FMT_INT32, &im.format );
+        case 'f':   READ_VAR( "%d", &im.format );
         if( im.format == _panorama || im.format == _equirectangular )
             im.cP.correction_mode |= correction_mode_vertical;
         break;
