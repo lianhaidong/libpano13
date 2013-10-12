@@ -14,6 +14,19 @@ SET (TIFF16 ../simpleTiff16/reference/tiff_m0000.tif)
 
 project(test3)
 
+file(GLOB references  RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/reference/*.psd")
+set(_depends)
+foreach(_i ${references})
+  if(NOT IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${_i}")
+    add_custom_command(
+      OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/${_i}"
+      COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/${_i}" "${CMAKE_CURRENT_BINARY_DIR}/${_i}"
+      DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/${_i}")
+    SET_SOURCE_FILES_PROPERTIES("${CMAKE_CURRENT_BINARY_DIR}/${_i}" GENERATED)
+    list(APPEND _depends "${CMAKE_CURRENT_BINARY_DIR}/${_i}")
+  endif()
+endforeach(_i)
+add_custom_target(test3 ALL DEPENDS ${_depends})
 
 add_test(simpleTiff2psd-1-layer ${PERL_EXECUTABLE} "${TOP_SRC_DIR}/tests/panoAutomatePSDtest.pl" simpleStitch_crop_1_layer.psd ${TIFFc0})
 add_test(simpleTiff2psd-2-layers ${PERL_EXECUTABLE} "${TOP_SRC_DIR}/tests/panoAutomatePSDtest.pl" simpleStitch_crop_2_layer.psd ${TIFFc0} ${TIFFc1})
