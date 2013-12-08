@@ -4,7 +4,7 @@
  * Under GNU gcc, data types are defined based on their lenght, but under
  * MSC, they don't exist, so here they are defined
  *
-/* pt_stdint.h */
+ * pt_stdint.h */
 #ifndef PT_STDINT__H
 #define PT_STDINT__H
 
