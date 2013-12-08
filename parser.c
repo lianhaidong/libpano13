@@ -1028,6 +1028,7 @@ void WriteResults( char* script, fullPath *sfile,  AlignInfo *g, double ds( int 
                          "# TiltZ: %f (%c)   TiltScale:  %f (%c)\n"
                          "# TransX: %f (%c)   TransY:  %f (%c)\n"
                          "# TransZ: %f (%c)   \n"
+                         "# TransYaw: %f (%c)   TransPitch:  %f (%c)\n"
                          "# Test P0: %f (%c)   Test P1:  %f (%c)\n"
                          "# Test P2: %f (%c)   Test P3:  %f (%c)\n",
                          g->im[i].yaw, ( g->opt[i].yaw ? '*' : 'p' ),
