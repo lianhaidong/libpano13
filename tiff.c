@@ -844,7 +844,7 @@ int panoTiffSetCropInformation(pano_Tiff * file)
 	//MRDL: Photoshop sometimes writes out files with a TIFFTAG_XRESOLUTION of 0.
 	//If input files are from Photoshop, this values propogates from input
 	//file to metadata, and can mess up setting of XPOSITION here...
-	if (metadata->xPixelsPerResolution == 0 || metadata->xPixelsPerResolution == 0)
+	if (metadata->xPixelsPerResolution == 0 || metadata->yPixelsPerResolution == 0)
 	{
 		metadata->xPixelsPerResolution = PANO_DEFAULT_PIXELS_PER_RESOLUTION;
 		metadata->yPixelsPerResolution = PANO_DEFAULT_PIXELS_PER_RESOLUTION;
