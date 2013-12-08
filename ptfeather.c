@@ -421,7 +421,6 @@ static int panoFeatherImage(Image * image, int featherSize)
     int imageHeight;
     int imageIsCropped;
     int imageLeftOffset;
-    int imageTopOffset;
     int imageFullWidth;
     int imageFullHeight;
     int bitsPerSample;
@@ -446,7 +445,6 @@ static int panoFeatherImage(Image * image, int featherSize)
     imageFullHeight = panoImageFullHeight(image);
 
     imageLeftOffset  = panoImageOffsetX(image);
-    imageTopOffset = panoImageOffsetY(image);
 
     // This is sort of a hack. We replace 0's in the mask with 1's 
     // we have to "undo" it at the end

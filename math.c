@@ -1162,13 +1162,11 @@ Image * setup_panini_general(struct MakeParams* pmp)
 /** convert from panini_general to erect **/
 int erect_panini_general( double x_dest,double  y_dest, double* lambda_src, double* phi_src, void* params)
 {  /* params -> MakeParams */
-    double x, y, lambda, phi, d, distance;
+    double x, y, lambda, phi, distance;
     
     Image * ppg = setup_panini_general(mp);
     if( !ppg ) 
         return FALSE;
-
-    d = ppg->precomputedValue[0];
 
     distance = mp->distance;
     y = y_dest/distance;
@@ -1201,15 +1199,12 @@ int panini_general_erect( double lambda_dest,double  phi_dest, double* x_src, do
 	/* params -> MakeParams */
 
 	double phi, lambda, y,x;
-	double d;  // >= 0
 	double distance;
 
 	Image * ppg = setup_panini_general(mp);
 	if( !ppg ) 
 		return 0;
 
-	d = ppg->precomputedValue[0];
-    
 	distance = mp->distance;
 	lambda = lambda_dest/distance;
 	phi = phi_dest/distance;
@@ -1452,7 +1447,6 @@ int erect_stereographic( double x_dest,double  y_dest, double* lon, double* lat,
     double rh;		/* height above sphere*/
     double c;		/* angle					*/
     double sinc,cosc;	/* sin of c and cos of c			*/
-    double con;
 
     /* Inverse equations
      -----------------*/
@@ -1471,9 +1465,7 @@ int erect_stereographic( double x_dest,double  y_dest, double* lon, double* lat,
     else
     {
         *lat = asin((y * sinc) / rh) * distanceparam;
-        con = HALF_PI;
-   
-        con = cosc;
+
         if ((fabs(cosc) < EPSLN) && (fabs(x) < EPSLN))
             return 0;
         else

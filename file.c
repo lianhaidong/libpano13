@@ -1164,14 +1164,13 @@ static int writeLayerAndMask( Image *im, file_spec fnum, Boolean bBig )
 
 static int writeChannelData( Image *im, file_spec fnum, int channel, PTRect *theRect )
 {
-    register unsigned int   x, y, idx, idy, bpp, BitsPerChannel, channels;
+    register unsigned int   x, y, idx, idy, bpp, BitsPerChannel;
     unsigned char           **ch;
     register unsigned char  *c, *idata;
     size_t                  count;
     uint32_t                outputRegionWidth, outputRegionHeight;
 
     GetBitsPerChannel( im, BitsPerChannel );
-    GetChannels( im, channels );
 
     // Write Compression info
     panoWriteSHORT( fnum, 0 );     // Raw data
@@ -1250,14 +1249,13 @@ static int writeChannelData( Image *im, file_spec fnum, int channel, PTRect *the
 
 static int writeTransparentAlpha( Image *im, file_spec fnum, PTRect *theRect )
 {
-    register unsigned int   y, bpp, BitsPerChannel;
+    register unsigned int   y, BitsPerChannel;
     size_t                  line, count;
     unsigned char           **ch;
     register unsigned char  *c;
 
 
     GetBitsPerChannel( im, BitsPerChannel );
-    bpp = im->bitsPerPixel/8;
     line = ((size_t)theRect->right - theRect->left) * (BitsPerChannel/8);
     ch = (unsigned char**)mymalloc( line );
     if( ch == NULL )
@@ -1422,7 +1420,7 @@ static int addLayer( Image *im, file_spec src, file_spec fnum, stBuf *sB, Boolea
     uint32_t        var;
     int64_t         var64;
     PTRect          theRect, *nRect = NULL;
-    int             bpp, oddSized = 0, oddSizedOld = 0;
+    int             oddSized = 0, oddSizedOld = 0;
     int64_t         channelLength, lenLayerInfo;
     int             result = 0;
     size_t          count;
@@ -1449,7 +1447,6 @@ static int addLayer( Image *im, file_spec src, file_spec fnum, stBuf *sB, Boolea
     GetChannels( im, channels );
     psdchannels = channels;
     GetBitsPerChannel( im, BitsPerChannel );
-    bpp = im->bitsPerPixel/8;
 
     if( channels > 3 ) // Alpha channel present
     {
@@ -1864,7 +1861,6 @@ int panoCreateLayeredPSD(fullPath * fullPathImages, int numberImages,
     int                 hasClipMask = 0;    // Create a mask
     int                 hasShapeMask = 0;   // Create alpha channel
     unsigned char     **alpha = NULL;
-    unsigned char     **buf = NULL;
     stBuf               stitchInfo;
     char               *blendingModeKey;
     char                sLayerName[5];

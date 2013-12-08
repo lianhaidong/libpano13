@@ -378,11 +378,10 @@ void _mergeAlpha ( Image *im, unsigned char *alpha, int feather, PTRect *theRect
 	register int 			x,y;
 	double 				sfactor;
 	unsigned char			*data = *(im->data), *idata, *adata;
-	int				channels, BitsPerChannel,bpp;
+	int				BitsPerChannel,bpp;
 	Image				aImage;	 // Dummy for transfering alpha data
 	
 	
-	GetChannels( im, channels );
 	GetBitsPerChannel( im, BitsPerChannel );
 	bpp = im->bitsPerPixel/8;
 
