@@ -1497,10 +1497,11 @@ static int addLayer( Image *im, file_spec src, file_spec fnum, stBuf *sB, Boolea
 
     for(i=0; i<numLayers; i++) 
     {
-        panoReadINT32( src, &nRect[i].top );     // Layer top 
-        panoReadINT32( src, &nRect[i].left );    // Layer left
-        panoReadINT32( src, &nRect[i].bottom );  // Layer bottom 
-        panoReadINT32( src, &nRect[i].right );   // Layer right 
+        uint32_t number;
+        panoReadINT32( src, &number ); nRect[i].top = number;     // Layer top 
+        panoReadINT32( src, &number ); nRect[i].left = number;    // Layer left
+        panoReadINT32( src, &number ); nRect[i].bottom = number;  // Layer bottom 
+        panoReadINT32( src, &number ); nRect[i].right = number;   // Layer right 
 
         panoReadSHORT( src, &uChannel[i] );               // The number of channels in the layer.
 

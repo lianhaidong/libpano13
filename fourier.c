@@ -197,7 +197,8 @@ void noisefilter( Image *dest, Image *src )
 
 static void fconvolution( TrformStr *TrPtr, Image *psf )
 {
-	int 		dims[2], i, k, dim, prog=0, delta = 100/15;
+	unsigned int dims[2];
+	int 		i, k, dim, prog=0, delta = 100/15;
 	double		**Re = NULL, **Im = NULL, **PRe = NULL, **PIm = NULL;
 	char		percent[25];
 
@@ -286,7 +287,8 @@ _fconvolution_exit:
 
 void fwiener( TrformStr *TrPtr, Image *nf, Image *psf, double gamma , double frame)
 {
-	int 		dims[2], i, k, dim, prog=0, delta = 100/27;
+	unsigned int dims[2];
+	int 		i, k, dim, prog=0, delta = 100/27;
 	double		**d1 = NULL, **d2 = NULL, **d3 = NULL, **d4 = NULL; // double arrays
 	char		percent[25];
 
@@ -765,7 +767,8 @@ static void invWindowFunction( double *im, int width, int height, double frame)
 
 static void fresize( TrformStr *TrPtr )
 {
-	int 		dims[2], dest_dims[2], i, dim, prog=0, delta = 100/12;
+	unsigned int dims[2], dest_dims[2];
+	int 		i, dim, prog=0, delta = 100/12;
 	double		**Re = NULL, **Im = NULL;
 	char		percent[25];
 	double 		*re,*im;
