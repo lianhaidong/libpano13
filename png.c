@@ -120,7 +120,6 @@ int readPNG	( Image *im, fullPath *sfile )
    	png_infop info_ptr;
 	png_bytep *row_pointers;
 	int row;
-	unsigned long  dataSize;
 	int color_type;
 
 #ifdef __Mac__
@@ -209,7 +208,7 @@ int readPNG	( Image *im, fullPath *sfile )
 	im->dataSize		= im->height * im->bytesPerLine;
 	im->bitsPerPixel	= 8 * im->bytesPerLine / im->width;
 
-	im->data = (unsigned char**)mymalloc( (dataSize > im->dataSize ? dataSize : im->dataSize) );
+	im->data = (unsigned char**)mymalloc( im->dataSize );
 	if( im->data == NULL ){
 		PrintError("Not enough memory");
       		png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp)NULL);

@@ -695,7 +695,6 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
     int var01;
     int var00;
     int colourCorrection;
-    int panoProjection = 0;
 
     int lines;
     fullPath *fullPathImages;
@@ -718,9 +717,6 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
     char *regScript;
     unsigned int regLen;
     unsigned int regWritten;
-
-    int feather = 0;
-
 
     pano_Tiff *tiffFile;             //Output file...will be written during this function
     TrformStr transform;        //structure holds pointers to input and output images and misc other info
@@ -866,9 +862,6 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
 
         }
 
-        // Projection format for final panorama
-        panoProjection = prefs->pano.format;
-
         // Copy output pano name to panoName
         memcpy(&panoName, &prefs->pano.name, sizeof(fullPath));
         //memcpy(&global5640, &prefs->sBuf, sizeof(stBuf));
@@ -949,7 +942,6 @@ int panoCreatePanorama(fullPath ptrImageFileNames[], int counterImageFiles,
         //specified as part of input (Do this only when processing first image in script)
         if (loopCounter == 0) {
 
-            feather = prefs->sBuf.feather;
             if (prefs->pano.width == 0) {
                 // if the pano did not set the width, then try to set it
                 if (prefs->im.hfov != 0.0) {

@@ -2003,7 +2003,6 @@ static int ReadPanoramaDescription( Image *imPtr, stBuf *sPtr, char *line )
     char buf[LINE_LENGTH];
     char *b;
     int  i;
-    int    cropping = 0;
     double tempDbl;
     
     memcpy( &im,    imPtr,   sizeof(Image) );

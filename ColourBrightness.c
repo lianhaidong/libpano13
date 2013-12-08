@@ -95,7 +95,6 @@ magnolia_struct *InitializeMagnolia(int numberImages, int size, calla_function p
   int i; 
   magnolia_struct *magnolia = NULL;
   double *ptrDouble;
-  int var04;
   double var16;
   int ecx;
 
@@ -104,8 +103,6 @@ magnolia_struct *InitializeMagnolia(int numberImages, int size, calla_function p
     return 0;
     
   }
-  
-  var04 = size - 1;
   
   var16 = (size -1 ) / 255.0; /// shouldn't this be a 256?
   
@@ -149,11 +146,9 @@ int RemapPoint(int value, double mapTable[])
   double deltaNext;
 
   double var48;
-  int var44;
 
   double tablePrevValue;
   double tableNextValue;
-  int tempInt;
   int nextValueInt;
   int prevValueInt;
 
@@ -190,8 +185,6 @@ int RemapPoint(int value, double mapTable[])
 
   if (fabs(tableNextValue - tablePrevValue) <= 2.0) {
     // if the difference |f(value - 1)  -f(value+1) is too small
-
-    tempInt =  (int)mapTable[value];
 
     if ((int)mapTable[value] == 0xff ) {
       return 0xff;
@@ -246,7 +239,6 @@ int RemapPoint(int value, double mapTable[])
   edx = prevValueInt;
 
   var48 = 0;
-  var44 = 0;
 
   //  if ( %edx > %nextValueInt ) /// [(int)tablePrevValue] > [(int)tableNextValue] 
   while ( edx <= nextValueInt ) { /// [(int)tablePrevValue] > [(int)tableNextValue] 
@@ -597,7 +589,6 @@ void ColourBrightness(  fullPath *fullPathImages,  fullPath *outputFullPathImage
                         int counterImages, int indexReferenceImage, int parm3, int createCurvesType)
 {
 
-  histograms_struct * ptrHistograms;
   histograms_struct * ptrHistograms2;
   int numberHistograms;
   int index;
@@ -623,8 +614,6 @@ void ColourBrightness(  fullPath *fullPathImages,  fullPath *outputFullPathImage
 
   if ( calla.ptrHistograms == 0 )
     return ;
-
-  ptrHistograms = calla.ptrHistograms;
 
   fprintf(debugFile, "\nQuality before optimization:\n");
 
@@ -1416,7 +1405,6 @@ histograms_struct *ReadHistograms (fullPath *fullPathImages, int numberImages)
 
       unsigned char *ptrPixel;
       unsigned char *ptrOtherPixel;
-      int ecx;
 
       // We process each currentHistogram
       currentHistogram = ptrHistograms;
@@ -1425,8 +1413,6 @@ histograms_struct *ReadHistograms (fullPath *fullPathImages, int numberImages)
 
       ptrPixel = ptrCurrentPixelLineBuffer;
       assert(ptrPixel < imagesDataBuffer + numberImages * bytesPerLine);
-
-      ecx = numberImages;
 
       // for each pixel of each line of each image...
       for (currentImage = 0; currentImage < numberImages ; currentImage++, ptrPixel+= bytesPerLine) {
@@ -1927,7 +1913,6 @@ void CorrectImageColourBrigthness(Image *image, magnolia_struct *magnolia, int p
   unsigned char *pixel;
   int edi;
   double * (mappingCurves[6]);
-  int edx;
   unsigned char *ptrPixel;
   int channel;
   int level;
@@ -1970,8 +1955,6 @@ void CorrectImageColourBrigthness(Image *image, magnolia_struct *magnolia, int p
     printf("**************************Bright\n");
 
     currentRow = 0;
-    
-    edx = currentRow;
     
     while ( currentRow < image->height) {
 

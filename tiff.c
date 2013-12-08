@@ -794,7 +794,6 @@ int panoTiffReadScanLineFullSize(pano_Tiff * file, void *buffer, int row)
 int panoTiffWriteScanLineFullSize(pano_Tiff * file, void *buffer, int row)
 {
     // Reads a scan line only if inside ROI, otherwise it only "zeroes" data
-    int bytesPerLine;
     int bytesPerPixel;
 
     assert(file != NULL);
@@ -804,8 +803,6 @@ int panoTiffWriteScanLineFullSize(pano_Tiff * file, void *buffer, int row)
         return FALSE;
     }
     bytesPerPixel = panoTiffBytesPerPixel(file);
-
-    bytesPerLine = panoTiffFullImageWidth(file) * bytesPerPixel;
 
     assert(panoTiffIsCropped(file) ||
            panoTiffFullImageWidth(file) == panoTiffImageWidth(file));

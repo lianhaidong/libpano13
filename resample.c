@@ -1951,12 +1951,6 @@ void transForm_aa( TrformStr *TrPtr, fDesc *fD,fDesc *finvD, int color, int imag
 	double			min_x =  -1.0;//0.0; // Minimum x values in source image
 	double			min_y =  -1.0;//0.0; // Minimum y values in source image
 
-	int			mix	  = TrPtr->src->width - 1; // maximum x-index src
-	
-	int			mix2;
-	int			miy	  = TrPtr->src->height - 1;// maximum y-index src
-	int			miy2;
-
 	// Variables used to convert screen coordinates to cartesian coordinates
 
 	double 			w2 	= (double) TrPtr->dest->width  / 2.0 - 0.5;  // Steve's L
@@ -1965,12 +1959,9 @@ void transForm_aa( TrformStr *TrPtr, fDesc *fD,fDesc *finvD, int color, int imag
 	double 			sh2 = (double) TrPtr->src->height  / 2.0 - 0.5;
 	
 	int			BytesPerLine	= TrPtr->src->bytesPerLine;
-	int			FirstColorByte, SamplesPerPixel;
+	int			FirstColorByte;
 	unsigned int	BytesPerPixel, BytesPerSample;
 
-	int			n, n2;		// How many pixels should be used for interpolation	
-	// int 			lu = 0;		// Use lookup table?
-	int			wrap_x = FALSE;
 	double			theGamma;	// gamma handed to SetUpGamma()
 	
 	// Some things for the floodfill algorithm
@@ -2011,13 +2002,13 @@ void transForm_aa( TrformStr *TrPtr, fDesc *fD,fDesc *finvD, int color, int imag
 	srcHeight  = TrPtr->src->height; 
 
 	switch( TrPtr->src->bitsPerPixel ){
-		case 128:	FirstColorByte = 4; BytesPerPixel = 16; SamplesPerPixel = 4; BytesPerSample = 4; break;
-		case  96:	FirstColorByte = 0; BytesPerPixel = 12; SamplesPerPixel = 3; BytesPerSample = 4; break;
-		case  64:	FirstColorByte = 2; BytesPerPixel = 8; SamplesPerPixel = 4; BytesPerSample = 2; break;
-		case  48:	FirstColorByte = 0; BytesPerPixel = 6; SamplesPerPixel = 3; BytesPerSample = 2; break;
-		case  32:	FirstColorByte = 1; BytesPerPixel = 4; SamplesPerPixel = 4; BytesPerSample = 1; break;
-		case  24:	FirstColorByte = 0; BytesPerPixel = 3; SamplesPerPixel = 3; BytesPerSample = 1; break;
-		case   8:	FirstColorByte = 0; BytesPerPixel = 1; SamplesPerPixel = 1; BytesPerSample = 1; break;
+		case 128:	FirstColorByte = 4; BytesPerPixel = 16; BytesPerSample = 4; break;
+		case  96:	FirstColorByte = 0; BytesPerPixel = 12; BytesPerSample = 4; break;
+		case  64:	FirstColorByte = 2; BytesPerPixel = 8; BytesPerSample = 2; break;
+		case  48:	FirstColorByte = 0; BytesPerPixel = 6; BytesPerSample = 2; break;
+		case  32:	FirstColorByte = 1; BytesPerPixel = 4; BytesPerSample = 1; break;
+		case  24:	FirstColorByte = 0; BytesPerPixel = 3; BytesPerSample = 1; break;
+		case   8:	FirstColorByte = 0; BytesPerPixel = 1; BytesPerSample = 1; break;
 		default :	PrintError("Unsupported Pixel Size: %d", TrPtr->src->bitsPerPixel);
 					TrPtr->success = 0;
 					return;
@@ -2032,7 +2023,6 @@ void transForm_aa( TrformStr *TrPtr, fDesc *fD,fDesc *finvD, int color, int imag
 	}
 */
 	// Set interpolator etc:
-	n=1;
 	switch( TrPtr->interpolator ){
 		case _aabox:
 			aaSupport = 0.5;
@@ -2104,10 +2094,6 @@ void transForm_aa( TrformStr *TrPtr, fDesc *fD,fDesc *finvD, int color, int imag
 			return;
 	}
 
-	n2 = n/2 ;
-	mix2 = mix +1 - n;
-	miy2 = miy +1 - n;
-
 	dest = *TrPtr->dest->data;
 	src  = *TrPtr->src->data; // is locked
 
@@ -2164,9 +2150,6 @@ void transForm_aa( TrformStr *TrPtr, fDesc *fD,fDesc *finvD, int color, int imag
 		}
 		Progress( _initProgress, progressMessage );
 	}
-
-	if(TrPtr->mode & _wrapX)
-		wrap_x = TRUE;
 
 	if( TrPtr->src->dataformat == _RGB )	// Gamma correct only RGB-images
 		theGamma = TrPtr->gamma;
