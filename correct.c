@@ -302,7 +302,7 @@ void 	correct (TrformStr *TrPtr, cPrefs *prefs)
 			
             if( haveSameColorParas( prefs,0,1)) // R==G??
             {
-                fprintf(stderr, "PT correct "PROGRESS_VERSION" R==G\n" );
+                fprintf(stderr, "PT correct "VERSION" R==G\n" );
                 if( ! hasUsefulColorParas(prefs,0))
                 {
                     fprintf(stderr, "Red/Green do NOTHING! Copying image data...\n" );
@@ -330,7 +330,7 @@ void 	correct (TrformStr *TrPtr, cPrefs *prefs)
             }
             else if( haveSameColorParas( prefs,1,2)) // G==B??
             {
-                fprintf(stderr, "PT correct "PROGRESS_VERSION" G==B\n" );
+                fprintf(stderr, "PT correct "VERSION" G==B\n" );
                 if( ! hasUsefulColorParas(prefs,1))
                 {
                     fprintf(stderr, "Green/Blue do NOTHING! Copying image data...\n" );
@@ -359,7 +359,7 @@ void 	correct (TrformStr *TrPtr, cPrefs *prefs)
             }
             else if( haveSameColorParas( prefs,2,0)) // R==B??
             {
-                fprintf(stderr, "PT correct "PROGRESS_VERSION" R==B\n" );
+                fprintf(stderr, "PT correct "VERSION" R==B\n" );
                 if( ! hasUsefulColorParas(prefs,0))
                 {
                     fprintf(stderr, "Red/Blue do NOTHING! Copying image data...\n" );
@@ -387,7 +387,7 @@ void 	correct (TrformStr *TrPtr, cPrefs *prefs)
             }
             else
             {               
-                fprintf(stderr, "PT correct "PROGRESS_VERSION" R!=G!=B\n" );
+                fprintf(stderr, "PT correct "VERSION" R!=G!=B\n" );
                 if( ! hasUsefulColorParas(prefs,0))
                 {
                     fprintf(stderr, "Red does NOTHING! Copying image data...\n" );
@@ -424,7 +424,7 @@ void 	correct (TrformStr *TrPtr, cPrefs *prefs)
         }
 		else // Color independent
 		{
-            fprintf(stderr, "PT correct "PROGRESS_VERSION" R==G==B\n" );
+            fprintf(stderr, "PT correct "VERSION" R==G==B\n" );
             if( ! hasUsefulColorParas(prefs,0))
             {
                 fprintf(stderr, "Red,Green,Blue do NOTHING! But you asked for it...\n" );
