@@ -67,7 +67,7 @@ endif
 if HAVE_LINUX
 LIN_SRC =  sys_ansi.c sys_compat_unix.c ppm.c
 LIN_DEFS = -D__Ansi__=1
-LIN_LDFS = -version-info 2:0:0
+LIN_LDFS = -version-info 3:0:0
 
 install-exec-hook:
 	@true
@@ -77,7 +77,7 @@ endif
 if HAVE_DARWIN
 DAR_SRC =  sys_ansi.c sys_compat_unix.c ppm.c
 DAR_DEFS = -D__Ansi__=1
-DAR_LDFS = -version-info 2:0:0
+DAR_LDFS = -version-info 3:0:0
 
 install-exec-hook:
 	@true
@@ -87,7 +87,7 @@ endif
 if HAVE_SOLARIS
 SOL_SRC =  sys_ansi.c sys_compat_unix.c ppm.c
 SOL_DEFS = -D__Ansi__=1
-SOL_LDFS = -version-info 2:0:0 -lxnet -lm -lsunmath
+SOL_LDFS = -version-info 3:0:0 -lxnet -lm -lsunmath
 
 install-exec-hook:
 	@true
