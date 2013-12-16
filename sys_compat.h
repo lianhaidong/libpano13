@@ -10,9 +10,10 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software
-   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.  
-*/
+   along with GNU Libtool; see the file COPYING.  If not, a copy
+   can be downloaded from http://www.gnu.org/licenses/gpl.html, or
+   obtained by writing to the Free Software Foundation, Inc.,
+   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.  */
 
 /* these are functions that have very different implementions in different systems, so we
    define them here and implemement them in sys_ansi.c or sys_win.c */
