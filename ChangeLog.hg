@@ -1,4 +1,278 @@
-2011-03-21 21:30 +0000  Bruno Postle  <bruno@postle.net>  (f819fe70b239 [tip])
+2013-12-16 22:35 +0000  Bruno Postle  <bruno@postle.net>  (777f5eb48962 [tip])
+
+	* COPYING, ColourBrightness.c, ColourBrightness.h, PTDialogs.c,
+	PTcommon.c, PTcommon.h, Triangulate.c, ZComb.c, ZComb.h, adjust.c,
+	adjust.h, correct.c, dump.c, file.c, file.h, filter.c, filter.h,
+	filter.r, fourier.c, javastub.c, math.c, metadata.c, metadata.h,
+	multilayer.c, pan.c, panorama.h, parser.c, perspect.c, ppm.c,
+	ptfeather.c, ptfeather.h, ptstitch.c, ptstitch.h, pttiff.h, remap.c,
+	resample.c, sys_X11.c, sys_X11.h, sys_ansi.c, sys_ansi.h,
+	sys_common.c, sys_compat.h, sys_compat_unix.c, sys_compat_win.c,
+	sys_mac.c, sys_mac.h, sys_win.c, sys_win.h, tiff.c,
+	tools/PTAInterpolate.c, tools/PTblender.c, tools/PTcrop.c,
+	tools/PTinfo.c, tools/PTmasker.c, tools/PTmender.c,
+	tools/PTmender.h, tools/PToptimizer.c, tools/PTroller.c,
+	tools/PTtiff2psd.c, tools/PTtiffdump.c, tools/PTuncrop.c,
+	tools/panoinfo.c, tools/panoinfo_unix.c, version.h:
+	Fixed the FSF address to make an rpmlint error go away...
+
+2013-12-16 21:03 +0000  Bruno Postle  <bruno@postle.net>  (3c558c23fbc0)
+
+	* CMakeLists.txt, Makefile.am:
+	Increment the soname from 2.0.0 to 3.0.0 due to ABI change
+
+2013-12-08 11:18 +0100  tmodes  <tmodes>  (5f73aa3334ae)
+
+	* file.c, fourier.c:
+	Fixes sign of some pointers
+
+2013-12-08 11:17 +0100  tmodes  <tmodes>  (92a290290d3a)
+
+	* parser.c:
+	Add missing variables to format string
+
+2013-12-08 11:17 +0100  tmodes  <tmodes>  (cba530fd3127)
+
+	* pt_stdint.h:
+	Fixes /* in comment
+
+2013-12-08 11:16 +0100  tmodes  <tmodes>  (8fdc2b13c2c7)
+
+	* correct.c:
+	Don't include \0 in format string
+
+2013-12-08 11:16 +0100  tmodes  <tmodes>  (839d2ea0602c)
+
+	* ColourBrightness.c, PTcommon.c, file.c, math.c, parser.c, png.c,
+	ptfeather.c, resample.c, rgbe.c, seamer_.c, tiff.c:
+	Removed unused variables
+
+2013-12-08 11:14 +0100  tmodes  <tmodes>  (84521eb90c05)
+
+	* tools/compat_win32/getopt.c:
+	[Mingw] Fix a compiler warning by implizit include of necessary
+	header
+
+2013-12-08 10:11 +0100  tmodes  <tmodes>  (30f4cb70d93c)
+
+	* tiff.c:
+	Correct check for invalid resolutions in TIF files (spotted by dcb
+	[1256972])
+
+2013-10-12 09:08 +0200  thomas  <thomas@Virtual>  (36d7541b8384)
+
+	* PTcommon.c, parser.c, ppm.c, resample.c:
+	Fixes formating sequence for x86_64 [1184375] Patch by Stefan Peter
+
+2013-10-12 09:07 +0200  thomas  <thomas@Virtual>  (0a44cbd60ac8)
+
+	* tests/simpleTiff2psd/reference/simpleStitch_crop_1_layer.psd,
+	tests/simpleTiff2psd/reference/simpleStitch_crop_2_layer.psd,
+	tests/simpleTiff2psd/reference/simpleStitch_uncrop_1_layer.psd,
+	tests/simpleTiff2psd/reference/simpleStitch_uncrop_2_layer.psd,
+	tests/simpleTiff2psd/reference/simpleTiff16-16-_uncrop_1_layer.psd,
+	tests/simpleTiff2psd/reference/simpleTiff16-16-_uncrop_2_layer.psd:
+	Update psd references for 2.9.19
+
+2013-10-12 09:06 +0200  thomas  <thomas@Virtual>  (879f75a8eae7)
+
+	* tests/CMakeLists.txt, tests/simpleTiff2psd/CMakeLists.txt:
+	[CMake]: Copy necessary files for test
+
+2013-05-14 19:44 +0100  Bruno Postle  <bruno@postle.net>  (ce361a3cfb97)
+
+	* sys_compat_unix.c:
+	Fix to build on OS X 10.6/10.8 (Matthieu Desile)
+
+2013-05-13 20:37 +0100  Bruno Postle  <bruno@postle.net>  (d3703d445473)
+
+	* README, README.linux, README.windows:
+	Fix some really out-of-date README text
+
+2013-04-12 18:56 +0200  tmodes  <tmodes>  (04c52cae988a)
+
+	* math.c:
+	Fixes wrong calculation in triplane_erect
+
+2013-03-21 10:42 +1100  tduell  <tduell@iinet.net.au>  (8ccb62eb329a)
+
+	* Makefile.am:
+	fix for removed .def files
+
+2013-03-17 18:55 +0100  tmodes  <tmodes>  (3b87e44598ea)
+
+	* libpano13.def, pano13vc.def: deleted file.
+	* CMakeLists.txt, ColourBrightness.h, PTcommon.h, ZComb.h, file.h,
+	filter.h, libpano13.def, pano13vc.def, panorama.h, ptfeather.h,
+	ptstitch.h, pttiff.h, queryfeature.h, tools/PToptimizer.c:
+	[Windows] Use __declspec(dllexport) instead of modul definition file
+
+	Functions exported via modul definition file can't be compared with
+	function points (needed by nona gpu). Function pointers works for
+	functions exported with __declspec(dllexport).
+
+2013-03-17 08:08 +0100  tmodes  <tmodes>  (4b93725a1f29)
+
+	* PTcommon.c, adjust.c, correct.c, dump.c, filter.h, math.c,
+	panorama.h, parser.c:
+	Moved test parameter 0 and 1 to Tpy and Tpr
+
+2013-03-17 08:06 +0100  tmodes  <tmodes>  (253c1bcde35e)
+
+	* configure.ac, version.h:
+	Bump version number
+
+2013-03-17 08:06 +0100  tmodes  <tmodes>  (c2a40aad1b51)
+
+	* bootstrap:
+	Update bootstrap for automake 1.12 (Patch by Terry Duell) [11561269]
+
+2013-03-16 08:38 +0100  tmodes  <tmodes>  (b1e1204fe014)
+
+	* math.c:
+	Fixes for architectural projection
+	* correctly report success of transformation
+	* check if values are in valid ranges
+
+2013-03-16 08:19 +0100  tmodes  <tmodes>  (8bf958d04557)
+
+	* math.c:
+	Removed unused variables
+
+2013-03-16 07:45 +0100  tmodes  <tmodes>  (531cd379005d)
+
+	* adjust.c, filter.h, math.c, panorama.h, parser.c, queryfeature.c:
+	Added Hammer projection
+
+2013-03-03 08:32 +0100  tmodes  <tmodes>  (6e390e07eac5)
+
+	* math.c:
+	Prevent division by zero [791473]
+
+2013-03-03 08:31 +0100  tmodes  <tmodes>  (1b78f71b2c32)
+
+	* CMakeLists.txt:
+	Fixes a typo in version string
+
+2013-03-03 08:30 +0100  tmodes  <tmodes>  (c251644f9866)
+
+	* CMakeLists.txt, ColourBrightness.c, sys_compat_win.c:
+	Fixes compilation with MinGW compiler
+
+2013-03-02 13:18 +0100  tmodes  <tmodes>  (489ef38b776c)
+
+	* CMakeLists.txt:
+	Use mercurial instead of subversion in CMake build
+
+2013-03-02 13:14 +0100  tmodes  <tmodes>  (e4a5489e244d)
+
+	* filter.h, panorama.h, parser.c:
+	Fixes some typos
+
+2013-01-31 18:14 +0100  tmodes  <tmodes>  (1299ba47658f)
+
+	* panorama.h, tiff.c:
+	Unified use of path length Check also length before copying
+	[1057012]
+
+2013-01-12 10:21 +0100  tmodes  <tmodes>  (b2f10b688fd6)
+
+	* adjust.c:
+	Modified scale calculation for orthographic images
+
+	This takes into account the issue that the image could also contain
+	a thin black border around the (circular) image.
+
+2012-12-28 13:39 +0100  tmodes  <tmodes>  (376cc090f008)
+
+	* math.c:
+	Fixes bug in orthographic projection
+
+	Orthographic projection is limited to fov of 180 degree Higher
+	values were not correctly cropped, instead these coordinates were
+	mirrored inside
+
+2012-11-19 22:37 -0400  Jim Watters  <jwatters@photocreations.ca>  (e63acb0227b7)
+
+	* adjust.c:
+	Fix a bug when cropping images that go outside the image boundry.
+	mp->horizontal & mp->vertical would otherwise get extrordinary
+	large.
+
+2012-09-18 19:51 +0200  tmodes  <tmodes>  (c9f63bc558e9)
+
+	* PTcommon.c, panorama.h:
+	Use unsigned int for PTRect Otherwise crop is not correctly
+	calculated
+
+2012-09-18 19:10 +0200  tmodes  <tmodes>  (bb55bfdfa33e)
+
+	* sys_compat_unix.c, sys_compat_win.c: new file.
+	* CMakeLists.txt, Makefile.am, pano13vc.def, pt_stdint.h, sys_ansi.c,
+	sys_compat.h, sys_compat_unix.c, sys_compat_win.c, sys_win.c,
+	sys_win.h, tools/CMakeLists.txt:
+	Update build system to compile on Windows again
+
+	Added option to CMake build to allow building static or shared
+	version on Windows
+
+2012-09-17 22:55 +0100  Bruno Postle  <bruno@postle.net>  (17b9409b0fcc)
+
+	* adjust.c:
+	Fix "unsupported Panorama Format" error Bug #1049994 (Thomas Modes)
+
+2012-09-17 22:55 +0100  Bruno Postle  <bruno@postle.net>  (a1660991bf10)
+
+	* math.c:
+	Fix Inverse transformation from output projection to Thoby input
+	image is wrong Bug #891912 reported by Timothee Groleau (Thomas
+	Modes)
+
+2012-03-02 23:19 +0000  Bruno Postle  <bruno@postle.net>  (0c73d8794377)
+
+	* LocalDefs.props, libpano.vcxproj, sys_compat.h,
+	tests/panoAutomatePSDtest.pl, tests/simpleTiff2psd/CMakeLists.txt,
+	tests/simpleTiff2psd/reference/simpleStitch_crop_1_layer.psd,
+	tests/simpleTiff2psd/reference/simpleStitch_crop_2_layer.psd,
+	tests/simpleTiff2psd/reference/simpleStitch_uncrop_1_layer.psd,
+	tests/simpleTiff2psd/reference/simpleStitch_uncrop_2_layer.psd,
+	tests/simpleTiff2psd/reference/simpleTiff16-16-_uncrop_1_layer.psd,
+	tests/simpleTiff2psd/reference/simpleTiff16-16-_uncrop_2_layer.psd,
+	tests/simpleTiff2psd/tests/simpleStitch_crop_1_layer.psd,
+	tests/simpleTiff2psd/tests/simpleStitch_crop_2_layer.psd,
+	tests/simpleTiff2psd/tests/simpleStitch_uncrop_1_layer.psd,
+	tests/simpleTiff2psd/tests/simpleStitch_uncrop_2_layer.psd,
+	tests/simpleTiff2psd/tests/simpleTiff16-16-_uncrop_1_layer.psd,
+	tests/simpleTiff2psd/tests/simpleTiff16-16-_uncrop_2_layer.psd,
+	tests/tiff2psdTest.bat, tools/PTAInterpolate.vcxproj,
+	tools/PTOptimizer.vcxproj, tools/PTblender.vcxproj,
+	tools/PTcrop.vcxproj, tools/PTinfo.vcxproj, tools/PTmasker.vcxproj,
+	tools/PTmender.vcxproj, tools/PTroller.vcxproj,
+	tools/PTtiff2psd.vcxproj, tools/PTtiffdump.vcxproj,
+	tools/PTuncrop.vcxproj: new file.
+	* .hgignore, CMakeLists.txt, ChangeLog, png.c, pteditor.c,
+	tests/CMakeLists.txt:
+	merged PSD branch
+
+2012-01-11 10:27 +1100  Terry Duell  <tduell@iinet.net.au>  (20a9b820aba0)
+
+	* dump.c, pteditor.c, ptpicker.c:
+	Fix outstanding pt_int32 problems
+
+2011-05-31 09:54 +0200  Kornel Benko  <kornelbenko@users.sourceforge.net>  (bd103552abef)
+
+	* CMakeLists.txt:
+	1.) Make it compilable on ubuntu 11.4 using '-DHUGIN_BASE_DIR=path
+	to hugin sources' Define SYSTEM_LIB_DIRS for use of hugins
+	CMakeModules Define 'HUGIN_SHARED', because of it's use 2.) Add
+	dependences creation on debian systems
+
+2011-03-21 21:36 +0000  Bruno Postle  <bruno@postle.net>  (da48158224d6)
+
+	* ChangeLog.hg:
+	Update changelog
+
+2011-03-21 21:30 +0000  Bruno Postle  <bruno@postle.net>  (f819fe70b239)
 
 	* CMakeLists.txt, man/CMakeLists.txt, tests/CMakeLists.txt,
 	tests/simpleStitch/CMakeLists.txt,
@@ -49,10 +323,112 @@
 	* .hgignore, ChangeLog:
 	Added files to .hgignore
 
+2011-03-03 21:53 -0800  dmg  <dmg@uvic.ca>  (8c929483d775 <PhotoshopPSB>)
+
+	* ChangeLog, tools/PTtiff2psd.c:
+	added jim to credits of PTtiff2psd
+
+2011-03-03 20:43 -0800  dmg  <dmg@uvic.ca>  (6d05236f8495 <PhotoshopPSB>)
+
+	* ChangeLog:
+	Added test cases for PTtiff2psd
+
+2011-03-03 20:43 -0800  dmg  <dmg@uvic.ca>  (dd2b0f7313d0 <PhotoshopPSB>)
+
+	* tests/panoAutomatePSDtest.pl, tests/simpleTiff2psd/CMakeLists.txt,
+	tests/simpleTiff2psd/reference/simpleStitch_crop_1_layer.psd,
+	tests/simpleTiff2psd/reference/simpleStitch_crop_2_layer.psd,
+	tests/simpleTiff2psd/reference/simpleStitch_uncrop_1_layer.psd,
+	tests/simpleTiff2psd/reference/simpleStitch_uncrop_2_layer.psd,
+	tests/simpleTiff2psd/reference/simpleTiff16-16-_uncrop_1_layer.psd,
+	tests/simpleTiff2psd/reference/simpleTiff16-16-_uncrop_2_layer.psd,
+	tests/simpleTiff2psd/tests/simpleStitch_crop_1_layer.psd,
+	tests/simpleTiff2psd/tests/simpleStitch_crop_2_layer.psd,
+	tests/simpleTiff2psd/tests/simpleStitch_uncrop_1_layer.psd,
+	tests/simpleTiff2psd/tests/simpleStitch_uncrop_2_layer.psd,
+	tests/simpleTiff2psd/tests/simpleTiff16-16-_uncrop_1_layer.psd,
+	tests/simpleTiff2psd/tests/simpleTiff16-16-_uncrop_2_layer.psd: new
+	file.
+	* tests/tiff2psdSimple/reference/crop.psb,
+	tests/tiff2psdSimple/reference/crop.psd,
+	tests/tiff2psdSimple/reference/uncrop.psb,
+	tests/tiff2psdSimple/reference/uncrop.psd: deleted file.
+	* .hgignore, ChangeLog, file.c, tests/CMakeLists.txt,
+	tests/panoAutomatePSDtest.pl, tests/simpleTiff2psd/CMakeLists.txt,
+	tests/simpleTiff2psd/reference/simpleStitch_crop_1_layer.psd,
+	tests/simpleTiff2psd/reference/simpleStitch_crop_2_layer.psd,
+	tests/simpleTiff2psd/reference/simpleStitch_uncrop_1_layer.psd,
+	tests/simpleTiff2psd/reference/simpleStitch_uncrop_2_layer.psd,
+	tests/simpleTiff2psd/reference/simpleTiff16-16-_uncrop_1_layer.psd,
+	tests/simpleTiff2psd/reference/simpleTiff16-16-_uncrop_2_layer.psd,
+	tests/simpleTiff2psd/tests/simpleStitch_crop_1_layer.psd,
+	tests/simpleTiff2psd/tests/simpleStitch_crop_2_layer.psd,
+	tests/simpleTiff2psd/tests/simpleStitch_uncrop_1_layer.psd,
+	tests/simpleTiff2psd/tests/simpleStitch_uncrop_2_layer.psd,
+	tests/simpleTiff2psd/tests/simpleTiff16-16-_uncrop_1_layer.psd,
+	tests/simpleTiff2psd/tests/simpleTiff16-16-_uncrop_2_layer.psd,
+	tests/tiff2psdSimple/reference/crop.psb,
+	tests/tiff2psdSimple/reference/crop.psd,
+	tests/tiff2psdSimple/reference/uncrop.psb,
+	tests/tiff2psdSimple/reference/uncrop.psd:
+	Added test cases for PTtiff2psd
+
+2011-03-03 16:36 -0800  dmg  <dmg@uvic.ca>  (d61239410f3d <PhotoshopPSB>)
+
+	* sys_compat.h: new file.
+	* sys_compat.h:
+	I forgot to add sys_compat.h
+
+2011-03-03 16:30 -0800  dmg  <dmg@uvic.ca>  (0ed11c91c143 <PhotoshopPSB>)
+
+	* CMakeLists.txt, ChangeLog, file.c, sys_ansi.c, sys_win.c:
+	Refactored system dependent code
+
+2011-03-03 14:54 -0400  Jim Watters  <Jim Watters>  (a2fdc9b8616d <PhotoshopPSB>)
+
+	* file.c:
+	Fix timezone in PSDPICTResource
+
+	%z and %Z in strftime produces a alpha string need a numeric string.
+	Fix some sign unsign warnings
+
 2011-03-03 01:30 -0800  dmg  <dmg@uvic.ca>  (61011fb1ba7b)
 
 	* CMakeLists.txt, ChangeLog, Makefile.am:
 	cherry picked 721 from PhotoshopPSB to default
+
+2011-03-03 01:24 -0800  dmg  <dmg@uvic.ca>  (e881eb9a4ba0 <PhotoshopPSB>)
+
+	* CMakeLists.txt, ChangeLog, Makefile.am:
+	Added TAGS file creation, undid removal of hugin-related paths.
+
+2011-03-03 00:44 -0800  dmg  <dmg@uvic.ca>  (5ce79b438819 <PhotoshopPSB>)
+
+	* file.c:
+	Ported code to write name of writing program
+
+2011-03-03 00:21 -0800  dmg  <dmg@uvic.ca>  (d284d6621bff <PhotoshopPSB>)
+
+	* tests/tiff2psdSimple/reference/crop.psb,
+	tests/tiff2psdSimple/reference/crop.psd,
+	tests/tiff2psdSimple/reference/uncrop.psb,
+	tests/tiff2psdSimple/reference/uncrop.psd: new file.
+	* tests/tiff2psdSimple/crop.psb, tests/tiff2psdSimple/crop.psd,
+	tests/tiff2psdSimple/uncrop.psb, tests/tiff2psdSimple/uncrop.psd:
+	deleted file.
+	* tests/tiff2psdSimple/crop.psb, tests/tiff2psdSimple/crop.psd,
+	tests/tiff2psdSimple/reference/crop.psb,
+	tests/tiff2psdSimple/reference/crop.psd,
+	tests/tiff2psdSimple/reference/uncrop.psb,
+	tests/tiff2psdSimple/reference/uncrop.psd,
+	tests/tiff2psdSimple/uncrop.psb, tests/tiff2psdSimple/uncrop.psd:
+	moved test files for PSD
+
+2011-03-03 00:15 -0800  dmg  <dmg@uvic.ca>  (8fbc76a7f4b9 <PhotoshopPSB>)
+
+	* .hgignore, ChangeLog, PTcommon.c, PTcommon.h, ZComb.c, adjust.c,
+	correct.c, file.c, filter.c, filter.h, png.c, resample.c, tiff.c:
+	removed unnecessary and duplicated data types
 
 2011-03-02 23:12 -0800  dmg  <dmg@uvic.ca>  (0a87dbc64f24)
 
@@ -93,10 +469,156 @@
 
 	* Renamed libpano to default
 
+2011-03-02 18:59 -0400  Jim Watters  <Jim Watters>  (daf735d8ec66 <PhotoshopPSB>)
+
+	* file.c:
+	correct some Linux errors and warnings.
+
+2011-03-02 15:22 -0400  Jim Watters  <Jim Watters>  (7dea16af1053 <PhotoshopPSB>)
+
+	* file.c:
+	Clean up, untabulate, and beautify code
+
+2011-03-02 00:17 -0400  Jim Watters  <Jim Watters>  (755c1fbd4838 <PhotoshopPSB>)
+
+	* PTcommon.h, file.c, tools/PTtiff2psd.c:
+	Add panoCreateLayeredPSD
+
+	Create a PSD file from a bunch of tiffs in one go without inserting
+	each layer one at a time.
+
+2011-02-25 22:38 -0400  Jim Watters  <Jim Watters>  (19c2bd9d5040 <PhotoshopPSB>)
+
+	* file.c:
+	Simplify the calculation of layer length
+
+2011-02-25 21:56 -0400  Jim Watters  <Jim Watters>  (15df50fc3f7a <PhotoshopPSB>)
+
+	* PTcommon.c:
+	O(n2)
+
+2011-02-24 16:34 -0400  Jim Watters  <Jim Watters>  (28033bba0b8f <PhotoshopPSB>)
+
+	* PTcommon.c:
+	By default PANO_TEST_INVERSE should be commented out
+
+2011-02-24 16:25 -0400  Jim Watters  <Jim Watters>  (6545685cd438 <PhotoshopPSB>)
+
+	* PTcommon.c:
+	untablify and beautify code
+
+2011-02-24 14:41 -0400  Jim Watters  <Jim Watters>  (1c9ce5934fb1 <PhotoshopPSB>)
+
+	* tests/tiff2psdTest.bat: new file.
+	* tests/tiff2psdSimple/crop.psb, tests/tiff2psdSimple/crop.psd,
+	tests/tiff2psdSimple/uncrop.psb, tests/tiff2psdSimple/uncrop.psd,
+	tests/tiff2psdTest.bat:
+	Update test images with new PICT record for PTtiff2PSD
+
+2011-02-23 22:45 -0400  Jim Watters  <Jim Watters>  (1a989de7c490 <PhotoshopPSB>)
+
+	* file.c:
+	Merge
+
+2011-02-23 17:56 -0400  Jim Watters  <Jim Watters>  (00a141ab7ffb <PhotoshopPSB>)
+
+	* file.c:
+	Update PICT Resource
+
+	Added more info to the PICT resource
+
+2011-02-23 14:25 -0400  Jim Watters  <Jim Watters>  (3d46baa67f1e <PhotoshopPSB>)
+
+	* file.c:
+	Fix PICT Resource
+
+	PICT now displays correctly with Photoshop and Exiftool
+
+2011-02-19 23:41 -0400  Jim Watters  <Jim Watters>  (5d9db2abdb38 <PhotoshopPSB>)
+
+	* file.c, filter.c, filter.h:
+	Update panoWritexxx functions to return bool
+
+	use change in location of write to get length of section.
+
 2011-02-20 13:25 -0800  dmg  <dmg@uvic.ca>  (774168101e71 <libpano>)
 
 	* ChangeLog, sys_ansi.c, tools/panoinfo_unix.c:
 	removed compiler warnings. Patch submited by Guillaume Rousse.
+
+2011-02-19 23:53 -0800  dmg  <dmg@uvic.ca>  (61f66c836feb <PhotoshopPSB>)
+
+	* ChangeLog, file.c:
+	Fixed a small error that stopped compilation under Linux.
+
+2011-02-19 16:05 -0400  Jim Watters  <Jim Watters>  (b1595e6c58fc <PhotoshopPSB>)
+
+	* tests/tiff2psdSimple/crop.psb, tests/tiff2psdSimple/uncrop.psb: new
+	file.
+	* tests/tiff2psdSimple/crop.psb, tests/tiff2psdSimple/uncrop.psb:
+	Add reference PSB files for testing PTtiff2PSD
+
+2011-02-19 15:54 -0400  Jim Watters  <Jim Watters>  (bf73d5f0e9fa <PhotoshopPSB>)
+
+	* tests/tiff2psdSimple/crop.psd, tests/tiff2psdSimple/uncrop.psd: new
+	file.
+	* tests/tiff2psdSimple/crop.psd, tests/tiff2psdSimple/uncrop.psd:
+	Add reference PSD files for testing PTtiff2PSD
+
+2011-02-19 15:40 -0400  Jim Watters  <Jim Watters>  (080786b030d4 <PhotoshopPSB>)
+
+	* file.c:
+	opps panoReadxxxx returns bool not length
+
+2011-02-17 18:31 -0400  Jim Watters  <Jim Watters>  (6742691b9336 <PhotoshopPSB>)
+
+	* file.c, filter.c, filter.h:
+	switch from READ and WRITE macros to functions.
+
+	switch from READ and WRITE macros to functions. Simplified code by
+	adding functions panoReadINT32or64 and panoWriteINT32or64 for read
+	and write 4 or 8 byte varibles for the use of PSD or PSB.
+
+2011-02-14 23:22 -0400  Jim Watters  <Jim Watters>  (cb926d40214e <PhotoshopPSB>)
+
+	* filter.c, filter.h:
+	Add functions panoWriteINT32or64 and panoReadINT32or64
+
+2011-02-14 23:04 -0400  Jim Watters  <Jim Watters>  (9e9d800230f9 <PhotoshopPSB>)
+
+	* .hgignore:
+	Add .ipch to ignor list
+
+2011-02-14 23:02 -0400  Jim Watters  <Jim Watters>  (a7bcbe2d5c2d <PhotoshopPSB>)
+
+	* filter.c, filter.h:
+	update panowrite functions to return count
+
+2011-02-14 22:06 -0400  Jim Watters  <Jim Watters>  (46f909a2a815 <PhotoshopPSB>)
+
+	* file.c:
+	remove cast
+
+2011-02-14 21:06 -0400  Jim Watters  <Jim Watters>  (704614dd55ae <PhotoshopPSB>)
+
+	* PTcommon.c, file.c, filter.c, filter.h, pano13vc.def,
+	tools/PTtiff2psd.c:
+	New versions of files that now should end with LF only
+
+2011-02-14 20:43 -0400  Jim Watters  <Jim Watters>  (9c9ced6c091f <PhotoshopPSB>)
+
+	* .hgeol: new file.
+	* .hgeol:
+	Windows users should use the EOL extension
+
+	Windows users need EOL to control how End of Line characters are
+	translated to and from repository.
+
+2011-02-14 20:43 -0400  Jim Watters  <Jim Watters>  (2a01f904d1c3 <PhotoshopPSB>)
+
+	* .hgignore: new file.
+	* .hgignore:
+	Add a list of files to ignor when doing commit
 
 2011-02-14 20:01 -0400  Jim Watters  <jwatters@photocreations.ca>  (364327cfaf40 <libpano>)
 
@@ -112,6 +634,77 @@
 
 	Windows users need EOL to control how End of Line characters are
 	translated to and from repository.
+
+2011-02-13 01:32 -0400  Jim Watters  <Jim Watters>  (9b9b3887cddf <PhotoshopPSB>)
+
+	* file.c:
+	Use 8byte sizes all the time.
+
+2011-02-13 01:31 -0400  Jim Watters  <Jim Watters>  (879cca2dae52 <PhotoshopPSB>)
+
+	* tools/PTAInterpolate.vcxproj, tools/PTOptimizer.vcxproj,
+	tools/PTblender.vcxproj, tools/PTcrop.vcxproj, tools/PTinfo.vcxproj,
+	tools/PTmasker.vcxproj, tools/PTmender.vcxproj,
+	tools/PTroller.vcxproj, tools/PTtiff2psd.vcxproj,
+	tools/PTtiffdump.vcxproj, tools/PTuncrop.vcxproj:
+	Update Location of 64bit libs
+
+2011-02-12 21:41 -0400  Jim Watters  <Jim Watters>  (127413a4755c <PhotoshopPSB>)
+
+	* tools/PTAInterpolate.vcxproj, tools/PTOptimizer.vcxproj,
+	tools/PTblender.vcxproj, tools/PTcrop.vcxproj, tools/PTinfo.vcxproj,
+	tools/PTmasker.vcxproj, tools/PTmender.vcxproj,
+	tools/PTroller.vcxproj, tools/PTtiff2psd.vcxproj,
+	tools/PTtiffdump.vcxproj, tools/PTuncrop.vcxproj:
+	Add Local definitions LocalDefs to 64bit projects
+
+2011-02-12 21:23 -0400  Jim Watters  <Jim Watters>  (d9bf0412f5f1 <PhotoshopPSB>)
+
+	* PTcommon.c, file.c, file.h, filter.h, tiff.c:
+	update PSD functins to write PSB format too
+
+2011-02-12 21:22 -0400  Jim Watters  <Jim Watters>  (b22ddb573e0b <PhotoshopPSB>)
+
+	* tools/PTAInterpolate.vcxproj, tools/PTOptimizer.vcxproj,
+	tools/PTblender.vcxproj, tools/PTcrop.vcxproj, tools/PTinfo.vcxproj,
+	tools/PTmasker.vcxproj, tools/PTmender.vcxproj,
+	tools/PTroller.vcxproj, tools/PTtiff2psd.c,
+	tools/PTtiff2psd.vcxproj, tools/PTtiffdump.vcxproj,
+	tools/PTuncrop.vcxproj:
+	Make projects multicore friendly by using differnt folders for temp
+	files that may conflict.
+
+2011-02-10 16:49 -0400  Jim Watters  <Jim Watters>  (52cf096d848b <PhotoshopPSB>)
+
+	* LocalDefs.props: new file.
+	* LocalDefs.props:
+	Update to VS 2010
+
+2011-02-10 16:49 -0400  Jim Watters  <Jim Watters>  (c2996d3c00aa <PhotoshopPSB>)
+
+	* libpano.vcxproj, tools/PTAInterpolate.vcxproj,
+	tools/PTOptimizer.vcxproj, tools/PTblender.vcxproj,
+	tools/PTcrop.vcxproj, tools/PTinfo.vcxproj, tools/PTmasker.vcxproj,
+	tools/PTmender.vcxproj, tools/PTroller.vcxproj,
+	tools/PTtiff2psd.vcxproj, tools/PTtiffdump.vcxproj,
+	tools/PTuncrop.vcxproj: new file.
+	* libpano.sln, libpano.vcxproj, tools/PTAInterpolate.vcxproj,
+	tools/PTOptimizer.vcxproj, tools/PTblender.vcxproj,
+	tools/PTcrop.vcxproj, tools/PTinfo.vcxproj, tools/PTmasker.vcxproj,
+	tools/PTmender.vcxproj, tools/PTroller.vcxproj,
+	tools/PTtiff2psd.vcxproj, tools/PTtiffdump.vcxproj,
+	tools/PTuncrop.vcxproj:
+	Update to VS 2010
+
+2011-02-10 16:46 -0400  Jim Watters  <Jim Watters>  (611e65b1791f <PhotoshopPSB>)
+
+	* PTcommon.c, file.c, file.h, filter.c, filter.h, pano13vc.def,
+	tools/PTtiff2psd.c:
+	First sweep of the Photoshop PSD code at add PSB.
+
+	Enable PSD functions to be also capable of PSB read and write.
+	Builds with a couple resize warnings that need to be corrected.
+	Completely untested.
 
 2011-02-09 22:59 +0000  Bruno Postle  <bruno@postle.net>  (c9df9403f9b7 <libpano>)
 
