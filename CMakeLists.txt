@@ -86,6 +86,11 @@ IF(WIN32)
   ENDIF(BUILD_WINGUI)
   SET(sys_compat_c "sys_compat_win.c")
 ELSE(WIN32)
+  ##
+  ## Cleaner Debian Packaging (enable by -DDISABLE_DPKG=OFF)
+  ##
+  OPTION (DISABLE_DPKG "Do not use debian scripts to get package dependences" ON)
+
   SET(sys_c "sys_ansi.c")
   SET(sys_h "sys_ansi.h")
   SET(sys_compat_c "sys_compat_unix.c")
@@ -406,9 +411,36 @@ endif()
 
 set(CPACK_SOURCE_PACKAGE_FILE_NAME "libpano13-${PANO_MAJOR_VERSION}.${PANO_MINOR_VERSION}.${CPACK_PACKAGE_VERSION_PATCH}")
 
-# Use dpkg-shlibdeps to get the needed dependences
-SET(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
 
+if(CPACK_BINARY_DEB)
+  # Use dpkg-shlibdeps to get the needed dependences
+  if (NOT DISABLE_DPKG)
+    # Use dpkg-shlibdeps to get the needed dependences
+    SET(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
+
+    # the following part copied from http://www.cmake.org/Wiki/CMake_RPATH_handling
+    # use, i.e. don't skip the full RPATH for the build tree
+    SET(CMAKE_SKIP_BUILD_RPATH  FALSE)
+
+    # when building, don't use the install RPATH already
+    # (but later on when installing)
+    SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
+
+    SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+    SET(CPACK_DEBIAN_PACKAGE_DEBUG ON)
+
+    # add the automatically determined parts of the RPATH
+    # which point to directories outside the build tree to the install RPATH
+    SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
+    #this environment will be used by dpkg-shlibdebs to find local created libs
+    string(REGEX REPLACE "^/(.*)" "\\1" LDLIBPATH "${CMAKE_INSTALL_RPATH}")
+
+    set(CPACK_PROJECT_CONFIG_FILE "${CMAKE_BINARY_DIR}/CPackEnv.cmake")
+    FILE(WRITE "${CPACK_PROJECT_CONFIG_FILE}" "set(ENV{LD_LIBRARY_PATH} \"${LDLIBPATH}\")")
+  endif()
+  set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${CMAKE_CURRENT_SOURCE_DIR}/Debian/postinst")
+endif()
 
 include(CPack)
 
