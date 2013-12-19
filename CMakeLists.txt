@@ -402,7 +402,11 @@ IF(EXISTS ${PROJECT_SOURCE_DIR}/.hg)
     STRING(REGEX REPLACE "\n" ";" LIBPANO_TIP_LINES ${LIBPANO_TIP_OUT})
     foreach(_v_l ${LIBPANO_TIP_LINES})
       if(_v_l MATCHES ".*:[ ]+\([0-9]+\):[0-9a-f]+ tip$")
-        set(CPACK_PACKAGE_VERSION_PATCH "${PANO_PATCH_VERSION}-${CMAKE_MATCH_1}hg")
+
+# tld for Fedora rpm source package, try leaving out 
+#        set(CPACK_PACKAGE_VERSION_PATCH "${PANO_PATCH_VERSION}-${CMAKE_MATCH_1}")
+        set(CPACK_PACKAGE_VERSION_PATCH "${PANO_PATCH_VERSION}")
+
         break()
       endif()
     endforeach()
@@ -410,7 +414,6 @@ IF(EXISTS ${PROJECT_SOURCE_DIR}/.hg)
 endif()
 
 set(CPACK_SOURCE_PACKAGE_FILE_NAME "libpano13-${PANO_MAJOR_VERSION}.${PANO_MINOR_VERSION}.${CPACK_PACKAGE_VERSION_PATCH}")
-
 
 if(CPACK_BINARY_DEB)
   # Use dpkg-shlibdeps to get the needed dependences
