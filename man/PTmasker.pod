@@ -84,6 +84,7 @@ image.
 Computation cost for focus estimation increases proportional to N^2.
 Defaults to w4.
 
+=back
 
 =head1 AUTHORS
 
