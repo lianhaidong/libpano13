@@ -29,9 +29,15 @@
 ## may need to edit the wxWidgets version number below.
 ##
 
+# require at least cmake 2.8
+cmake_minimum_required(VERSION 2.8)
 
-# requires at least cmake 2.6, now
-cmake_minimum_required(VERSION 2.6)
+#
+# find dependencies
+#
+IF (UNIX)
+FIND_PACKAGE(PkgConfig)
+ENDIF (UNIX)
 
 ## Locate the hugin source root and its parent directory
 IF(HUGIN_BASE_DIR)
@@ -369,9 +375,7 @@ set(LIB_TIFF ${TIFF_LIBRARY})
 set(LIB_ZLIB ${ZLIB_LIBRARY})
 set(LIB_PNG ${PNG_LIBRARY})
 set(VERSION ${PACKAGE_VERSION})
-
 configure_file("${TOP_SRC_DIR}/libpano13.pc.in" "${CMAKE_BINARY_DIR}/libpano13.pc" @ONLY)
-
 install(FILES "${CMAKE_BINARY_DIR}/libpano13.pc" DESTINATION "lib/pkgconfig")
 
 set(CPACK_PACKAGE_VERSION_MAJOR "${PANO_MAJOR_VERSION}")
@@ -402,18 +406,14 @@ IF(EXISTS ${PROJECT_SOURCE_DIR}/.hg)
     STRING(REGEX REPLACE "\n" ";" LIBPANO_TIP_LINES ${LIBPANO_TIP_OUT})
     foreach(_v_l ${LIBPANO_TIP_LINES})
       if(_v_l MATCHES ".*:[ ]+\([0-9]+\):[0-9a-f]+ tip$")
-
-# tld for Fedora rpm source package, try leaving out 
-#        set(CPACK_PACKAGE_VERSION_PATCH "${PANO_PATCH_VERSION}-${CMAKE_MATCH_1}")
-        set(CPACK_PACKAGE_VERSION_PATCH "${PANO_PATCH_VERSION}")
-
+        set(CPACK_PACKAGE_VERSION_PATCH "${PANO_PATCH_VERSION}-${CMAKE_MATCH_1}")
         break()
       endif()
     endforeach()
   endif()
 endif()
 
-set(CPACK_SOURCE_PACKAGE_FILE_NAME "libpano13-${PANO_MAJOR_VERSION}.${PANO_MINOR_VERSION}.${CPACK_PACKAGE_VERSION_PATCH}")
+set(CPACK_SOURCE_PACKAGE_FILE_NAME "libpano13-${PANO_MAJOR_VERSION}.${PANO_MINOR_VERSION}.${PANO_PATCH_VERSION}")
 
 if(CPACK_BINARY_DEB)
   # Use dpkg-shlibdeps to get the needed dependences
