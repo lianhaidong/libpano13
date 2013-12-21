@@ -106,7 +106,7 @@ int main(int argc,char *argv[])
 	    int j;
 	    pano_projection_features features;
 	    if (!panoProjectionFeaturesQuery(i, &features) ) {
-		printf("Error trying to retreive features of projection index %d\n", i);
+		printf("Error trying to retrieve features of projection index %d\n", i);
 		continue;
 	    } 
 	    printf("Projection index: %d name: %s\n", features.projection, features.name);
