@@ -68,7 +68,7 @@ static int panoExternalToInternalInputProjection(int32_t input);
                                                 PrintError(                         \
                                                 "Syntax error in script: Line %d\nCould not assign variable [%s]",\
                                                 lineNum, str);         \
-                                                return -1;                          \
+                                                goto fail;                          \
                                             }                                       \
 
 #define READ_VAR(format, ptr )      nextWord( buf, &li );           \
@@ -83,29 +83,18 @@ static int panoExternalToInternalInputProjection(int32_t input);
                                 if( k<0 || k>= numIm )          \
                                 {                               \
                                     PrintError("Syntax error in script: Line %d\n\nIllegal image number: %ld", lineNum, k);\
-                                    return -1;                  \
+                                    goto fail;                  \
                                 }                               \
                                 if( gl->opt[k].var )            \
                                 {                               \
                                     PrintError("Conflict in script: Line %d. Multiple Instances of Variable %s Image number: %d (%d)", lineNum, #var, k, gl->opt[k].var); \
-                                    return -1;                  \
+                                    goto fail;                  \
                                 }                               \
                                 gl->opt[k].var   = 1;           \
                                 n++;                            \
                                             
 //Increased so more params can be parsed/optimized (MRDL - March 2002)
 #define LINE_LENGTH         65536
-
-                                            
-/* 
-void panoLocaleSave(void)
-{
-    char *p;
-    p=setlocale(LC_ALL, NULL);
-    oldLocale=strdup(p);
-    setlocale(LC_ALL, "C");
-}
-*/
 
 #define panoLocaleSave    char *oldLocale;oldLocale=strdup(setlocale(LC_ALL, NULL));setlocale(LC_ALL, "C")
 
@@ -379,16 +368,16 @@ int ParseScript( char* script, AlignInfo *gl )
                                     // it is an actual value to optimize, not a reference... check it
                                     if (im->cP.tilt_scale == 0) {
                                         PrintError("TiS parameter can't be zero. Error in script: Line %d", lineNum);
-                                        return -1;
+                                        goto fail;
                                     }
                                 }
                                 break;
                             default:
                                 PrintError("Unkonwn parameter Ti%c in script: Line %d", *li, lineNum);
-                                return -1;
+                                goto fail;
                             }
 
-                            if (li == NULL) return -1;
+                            if (li == NULL) goto fail;
                             im->cP.tilt    = TRUE;
 
                             break;
@@ -406,9 +395,9 @@ int ParseScript( char* script, AlignInfo *gl )
                                 break;
                             default:
                                 PrintError("Unknown translation parameter Tr%c in script: Line %d", *li, lineNum);
-                                return -1;
+                                goto fail;
                             }
-                            if (li == NULL) return -1;
+                            if (li == NULL) goto fail;
                             // Make sure that we only apply trans when these parameters are not zero
                             // Otherwise images are not rendered beyond 180 degrees FOV
                             if (im->cP.trans_x != 0.0 || 
@@ -428,9 +417,9 @@ int ParseScript( char* script, AlignInfo *gl )
                                 break;
                             default:
                                 PrintError("Unknown translation parameter Tp%c in script: Line %d", *li, lineNum);
-                                return -1;
+                                goto fail;
                             }
-                            if (li == NULL) return -1;
+                            if (li == NULL) goto fail;
                             break;
                         case 'e': // test parameters
                             li++;
@@ -449,14 +438,14 @@ int ParseScript( char* script, AlignInfo *gl )
                                 break;
                             default:
                                 PrintError("Unknown Test parameter Te%c in script: Line %d", *li, lineNum);
-                                return -1;
+                                goto fail;
                             }
-                            if (li == NULL) return -1;
+                            if (li == NULL) goto fail;
                             im->cP.test    = TRUE;
                             break;
                         default:
                             PrintError("Unkonwn parameter T%c in script: Line %d", *li, lineNum);
-                            return -1;
+                            goto fail;
                         }
                         break;
                     case 'n':           // Set filename
@@ -603,7 +592,7 @@ int ParseScript( char* script, AlignInfo *gl )
                                     break;
                                 default:
                                     PrintError("Unknown variable name variable to optimize Ti%c in script: Line %d", *li, lineNum);
-                                    return -1;
+                                    goto fail;
                                 }
                                 break;
                             case 'r':
@@ -620,7 +609,7 @@ int ParseScript( char* script, AlignInfo *gl )
                                     break;
                                 default:
                                     PrintError("Unknown variable name to optimize Tr%c in script: Line %d", *li, lineNum);
-                                    return -1;
+                                    goto fail;
                                 }
                                 break;
                             case 'p':
@@ -634,7 +623,7 @@ int ParseScript( char* script, AlignInfo *gl )
                                     break;
                                 default:
                                     PrintError("Unknown variable name to optimize Tp%c in script: Line %d", *li, lineNum);
-                                    return -1;
+                                    goto fail;
                                 }
                                 break;
                             case 'e':
@@ -654,12 +643,12 @@ int ParseScript( char* script, AlignInfo *gl )
                                     break;
                                 default:
                                     PrintError("Unknown variable name to optimize Te%c in script: Line %d", *li, lineNum);
-                                    return -1;
+                                    goto fail;
                                 }
                                 break;
                             default:
                                 PrintError("Unkonwn parameter T%c in script: Line %d", *li, lineNum);
-                                return -1;
+                                goto fail;
                             }                                
 
                             break;
@@ -1525,6 +1514,7 @@ void readControlPoints(char* script, controlPoint *cp )
                 if( ReadControlPoint( &defCn, &(line[1]) ) != 0 )
                 {
                     PrintError("Error in line %d", lineNum);
+                    panoLocaleRestore;
                     return;
                 }
                 if( defCn.num[1] == -1 )    // We found a partial controlpoint
@@ -2105,8 +2095,6 @@ static int ReadModeDescription( sPrefs *sP, char *line )
     double sigma = 0;
     int n;
 
-    panoLocaleSave;
-
     memcpy( &theSprefs,     sP,  sizeof(sPrefs) );
 
     // set some default values
@@ -2118,7 +2106,7 @@ static int ReadModeDescription( sPrefs *sP, char *line )
         {
             case 'g':   READ_VAR( "%lf", &theSprefs.gamma );
                         if( theSprefs.gamma <= 0.0 )
-                            goto fail;
+                            return -1;
                         break;
             case 'i':   READ_VAR( "%d", &theSprefs.interpolator );
                         if( theSprefs.interpolator < 0 ||  theSprefs.interpolator > 23)
@@ -2147,12 +2135,7 @@ static int ReadModeDescription( sPrefs *sP, char *line )
     // appears ok
     
     memcpy( sP,  &theSprefs,    sizeof(sPrefs) );
-    panoLocaleRestore;
     return 0;
-
- fail:
-    panoLocaleRestore;
-    return -1;
 
 }
 
