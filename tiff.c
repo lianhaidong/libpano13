@@ -1911,6 +1911,7 @@ int panoTiffCrop(char *inputFile, char *outputFile, pano_cropping_parms *croppin
     int i;
     fullPath tempFile;
 
+    strcpy(tempFile.name, "");
     // Let us do the processing in a different file
     if (panoFileMakeTemp(&tempFile) == 0) {
 	PrintError("Could not make Tempfile");
