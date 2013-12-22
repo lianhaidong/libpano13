@@ -15,20 +15,28 @@ endif()
 
 # panoinfo needs windows.h
 
+set(extra_commands)
+macro(make_command exe_name source_name)
+  list(APPEND extra_commands ${exe_name})
+  add_executable(${exe_name} ${source_name})
+  target_link_libraries(${exe_name} ${_pano_target} ${_common_libs})
+  install(TARGETS ${exe_name} DESTINATION bin CONFIGURATIONS Release RelWithDebInfo MinSizeRel)
+endmacro()
+
 if(WIN32)
   list(APPEND commands panoinfo)
   IF(BUILD_DLL)
     add_library(getopt STATIC compat_win32/getopt.c compat_win32/getopt.h)
     list(APPEND _common_libs getopt)
   ENDIF(BUILD_DLL)
+else()
+  make_command(panoinfo panoinfo_unix.c)
 endif()
 
 include_directories(${TOP_SRC_DIR})
 
 foreach(_cmd ${commands})
-  add_executable(${_cmd} ${_cmd}.c)
-  target_link_libraries(${_cmd} ${_pano_target} ${_common_libs})
-  install(TARGETS ${_cmd} DESTINATION bin CONFIGURATIONS Release RelWithDebInfo MinSizeRel)
+  make_command(${_cmd} ${_cmd}.c)
 endforeach(_cmd)
 
-add_custom_target(tools DEPENDS ${commands})
+add_custom_target(tools DEPENDS ${extra_commands})
