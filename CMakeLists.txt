@@ -35,9 +35,13 @@ cmake_minimum_required(VERSION 2.8)
 #
 # find dependencies
 #
-IF (UNIX)
-FIND_PACKAGE(PkgConfig)
-ENDIF (UNIX)
+IF(UNIX)
+	FIND_PACKAGE(PkgConfig)
+	FIND_PACKAGE(Java)
+	if(${JAVA_FOUND})
+		set(HAVE_JAVA TRUE)
+	endif()
+ENDIF(UNIX)
 
 ## Locate the hugin source root and its parent directory
 IF(HUGIN_BASE_DIR)
@@ -264,17 +268,31 @@ set(pano13_src
 # We have some header files at top source level now
 include_directories(${CMAKE_SOURCE_DIR})
 
+# TLD decide if we are 32 or 64 bit unix
+IF(UNIX)
+	EXECUTE_PROCESS( COMMAND uname -m COMMAND tr -d '\n' OUTPUT_VARIABLE ARCHITECTURE )
+	message( STATUS "Architecture: ${ARCHITECTURE}" )
+	if( ${ARCHITECTURE} STREQUAL "64Bit" OR  ${ARCHITECTURE} STREQUAL "x86_64")
+		set(LIBDIR "${CMAKE_INSTALL_PREFIX}/lib64")
+	else()
+		set(LIBDIR "${CMAKE_INSTALL_PREFIX}/lib" )
+	endif()
+ENDIF(UNIX)
+# end TLD 32 or 64
+
 if(NOT WIN32)
   # Create and install shared library on non-windows
   add_library(pano13 SHARED ${pano13_hdr} ${pano13_res} ${pano13_src})
   target_link_libraries(pano13 ${_common_libs})
   set_target_properties(pano13 PROPERTIES VERSION "3.0.0" SOVERSION "3")
-  install(TARGETS pano13 LIBRARY DESTINATION lib)
+#  install(TARGETS pano13 LIBRARY DESTINATION lib)
+  install(TARGETS pano13 LIBRARY DESTINATION ${LIBDIR})
   set(_pano_target pano13)
   #create and install static library
   add_library(pano13a STATIC ${pano13_hdr} ${pano13_res} ${pano13_src})
   set_target_properties(pano13a PROPERTIES OUTPUT_NAME pano13)
-  install(TARGETS pano13a ARCHIVE DESTINATION lib)
+#  install(TARGETS pano13a ARCHIVE DESTINATION lib)
+  install(TARGETS pano13a ARCHIVE DESTINATION ${LIBDIR})
 else()
   IF(BUILD_DLL)
     # Create and install shared library
@@ -368,7 +386,6 @@ ADD_CUSTOM_TARGET( TAGS DEPENDS ctags)
 # set some variables which are used in libpano13.pc.in
 set(prefix ${CMAKE_INSTALL_PREFIX})
 set(exec_prefix ${CMAKE_INSTALL_PREFIX})
-set(libdir ${CMAKE_INSTALL_PREFIX}/lib)
 set(includedir ${CMAKE_INSTALL_PREFIX}/include)
 set(LIB_JPEG ${JPEG_LIBRARY})
 set(LIB_TIFF ${TIFF_LIBRARY})
@@ -376,7 +393,7 @@ set(LIB_ZLIB ${ZLIB_LIBRARY})
 set(LIB_PNG ${PNG_LIBRARY})
 set(VERSION ${PACKAGE_VERSION})
 configure_file("${TOP_SRC_DIR}/libpano13.pc.in" "${CMAKE_BINARY_DIR}/libpano13.pc" @ONLY)
-install(FILES "${CMAKE_BINARY_DIR}/libpano13.pc" DESTINATION "lib/pkgconfig")
+install(FILES "${CMAKE_BINARY_DIR}/libpano13.pc" DESTINATION "${LIBDIR}/pkgconfig")
 
 set(CPACK_PACKAGE_VERSION_MAJOR "${PANO_MAJOR_VERSION}")
 set(CPACK_PACKAGE_VERSION_MINOR "${PANO_MINOR_VERSION}")
@@ -444,6 +461,7 @@ if(CPACK_BINARY_DEB)
   endif()
   set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${CMAKE_CURRENT_SOURCE_DIR}/Debian/postinst")
 endif()
+
 
 include(CPack)
 
