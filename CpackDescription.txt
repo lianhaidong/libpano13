@@ -1,0 +1,5 @@
+Helmut Dersch's Panorama Tools library.  Provides very high quality
+manipulation, correction and stitching of panoramic photographs.
+
+Due to patent restrictions, this library has a maximum fisheye field-of-view
+restriction of 179 degrees to prevent stitching of hemispherical photographs.

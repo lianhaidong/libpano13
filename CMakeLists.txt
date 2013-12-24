@@ -11,9 +11,8 @@
 ##    
 ## Builds libpano13 and selected panotools, by default without 
 ## support for the Java programs ptpicker and pteditor.  You
-## can define HAVE_JAVA on the CMake command line; the Java
-## header jni.h and its dependencies must then be in your
-## include search path(this script does not find them).
+## can define SUPPORT_JAVA_PROGRAMS on the CMake command line; the script
+## produces error if the Java header jni.h and its dependencies are not found.
 ##
 ## This script uses the Hugin CMake modules to find required
 ## image file format libraries, so it needs to know the name
@@ -36,7 +35,7 @@ cmake_minimum_required(VERSION 2.8)
 # find dependencies
 #
 IF (UNIX)
-FIND_PACKAGE(PkgConfig)
+  FIND_PACKAGE(PkgConfig)
 ENDIF (UNIX)
 
 ## Locate the hugin source root and its parent directory
@@ -95,13 +94,18 @@ ELSE(WIN32)
   ##
   ## Cleaner Debian Packaging (enable by -DDISABLE_DPKG=OFF)
   ##
-  OPTION (DISABLE_DPKG "Do not use debian scripts to get package dependences" ON)
 
   SET(sys_c "sys_ansi.c")
   SET(sys_h "sys_ansi.h")
   SET(sys_compat_c "sys_compat_unix.c")
 ENDIF(WIN32)
 
+OPTION(SUPPORT_JAVA_PROGRAMS "Set this to support for the Java programs ptpicker and pteditor" OFF)
+if(SUPPORT_JAVA_PROGRAMS)
+  find_package(Java REQUIRED)
+  find_package(JNI REQUIRED)
+  include_directories(${JAVA_INCLUDE_PATH} ${JAVA_INCLUDE_PATH2})
+endif()
 
 ##
 ## Graphics libraries
@@ -182,12 +186,12 @@ ENDIF(UNIX)
 ##
 ## Here is the part that builds libpano
 ##
-if(HAVE_JAVA)
+if(SUPPORT_JAVA_PROGRAMS)
   set(java_h pteditor.h ptutils.h)
   set(java_c ptpicker.c pteditor.c)
 else()
   set(java_c javastub.c)
-endif(HAVE_JAVA)
+endif(SUPPORT_JAVA_PROGRAMS)
 
 set(pano13_install_hdr
   panorama.h
@@ -269,12 +273,12 @@ if(NOT WIN32)
   add_library(pano13 SHARED ${pano13_hdr} ${pano13_res} ${pano13_src})
   target_link_libraries(pano13 ${_common_libs})
   set_target_properties(pano13 PROPERTIES VERSION "3.0.0" SOVERSION "3")
-  install(TARGETS pano13 LIBRARY DESTINATION lib)
+  install(TARGETS pano13 LIBRARY DESTINATION lib COMPONENT libraries)
   set(_pano_target pano13)
   #create and install static library
   add_library(pano13a STATIC ${pano13_hdr} ${pano13_res} ${pano13_src})
   set_target_properties(pano13a PROPERTIES OUTPUT_NAME pano13)
-  install(TARGETS pano13a ARCHIVE DESTINATION lib)
+  install(TARGETS pano13a ARCHIVE DESTINATION lib COMPONENT libraries)
 else()
   IF(BUILD_DLL)
     # Create and install shared library
@@ -285,11 +289,11 @@ else()
     IF(MINGW)
       set_target_properties(pano13 PROPERTIES PREFIX "")
     ENDIF()
-    install(TARGETS pano13 RUNTIME DESTINATION bin ARCHIVE DESTINATION lib LIBRARY DESTINATION lib)
+    install(TARGETS pano13 RUNTIME DESTINATION bin ARCHIVE DESTINATION lib LIBRARY DESTINATION lib COMPONENT libraries)
   ELSE(BUILD_DLL)
     #create and install static library
     add_library(pano13 STATIC ${pano13_hdr} ${pano13_res} ${pano13_src})
-    install(TARGETS pano13 ARCHIVE DESTINATION lib)
+    install(TARGETS pano13 ARCHIVE DESTINATION lib COMPONENT libraries)
   ENDIF(BUILD_DLL)
   set(_pano_target pano13)
 endif()
@@ -306,7 +310,7 @@ IF( CMAKE_SIZEOF_VOID_P EQUAL 8 AND MSVC )
 	ENDIF()
 ENDIF()
 
-install(FILES ${pano13_install_hdr} DESTINATION "include/pano13")
+install(FILES ${pano13_install_hdr} DESTINATION "include/pano13" COMPONENT headers)
 
 # install documentation expected by hugin install script
 INSTALL(
@@ -315,6 +319,7 @@ INSTALL(
 	COPYING
 	README
   DESTINATION "include/pano13"
+  COMPONENT headers
         )
 INSTALL(
   FILES
@@ -323,6 +328,7 @@ INSTALL(
         doc/PTmender.readme
         doc/stitch.txt
   DESTINATION "include/pano13/doc"
+  COMPONENT doc
         )
 
 set(TOP_SRC_DIR ${CMAKE_SOURCE_DIR})
@@ -376,14 +382,14 @@ set(LIB_ZLIB ${ZLIB_LIBRARY})
 set(LIB_PNG ${PNG_LIBRARY})
 set(VERSION ${PACKAGE_VERSION})
 configure_file("${TOP_SRC_DIR}/libpano13.pc.in" "${CMAKE_BINARY_DIR}/libpano13.pc" @ONLY)
-install(FILES "${CMAKE_BINARY_DIR}/libpano13.pc" DESTINATION "lib/pkgconfig")
+install(FILES "${CMAKE_BINARY_DIR}/libpano13.pc" DESTINATION "lib/pkgconfig" COMPONENT libraries)
 
 set(CPACK_PACKAGE_VERSION_MAJOR "${PANO_MAJOR_VERSION}")
 set(CPACK_PACKAGE_VERSION_MINOR "${PANO_MINOR_VERSION}")
 set(CPACK_PACKAGE_VERSION_PATCH "${PANO_PATCH_VERSION}")
 
 # needed by rpm
-set(CPACK_SET_DESTDIR "ON")
+set(CPACK_SET_DESTDIR "OFF")
 
 # the next ones are needed by deb
 set(CPACK_PACKAGE_CONTACT "${PACKAGE_BUGREPORT}")
@@ -414,35 +420,47 @@ IF(EXISTS ${PROJECT_SOURCE_DIR}/.hg)
 endif()
 
 set(CPACK_SOURCE_PACKAGE_FILE_NAME "libpano13-${PANO_MAJOR_VERSION}.${PANO_MINOR_VERSION}.${PANO_PATCH_VERSION}")
+set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/CpackDescription.txt")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Library for manipulating panoramic images")
+set(CPACK_COMPONENTS_ALL_IN_ONE_PACKAGE 1)
+#set(CPACK_COMPONENTS_ALL libraries tools headers doc)
 
 if(CPACK_BINARY_DEB)
   # Use dpkg-shlibdeps to get the needed dependences
-  if (NOT DISABLE_DPKG)
-    # Use dpkg-shlibdeps to get the needed dependences
-    SET(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
+  # Use dpkg-shlibdeps to get the needed dependences
+  SET(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
 
-    # the following part copied from http://www.cmake.org/Wiki/CMake_RPATH_handling
-    # use, i.e. don't skip the full RPATH for the build tree
-    SET(CMAKE_SKIP_BUILD_RPATH  FALSE)
+  # the following part copied from http://www.cmake.org/Wiki/CMake_RPATH_handling
+  # use, i.e. don't skip the full RPATH for the build tree
+  SET(CMAKE_SKIP_BUILD_RPATH  FALSE)
 
-    # when building, don't use the install RPATH already
-    # (but later on when installing)
-    SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
+  # when building, don't use the install RPATH already
+  # (but later on when installing)
+  SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 
-    SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
-    SET(CPACK_DEBIAN_PACKAGE_DEBUG ON)
+  SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+  SET(CPACK_DEBIAN_PACKAGE_DEBUG ON)
 
-    # add the automatically determined parts of the RPATH
-    # which point to directories outside the build tree to the install RPATH
-    SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+  # add the automatically determined parts of the RPATH
+  # which point to directories outside the build tree to the install RPATH
+  SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
-    #this environment will be used by dpkg-shlibdebs to find local created libs
-    string(REGEX REPLACE "^/(.*)" "\\1" LDLIBPATH "${CMAKE_INSTALL_RPATH}")
+  #this environment will be used by dpkg-shlibdebs to find local created libs
+  string(REGEX REPLACE "^/(.*)" "\\1" LDLIBPATH "${CMAKE_INSTALL_RPATH}")
 
-    set(CPACK_PROJECT_CONFIG_FILE "${CMAKE_BINARY_DIR}/CPackEnv.cmake")
-    FILE(WRITE "${CPACK_PROJECT_CONFIG_FILE}" "set(ENV{LD_LIBRARY_PATH} \"${LDLIBPATH}\")")
-  endif()
+  set(CPACK_PROJECT_CONFIG_FILE "${CMAKE_BINARY_DIR}/CPackEnv.cmake")
+  FILE(WRITE "${CPACK_PROJECT_CONFIG_FILE}" "set(ENV{LD_LIBRARY_PATH} \"${LDLIBPATH}\")")
   set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${CMAKE_CURRENT_SOURCE_DIR}/Debian/postinst")
+endif()
+if(CPACK_BINARY_RPM)
+  set(CPACK_RPM_PACKAGE_DEBUG ON)
+  set(CPACK_RPM_COMPONENT_INSTALL ON)
+  set(CPACK_RPM_PACKAGE_LICENSE "GPLv2+")
+  set(CPACK_RPM_PACKAGE_RELEASE "${PANO_MAJOR_VERSION}.${PANO_MINOR_VERSION}.${PANO_PATCH_VERSION}")
+  set(CPACK_RPM_PACKAGE_GROUP "Development/Libraries")
+  set(CPACK_RPM_PACKAGE_OBSOLETES "libpano13-tools < 2.9.18")
+  #set(CPACK_RPM_POST_INSTALL_SCRIPT_FILE "${CMAKE_CURRENT_SOURCE_DIR}/rpm_postinst")
+  set(CPACK_RPM_PACKAGE_REQUIRES "libjpeg-devel, libtiff-devel, libpng-devel, zlib-devel, libgcj-devel")
 endif()
 
 include(CPack)
