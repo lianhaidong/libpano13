@@ -25,4 +25,4 @@ endforeach(_m)
 
 add_custom_target(man ALL DEPENDS ${_manuals})
 
-install(FILES ${_manuals} DESTINATION "share/man/man1")
+install(FILES ${_manuals} DESTINATION "share/man/man1" COMPONENT doc)
