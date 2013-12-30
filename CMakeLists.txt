@@ -46,6 +46,7 @@ ELSE(HUGIN_BASE_DIR)
   GET_FILENAME_COMPONENT(SOURCE_BASE_DIR ${CMAKE_SOURCE_DIR} PATH CACHE)
   set(CMAKE_MODULE_PATH ${SOURCE_BASE_DIR}/hugin/CMakeModules)
 ENDIF(HUGIN_BASE_DIR)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}")
 
 IF(WIN32)
   set(CMAKE_INSTALL_PREFIX "${SOURCE_BASE_DIR}/libpano13" CACHE PATH "Install prefix for libpano")
@@ -318,7 +319,7 @@ INSTALL(
 	AUTHORS
 	COPYING
 	README
-  DESTINATION "include/pano13"
+  DESTINATION "share/pano13/doc"
   COMPONENT headers
         )
 INSTALL(
@@ -327,7 +328,7 @@ INSTALL(
         doc/PTblender.readme
         doc/PTmender.readme
         doc/stitch.txt
-  DESTINATION "include/pano13/doc"
+  DESTINATION "share/pano13/doc"
   COMPONENT doc
         )
 
@@ -425,6 +426,17 @@ set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/CpackDescription
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Library for manipulating panoramic images")
 set(CPACK_COMPONENTS_ALL_IN_ONE_PACKAGE 1)
 #set(CPACK_COMPONENTS_ALL libraries tools headers doc)
+
+find_package(GnuTar QUIET)
+if(GnuTar_FOUND)
+  #message(STATUS "GnuTar_VERSION_STRING = ${GnuTar_VERSION_STRING}")
+  add_custom_target(dist
+    COMMAND ${GnuTar_EXECUTABLE} -c -C "${CMAKE_CURRENT_SOURCE_DIR}"
+      --file "${CPACK_SOURCE_PACKAGE_FILE_NAME}.tar"
+      --transform 's/^\\./${CPACK_SOURCE_PACKAGE_FILE_NAME}/'
+      --exclude-from "${CMAKE_CURRENT_SOURCE_DIR}/excludes" .
+    )
+endif()
 
 if(CPACK_BINARY_DEB)
   # Use dpkg-shlibdeps to get the needed dependences
