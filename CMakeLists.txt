@@ -434,6 +434,9 @@ if(GnuTar_FOUND)
     COMMAND ${GnuTar_EXECUTABLE} -c -C "${CMAKE_CURRENT_SOURCE_DIR}"
       --file "${CPACK_SOURCE_PACKAGE_FILE_NAME}.tar"
       --transform 's/^\\./${CPACK_SOURCE_PACKAGE_FILE_NAME}/'
+      --owner=root
+      --group=root
+      --numeric-owner
       --exclude-from "${CMAKE_CURRENT_SOURCE_DIR}/excludes" .
     )
 endif()

@@ -1,4 +1,6 @@
 BUILD
-excludes
-.hg
-.cvsignore
+.hg*
+.history
+Testing
+*.orig
+*.swp
