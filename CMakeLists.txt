@@ -428,10 +428,10 @@ set(CPACK_COMPONENTS_ALL_IN_ONE_PACKAGE 1)
 #set(CPACK_COMPONENTS_ALL libraries tools headers doc)
 
 find_package(GnuTar QUIET)
-if(GnuTar_FOUND)
-  #message(STATUS "GnuTar_VERSION_STRING = ${GnuTar_VERSION_STRING}")
+if(GNUTAR_FOUND)
+  #message(STATUS "GNUTAR_VERSION_STRING = ${GNUTAR_VERSION_STRING}")
   add_custom_target(dist
-    COMMAND ${GnuTar_EXECUTABLE} -c -C "${CMAKE_CURRENT_SOURCE_DIR}"
+    COMMAND ${GNUTAR_EXECUTABLE} -c -C "${CMAKE_CURRENT_SOURCE_DIR}"
       --file "${CPACK_SOURCE_PACKAGE_FILE_NAME}.tar"
       --transform 's/^\\./${CPACK_SOURCE_PACKAGE_FILE_NAME}/'
       --owner=root
