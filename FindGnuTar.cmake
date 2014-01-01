@@ -26,34 +26,34 @@
 # Try to find the gnu tar command
 # Once done this will define
 #
-#       GnuTar_FOUND
-#       GnuTar_EXECUTABLE
+#       GNUTAR_FOUND
+#       GNUTAR_EXECUTABLE
 #
 set(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS true)
 
-set(GnuTar_FOUND false)
-find_program(GnuTar_EXECUTABLE NAMES "gtar" "tar")
-mark_as_advanced(GnuTar_EXECUTABLE)
+find_program(GNUTAR_EXECUTABLE NAMES "gtar" "tar")
+mark_as_advanced(GNUTAR_EXECUTABLE)
 
-if(GnuTar_EXECUTABLE)
-  execute_process(COMMAND ${GnuTar_EXECUTABLE} --version
-    OUTPUT_VARIABLE GnuTar_output
-    ERROR_VARIABLE GnuTar_error
-    RESULT_VARIABLE GnuTar_result
+if(GNUTAR_EXECUTABLE)
+  execute_process(COMMAND ${GNUTAR_EXECUTABLE} --version
+    OUTPUT_VARIABLE GNUTAR_output
+    ERROR_VARIABLE GNUTAR_error
+    RESULT_VARIABLE GNUTAR_result
     OUTPUT_STRIP_TRAILING_WHITESPACE)
-  if(${GnuTar_result} EQUAL 0)
-    string(REGEX REPLACE "[\n]+" ";" GnuTar_version ${GnuTar_output})
-    foreach(_l ${GnuTar_version})
+  if(${GNUTAR_result} EQUAL 0)
+    string(REGEX REPLACE "[\n]+" ";" GNUTAR_version ${GNUTAR_output})
+    foreach(_l ${GNUTAR_version})
       if(_l MATCHES "^tar +\\(GNU +tar\\) +[0-9]")
-        string(REGEX REPLACE "^tar +\\(GNU +tar\\) +([0-9]\\.[0-9]+)" "\\1" GnuTar_VERSION_STRING ${_l})
-        set(GnuTar_FOUND true)
+        string(REGEX REPLACE "^tar +\\(GNU +tar\\) +([0-9]\\.[0-9]+)" "\\1" GNUTAR_VERSION_STRING ${_l})
         break()
       endif()
     endforeach()
   endif()
 endif()
+
+# handle the QUIETLY and REQUIRED arguments and set GNUTAR_FOUND to TRUE if
+# all listed variables are TRUE
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(GnuTar
-                                  VERSION_VAR GnuTar_VERSION_STRING)
+find_package_handle_standard_args(GNUTAR DEFAULT_MSG GNUTAR_EXECUTABLE GNUTAR_VERSION_STRING)
 include(CMakeParseArguments)
 
