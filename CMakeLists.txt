@@ -52,28 +52,21 @@ IF(WIN32)
   set(CMAKE_INSTALL_PREFIX "${SOURCE_BASE_DIR}/libpano13" CACHE PATH "Install prefix for libpano")
 ENDIF(WIN32)
 
-set(ARCH_TRIPLET)         
-if(UNIX)
-  FIND_PROGRAM(DPKG_ARCHITECTURE_EXECUTABLE dpkg-architecture)
-  if(DPKG_ARCHITECTURE_EXECUTABLE)
-    EXECUTE_PROCESS(COMMAND dpkg-architecture -qDEB_HOST_MULTIARCH
-      OUTPUT_VARIABLE ARCH_TRIPLET
-      ERROR_VARIABLE ERROR_ARCH_TRIPLET
-      OUTPUT_STRIP_TRAILING_WHITESPACE)
-  endif()
-endif()
-if(ARCH_TRIPLET)
-  set(SYSTEM_LIB_DIRS /usr/lib /usr/lib/${ARCH_TRIPLET} /usr/local/lib)
-else()
-  set(SYSTEM_LIB_DIRS /usr/lib /usr/local/lib)
-endif()
-
 set(HUGIN_SHARED OFF)
 
 include(CheckIncludeFiles)
 
 ##  global setup
 project(libpano13)
+
+set(MYLIB "lib")        # default
+if(CMAKE_INSTALL_PREFIX STREQUAL "/usr")
+  get_property(USE_64 GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS)
+  if(USE_64)
+    include(GNUInstallDirs)
+    set(MYLIB ${CMAKE_INSTALL_LIBDIR})
+  endif()
+endif()
 
 ##
 #  This must come before FINDs for tiff, jpeg, png, zlib to enable
@@ -274,12 +267,12 @@ if(NOT WIN32)
   add_library(pano13 SHARED ${pano13_hdr} ${pano13_res} ${pano13_src})
   target_link_libraries(pano13 ${_common_libs})
   set_target_properties(pano13 PROPERTIES VERSION "3.0.0" SOVERSION "3")
-  install(TARGETS pano13 LIBRARY DESTINATION lib COMPONENT libraries)
+  install(TARGETS pano13 LIBRARY DESTINATION ${MYLIB} COMPONENT libraries)
   set(_pano_target pano13)
   #create and install static library
   add_library(pano13a STATIC ${pano13_hdr} ${pano13_res} ${pano13_src})
   set_target_properties(pano13a PROPERTIES OUTPUT_NAME pano13)
-  install(TARGETS pano13a ARCHIVE DESTINATION lib COMPONENT libraries)
+  install(TARGETS pano13a ARCHIVE DESTINATION ${MYLIB} COMPONENT libraries)
 else()
   IF(BUILD_DLL)
     # Create and install shared library
@@ -294,7 +287,7 @@ else()
   ELSE(BUILD_DLL)
     #create and install static library
     add_library(pano13 STATIC ${pano13_hdr} ${pano13_res} ${pano13_src})
-    install(TARGETS pano13 ARCHIVE DESTINATION lib COMPONENT libraries)
+    install(TARGETS pano13 ARCHIVE DESTINATION ${MYLIB} COMPONENT libraries)
   ENDIF(BUILD_DLL)
   set(_pano_target pano13)
 endif()
@@ -375,7 +368,6 @@ ADD_CUSTOM_TARGET( TAGS DEPENDS ctags)
 # set some variables which are used in libpano13.pc.in
 set(prefix ${CMAKE_INSTALL_PREFIX})
 set(exec_prefix ${CMAKE_INSTALL_PREFIX})
-set(libdir ${CMAKE_INSTALL_PREFIX}/lib)
 set(includedir ${CMAKE_INSTALL_PREFIX}/include)
 set(LIB_JPEG ${JPEG_LIBRARY})
 set(LIB_TIFF ${TIFF_LIBRARY})
@@ -383,7 +375,7 @@ set(LIB_ZLIB ${ZLIB_LIBRARY})
 set(LIB_PNG ${PNG_LIBRARY})
 set(VERSION ${PACKAGE_VERSION})
 configure_file("${TOP_SRC_DIR}/libpano13.pc.in" "${CMAKE_BINARY_DIR}/libpano13.pc" @ONLY)
-install(FILES "${CMAKE_BINARY_DIR}/libpano13.pc" DESTINATION "lib/pkgconfig" COMPONENT libraries)
+install(FILES "${CMAKE_BINARY_DIR}/libpano13.pc" DESTINATION "${MYLIB}/pkgconfig" COMPONENT libraries)
 
 set(CPACK_PACKAGE_VERSION_MAJOR "${PANO_MAJOR_VERSION}")
 set(CPACK_PACKAGE_VERSION_MINOR "${PANO_MINOR_VERSION}")
@@ -431,8 +423,8 @@ find_package(GnuTar QUIET)
 if(GNUTAR_FOUND)
   #message(STATUS "GNUTAR_VERSION_STRING = ${GNUTAR_VERSION_STRING}")
   add_custom_target(dist
-    COMMAND ${GNUTAR_EXECUTABLE} -c -C "${CMAKE_CURRENT_SOURCE_DIR}"
-      --file "${CPACK_SOURCE_PACKAGE_FILE_NAME}.tar"
+    COMMAND ${GNUTAR_EXECUTABLE} -cj -C "${CMAKE_CURRENT_SOURCE_DIR}"
+      --file "${CPACK_SOURCE_PACKAGE_FILE_NAME}.tar.bz2"
       --transform 's/^\\./${CPACK_SOURCE_PACKAGE_FILE_NAME}/'
       --owner=root
       --group=root
@@ -454,7 +446,7 @@ if(CPACK_BINARY_DEB)
   # (but later on when installing)
   SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 
-  SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+  SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${MYLIB}")
   SET(CPACK_DEBIAN_PACKAGE_DEBUG ON)
 
   # add the automatically determined parts of the RPATH
