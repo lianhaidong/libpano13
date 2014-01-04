@@ -382,6 +382,20 @@ set(CPACK_PACKAGE_VERSION_MINOR "${PANO_MINOR_VERSION}")
 set(CPACK_PACKAGE_VERSION_PATCH "${PANO_PATCH_VERSION}")
 set(CPACK_PACKAGING_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
 
+set(CPACK_SOURCE_IGNORE_FILES
+"/BUILD/"
+"~$"
+"\\\\.swp$"
+"\\\\.history$"
+"\\\\.orig$"
+"\\\\.#"
+"\\\\.hg/"
+"\\\\.hgignore$"
+"\\\\.hgeol$"
+"\\\\.hgtags$"
+"\\\\.cvsignore$"
+)
+
 # needed by rpm
 set(CPACK_SET_DESTDIR "OFF")
 
