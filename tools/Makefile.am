@@ -94,6 +94,8 @@ EXTRA_DIST = README.PTmender \
 	PToptimizer.rc PTroller.rc PTtiff2psd.rc PTtiffdump.rc PTuncrop.rc \
 	PTAInterpolate.vcproj PTblender.vcproj PTcrop.vcproj PTinfo.vcproj PTmasker.vcproj \
 	PTmender.vcproj PTOptimizer.vcproj PTroller.vcproj PTtiff2psd.vcproj PTtiffdump.vcproj PTuncrop.vcproj \
+	PTAInterpolate.vcxproj PTblender.vcxproj PTcrop.vcxproj PTinfo.vcxproj PTmasker.vcxproj PTmender.vcxproj \
+	PTOptimizer.vcxproj PTroller.vcxproj PTtiff2psd.vcxproj PTtiffdump.vcxproj PTuncrop.vcxproj \
 	CMakeLists.txt
 
                

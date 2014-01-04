@@ -124,6 +124,7 @@ EXTRA_DIST =  README.linux README.windows \
 	      makefile.win32 TODO.org \
 	      COPYING INSTALL \
 	      CMakeLists.txt \
+	      CpackDescription.txt excludes FindGnuTar.cmake libpano.vcxproj LocalDefs.props \
 	      ChangeLog.hg \
 	      dump.c dump.h \
 	      bootstrap filter.r pano13.rc \

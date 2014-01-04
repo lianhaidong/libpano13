@@ -148,7 +148,7 @@ AC_TYPE_SIGNAL
 AC_FUNC_VPRINTF
 AC_CHECK_FUNCS([floor memset pow setlocale sqrt strrchr])
 
-AC_CONFIG_FILES([Makefile build/Makefile build/win32/Makefile doc/Makefile m4/Makefile tools/Makefile tests/Makefile tests/simpleStitch/Makefile tests/simpleTiff16/Makefile tests/simpleStitch/reference/Makefile tests/simpleTiff16/reference/Makefile man/Makefile libpano13.pc])
+AC_CONFIG_FILES([Makefile build/Makefile build/win32/Makefile doc/Makefile m4/Makefile tools/Makefile tests/Makefile tests/simpleStitch/Makefile tests/simpleTiff16/Makefile tests/simpleStitch/reference/Makefile tests/simpleTiff16/reference/Makefile tests/simpleTiff2psd/reference/Makefile tests/simpleTiff2psd/tests/Makefile tests/simpleTiff2psd/Makefile man/Makefile libpano13.pc])
 
 AC_SUBST(ac_aux_dir)
 
