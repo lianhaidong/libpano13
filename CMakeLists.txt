@@ -397,7 +397,7 @@ set(CPACK_SOURCE_IGNORE_FILES
 )
 
 # needed by rpm
-set(CPACK_SET_DESTDIR "OFF")
+set(CPACK_SET_DESTDIR "ON")
 
 # the next ones are needed by deb
 set(CPACK_PACKAGE_CONTACT "${PACKAGE_BUGREPORT}")
