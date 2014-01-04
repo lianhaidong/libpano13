@@ -7,6 +7,8 @@ glob:*.suo
 glob:*.user
 glob:*_PTStitcher*
 glob:*~
+glob:*.o
+glob:*.lo
 glob:CMakeCache.txt
 glob:CMakeFiles
 glob:CPackSourceConfig.cmake
@@ -30,3 +32,8 @@ tools/PTroller
 tools/PTtiff2psd
 tools/PTtiffdump
 tools/PTuncrop
+tools/PTAInterpolate
+tools/panoinfo
+.libs/
+.deps/
+Makefile.in
