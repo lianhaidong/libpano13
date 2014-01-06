@@ -1,4 +1,175 @@
-2013-12-16 22:35 +0000  Bruno Postle  <bruno@postle.net>  (777f5eb48962 [tip])
+2014-01-04 01:58 +0000  Bruno Postle  <bruno@postle.net>  (d33c9a9ed0f9 [tip])
+
+	* tests/simpleTiff2psd/Makefile.am,
+	tests/simpleTiff2psd/reference/Makefile.am,
+	tests/simpleTiff2psd/tests/Makefile.am: new file.
+	* Makefile.am, configure.ac, tests/Makefile.am,
+	tests/simpleTiff16/Makefile.am, tests/simpleTiff2psd/Makefile.am,
+	tests/simpleTiff2psd/reference/Makefile.am,
+	tests/simpleTiff2psd/tests/Makefile.am, tools/Makefile.am:
+	Add lots of missing files to the autotools 'dist' target
+
+2014-01-04 01:57 +0000  Bruno Postle  <bruno@postle.net>  (cfadac620dd6)
+
+	* .hgignore:
+	add some patterns to .hgignore
+
+2014-01-04 01:06 +0000  Bruno Postle  <bruno@postle.net>  (81edd9d85242)
+
+	* CMakeLists.txt:
+	CPACK_SET_DESTDIR needs to be ON for package_source target
+
+2014-01-04 00:48 +0000  Bruno Postle  <bruno@postle.net>  (8764c3cdc139)
+
+	* CMakeLists.txt:
+	files that shouldn't be packaged by cpack
+
+2014-01-03 11:48 +0100  Kornel Benko  <kornelbenko@users.sourceforge.net>  (b6bb69bb754f)
+
+	* CMakeLists.txt:
+	Cmake build: Adapt the build to make rpm-packaging easier.
+
+	We had to find the correct library-directory to install our data.
+	This should work for all platforms.
+
+	In collaboration with Terry Duell (working on creating rpm-package
+	for fedora Linux).
+
+2014-01-01 08:52 +0100  Kornel Benko  <kornelbenko@users.sourceforge.net>  (c967f865cfc3)
+
+	* CMakeLists.txt, FindGnuTar.cmake:
+	Cmake build: Usage of FindPackageHandleStandardArgs corrected.
+
+2013-12-31 10:49 +0100  Kornel Benko  <kornelbenko@users.sourceforge.net>  (a32c832b554b)
+
+	* CMakeLists.txt, excludes:
+	Cmake build: Adapted the output of 'make dist' to appear the same as
+	would come from 'hg archive {build-dir}/libpano13-2.9.19.tar -p
+	libpano13-2.9.19 --exclude ".hg*"'
+
+2013-12-30 23:57 +0100  Kornel Benko  <kornelbenko@users.sourceforge.net>  (f68ddd79ed4b)
+
+	* excludes: new file.
+	* excludes:
+	This file is missing in previous commit.
+
+	Its content specifies files names, which should not be part of the
+	source tar.
+
+2013-12-30 23:54 +0100  Kornel Benko  <kornelbenko@users.sourceforge.net>  (5b660b010aa8)
+
+	* FindGnuTar.cmake: new file.
+	* CMakeLists.txt, FindGnuTar.cmake:
+	Cmake build: Added a new way to get source-tar, if there is a gnu
+	tar available
+
+2013-12-24 13:52 +0100  Kornel Benko  <kornelbenko@users.sourceforge.net>  (dc6694ef78a7)
+
+	* CMakeLists.txt:
+	Honor the configured installation prefix also in created packages
+
+2013-12-24 13:22 +0100  Kornel Benko  <kornelbenko@users.sourceforge.net>  (12f629da7d77)
+
+	* CpackDescription.txt: new file.
+	* CMakeLists.txt, CpackDescription.txt, man/CMakeLists.txt,
+	tools/CMakeLists.txt:
+	Package creation revised.
+
+	1. Removed option DISABLE_DPKG; For debian packaging always try to
+	determine package dependencies 2. Renamed 'HAVE_JAVA' variable to
+	'SUPPORT_JAVA_PROGRAMS' option. 3. Added COMPONENT keywords to
+	install commands. ATM this has no effect. Preparing for later use
+	with component-aware package generators like RPM.
+
+2013-12-23 12:28 +1100  tduell  <tduell@iinet.net.au>  (b0f579114b63)
+
+	* CMakeLists.txt:
+	Backed out changeset: eb7322988b38
+
+2013-12-23 08:36 +1100  tduell  <tduell@iinet.net.au>  (eb7322988b38)
+
+	* CMakeLists.txt:
+	Fixes CMakeLists.txt for Unix/Linux, to find Java, and set lib dir
+	to /usr/lib or /usr/lib64, as appropriate
+
+2013-12-22 09:06 +0100  Kornel Benko  <kornelbenko@users.sourceforge.net>  (0a6e4330f822)
+
+	* tools/CMakeLists.txt:
+	Added panoinfo to list of commands for unix too
+
+2013-12-21 17:27 +0100  tmodes  <tmodes>  (85654befbd91)
+
+	* parser.c:
+	Correctly restore locale if parsing of script file fails [686482]
+
+2013-12-21 16:27 +0100  tmodes  <tmodes>  (032bc7cc62e6)
+
+	* ColourBrightness.c, ColourBrightness.h, PTDialogs.c, PTcommon.c,
+	PTcommon.h, Triangulate.c, ZComb.c, ZComb.h, adjust.c, adjust.h,
+	correct.c, dump.c, file.c, file.h, filter.c, filter.h, filter.r,
+	fourier.c, javastub.c, math.c, metadata.c, metadata.h, multilayer.c,
+	pan.c, panorama.h, parser.c, perspect.c, ppm.c, ptfeather.c,
+	ptfeather.h, ptstitch.c, ptstitch.h, pttiff.h, remap.c, resample.c,
+	sys_X11.c, sys_X11.h, sys_ansi.c, sys_ansi.h, sys_common.c,
+	sys_compat.h, sys_compat_unix.c, sys_compat_win.c, sys_mac.c,
+	sys_mac.h, sys_win.c, sys_win.h, tiff.c, tools/PTAInterpolate.c,
+	tools/PTblender.c, tools/PTcrop.c, tools/PTinfo.c, tools/PTmasker.c,
+	tools/PTmender.c, tools/PTmender.h, tools/PToptimizer.c,
+	tools/PTroller.c, tools/PTtiff2psd.c, tools/PTtiffdump.c,
+	tools/PTuncrop.c, tools/panoinfo.c, tools/panoinfo_unix.c,
+	version.h:
+	Fixes copy and paste error in licence
+
+2013-12-21 16:23 +0100  tmodes  <tmodes>  (4f56474cc8a0)
+
+	* PTcommon.c, tiff.c:
+	Fixes initialization of some variables (Patch by Andreas Metzler)
+
+	Fixes sporadic testsuite error [734867]
+
+2013-12-21 16:20 +0100  tmodes  <tmodes>  (f666a3664d02)
+
+	* PTcommon.c, tools/panoinfo_unix.c:
+	Fixes 2 typos (spotted by Andreas Metzler)
+
+2013-12-20 14:25 +1100  tduell  <tduell@iinet.net.au>  (35b5485f7e7a)
+
+	* man/PTmasker.pod:
+	Fix PTmasker.pod
+
+2013-12-20 14:06 +1100  tduell  <tduell@iinet.net.au>  (37986ffdd87f)
+
+	* CMakeLists.txt:
+	Some fixes to CMakeLists.txt for binary package name and source
+	package name
+
+2013-12-19 12:30 +1100  tduell  <tduell@iinet.net.au>  (6e9c7581a433)
+
+	* CMakeLists.txt:
+	Remove hg version and "hg" from cpack source package name to avoid
+	issues with Fedora rpmbuild
+
+2013-12-19 12:28 +1100  tduell  <tduell@iinet.net.au>  (af17614b0443)
+
+	* bootstrap:
+	Update bootstrap to allow use of automake 1.13
+
+2013-12-18 14:59 +0100  Kornel Benko  <kornelbenko@users.sourceforge.net>  (21822d49c404)
+
+	* Debian/postinst: new file.
+	* CMakeLists.txt, Debian/postinst:
+	Enhanced creation of dependences for debian build
+
+	1.) The creation now honors libraries created in the same build. 2.)
+	Also added call to ldconfig to make the installed libraries known
+	to the system
+
+2013-12-16 22:41 +0000  Bruno Postle  <bruno@postle.net>  (0dd1fabfc868)
+
+	* ChangeLog.hg:
+	Update ChangeLog
+
+2013-12-16 22:35 +0000  Bruno Postle  <bruno@postle.net>  (777f5eb48962)
 
 	* COPYING, ColourBrightness.c, ColourBrightness.h, PTDialogs.c,
 	PTcommon.c, PTcommon.h, Triangulate.c, ZComb.c, ZComb.h, adjust.c,
