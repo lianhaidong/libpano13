@@ -52,7 +52,7 @@ double cubeRoot( double x );
 //------------------------- Some auxilliary math functions --------------------------------------------
 
 // atanh is not available on MSVC until Visual Studio 2012. Use the atanh routine from gsl.
-#if _MSC_VER < 1700
+#if defined _MSC_VER && _MSC_VER < 1700
 
 #define GSL_DBL_EPSILON        2.2204460492503131e-16
 #define GSL_SQRT_DBL_EPSILON   1.4901161193847656e-08 
