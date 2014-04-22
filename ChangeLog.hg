@@ -1,4 +1,19 @@
-2014-01-04 01:58 +0000  Bruno Postle  <bruno@postle.net>  (d33c9a9ed0f9 [tip])
+2014-02-12 17:57 +0100  tmodes  <tmodes>  (071273ed3a44 [tip])
+
+	* math.c:
+	Fixes condition introduced in last commit (Matthew Petroff)
+
+2014-02-12 14:38 +1100  tduell  <tduell>  (5db9915fc7d0)
+
+	* math.c:
+	use default atanh function for MSVC 2012+ (Matthew Petroff)
+
+2014-01-06 23:00 +0000  Bruno Postle  <bruno@postle.net>  (bced6574df70)
+
+	* ChangeLog.hg:
+	update ChangeLog
+
+2014-01-04 01:58 +0000  Bruno Postle  <bruno@postle.net>  (d33c9a9ed0f9)
 
 	* tests/simpleTiff2psd/Makefile.am,
 	tests/simpleTiff2psd/reference/Makefile.am,
@@ -161,8 +176,8 @@
 	Enhanced creation of dependences for debian build
 
 	1.) The creation now honors libraries created in the same build. 2.)
-	Also added call to ldconfig to make the installed libraries known
-	to the system
+	Also added call to ldconfig to make the installed libraries known to
+	the system
 
 2013-12-16 22:41 +0000  Bruno Postle  <bruno@postle.net>  (0dd1fabfc868)
 
@@ -1666,8 +1681,8 @@
 	tests/simpleStitch/CMakeLists.txt,
 	tests/simpleTiff16/CMakeLists.txt, tools/CMakeLists.txt:
 	libpano/CMakeLists.txt: Added ${_common_libs} to the link stage of
-	the shared pano13 lib. Needed on OSX Platform.
-	Corrected the copyright-dates
+	the shared pano13 lib. Needed on OSX Platform. Corrected the
+	copyright-dates
 
 2009-09-27 09:30 +0000  brunopostle  <brunopostle>  (145c5b15d22b <libpano>)
 
@@ -1844,10 +1859,9 @@
 	-DCPACK_BINARY_DEB:BOOL=ON to create a package (debian/ubuntu in this
 	example)
 
-	 make package creates then the package
-	libpano13-2.9.15-Linux.deb. (Values automatically taken
-	from configure.ac) The package will install the header-files and the
-	(shared) libpano13 library.
+	 make package creates then the package libpano13-2.9.15-Linux.deb.
+	(Values automatically taken from configure.ac) The package will
+	install the header-files and the (shared) libpano13 library.
 
 2009-09-18 03:25 +0000  jim0watters  <jim0watters>  (ec5d24064029 <libpano>)
 
@@ -1891,15 +1905,15 @@
 	* ChangeLog, PTcommon.c, correct.c, parser.c:
 	2009-09-16 <dmg@uvic.ca>
 
-	 * correct.c (correct): Removed debugging code that I
-	introduced early. I suspect correct is no longer needed.
-	Thanks to Jim (again) for catching this.
+	 * correct.c (correct): Removed debugging code that I introduced
+	early. I suspect correct is no longer needed. Thanks to Jim (again)
+	for catching this.
 
-	 * parser.c (ReadCoordinates): Removed bogus case switch
-	(thanks to Jim Watters for catching this!)
+	 * parser.c (ReadCoordinates): Removed bogus case switch (thanks to
+	Jim Watters for catching this!)
 
-	 * PTcommon.c: Changed use of NDEBUG to a new preprocessor
-	define called PANO_TEST_INVERSE
+	 * PTcommon.c: Changed use of NDEBUG to a new preprocessor define
+	called PANO_TEST_INVERSE
 
 2009-09-16 17:52 +0000  brunopostle  <brunopostle>  (b8a475383e2a <libpano>)
 
@@ -2001,11 +2015,11 @@
 	tests/simpleTiff16/temp.txt:
 	2009-08-13 <dmg@uvic.ca>
 
-	 * PTcommon.c (panoCreatePanorama): Added support for
-	uncropped TIFF_m, but only when it is not circular fisheye
+	 * PTcommon.c (panoCreatePanorama): Added support for uncropped
+	TIFF_m, but only when it is not circular fisheye
 
-	 * tests/panoAutomateTest.pl (Compare_Images): Added support
-	for uncropped and cropped images.
+	 * tests/panoAutomateTest.pl (Compare_Images): Added support for
+	uncropped and cropped images.
 
 	 * Updated tests
 
@@ -2309,9 +2323,9 @@
 	math.c, panorama.h, parser.c, queryfeature.c:
 	adjust.c, filter.h, math.c, panorama.h, parser.c & queryfeateature.c
 	added mirror, equisolid, orthographic, and stereographic as input
-	image formats added equisolid, orthographic, stereographic as
-	output panorama formats add some more defines to panorama.h to
-	help image and pano formats
+	image formats added equisolid, orthographic, stereographic as output
+	panorama formats add some more defines to panorama.h to help image
+	and pano formats
 
 2008-12-31 05:25 +0000  jim0watters  <jim0watters>  (6158e5331284 <libpano>)
 
@@ -2356,8 +2370,8 @@
 	* ChangeLog, bootstrap:
 	2008-08-11 dmg <dmg@uvic.ca>
 
-	 * bootstrap (have_libtool): Added support for 2.2.* version
-	of libtool. Patch submitted by Neil Shephard.
+	 * bootstrap (have_libtool): Added support for 2.2.* version of
+	libtool. Patch submitted by Neil Shephard.
 
 2008-03-19 07:07 +0000  dangelo  <dangelo>  (ee2edfb0ac98 <libpano>)
 
@@ -2632,8 +2646,8 @@
 	* ChangeLog, panorama.h, queryfeature.c:
 	2007-01-11 dmg <dmg@uvic.ca>
 
-	 * queryfeature.c, panorama.h (panoProjectionFormatCount):
-	Added function.
+	 * queryfeature.c, panorama.h (panoProjectionFormatCount): Added
+	function.
 
 2007-01-11 09:01 +0000  dmg  <dmg>  (fb179a98627f <libpano>)
 
@@ -3512,14 +3526,13 @@
 	tools/ChangeLog, tools/PTtiff2psd.c, version.h:
 	2006-10-22 dmg <dmg@uvic.ca>
 
-	 * version.h (VERSION), configure.ac: Upgraded to version
-	2.8.5pre4
+	 * version.h (VERSION), configure.ac: Upgraded to version 2.8.5pre4
 
 	 * tiff.c: Removed redundant #defines
 
-	 * PTcommon.c, PTcommon.h, filter.h, file.c: Added support
-	for stacking images in PSD files, that is, each iamge
-	contributes equaly to a final image.
+	 * PTcommon.c, PTcommon.h, filter.h, file.c: Added support for
+	stacking images in PSD files, that is, each iamge contributes equaly
+	to a final image.
 
 2006-09-25 02:27 +0000  dmg  <dmg>  (7fb47e5acdc9 <libpano>)
 
@@ -4067,8 +4080,8 @@
 2006-06-04 21:43 +0000  maxlyons  <maxlyons>  (3a6ad93eb5e0 <libpano>)
 
 	* PTcommon.c:
-	Fixing bug with morph-to-fit. Memory allocated with malloc was
-	being incorrectly freed with myfree leading to random crashes.
+	Fixing bug with morph-to-fit. Memory allocated with malloc was being
+	incorrectly freed with myfree leading to random crashes.
 
 2006-06-04 21:42 +0000  maxlyons  <maxlyons>  (a7d8fc11d145 <libpano>)
 
@@ -4225,8 +4238,8 @@
 
 	* ChangeLog, PTcommon.c:
 	* PTcommon.c (CreatePanorama): Removed some ugly formatting I
-	introduced in a recent commit (CreatePanorama): Fixed bug of
-	the missing column/row introduced in cropped files.
+	introduced in a recent commit (CreatePanorama): Fixed bug of the
+	missing column/row introduced in cropped files.
 
 2006-05-28 01:36 +0000  dmg  <dmg>  (46e2e2ad0fb3 <libpano>)
 
@@ -4245,8 +4258,8 @@
 	2006-05-27 dmg <dmgerman@uvic.ca>
 
 	 * PTcommon.c (TiffGetImageParameters): Fixed incorrect error
-	message. Removed tabs from entire file (some of them
-	completely messed the format), reindented entire file
+	message. Removed tabs from entire file (some of them completely
+	messed the format), reindented entire file
 
 	 * tiff.c: Changed TIFFTAG_ROWSPERSTRIP to 1.
 
@@ -4270,9 +4283,9 @@
 	* PTcommon.c:
 	All logic has been reworked so that "cropped" TIFF files can be used
 	throughout the stitching process for all currently supported output
-	formats. (Cropped TIFF files are those that are just large enough
-	to contain the remapped image, and the offset/full size information
-	is stored in the TIFF header). Modified functions include
+	formats. (Cropped TIFF files are those that are just large enough to
+	contain the remapped image, and the offset/full size information is
+	stored in the TIFF header). Modified functions include
 	ReplaceAlphaChannel, CreateAlphaChannels, AddStitchingMasks,
 	FlattenTIFF, createPanorama. New functions include
 	getCropInformationFromTiff, setFullSizeImageParameters.
@@ -4387,16 +4400,16 @@
 	* ChangeLog, PTcommon.c:
 	2006-05-15 dmg <dmgerman@uvic.ca>
 
-	 * PTcommon.c (CreatePanorama): Fixed a typo related to QTVR
-	images. I also renamed Unknown07 to Create_QTVR
+	 * PTcommon.c (CreatePanorama): Fixed a typo related to QTVR images.
+	I also renamed Unknown07 to Create_QTVR
 
 2006-05-16 04:12 +0000  dmg  <dmg>  (6110df362c21 <libpano>)
 
 	* ChangeLog, resample.c:
 	2006-05-15 dmg <dmgerman@uvic.ca>
 
-	 * resample.c: Fixed compilation warnings by moving #define
-	unsigned inside the body of the functions.
+	 * resample.c: Fixed compilation warnings by moving #define unsigned
+	inside the body of the functions.
 
 2006-05-16 02:22 +0000  maxlyons  <maxlyons>  (d5ec1f432d62 <libpano>)
 
@@ -4567,8 +4580,8 @@
 	* ChangeLog:
 	2006-04-26 dmg (dmg)
 
-	 * ChangeLog: updated changelog to match last 2 changes
-	(including the change to the ChangeLog :)
+	 * ChangeLog: updated changelog to match last 2 changes (including
+	the change to the ChangeLog :)
 
 2006-04-26 21:31 +0000  dangelo  <dangelo>  (2eb7e13004d0 <libpano>)
 
@@ -4926,8 +4939,7 @@
 	referenced last element as array[n] instead of the correct way
 	array[n-1]. (Unknown37): Another bug 2 bugs. I had missed a set of
 	parenthesis in an expression. The next line had a couple of errors
-	too. (FreeHistograms): Another bug. One free was in the wrong
-	place.
+	too. (FreeHistograms): Another bug. One free was in the wrong place.
 
 	* README.PTmender: Updated it.
 
@@ -5812,8 +5824,8 @@
 	* AUTHORS, ChangeLog, Makefile.am, NEWS, README, bootstrap,
 	configure.ac, m4/Makefile.am, m4/ax_check_graphics.m4,
 	m4/ax_check_java.m4, tools/Makefile.am:
-	Added new libtool, automake, autoconf build system. Needs testing
-	on various platforms.
+	Added new libtool, automake, autoconf build system. Needs testing on
+	various platforms.
 
 2004-11-08 19:35 +0000  brunopostle  <brunopostle>  (07575cb09a1a <libpano>)
 
@@ -5867,8 +5879,8 @@
 2004-09-22 19:59 +0000  jim0watters  <jim0watters>  (59e19730b18d <libpano>)
 
 	* correct.c, filter.c, resample.c:
-	Reduce the number of times the status bar gets updated. From every
-	5 lines to every 2%. Speed increase using plugin from 4:30 down to
+	Reduce the number of times the status bar gets updated. From every 5
+	lines to every 2%. Speed increase using plugin from 4:30 down to
 	1:30 with 5000 pixel high image
 
 2004-09-22 19:55 +0000  jim0watters  <jim0watters>  (d888be33a7e8 <libpano>)
@@ -6005,9 +6017,9 @@
 2004-05-30 01:18 +0000  jim0watters  <jim0watters>  (6208ccd9e89b <libpano>)
 
 	* adjust.c, filter.h, filter.r, optimize.c, parser.c:
-	Rik Littlefield's Improved optimizer. Better. Faster. Stronger.
-	The method used here is a hybrid of two optimization strategies. In
-	the first strategy, fcnPano is configured to return one function per
+	Rik Littlefield's Improved optimizer. Better. Faster. Stronger. The
+	method used here is a hybrid of two optimization strategies. In the
+	first strategy, fcnPano is configured to return one function per
 	control point, that function being total distance without regard for
 	direction. In the second strategy, fcnPano is configured to return
 	two functions per control point, those functions being distance in
@@ -6152,9 +6164,8 @@
 
 	* correct.c, filter.h, math.c:
 	Feature to randomise brightness correction in photoshop plugin (Jim
-	Watters). Anchor brightness correction to narrowest dimension of
-	the source image rather than width for photoshop plugin (Jim
-	Watters).
+	Watters). Anchor brightness correction to narrowest dimension of the
+	source image rather than width for photoshop plugin (Jim Watters).
 
 2003-12-01 21:50 +0000  brunopostle  <brunopostle>  (4507adb73ff9 <libpano>)
 
