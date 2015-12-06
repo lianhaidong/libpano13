@@ -26,9 +26,10 @@
 #endif /* #ifdef _MSC_VER */
 
 #ifdef _MSC_VER
+#if _MSC_VER < 1900
    #define vsnprintf _vsnprintf
    #define snprintf _snprintf
-   
+#endif
    #ifdef _CPLUSPLUS
    /* define if your compiler understands inline commands */
    #define INLINE _inline
