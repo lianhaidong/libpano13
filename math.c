@@ -517,7 +517,7 @@ int tiltForward( double x_dest, double y_dest, double* x_src, double* y_src, voi
         // First step, undo the projection of the point
         z1 = (z0 * z0) /(x_dest * (-sin(phi2)/cos(phi2))  + y_dest * tan(phi) + z0);
         
-        s = z1 / z0;
+        // s = z1 / z0;
         s = z0 /(x_dest * (-sin(phi2)/cos(phi2))  + y_dest * sin(phi)/cos(phi) + z0);
         z1 = (z0* z0) /(x_dest * (-sin(phi2)/cos(phi2))  + y_dest * sin(phi)/cos(phi) + z0);
 
