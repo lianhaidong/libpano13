@@ -1117,8 +1117,10 @@ Image * setup_panini_general(struct MakeParams* pmp)
         return NULL;
 
     /* check number of precomputed param values */
-    if( ppg->precomputedCount == 7 )
-		return ppg;		// OK
+    // this check skips the pmp->distance calculation
+    // which is needed by further calculations in the stack
+    //if( ppg->precomputedCount == 7 )
+    //		return ppg;		// OK
 	
     /* default unspecified values to 0, giving 
 		stereographic compresssion (d = 1)
