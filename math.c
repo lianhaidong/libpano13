@@ -36,7 +36,7 @@
 #define abs(a) ( (a) >= 0 ? (a) : -(a) )
 #endif
 
-#ifdef _MSC_VER
+#if defined _MSC_VER && _MSC_VER<1900
 #define isnan(a) _isnan(a)
 #define isinf(a) (_fpclass(a) == _FPCLASS_NINF || _fpclass(a) == _FPCLASS_PINF)
 #endif
