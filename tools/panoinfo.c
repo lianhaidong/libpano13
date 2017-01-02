@@ -30,8 +30,8 @@
 
 #include <stdio.h>
 #include <windows.h>
-#include"..\version.h"
-#include"..\queryfeature.h"
+#include "../version.h"
+#include "../queryfeature.h"
 
 typedef int (*PROC_QF)			(int ,char** ,Tp12FeatureType* );
 typedef int (*PROC_QFNUM)		(void);
